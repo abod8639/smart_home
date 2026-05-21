@@ -8,15 +8,32 @@ class DeviceList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final listAsyncValue = ref.watch(deviceListProvider);
+    final listAsyncValue = ref.watch(deviceControllerProvider);
 
     return listAsyncValue.when(
-      data: (items) => ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (_, i) => DeviceCard(entity: items[i]),
+      data: (items) {
+        if (items.isEmpty) {
+          return const Center(
+            child: Text(
+              'No devices found in this room.',
+              style: TextStyle(color: Colors.white54, fontSize: 16),
+            ),
+          );
+        }
+        return ListView.builder(
+          itemCount: items.length,
+          itemBuilder: (_, i) => DeviceCard(device: items[i]),
+        );
+      },
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: Color(0xFF00F0FF)), // Neon Blue
       ),
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, st) => Center(child: Text('Error: $e')),
+      error: (e, st) => Center(
+        child: Text(
+          'Error loading devices: \$e',
+          style: const TextStyle(color: Colors.redAccent),
+        ),
+      ),
     );
   }
 }

@@ -4,9 +4,6 @@ import '../../data/datasources/device_remote_datasource.dart';
 import '../../data/datasources/device_local_datasource.dart';
 import '../../data/datasources/device_websocket_datasource.dart';
 import '../../data/repositories/device_repository_impl.dart';
-import '../../domain/usecases/get_devices_usecase.dart';
-import '../../domain/usecases/get_device_by_id_usecase.dart';
-import '../../domain/usecases/create_device_usecase.dart';
 import '../../domain/entities/device_entity.dart';
 
 // Providers for dependencies
@@ -46,14 +43,11 @@ final deviceStreamProvider = StreamProvider<List<DeviceEntity>>((ref) {
   return repository.deviceStream;
 });
 
-// A StateNotifier to manage optimistic UI updates when toggling
-class DeviceStateNotifier extends StateNotifier<AsyncValue<List<DeviceEntity>>> {
-  final DeviceRepositoryImpl repository;
-  
-  DeviceStateNotifier(this.repository, AsyncValue<List<DeviceEntity>> initial) : super(initial);
-
-  void setDevices(AsyncValue<List<DeviceEntity>> state) {
-    this.state = state;
+// A Notifier to manage optimistic UI updates when toggling
+class DeviceNotifier extends Notifier<AsyncValue<List<DeviceEntity>>> {
+  @override
+  AsyncValue<List<DeviceEntity>> build() {
+    return ref.watch(deviceStreamProvider);
   }
 
   void toggleDevice(String id, bool currentState) {
@@ -66,23 +60,13 @@ class DeviceStateNotifier extends StateNotifier<AsyncValue<List<DeviceEntity>>> 
         }
         return device;
       }).toList();
-      state = AsyncValue.data(updatedList);
+      state = AsyncData(updatedList);
     }
     
     // 2. Send command to ESP32
-    repository.toggleDevice(id, !currentState);
+    ref.read(deviceRepositoryProvider).toggleDevice(id, !currentState);
   }
 }
 
 // Provider that combines the stream and allows interaction
-final deviceControllerProvider = StateNotifierProvider<DeviceStateNotifier, AsyncValue<List<DeviceEntity>>>((ref) {
-  final repository = ref.read(deviceRepositoryProvider);
-  final streamValue = ref.watch(deviceStreamProvider);
-  
-  // Create the notifier with the latest stream value
-  final notifier = DeviceStateNotifier(repository, streamValue);
-  
-  // The state will automatically be updated when streamValue changes because it will be rebuilt,
-  // but to maintain smooth state without full rebuilds, we just pass the stream value.
-  return notifier;
-});
+final deviceControllerProvider = NotifierProvider<DeviceNotifier, AsyncValue<List<DeviceEntity>>>(DeviceNotifier.new);
