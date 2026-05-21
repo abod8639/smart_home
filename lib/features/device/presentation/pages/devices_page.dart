@@ -17,7 +17,7 @@ class DevicesPage extends ConsumerWidget {
         title: Text(roomName), 
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings, color: AppTheme.neonPurple),
+            icon: const Icon(Icons.settings, color: AppTheme.neonPink),
             onPressed: () {
               context.push('/settings');
             },

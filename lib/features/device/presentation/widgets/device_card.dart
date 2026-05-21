@@ -15,6 +15,7 @@ class DeviceCard extends ConsumerWidget {
     return GlassContainer(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(20),
+      isHighlighted: device.isOn,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -22,7 +23,7 @@ class DeviceCard extends ConsumerWidget {
             children: [
               Icon(
                 _getDeviceIcon(device.type),
-                color: device.isOn ? AppTheme.neonBlue : Colors.white54,
+                color: device.isOn ? AppTheme.neonCyan : Colors.white54,
                 size: 32,
               ),
               const SizedBox(width: 16),
@@ -62,7 +63,7 @@ class DeviceCard extends ConsumerWidget {
         height: 48,
         child: Center(
           child: CircularProgressIndicator(
-            color: AppTheme.neonPurple,
+            color: AppTheme.neonPink,
           ),
         ),
       );
@@ -77,15 +78,15 @@ class DeviceCard extends ConsumerWidget {
         height: 48,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: device.isOn ? AppTheme.neonBlue.withValues(alpha: 0.2) : Colors.transparent,
+          color: device.isOn ? AppTheme.neonCyan.withValues(alpha: 0.2) : Colors.transparent,
           border: Border.all(
-            color: device.isOn ? AppTheme.neonBlue : Colors.white30,
+            color: device.isOn ? AppTheme.neonCyan : Colors.white30,
             width: 2,
           ),
           boxShadow: device.isOn
               ? [
                   BoxShadow(
-                    color: AppTheme.neonBlue.withValues(alpha: 0.5),
+                    color: AppTheme.neonCyan.withValues(alpha: 0.5),
                     blurRadius: 10,
                     spreadRadius: 2,
                   )
@@ -94,7 +95,7 @@ class DeviceCard extends ConsumerWidget {
         ),
         child: Icon(
           Icons.power_settings_new,
-          color: device.isOn ? AppTheme.neonBlue : Colors.white30,
+          color: device.isOn ? AppTheme.neonCyan : Colors.white30,
         ),
       ),
     );

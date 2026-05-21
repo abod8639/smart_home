@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 class GlassContainer extends StatelessWidget {
   final Widget child;
@@ -9,6 +10,7 @@ class GlassContainer extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
   final BorderRadiusGeometry? borderRadius;
   final VoidCallback? onTap;
+  final bool isHighlighted;
 
   const GlassContainer({
     super.key,
@@ -19,11 +21,17 @@ class GlassContainer extends StatelessWidget {
     this.margin,
     this.borderRadius,
     this.onTap,
+    this.isHighlighted = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final defaultBorderRadius = borderRadius ?? BorderRadius.circular(20);
+    // Cyberpunk tends to use sharper edges, so we reduce the default border radius
+    final defaultBorderRadius = borderRadius ?? BorderRadius.circular(8);
+    
+    // Determine border and glow colors based on highlight state
+    final borderColor = isHighlighted ? AppTheme.neonCyan : Colors.white.withValues(alpha: 0.1);
+    final glowColor = isHighlighted ? AppTheme.neonCyan.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.5);
 
     return Container(
       width: width,
@@ -33,29 +41,29 @@ class GlassContainer extends StatelessWidget {
         borderRadius: defaultBorderRadius,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 10,
-            spreadRadius: 2,
+            color: glowColor,
+            blurRadius: isHighlighted ? 15 : 10,
+            spreadRadius: isHighlighted ? 2 : 0,
           ),
         ],
       ),
       child: ClipRRect(
         borderRadius: defaultBorderRadius,
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+          filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
           child: Material(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: AppTheme.surfaceDark.withValues(alpha: 0.6),
             child: InkWell(
               onTap: onTap,
-              splashColor: Colors.white.withValues(alpha: 0.2),
-              highlightColor: Colors.white.withValues(alpha: 0.1),
+              splashColor: AppTheme.neonPink.withValues(alpha: 0.2),
+              highlightColor: AppTheme.neonCyan.withValues(alpha: 0.1),
               child: Container(
                 padding: padding ?? const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   borderRadius: defaultBorderRadius,
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    width: 1.5,
+                    color: borderColor,
+                    width: isHighlighted ? 2.0 : 1.0,
                   ),
                 ),
                 child: child,

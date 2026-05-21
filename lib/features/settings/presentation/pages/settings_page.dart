@@ -33,7 +33,7 @@ class SettingsPage extends StatelessWidget {
                   const Text(
                     'Connection',
                     style: TextStyle(
-                      color: AppTheme.neonPurple,
+                      color: AppTheme.neonPink,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -49,7 +49,7 @@ class SettingsPage extends StatelessWidget {
                         borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
                       ),
                       focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(color: AppTheme.neonBlue),
+                        borderSide: BorderSide(color: AppTheme.neonCyan),
                       ),
                     ),
                   ),
@@ -58,9 +58,9 @@ class SettingsPage extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.neonBlue.withOpacity(0.2),
-                        foregroundColor: AppTheme.neonBlue,
-                        side: const BorderSide(color: AppTheme.neonBlue),
+                        backgroundColor: AppTheme.neonCyan.withValues(alpha: 0.2),
+                        foregroundColor: AppTheme.neonCyan,
+                        side: const BorderSide(color: AppTheme.neonCyan),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
