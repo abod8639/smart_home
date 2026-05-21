@@ -77,7 +77,7 @@ class DeviceCard extends ConsumerWidget {
         height: 48,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: device.isOn ? AppTheme.neonBlue.withOpacity(0.2) : Colors.transparent,
+          color: device.isOn ? AppTheme.neonBlue.withValues(alpha: 0.2) : Colors.transparent,
           border: Border.all(
             color: device.isOn ? AppTheme.neonBlue : Colors.white30,
             width: 2,
@@ -85,7 +85,7 @@ class DeviceCard extends ConsumerWidget {
           boxShadow: device.isOn
               ? [
                   BoxShadow(
-                    color: AppTheme.neonBlue.withOpacity(0.5),
+                    color: AppTheme.neonBlue.withValues(alpha: 0.5),
                     blurRadius: 10,
                     spreadRadius: 2,
                   )

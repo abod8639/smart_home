@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../widgets/device_list.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class DevicesPage extends ConsumerWidget {
-  const DevicesPage({super.key});
+  final String roomName;
+
+  const DevicesPage({super.key, required this.roomName});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundDark,
       appBar: AppBar(
-        title: const Text('Living Room'), // Example static room name
+        title: Text(roomName), 
         actions: [
           IconButton(
             icon: const Icon(Icons.settings, color: AppTheme.neonPurple),
             onPressed: () {
-              // Navigate to settings to change IP
+              context.push('/settings');
             },
           ),
         ],

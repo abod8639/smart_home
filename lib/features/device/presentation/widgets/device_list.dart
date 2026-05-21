@@ -30,7 +30,7 @@ class DeviceList extends ConsumerWidget {
       ),
       error: (e, st) => Center(
         child: Text(
-          'Error loading devices: \$e',
+          'Error loading devices: $e',
           style: const TextStyle(color: Colors.redAccent),
         ),
       ),
