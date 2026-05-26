@@ -62,11 +62,11 @@ class AcCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
                       color: isDeviceOn 
-                          ? const Color(0xFF00E5FF) 
+                          ? const Color.fromARGB(152, 0, 229, 255) 
                           : const Color(0xFF334155),
                       boxShadow: isDeviceOn ? [
                         BoxShadow(
-                          color: const Color(0xFF00E5FF).withValues(alpha: 0.3),
+                          color: const Color.fromARGB(81, 0, 229, 255).withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         )
@@ -93,139 +93,129 @@ class AcCard extends StatelessWidget {
             
             // Middle Area: Custom Drawn AC Unit
             Expanded(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    width: 1,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    // Temperature Badge (Top Left)
-                    Positioned(
-                      left: 12,
-                      top: 12,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.05),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.thermostat, 
-                              color: isDeviceOn ? const Color(0xFF00E5FF) : Colors.white.withValues(alpha: 0.4), 
-                              size: 14,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${device.temperature}°',
-                              style: const TextStyle(
-                                color: Colors.white, 
-                                fontSize: 13, 
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+              
+              child: Stack(
+                children: [
+                  // Temperature Badge (Top Left)
+                  Positioned(
+                    left: 12,
+                    top: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.05),
                         ),
                       ),
-                    ),
-
-                    // Central AC Unit & Breeze Visualizer
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          const SizedBox(height: 15),
-                          // AC Body Shape
-                          Container(
-                            width: 150,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: isDeviceOn 
-                                    ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
-                                    : [const Color(0xFF1E293B), const Color(0xFF182235)],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(
-                                color: isDeviceOn 
-                                    ? Colors.white.withValues(alpha: 0.12) 
-                                    : Colors.white.withValues(alpha: 0.05),
-                                width: 1,
-                              ),
-                              boxShadow: isDeviceOn ? [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.25),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                )
-                              ] : null,
-                            ),
-                            child: Stack(
-                              alignment: Alignment.bottomCenter,
-                              children: [
-                                // Air vent / LED slit inside AC body
-                                Positioned(
-                                  bottom: 4,
-                                  child: Container(
-                                    width: 130,
-                                    height: 3,
-                                    decoration: BoxDecoration(
-                                      color: isDeviceOn 
-                                          ? const Color(0xFF00E5FF) 
-                                          : const Color(0xFF334155),
-                                      borderRadius: BorderRadius.circular(1.5),
-                                      boxShadow: isDeviceOn ? [
-                                        BoxShadow(
-                                          color: const Color(0xFF00E5FF).withValues(alpha: 0.8),
-                                          blurRadius: 4,
-                                          spreadRadius: 0.5,
-                                        )
-                                      ] : null,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          Icon(
+                            Icons.thermostat, 
+                            color: isDeviceOn ? const Color(0xFF00E5FF) : Colors.white.withValues(alpha: 0.4), 
+                            size: 14,
                           ),
-                          
-                          // Dynamic blowing air breeze below AC
-                          AnimatedOpacity(
-                            duration: const Duration(milliseconds: 300),
-                            opacity: isDeviceOn ? 1.0 : 0.0,
-                            child: Container(
-                              width: 120,
-                              height: 16,
-                              margin: const EdgeInsets.only(top: 4),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    const Color(0xFF00E5FF).withValues(alpha: 0.15),
-                                    Colors.transparent,
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                              ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${device.temperature}°',
+                            style: const TextStyle(
+                              color: Colors.white, 
+                              fontSize: 13, 
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+              
+                  // Central AC Unit & Breeze Visualizer
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 15),
+                        // AC Body Shape
+                        Container(
+                          width: 300,
+                          height: 66,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: isDeviceOn 
+                                  ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
+                                  : [const Color(0xFF1E293B), const Color(0xFF182235)],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: isDeviceOn 
+                                  ? Colors.white.withValues(alpha: 0.12) 
+                                  : Colors.white.withValues(alpha: 0.05),
+                              width: 1,
+                            ),
+                            boxShadow: isDeviceOn ? [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.25),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              )
+                            ] : null,
+                          ),
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              // Air vent / LED slit inside AC body
+                              Positioned(
+                                bottom: 4,
+                                child: Container(
+                                  width: 230,
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color: isDeviceOn 
+                                        ? const Color(0xFF00E5FF) 
+                                        : const Color(0xFF334155),
+                                    borderRadius: BorderRadius.circular(1.5),
+                                    boxShadow: isDeviceOn ? [
+                                      BoxShadow(
+                                        color: const Color(0xFF00E5FF).withValues(alpha: 0.8),
+                                        blurRadius: 4,
+                                        spreadRadius: 0.5,
+                                      )
+                                    ] : null,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        // Dynamic blowing air breeze below AC
+                        AnimatedOpacity(
+                          duration: const Duration(milliseconds: 300),
+                          opacity: isDeviceOn ? 1.0 : 0.0,
+                          child: Container(
+                            width: 220,
+                            height: 16,
+                            margin: const EdgeInsets.only(top: 4),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  const Color(0xFF00E5FF).withValues(alpha: 0.15),
+                                  Colors.transparent,
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
             
