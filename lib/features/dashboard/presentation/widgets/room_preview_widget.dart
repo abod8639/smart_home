@@ -152,6 +152,9 @@ class RoomPreviewWidget extends GetView<DashboardController> {
       case DeviceType.door:
         iconData = device.isLocked ?? true ? Icons.lock_outline : Icons.lock_open_outlined;
         break;
+      case DeviceType.rgb:
+        iconData = Icons.wb_incandescent_rounded;
+        break;
     }
 
     return Column(

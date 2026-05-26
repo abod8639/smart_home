@@ -137,6 +137,18 @@ class DashboardController extends GetxController {
         positionX: 0.52,
         positionY: 0.18,
       ),
+      const DeviceEntity(
+        id: 'rgb1',
+        name: 'RGB Strip',
+        type: DeviceType.rgb,
+        isOn: true,
+        rgbR: 98,
+        rgbG: 52,
+        rgbB: 234,
+        brightness: 80,
+        positionX: 0.65,
+        positionY: 0.65,
+      ),
     ];
   }
 
@@ -174,6 +186,14 @@ class DashboardController extends GetxController {
         brightness: brightness,
         isOn: brightness > 0,
       );
+    }
+  }
+
+  void updateDeviceColor(String id, int r, int g, int b) {
+    final index = devices.indexWhere((d) => d.id == id);
+    if (index != -1) {
+      devices[index] = devices[index].copyWith(rgbR: r, rgbG: g, rgbB: b);
+      _persistDevices();
     }
   }
 

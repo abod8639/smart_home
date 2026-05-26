@@ -9,6 +9,7 @@ import 'package:smart_home/features/device/presentation/widgets/device_cards/ac_
 import 'package:smart_home/features/device/presentation/widgets/device_cards/lamp_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/vacuum_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/door_card.dart';
+import 'package:smart_home/features/device/presentation/widgets/device_cards/rgb_card.dart';
 
 class DashboardMainView extends GetView<DashboardController> {
   const DashboardMainView({super.key});
@@ -65,6 +66,11 @@ class DashboardMainView extends GetView<DashboardController> {
                     return DoorCard(
                       device: device,
                       onToggle: () => controller.toggleDoor(device.id),
+                    );
+                  case DeviceType.rgb:
+                    return RgbCard(
+                      device: device,
+                      onToggle: () => controller.toggleDevice(device.id),
                     );
                 }
               },

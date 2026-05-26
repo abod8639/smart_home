@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
@@ -59,49 +60,7 @@ class AcCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 // Custom Switch matching the screenshot
-                GestureDetector(
-                  onTap: onToggle,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    width: 52,
-                    height: 28,
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      color: isDeviceOn
-                          ? const Color.fromARGB(152, 0, 229, 255)
-                          : const Color(0xFF334155),
-                      boxShadow: isDeviceOn
-                          ? [
-                              BoxShadow(
-                                color: const Color.fromARGB(
-                                  81,
-                                  0,
-                                  229,
-                                  255,
-                                ).withValues(alpha: 0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: AnimatedAlign(
-                      duration: const Duration(milliseconds: 250),
-                      alignment: isDeviceOn
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                GlassSwitch(onToggle: onToggle, isDeviceOn: isDeviceOn),
               ],
             ),
 
@@ -330,6 +289,64 @@ class AcCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class GlassSwitch extends StatelessWidget {
+  const GlassSwitch({
+    super.key,
+    required this.onToggle,
+    required this.isDeviceOn,
+  });
+
+  final VoidCallback onToggle;
+  final bool isDeviceOn;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onToggle,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        width: 52,
+        height: 28,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: isDeviceOn
+              ? AppTheme.primaryBlue
+              : const Color(0xFF334155),
+          boxShadow: isDeviceOn
+              ? [
+                  BoxShadow(
+                    color: const Color.fromARGB(
+                      81,
+                      0,
+                      229,
+                      255,
+                    ).withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 250),
+          alignment: isDeviceOn
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
+          child: Container(
+            width: 20,
+            height: 20,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+            ),
+          ),
+        ),
       ),
     );
   }

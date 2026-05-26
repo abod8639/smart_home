@@ -25,6 +25,9 @@ class DeviceLocalDatasource {
         'linkedDevicesCount': d.linkedDevicesCount,
         'positionX': d.positionX,
         'positionY': d.positionY,
+        'rgbR': d.rgbR,
+        'rgbG': d.rgbG,
+        'rgbB': d.rgbB,
       };
 
   static DeviceEntity _fromMap(Map map) {
@@ -52,6 +55,9 @@ class DeviceLocalDatasource {
       linkedDevicesCount: map['linkedDevicesCount'] as int?,
       positionX: (map['positionX'] as num?)?.toDouble(),
       positionY: (map['positionY'] as num?)?.toDouble(),
+      rgbR: map['rgbR'] as int?,
+      rgbG: map['rgbG'] as int?,
+      rgbB: map['rgbB'] as int?,
     );
   }
 

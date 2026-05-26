@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum DeviceType { vacuum, airConditioner, lamp, door }
+enum DeviceType { vacuum, airConditioner, lamp, door, rgb }
 
 class DeviceEntity extends Equatable {
   final String id;
@@ -33,6 +33,11 @@ class DeviceEntity extends Equatable {
   final double? positionX;
   final double? positionY;
 
+  // RGB specifics (0–255 per channel)
+  final int? rgbR;
+  final int? rgbG;
+  final int? rgbB;
+
   const DeviceEntity({
     required this.id,
     required this.name,
@@ -51,6 +56,9 @@ class DeviceEntity extends Equatable {
     this.linkedDevicesCount,
     this.positionX,
     this.positionY,
+    this.rgbR,
+    this.rgbG,
+    this.rgbB,
   });
 
   DeviceEntity copyWith({
@@ -71,6 +79,9 @@ class DeviceEntity extends Equatable {
     int? linkedDevicesCount,
     double? positionX,
     double? positionY,
+    int? rgbR,
+    int? rgbG,
+    int? rgbB,
   }) {
     return DeviceEntity(
       id: id ?? this.id,
@@ -90,6 +101,9 @@ class DeviceEntity extends Equatable {
       linkedDevicesCount: linkedDevicesCount ?? this.linkedDevicesCount,
       positionX: positionX ?? this.positionX,
       positionY: positionY ?? this.positionY,
+      rgbR: rgbR ?? this.rgbR,
+      rgbG: rgbG ?? this.rgbG,
+      rgbB: rgbB ?? this.rgbB,
     );
   }
 
@@ -112,5 +126,8 @@ class DeviceEntity extends Equatable {
         linkedDevicesCount,
         positionX,
         positionY,
+        rgbR,
+        rgbG,
+        rgbB,
       ];
 }

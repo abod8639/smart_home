@@ -163,7 +163,23 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
       case DeviceType.door:
         iconData = device.isLocked ?? true ? Icons.lock_outline : Icons.lock_open_outlined;
         break;
+      case DeviceType.rgb:
+        iconData = Icons.wb_incandescent_rounded;
+        break;
     }
+
+    // For RGB devices, use the actual device color
+    final markerColor = (device.type == DeviceType.rgb && device.isOn)
+        ? Color.fromRGBO(device.rgbR ?? 255, device.rgbG ?? 0, device.rgbB ?? 128, 1.0)
+        : device.isOn
+            ? AppTheme.primaryBlue
+            : Colors.white24;
+
+    final glowColor = (device.type == DeviceType.rgb && device.isOn)
+        ? Color.fromRGBO(device.rgbR ?? 255, device.rgbG ?? 0, device.rgbB ?? 128, 0.5)
+        : isSelected
+            ? Colors.amber.withValues(alpha: 0.5)
+            : Colors.black.withValues(alpha: 0.3);
 
     return Tooltip(
       message: device.name,
@@ -172,14 +188,14 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         height: 48,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: device.isOn ? AppTheme.primaryBlue : Colors.white24,
+          color: markerColor,
           border: Border.all(
             color: isSelected ? Colors.amber : Colors.white,
             width: isSelected ? 3 : 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: isSelected ? Colors.amber.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.3),
+              color: glowColor,
               blurRadius: isSelected ? 12 : 6,
               spreadRadius: isSelected ? 2 : 1,
             )
@@ -193,6 +209,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
       ),
     );
   }
+
 
   Widget _buildDevicePropertiesPanel(BuildContext context, DeviceEntity device, DashboardController dashboardController) {
     return Column(
@@ -252,6 +269,44 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
           const SizedBox(height: 16),
           _buildPropertyRow('Linked Devices', '${device.linkedDevicesCount}'),
         ],
+        if (device.type == DeviceType.rgb) ...[
+          const SizedBox(height: 16),
+          _buildPropertyRow(
+            'Color',
+            'rgb(${device.rgbR ?? 0}, ${device.rgbG ?? 0}, ${device.rgbB ?? 0})',
+          ),
+          const SizedBox(height: 10),
+          // Live color swatch
+          Container(
+            height: 32,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: Color.fromRGBO(
+                device.rgbR ?? 0,
+                device.rgbG ?? 0,
+                device.rgbB ?? 0,
+                1.0,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Color.fromRGBO(
+                    device.rgbR ?? 0,
+                    device.rgbG ?? 0,
+                    device.rgbB ?? 0,
+                    0.5,
+                  ),
+                  blurRadius: 12,
+                  spreadRadius: 2,
+                )
+              ],
+            ),
+          ),
+          if (device.brightness != null) ...[
+            const SizedBox(height: 16),
+            _buildPropertyRow('Brightness', '${device.brightness}%'),
+          ],
+        ],
+
         const Spacer(),
         SizedBox(
           width: double.infinity,
@@ -352,6 +407,8 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         return Icons.cleaning_services_outlined;
       case DeviceType.door:
         return Icons.sensor_door_outlined;
+      case DeviceType.rgb:
+        return Icons.wb_incandescent_rounded;
     }
   }
 
