@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:smart_home/features/dashboard/presentation/widgets/room_preview_widget.dart';
+import 'package:smart_home/features/dashboard/presentation/widgets/sidebar_widget.dart';
 import '../../../../features/dashboard/presentation/controllers/dashboard_controller.dart';
-import 'widgets/sidebar_widget.dart';
-import 'widgets/room_preview_widget.dart';
+
 import '../../../room/presentation/widgets/rooms_list_widget.dart';
 import '../../../device/presentation/widgets/device_cards/vacuum_card.dart';
 import '../../../device/presentation/widgets/device_cards/ac_card.dart';

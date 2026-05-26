@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../core/widgets/glass_container.dart';
-import '../../../dashboard/presentation/controllers/dashboard_controller.dart';
-import '../../domain/entities/room_entity.dart';
+import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/widgets/glass_container.dart';
+import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 
 class RoomsListWidget extends GetView<DashboardController> {
   const RoomsListWidget({super.key});

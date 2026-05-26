@@ -10,6 +10,10 @@ class AppTheme {
   static const Color textGrey = Color(0xFF8B8B8D);
   static const Color accentCyan = Color(0xFF00E5FF);
 
+  // Legacy compatibility colors
+  static const Color neonCyan = Color(0xFF08F7FE);
+  static const Color neonPink = Color(0xFFFE53BB);
+
   static ThemeData get darkTheme {
     return ThemeData(
       brightness: Brightness.dark,

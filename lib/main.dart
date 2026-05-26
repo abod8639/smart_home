@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'core/theme/app_theme.dart';
-import 'features/home/presentation/pages/home_page.dart';
-import 'features/home/presentation/controllers/home_binding.dart';
+import 'features/dashboard/presentation/pages/dashboard_page.dart';
+import 'features/dashboard/presentation/controllers/dashboard_binding.dart';
 
 void main() {
   runApp(const SmartHomeApp());
