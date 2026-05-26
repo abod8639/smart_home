@@ -14,6 +14,7 @@ class SettingsController extends GetxController {
   var hubConnectionMode = 'Zigbee'.obs;
   var autoBackups = true.obs;
   var lockTimeout = 5.0.obs; // in minutes
+  var ipAddress = '192.168.1.145'.obs;
 
   // Available options
   final voiceAssistants = ['Alexa', 'Google Assistant', 'Siri', 'None'];
@@ -22,6 +23,12 @@ class SettingsController extends GetxController {
   void updateUserName(String name) {
     if (name.isNotEmpty) {
       userName.value = name;
+    }
+  }
+
+  void updateIpAddress(String ip) {
+    if (ip.isNotEmpty) {
+      ipAddress.value = ip;
     }
   }
 

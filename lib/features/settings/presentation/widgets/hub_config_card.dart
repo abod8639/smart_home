@@ -37,10 +37,13 @@ class HubConfigCard extends GetView<SettingsController> {
           Row(
             children: [
               Expanded(
-                child: _buildInfoGridItem(
-                  label: 'HUB IP ADDRESS',
-                  value: '192.168.1.145',
-                  icon: Icons.dns_outlined,
+                child: GestureDetector(
+                  onTap: () => _showEditIpDialog(context),
+                  child: Obx(() => _buildInfoGridItem(
+                    label: 'HUB IP ADDRESS',
+                    value: controller.ipAddress.value,
+                    icon: Icons.dns_outlined,
+                  )),
                 ),
               ),
               const SizedBox(width: 16),
@@ -166,6 +169,59 @@ class HubConfigCard extends GetView<SettingsController> {
           ),
         ],
       ),
+    );
+  }
+
+  // Dialog to Edit Hub IP Address
+  void _showEditIpDialog(BuildContext context) {
+    final textController = TextEditingController(text: controller.ipAddress.value);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppTheme.cardBackground,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          title: const Text(
+            'Edit Hub IP Address',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: TextField(
+            controller: textController,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              labelText: 'ESP32 Hub IP Address',
+              labelStyle: const TextStyle(color: AppTheme.textGrey),
+              hintText: 'e.g. 192.168.1.145',
+              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+              ),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: AppTheme.primaryBlue),
+              ),
+            ),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
+            ),
+            TextButton(
+              onPressed: () {
+                controller.updateIpAddress(textController.text);
+                Navigator.pop(context);
+              },
+              child: const Text('Save', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
     );
   }
 }
