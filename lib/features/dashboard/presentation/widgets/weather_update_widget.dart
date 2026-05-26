@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/widgets/Shadow_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
 class WeatherUpdateWidget extends GetView<DashboardController> {
@@ -8,13 +9,22 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ShadowContainer(
       width: 320,
       padding: const EdgeInsets.all(24.0),
-      decoration: BoxDecoration(
-        color: AppTheme.cardBackground.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(32),
-      ),
+      // decoration: BoxDecoration(
+      //   color: AppTheme.cardBackground.withValues(alpha: 0.3),
+      //   borderRadius: BorderRadius.circular(32),
+      //   boxShadow: [
+      //     BoxShadow(
+      //       blurStyle: BlurStyle.outer,
+      //       color: Colors.white.withValues(alpha: 0.08),
+      //       blurRadius: 20,
+      //       spreadRadius: 2,
+          
+      //     )
+      //   ],
+      // ),
       child: Obx(() {
         if (controller.isWeatherLoading.value) {
           return _buildLoadingState();
