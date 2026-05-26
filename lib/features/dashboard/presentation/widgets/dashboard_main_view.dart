@@ -19,7 +19,6 @@ class DashboardMainView extends GetView<DashboardController> {
       children: [
         // Top Section: Room Preview, Weather Update & Rooms List
         const Expanded(
-          flex: 8,
           child: Row(
             children: [
               RoomPreviewWidget(),
@@ -34,8 +33,8 @@ class DashboardMainView extends GetView<DashboardController> {
         const SizedBox(height: 20),
 
         // Bottom Section: Device Cards
-        Expanded(
-          flex: 3,
+        SizedBox(
+          height: 240,
           child: Obx(() {
             if (controller.devices.isEmpty) return const SizedBox.shrink();
 

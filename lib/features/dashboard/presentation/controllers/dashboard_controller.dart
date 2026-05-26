@@ -1,110 +1,69 @@
 import 'dart:async';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:io';
+import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 
-class DashboardState {
-  final List<RoomEntity> rooms;
-  final List<DeviceEntity> devices;
-  final int currentNavigationIndex;
+class DashboardController extends GetxController {
+  // Observables
+  var rooms = <RoomEntity>[].obs;
+  var devices = <DeviceEntity>[].obs;
+  var currentNavigationIndex = 0.obs;
   
-  final String humidity;
-  final String airflow;
-  final String temperature;
-  final String powerUsage;
+  // Environment Stats for the selected room
+  var humidity = '50%'.obs;
+  var airflow = '80%'.obs;
+  var temperature = '27°'.obs;
+  var powerUsage = '360W'.obs;
 
-  final String weatherLocation;
-  final String weatherTemp;
-  final String weatherCondition;
-  final String weatherDate;
-  final String weatherSuggestion;
-  final bool isWeatherLoading;
-  final int isDay;
-  final int weatherCode;
+  // Live Weather Observables
+  var weatherLocation = 'Loading...'.obs;
+  var weatherTemp = '--°C'.obs;
+  var weatherCondition = 'Fetching...'.obs;
+  var weatherDate = ''.obs;
+  var weatherSuggestion = 'Optimizing settings...'.obs;
+  var isWeatherLoading = true.obs;
+  var isDay = 1.obs; // 1 = Day, 0 = Night
+  var weatherCode = 0.obs;
 
-  const DashboardState({
-    this.rooms = const [],
-    this.devices = const [],
-    this.currentNavigationIndex = 0,
-    this.humidity = '50%',
-    this.airflow = '80%',
-    this.temperature = '27°',
-    this.powerUsage = '360W',
-    this.weatherLocation = 'Loading...',
-    this.weatherTemp = '--°C',
-    this.weatherCondition = 'Fetching...',
-    this.weatherDate = '',
-    this.weatherSuggestion = 'Optimizing settings...',
-    this.isWeatherLoading = true,
-    this.isDay = 1,
-    this.weatherCode = 0,
-  });
-
-  DashboardState copyWith({
-    List<RoomEntity>? rooms,
-    List<DeviceEntity>? devices,
-    int? currentNavigationIndex,
-    String? humidity,
-    String? airflow,
-    String? temperature,
-    String? powerUsage,
-    String? weatherLocation,
-    String? weatherTemp,
-    String? weatherCondition,
-    String? weatherDate,
-    String? weatherSuggestion,
-    bool? isWeatherLoading,
-    int? isDay,
-    int? weatherCode,
-  }) {
-    return DashboardState(
-      rooms: rooms ?? this.rooms,
-      devices: devices ?? this.devices,
-      currentNavigationIndex: currentNavigationIndex ?? this.currentNavigationIndex,
-      humidity: humidity ?? this.humidity,
-      airflow: airflow ?? this.airflow,
-      temperature: temperature ?? this.temperature,
-      powerUsage: powerUsage ?? this.powerUsage,
-      weatherLocation: weatherLocation ?? this.weatherLocation,
-      weatherTemp: weatherTemp ?? this.weatherTemp,
-      weatherCondition: weatherCondition ?? this.weatherCondition,
-      weatherDate: weatherDate ?? this.weatherDate,
-      weatherSuggestion: weatherSuggestion ?? this.weatherSuggestion,
-      isWeatherLoading: isWeatherLoading ?? this.isWeatherLoading,
-      isDay: isDay ?? this.isDay,
-      weatherCode: weatherCode ?? this.weatherCode,
-    );
-  }
-}
-
-class DashboardNotifier extends Notifier<DashboardState> {
   final Dio _dio = Dio();
   Timer? _acTimer;
 
-  @override
-  DashboardState build() {
-    ref.onDispose(() {
-      _acTimer?.cancel();
-    });
-
-    Future.microtask(() {
-      fetchLiveWeather();
-      _startAcTimer();
-    });
-
-    return _getInitialMockState();
+  void changeTab(int index) {
+    currentNavigationIndex.value = index;
   }
 
-  DashboardState _getInitialMockState() {
-    final rooms = [
+  @override
+  void onInit() {
+    super.onInit();
+    _loadMockData();
+    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+      fetchLiveWeather();
+      _startAcTimer();
+    } else {
+      isWeatherLoading.value = false;
+      weatherLocation.value = 'Mock City';
+      weatherTemp.value = '25°C';
+      weatherCondition.value = 'Sunny';
+    }
+  }
+
+  @override
+  void onClose() {
+    _acTimer?.cancel();
+    super.onClose();
+  }
+
+  void _loadMockData() {
+    rooms.value = [
       const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 3),
       const RoomEntity(id: '2', name: 'Kitchen', deviceCount: 2),
       const RoomEntity(id: '3', name: 'Living room', deviceCount: 5, isActive: true),
       const RoomEntity(id: '4', name: 'Bathroom', deviceCount: 3),
     ];
 
-    final devices = [
+    devices.value = [
       const DeviceEntity(
         id: 'door1',
         name: 'Smart Door',
@@ -158,41 +117,32 @@ class DashboardNotifier extends Notifier<DashboardState> {
         positionY: 0.18,
       ),
     ];
-    
-    return DashboardState(rooms: rooms, devices: devices);
-  }
-
-  void changeTab(int index) {
-    state = state.copyWith(currentNavigationIndex: index);
   }
 
   void toggleDevice(String id) {
-    final devices = List<DeviceEntity>.from(state.devices);
+    // TODO: Call update device API
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
       devices[index] = device.copyWith(isOn: !device.isOn);
-      state = state.copyWith(devices: devices);
     }
   }
   
   void toggleDoor(String id) {
-    final devices = List<DeviceEntity>.from(state.devices);
+    // TODO: Call update device API
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
       devices[index] = device.copyWith(isLocked: !(device.isLocked ?? false));
-      state = state.copyWith(devices: devices);
     }
   }
 
   void selectRoom(String id) {
-    final rooms = state.rooms.map((r) => r.copyWith(isActive: r.id == id)).toList();
-    state = state.copyWith(rooms: rooms);
+    rooms.value = rooms.map((r) => r.copyWith(isActive: r.id == id)).toList();
   }
 
   void updateDeviceBrightness(String id, int brightness) {
-    final devices = List<DeviceEntity>.from(state.devices);
+    // TODO: Call update device API
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
@@ -200,54 +150,46 @@ class DashboardNotifier extends Notifier<DashboardState> {
         brightness: brightness,
         isOn: brightness > 0,
       );
-      state = state.copyWith(devices: devices);
     }
   }
 
   void addDevice(DeviceEntity device) {
-    final devices = List<DeviceEntity>.from(state.devices);
+    // Default position to center if null
     final deviceWithPos = device.positionX == null 
         ? device.copyWith(positionX: 0.5, positionY: 0.5)
         : device;
     devices.add(deviceWithPos);
-    state = state.copyWith(devices: devices);
   }
 
   void updateDevice(DeviceEntity device) {
-    final devices = List<DeviceEntity>.from(state.devices);
     final index = devices.indexWhere((d) => d.id == device.id);
     if (index != -1) {
       devices[index] = device;
-      state = state.copyWith(devices: devices);
     }
   }
 
   void updateDevicePosition(String id, double x, double y) {
-    final devices = List<DeviceEntity>.from(state.devices);
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       devices[index] = devices[index].copyWith(positionX: x, positionY: y);
-      state = state.copyWith(devices: devices);
     }
   }
 
   void reorderDevices(int oldIndex, int newIndex) {
-    final devices = List<DeviceEntity>.from(state.devices);
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
     final device = devices.removeAt(oldIndex);
     devices.insert(newIndex, device);
-    state = state.copyWith(devices: devices);
   }
 
+  // Fetch real weather and geolocation details
   Future<void> fetchLiveWeather() async {
-    state = state.copyWith(
-      isWeatherLoading: true,
-      weatherDate: _getFormattedDate(),
-    );
+    isWeatherLoading.value = true;
+    weatherDate.value = _getFormattedDate();
 
     try {
+      // Step 1: Geolocation using ipapi.co
       final geoResponse = await _dio.get('https://ipapi.co/json/');
       if (geoResponse.statusCode == 200 && geoResponse.data != null) {
         final data = geoResponse.data;
@@ -256,8 +198,9 @@ class DashboardNotifier extends Notifier<DashboardState> {
         final double lat = (data['latitude'] as num?)?.toDouble() ?? 30.0507;
         final double lon = (data['longitude'] as num?)?.toDouble() ?? 31.2489;
 
-        final weatherLocation = '$city, $country';
+        weatherLocation.value = '$city, $country';
 
+        // Step 2: Fetch weather details using Open-Meteo
         final weatherResponse = await _dio.get(
           'https://api.open-meteo.com/v1/forecast',
           queryParameters: {
@@ -274,33 +217,28 @@ class DashboardNotifier extends Notifier<DashboardState> {
             final int code = (weatherData['weathercode'] as num?)?.toInt() ?? 0;
             final int dayFlag = (weatherData['is_day'] as num?)?.toInt() ?? 1;
 
-            state = state.copyWith(
-              weatherLocation: weatherLocation,
-              weatherTemp: '${temp.round()}°C',
-              weatherCode: code,
-              isDay: dayFlag,
-              weatherCondition: _mapWeatherCode(code, dayFlag),
-              weatherSuggestion: _generateSuggestion(temp, code),
-              isWeatherLoading: false,
-            );
-            return;
+            weatherTemp.value = '${temp.round()}°C';
+            weatherCode.value = code;
+            isDay.value = dayFlag;
+            weatherCondition.value = _mapWeatherCode(code, dayFlag);
+            weatherSuggestion.value = _generateSuggestion(temp, code);
           }
         }
       }
     } catch (e) {
-      // Fallback
-      state = state.copyWith(
-        weatherLocation: 'Jakarta, Indonesia',
-        weatherTemp: '27°C',
-        weatherCondition: 'Clear Evening',
-        isDay: 0,
-        weatherCode: 0,
-        weatherSuggestion: "Activate 'Relax Mode', dim lights, soft music, and lower thermostat.",
-        isWeatherLoading: false,
-      );
+      // Fallback gracefully on network error
+      weatherLocation.value = 'Jakarta, Indonesia';
+      weatherTemp.value = '27°C';
+      weatherCondition.value = 'Clear Evening';
+      isDay.value = 0;
+      weatherCode.value = 0;
+      weatherSuggestion.value = "Activate 'Relax Mode', dim lights, soft music, and lower thermostat.";
+    } finally {
+      isWeatherLoading.value = false;
     }
   }
 
+  // Format date to: weekday, month day
   String _getFormattedDate() {
     final now = DateTime.now();
     final weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -313,21 +251,45 @@ class DashboardNotifier extends Notifier<DashboardState> {
     return '$weekday, $month ${now.day}';
   }
 
+  // Map WMO codes to weather conditions
   String _mapWeatherCode(int code, int dayFlag) {
     final isNight = dayFlag == 0;
     switch (code) {
-      case 0: return isNight ? 'Clear Evening' : 'Sunny Day';
-      case 1: case 2: case 3: return 'Partly Cloudy';
-      case 45: case 48: return 'Foggy';
-      case 51: case 53: case 55: return 'Light Drizzle';
-      case 61: case 63: case 65: return 'Rainy';
-      case 71: case 73: case 75: return 'Snowy';
-      case 80: case 81: case 82: return 'Rain Showers';
-      case 95: case 96: case 99: return 'Thunderstorm';
-      default: return isNight ? 'Clear Evening' : 'Clear Day';
+      case 0:
+        return isNight ? 'Clear Evening' : 'Sunny Day';
+      case 1:
+      case 2:
+      case 3:
+        return 'Partly Cloudy';
+      case 45:
+      case 48:
+        return 'Foggy';
+      case 51:
+      case 53:
+      case 55:
+        return 'Light Drizzle';
+      case 61:
+      case 63:
+      case 65:
+        return 'Rainy';
+      case 71:
+      case 73:
+      case 75:
+        return 'Snowy';
+      case 80:
+      case 81:
+      case 82:
+        return 'Rain Showers';
+      case 95:
+      case 96:
+      case 99:
+        return 'Thunderstorm';
+      default:
+        return isNight ? 'Clear Evening' : 'Clear Day';
     }
   }
 
+  // Generate dynamic contextual suggestion
   String _generateSuggestion(double temp, int code) {
     if (code >= 50 && code <= 99) {
       return "Rainy weather. Perfect time to stay warm, dim the lights and play cozy music.";
@@ -343,22 +305,13 @@ class DashboardNotifier extends Notifier<DashboardState> {
 
   void _startAcTimer() {
     _acTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
-      bool changed = false;
-      final devices = List<DeviceEntity>.from(state.devices);
       for (int i = 0; i < devices.length; i++) {
         final d = devices[i];
         if (d.type == DeviceType.airConditioner && d.isOn) {
           devices[i] = d.copyWith(coolingTime: (d.coolingTime ?? 0) + 1);
-          changed = true;
         }
-      }
-      if (changed) {
-        state = state.copyWith(devices: devices);
       }
     });
   }
 }
 
-final dashboardProvider = NotifierProvider<DashboardNotifier, DashboardState>(() {
-  return DashboardNotifier();
-});

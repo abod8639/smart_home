@@ -2,7 +2,7 @@
 
 # ============================================================
 #   Flutter Clean Architecture - Feature Generator
-#   يولّد هيكل الفيتشر داخل lib/features تلقائياً (Riverpod + Dio)
+#   يولّد هيكل الفيتشر داخل lib/features تلقائياً (GetX + Dio)
 # ============================================================
 
 # ── الألوان ──────────────────────────────────────────────────
@@ -16,7 +16,7 @@ RESET='\033[0m'
 # ── شعار الترحيب ─────────────────────────────────────────────
 echo ""
 echo -e "${CYAN}${BOLD}╔══════════════════════════════════════════════════════╗${RESET}"
-echo -e "${CYAN}${BOLD}║  Flutter Clean Architecture Generator (Riverpod) 🚀  ║${RESET}"
+echo -e "${CYAN}${BOLD}║  Flutter Clean Architecture Generator (GetX) 🚀      ║${RESET}"
 echo -e "${CYAN}${BOLD}╚══════════════════════════════════════════════════════╝${RESET}"
 echo ""
 
@@ -261,59 +261,97 @@ class ${CLASS}RepositoryImpl implements ${CLASS}Repository {
 echo ""
 echo -e "${BOLD}📂 Presentation Layer${RESET}"
 
-# Providers
-write_file "${BASE_PATH}/presentation/providers/${FEATURE}_providers.dart" \
-"import 'package:flutter_riverpod/flutter_riverpod.dart';
+# Controller
+write_file "${BASE_PATH}/presentation/controllers/${FEATURE}_controller.dart" \
+"import 'package:get/get.dart';
+import '../../domain/entities/${FEATURE}_entity.dart';
+import '../../domain/usecases/get_${FEATURE}s_usecase.dart';
+
+class ${CLASS}Controller extends GetxController with StateMixin<List<${CLASS}Entity>> {
+  final Get${CLASS}sUsecase get${CLASS}sUsecase;
+
+  ${CLASS}Controller({required this.get${CLASS}sUsecase});
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetch${CLASS}s();
+  }
+
+  Future<void> fetch${CLASS}s() async {
+    change(null, status: RxStatus.loading());
+    try {
+      final items = await get${CLASS}sUsecase();
+      if (items.isEmpty) {
+        change([], status: RxStatus.empty());
+      } else {
+        change(items, status: RxStatus.success());
+      }
+    } catch (e) {
+      change(null, status: RxStatus.error(e.toString()));
+    }
+  }
+}"
+
+# Binding
+write_file "${BASE_PATH}/presentation/bindings/${FEATURE}_binding.dart" \
+"import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../data/datasources/${FEATURE}_remote_datasource.dart';
 import '../../data/datasources/${FEATURE}_local_datasource.dart';
 import '../../data/repositories/${FEATURE}_repository_impl.dart';
+import '../../domain/repositories/${FEATURE}_repository.dart';
 import '../../domain/usecases/get_${FEATURE}s_usecase.dart';
-import '../../domain/usecases/get_${FEATURE}_by_id_usecase.dart';
-import '../../domain/usecases/create_${FEATURE}_usecase.dart';
-import '../../domain/entities/${FEATURE}_entity.dart';
+import '../controllers/${FEATURE}_controller.dart';
 
-// Providers for dependencies
-final dioProvider = Provider<Dio>((ref) => Dio());
+class ${CLASS}Binding extends Bindings {
+  @override
+  void dependencies() {
+    // Core Dependencies (only if not already registered)
+    if (!Get.isRegistered<Dio>()) {
+      Get.lazyPut<Dio>(() => Dio());
+    }
 
-final ${FEATURE}RemoteDatasourceProvider = Provider<${CLASS}RemoteDatasource>((ref) {
-  return ${CLASS}RemoteDatasourceImpl(dio: ref.read(dioProvider));
-});
+    // Datasources
+    Get.lazyPut<${CLASS}RemoteDatasource>(
+      () => ${CLASS}RemoteDatasourceImpl(dio: Get.find<Dio>()),
+    );
+    Get.lazyPut<${CLASS}LocalDatasource>(
+      () => ${CLASS}LocalDatasourceImpl(),
+    );
 
-final ${FEATURE}LocalDatasourceProvider = Provider<${CLASS}LocalDatasource>((ref) {
-  return ${CLASS}LocalDatasourceImpl();
-});
+    // Repository
+    Get.lazyPut<${CLASS}Repository>(
+      () => ${CLASS}RepositoryImpl(
+        remoteDatasource: Get.find<${CLASS}RemoteDatasource>(),
+        localDatasource: Get.find<${CLASS}LocalDatasource>(),
+      ),
+    );
 
-final ${FEATURE}RepositoryProvider = Provider<${CLASS}RepositoryImpl>((ref) {
-  return ${CLASS}RepositoryImpl(
-    remoteDatasource: ref.read(${FEATURE}RemoteDatasourceProvider),
-    localDatasource: ref.read(${FEATURE}LocalDatasourceProvider),
-  );
-});
+    // Usecases
+    Get.lazyPut<Get${CLASS}sUsecase>(
+      () => Get${CLASS}sUsecase(Get.find<${CLASS}Repository>()),
+    );
 
-// Providers for usecases
-final get${CLASS}sUsecaseProvider = Provider<Get${CLASS}sUsecase>((ref) {
-  return Get${CLASS}sUsecase(ref.read(${FEATURE}RepositoryProvider));
-});
-
-// State provider
-final ${FEATURE}ListProvider = FutureProvider<List<${CLASS}Entity>>((ref) async {
-  final usecase = ref.read(get${CLASS}sUsecaseProvider);
-  return usecase();
-});"
+    // Controller
+    Get.lazyPut<${CLASS}Controller>(
+      () => ${CLASS}Controller(get${CLASS}sUsecase: Get.find<Get${CLASS}sUsecase>()),
+    );
+  }
+}"
 
 # Page
 write_file "${BASE_PATH}/presentation/pages/${FEATURE}s_page.dart" \
 "import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/${FEATURE}_providers.dart';
+import 'package:get/get.dart';
+import '../controllers/${FEATURE}_controller.dart';
 import '../widgets/${FEATURE}_list.dart';
 
-class ${CLASS}sPage extends ConsumerWidget {
+class ${CLASS}sPage extends GetView<${CLASS}Controller> {
   const ${CLASS}sPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('${CLASS}s')),
       body: const ${CLASS}List(),
@@ -344,24 +382,23 @@ class ${CLASS}Card extends StatelessWidget {
 
 write_file "${BASE_PATH}/presentation/widgets/${FEATURE}_list.dart" \
 "import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/${FEATURE}_providers.dart';
+import 'package:get/get.dart';
+import '../controllers/${FEATURE}_controller.dart';
 import '${FEATURE}_card.dart';
 
-class ${CLASS}List extends ConsumerWidget {
+class ${CLASS}List extends GetView<${CLASS}Controller> {
   const ${CLASS}List({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final listAsyncValue = ref.watch(${FEATURE}ListProvider);
-
-    return listAsyncValue.when(
-      data: (items) => ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (_, i) => ${CLASS}Card(entity: items[i]),
+  Widget build(BuildContext context) {
+    return controller.obx(
+      (items) => ListView.builder(
+        itemCount: items?.length ?? 0,
+        itemBuilder: (_, i) => ${CLASS}Card(entity: items![i]),
       ),
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, st) => Center(child: Text('Error: \$e')),
+      onLoading: const Center(child: CircularProgressIndicator()),
+      onEmpty: const Center(child: Text('No items found')),
+      onError: (error) => Center(child: Text('Error: \$error')),
     );
   }
 }"

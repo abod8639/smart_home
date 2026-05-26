@@ -10,7 +10,7 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     return ShadowContainer(
-      width: 320,
+      width: 280,
       padding: const EdgeInsets.all(24.0),
       // decoration: BoxDecoration(
       //   color: AppTheme.cardBackground.withValues(alpha: 0.3),
@@ -38,9 +38,10 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
         final code = controller.weatherCode.value;
         final dayFlag = controller.isDay.value;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // 1. Top Header Row (Dynamic Weather Icon and Title)
             Row(
               children: [
@@ -168,12 +169,15 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
                         size: 16,
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        'AI Suggestion :',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          'AI Suggestion :',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -190,7 +194,8 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
                 ],
               ),
             ),
-          ],
+            ],
+          ),
         );
       }),
     );

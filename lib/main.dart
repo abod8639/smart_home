@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import 'core/theme/app_theme.dart';
-import 'core/routes/app_router.dart';
+import 'features/dashboard/presentation/pages/dashboard_page.dart';
+import 'core/bindings/initial_binding.dart';
+import 'features/room/presentation/pages/room_placement_view.dart';
+import 'features/room/presentation/controllers/room_placement_controller.dart';
 
 void main() {
-  runApp(
-    const ProviderScope(
-      child: SmartHomeApp(),
-    ),
-  );
+  runApp(const SmartHomeApp());
 }
 
 class SmartHomeApp extends StatelessWidget {
@@ -16,11 +15,25 @@ class SmartHomeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    return GetMaterialApp(
       title: 'Smart Home IoT',
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      routerConfig: appRouter,
-    );
+      initialRoute: '/dashboard',
+      initialBinding: InitialBinding(),
+      getPages: [
+        GetPage(
+          name: '/dashboard',
+          page: () => const DashboardPage(),
+        ),
+        GetPage(
+          name: '/room-placement',
+          page: () => const RoomPlacementView(),
+          binding: BindingsBuilder(() {
+            Get.lazyPut(() => RoomPlacementController());
+          }),
+        ),
+      ],
+      );
   }
 }

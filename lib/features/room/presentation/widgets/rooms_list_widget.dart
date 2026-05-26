@@ -12,7 +12,7 @@ class RoomsListWidget extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     return ShadowContainer(
-      width: 300,
+      width: 260,
       padding: const EdgeInsets.all(24.0),
 
       child: Column(

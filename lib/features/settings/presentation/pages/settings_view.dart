@@ -72,16 +72,16 @@ class SettingsView extends GetView<SettingsController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Left Column: Profile & General Preferences
-              const Expanded(
+              Expanded(
                 flex: 4,
-                child: Column(
-                  children: [
-                    ProfileCard(),
-                    SizedBox(height: 14),
-                    Expanded(
-                      child: PreferencesCard(),
-                    ),
-                  ],
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const ProfileCard(),
+                      const SizedBox(height: 14),
+                      const PreferencesCard(),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 14),
@@ -89,18 +89,22 @@ class SettingsView extends GetView<SettingsController> {
               // Right Column: Hub Configuration, Device Placement & Device Management
               Expanded(
                 flex: 5,
-                child: Column(
-                  children: [
-                    const HubConfigCard(),
-                    const SizedBox(height: 14),
-                    Expanded(
-                      child: DevicePlacementCard(),
-                    ),
-                    const SizedBox(height: 14),
-                    const Expanded(
-                      child: DeviceManagementCard(),
-                    ),
-                  ],
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const HubConfigCard(),
+                      const SizedBox(height: 14),
+                      SizedBox(
+                        height: 320,
+                        child: DevicePlacementCard(),
+                      ),
+                      const SizedBox(height: 14),
+                      const SizedBox(
+                        height: 280,
+                        child: DeviceManagementCard(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
