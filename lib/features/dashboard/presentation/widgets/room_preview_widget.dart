@@ -14,7 +14,7 @@ class RoomPreviewWidget extends GetView<DashboardController> {
           borderRadius: BorderRadius.circular(32),
           image: const DecorationImage(
             image: AssetImage('assets/images/living_room.png'),
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
           ),
           boxShadow: [
             BoxShadow(

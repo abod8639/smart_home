@@ -27,8 +27,20 @@ class RoomLocalDatasourceImpl implements RoomLocalDatasource {
     } else {
       // Default initial rooms if none are saved
       return [
-        RoomModel(id: 'r1', name: 'Living Room', deviceCount: 3, isActive: true, iconPath: 'assets/icons/living_room.png'),
-        RoomModel(id: 'r2', name: 'Bedroom',  deviceCount: 2, isActive: false, iconPath: 'assets/icons/bedroom.png'),
+        RoomModel(
+          id: 'r1', 
+          name: 'Living Room',
+           deviceCount: 3, 
+           isActive: true, 
+           iconPath: 'assets/icons/living_room.png'
+           ),
+        RoomModel(
+          id: 'r2', 
+          name: 'Bedroom',  
+          deviceCount: 2, 
+          isActive: false, 
+          iconPath: 'assets/icons/bedroom.png'
+          ),
       ];
     }
   }
