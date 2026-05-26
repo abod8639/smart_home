@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import '../../../../features/device/domain/entities/device_entity.dart';
-import '../../../../features/room/domain/entities/room_entity.dart';
+import 'package:smart_home/features/device/domain/entities/device_entity.dart';
+import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 
 class DashboardController extends GetxController {
   // Observables

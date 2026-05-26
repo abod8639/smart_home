@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:smart_home/core/theme/app_theme.dart';
 
 class SidebarWidget extends StatelessWidget {
   const SidebarWidget({super.key});
