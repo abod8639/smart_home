@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/widgets/Shadow_container.dart';
 
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
@@ -10,13 +11,10 @@ class RoomsListWidget extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ShadowContainer(
       width: 300,
       padding: const EdgeInsets.all(24.0),
-      decoration: BoxDecoration(
-        color: AppTheme.cardBackground.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(32),
-      ),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
