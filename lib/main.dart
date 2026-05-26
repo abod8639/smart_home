@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'core/theme/app_theme.dart';
+import 'core/services/hive_service.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'core/bindings/initial_binding.dart';
 import 'features/room/presentation/pages/room_placement_view.dart';
 import 'features/room/presentation/controllers/room_placement_controller.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await HiveService.init();
   runApp(const SmartHomeApp());
 }
 

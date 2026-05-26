@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:smart_home/features/device/data/datasources/device_local_datasource.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 
@@ -29,6 +30,7 @@ class DashboardController extends GetxController {
 
   final Dio _dio = Dio();
   Timer? _acTimer;
+  final DeviceLocalDatasource _datasource = DeviceLocalDatasource();
 
   void changeTab(int index) {
     currentNavigationIndex.value = index;
@@ -37,7 +39,7 @@ class DashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _loadMockData();
+    _loadData();
     if (!Platform.environment.containsKey('FLUTTER_TEST')) {
       fetchLiveWeather();
       _startAcTimer();
@@ -55,7 +57,8 @@ class DashboardController extends GetxController {
     super.onClose();
   }
 
-  void _loadMockData() {
+  void _loadData() {
+    // Load rooms mock (rooms don't need persistence for now)
     rooms.value = [
       const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 3),
       const RoomEntity(id: '2', name: 'Kitchen', deviceCount: 2),
@@ -63,6 +66,24 @@ class DashboardController extends GetxController {
       const RoomEntity(id: '4', name: 'Bathroom', deviceCount: 3),
     ];
 
+    // Prefer Hive-persisted devices; fall back to mock only on first launch
+    if (_datasource.hasData) {
+      devices.value = _datasource.loadDevices();
+    } else {
+      _loadMockData();
+      _persistDevices(); // seed Hive with the initial mock data
+    }
+  }
+
+  /// Save current devices snapshot to Hive.
+  void _persistDevices() {
+    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+      _datasource.saveDevices(devices.toList());
+    }
+  }
+
+  /// Seeds the initial mock devices on the very first launch.
+  void _loadMockData() {
     devices.value = [
       const DeviceEntity(
         id: 'door1',
@@ -119,12 +140,14 @@ class DashboardController extends GetxController {
     ];
   }
 
+
   void toggleDevice(String id) {
     // TODO: Call update device API
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
       devices[index] = device.copyWith(isOn: !device.isOn);
+      _persistDevices();
     }
   }
   
@@ -134,6 +157,7 @@ class DashboardController extends GetxController {
     if (index != -1) {
       final device = devices[index];
       devices[index] = device.copyWith(isLocked: !(device.isLocked ?? false));
+      _persistDevices();
     }
   }
 
@@ -159,23 +183,27 @@ class DashboardController extends GetxController {
         ? device.copyWith(positionX: 0.5, positionY: 0.5)
         : device;
     devices.add(deviceWithPos);
+    _persistDevices();
   }
 
   void updateDevice(DeviceEntity device) {
     final index = devices.indexWhere((d) => d.id == device.id);
     if (index != -1) {
       devices[index] = device;
+      _persistDevices();
     }
   }
 
   void deleteDevice(String id) {
     devices.removeWhere((d) => d.id == id);
+    _persistDevices();
   }
 
   void updateDevicePosition(String id, double x, double y) {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       devices[index] = devices[index].copyWith(positionX: x, positionY: y);
+      _persistDevices();
     }
   }
 
@@ -185,6 +213,7 @@ class DashboardController extends GetxController {
     }
     final device = devices.removeAt(oldIndex);
     devices.insert(newIndex, device);
+    _persistDevices();
   }
 
   // Fetch real weather and geolocation details
