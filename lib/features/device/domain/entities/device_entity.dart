@@ -1,40 +1,97 @@
 import 'package:equatable/equatable.dart';
 
+enum DeviceType { vacuum, airConditioner, lamp, door }
+
 class DeviceEntity extends Equatable {
   final String id;
   final String name;
-  final String type; // e.g., 'light', 'ac', 'tv'
-  final String room; // e.g., 'Living Room'
+  final DeviceType type;
   final bool isOn;
-  final bool isLoading; // For UI visual feedback (optimistic update/wait)
+  
+  // Vacuum specifics
+  final int? batteryLevel;
+  final int? areaCleaned;
+  final int? cleaningTime;
+  final int? filterStatus;
+  final String? nextCleaning;
+
+  // AC specifics
+  final int? temperature;
+  final String? mode;
+  final int? coolingTime;
+
+  // Lamp specifics
+  final int? brightness;
+
+  // Door specifics
+  final bool? isLocked;
 
   const DeviceEntity({
     required this.id,
     required this.name,
     required this.type,
-    required this.room,
-    required this.isOn,
-    this.isLoading = false,
+    this.isOn = false,
+    this.batteryLevel,
+    this.areaCleaned,
+    this.cleaningTime,
+    this.filterStatus,
+    this.nextCleaning,
+    this.temperature,
+    this.mode,
+    this.coolingTime,
+    this.brightness,
+    this.isLocked,
   });
 
   DeviceEntity copyWith({
     String? id,
     String? name,
-    String? type,
-    String? room,
+    DeviceType? type,
     bool? isOn,
-    bool? isLoading,
+    int? batteryLevel,
+    int? areaCleaned,
+    int? cleaningTime,
+    int? filterStatus,
+    String? nextCleaning,
+    int? temperature,
+    String? mode,
+    int? coolingTime,
+    int? brightness,
+    bool? isLocked,
   }) {
     return DeviceEntity(
       id: id ?? this.id,
       name: name ?? this.name,
       type: type ?? this.type,
-      room: room ?? this.room,
       isOn: isOn ?? this.isOn,
-      isLoading: isLoading ?? this.isLoading,
+      batteryLevel: batteryLevel ?? this.batteryLevel,
+      areaCleaned: areaCleaned ?? this.areaCleaned,
+      cleaningTime: cleaningTime ?? this.cleaningTime,
+      filterStatus: filterStatus ?? this.filterStatus,
+      nextCleaning: nextCleaning ?? this.nextCleaning,
+      temperature: temperature ?? this.temperature,
+      mode: mode ?? this.mode,
+      coolingTime: coolingTime ?? this.coolingTime,
+      brightness: brightness ?? this.brightness,
+      isLocked: isLocked ?? this.isLocked,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, type, room, isOn, isLoading];
+  List<Object?> get props => [
+        id,
+        name,
+        type,
+        isOn,
+        batteryLevel,
+        areaCleaned,
+        cleaningTime,
+        filterStatus,
+        nextCleaning,
+        temperature,
+        mode,
+        coolingTime,
+        brightness,
+        isLocked,
+      ];
 }

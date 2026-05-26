@@ -4,14 +4,18 @@ class RoomModel extends RoomEntity {
   const RoomModel({
     required super.id,
     required super.name,
-    required super.iconCode,
+    required super.deviceCount,
+    required super.isActive,
+    required super.iconPath,
   });
 
   factory RoomModel.fromJson(Map<String, dynamic> json) {
     return RoomModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      iconCode: json['iconCode'] as int,
+      deviceCount: json['deviceCount'] as int,
+      isActive: json['isActive'] as bool,
+      iconPath: json['iconPath'] as String,
     );
   }
 
@@ -19,7 +23,9 @@ class RoomModel extends RoomEntity {
     return {
       'id': id,
       'name': name,
-      'iconCode': iconCode,
+      'deviceCount': deviceCount,
+      'isActive': isActive,
+      'iconPath': iconPath,
     };
   }
 
@@ -27,7 +33,9 @@ class RoomModel extends RoomEntity {
     return RoomModel(
       id: entity.id,
       name: entity.name,
-      iconCode: entity.iconCode,
+      deviceCount: entity.deviceCount,
+      isActive: entity.isActive,
+      iconPath: entity.iconPath,
     );
   }
 }
