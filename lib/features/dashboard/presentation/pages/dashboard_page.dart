@@ -3,10 +3,7 @@ import 'package:get/get.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/room_preview_widget.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/sidebar_widget.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
-import 'package:smart_home/features/dashboard/presentation/widgets/sidebar_widget.dart';
-import 'package:smart_home/features/dashboard/presentation/widgets/room_preview_widget.dart';
 import 'package:smart_home/features/room/presentation/widgets/rooms_list_widget.dart';
-import 'package:smart_home/features/device/presentation/widgets/device_cards/vacuum_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/ac_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/lamp_card.dart';
 
@@ -30,7 +27,7 @@ class DashboardPage extends GetView<DashboardController> {
                   children: [
                     // Top Section: Room Preview & Rooms List
                     const Expanded(
-                      flex: 5,
+                      flex: 6,
                       child: Row(
                         children: [
                           RoomPreviewWidget(),
@@ -49,22 +46,30 @@ class DashboardPage extends GetView<DashboardController> {
                         if (controller.devices.isEmpty) return const SizedBox.shrink();
 
                         final vac = controller.devices.firstWhereOrNull((d) => d.id == 'vac1');
-                        final ac = controller.devices.firstWhereOrNull((d) => d.id == 'ac1');
+                        final ac1 = controller.devices.firstWhereOrNull((d) => d.id == 'ac1');
+                        final ac2 = controller.devices.firstWhereOrNull((d) => d.id == 'ac2');
                         final lamp = controller.devices.firstWhereOrNull((d) => d.id == 'lamp1');
 
                         return Row(
                           children: [
-                            if (vac != null) ...[
-                              VacuumCard(
-                                device: vac,
-                                onToggle: () => controller.toggleDevice(vac.id),
+                            // if (vac != null) ...[
+                            //   VacuumCard(
+                            //     device: vac,
+                            //     onToggle: () => controller.toggleDevice(vac.id),
+                            //   ),
+                            //   const SizedBox(width: 24),
+                            // ],
+                            if (ac1 != null) ...[
+                              AcCard(
+                                device: ac1,
+                                onToggle: () => controller.toggleDevice(ac1.id),
                               ),
                               const SizedBox(width: 24),
                             ],
-                            if (ac != null) ...[
+                            if (ac2 != null) ...[
                               AcCard(
-                                device: ac,
-                                onToggle: () => controller.toggleDevice(ac.id),
+                                device: ac2,
+                                onToggle: () => controller.toggleDevice(ac2.id),
                               ),
                               const SizedBox(width: 24),
                             ],

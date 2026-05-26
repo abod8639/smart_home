@@ -56,8 +56,8 @@ class SidebarWidget extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Container(
-                width: 50,
-                height: 50,
+                width: 30,
+                height: 30,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.red.withOpacity(0.1),

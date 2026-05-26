@@ -40,18 +40,19 @@ class VacuumCard extends StatelessWidget {
               ],
             ),
             Expanded(
+              
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  Image.asset('assets/images/robot_vacuum.png', height: 120),
+                  Image.asset('assets/images/robot_vacuum.png', height: 190),
                   Positioned(
-                    left: 20,
-                    top: 40,
+                    left: 0,
+                    top: 20,
                     child: _buildInfoChip('${device.filterStatus}%', 'Filter Status'),
                   ),
                   Positioned(
-                    right: 20,
-                    bottom: 40,
+                    right: 1,
+                    bottom: 20,
                     child: _buildInfoChip('${device.nextCleaning}', 'Next cleaning'),
                   ),
                   // Mock lines connecting chips to vacuum
