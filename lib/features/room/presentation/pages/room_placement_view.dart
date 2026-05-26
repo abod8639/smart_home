@@ -5,6 +5,7 @@ import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
+import 'package:uuid/uuid.dart';
 
 class RoomPlacementView extends GetView<RoomPlacementController> {
   const RoomPlacementView({super.key});
@@ -124,13 +125,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                 child: Obx(() {
                   final selectedId = controller.selectedDeviceId.value;
                   if (selectedId == null) {
-                    return const Center(
-                      child: Text(
-                        'Select a device to view properties',
-                        style: TextStyle(color: AppTheme.textGrey),
-                        textAlign: TextAlign.center,
-                      ),
-                    );
+                    return _buildAddDevicePanel(context, dashboardController);
                   }
 
                   final device = dashboardController.devices.firstWhereOrNull((d) => d.id == selectedId);
@@ -288,7 +283,208 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     );
   }
 
+  // ── Add Device Panel ────────────────────────────────────────────────────────
+
+  Widget _buildAddDevicePanel(BuildContext context, DashboardController dashboardController) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Icon
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppTheme.primaryBlue.withValues(alpha: 0.15),
+            border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.4), width: 2),
+          ),
+          child: const Icon(
+            Icons.add_rounded,
+            color: AppTheme.primaryBlue,
+            size: 40,
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          'Add New Device',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Place a new smart device\nin your room',
+          style: TextStyle(color: AppTheme.textGrey, fontSize: 13),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 32),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            icon: const Icon(Icons.add_rounded, color: Colors.white),
+            label: const Text(
+              'Add Device',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryBlue,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () => _showAddDeviceDialog(context, dashboardController),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+
+  IconData _iconForType(DeviceType type) {
+    switch (type) {
+      case DeviceType.lamp:
+        return Icons.lightbulb_outline;
+      case DeviceType.airConditioner:
+        return Icons.ac_unit;
+      case DeviceType.vacuum:
+        return Icons.cleaning_services_outlined;
+      case DeviceType.door:
+        return Icons.sensor_door_outlined;
+    }
+  }
+
+  // ── Add Device Dialog ─────────────────────────────────────────────────────────
+
+  void _showAddDeviceDialog(BuildContext context, DashboardController dashboardController) {
+    final nameController = TextEditingController();
+    final linkedCountController = TextEditingController(text: '0');
+    var selectedType = DeviceType.lamp.obs;
+
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: AppTheme.cardBackground,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.add_circle_outline, color: AppTheme.primaryBlue, size: 22),
+            SizedBox(width: 8),
+            Text('Add New Device', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: nameController,
+                style: const TextStyle(color: Colors.white),
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'Device Name',
+                  hintText: 'e.g. Bedroom Lamp',
+                  hintStyle: TextStyle(color: Colors.white24),
+                  labelStyle: TextStyle(color: AppTheme.textGrey),
+                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryBlue)),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text('Device Type', style: TextStyle(color: AppTheme.textGrey, fontSize: 12)),
+              const SizedBox(height: 8),
+              Obx(() => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white12),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<DeviceType>(
+                        value: selectedType.value,
+                        dropdownColor: AppTheme.cardBackground,
+                        isExpanded: true,
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        onChanged: (val) {
+                          if (val != null) selectedType.value = val;
+                        },
+                        items: DeviceType.values.map((type) {
+                          return DropdownMenuItem(
+                            value: type,
+                            child: Row(
+                              children: [
+                                Icon(_iconForType(type), color: AppTheme.primaryBlue, size: 18),
+                                const SizedBox(width: 8),
+                                Text(type.name.capitalizeFirst ?? ''),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  )),
+              const SizedBox(height: 20),
+              TextField(
+                controller: linkedCountController,
+                style: const TextStyle(color: Colors.white),
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Linked Devices Count',
+                  labelStyle: TextStyle(color: AppTheme.textGrey),
+                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryBlue)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
+          ),
+          TextButton(
+            onPressed: () {
+              final name = nameController.text.trim();
+              if (name.isEmpty) {
+                Get.snackbar(
+                  'Validation',
+                  'Device name cannot be empty',
+                  backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.BOTTOM,
+                  margin: const EdgeInsets.all(16),
+                );
+                return;
+              }
+              final newDevice = DeviceEntity(
+                id: const Uuid().v4(),
+                name: name,
+                type: selectedType.value,
+                linkedDevicesCount: int.tryParse(linkedCountController.text) ?? 0,
+                // Placed at center by default; user can drag it
+                positionX: 0.5,
+                positionY: 0.5,
+              );
+              dashboardController.addDevice(newDevice);
+              controller.selectDevice(newDevice.id); // auto-select so properties appear
+              Get.back();
+            },
+            child: const Text('Add', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showDeleteConfirmation(BuildContext context, DeviceEntity device, DashboardController dashboardController) {
+
     Get.dialog(
       AlertDialog(
         backgroundColor: AppTheme.cardBackground,
