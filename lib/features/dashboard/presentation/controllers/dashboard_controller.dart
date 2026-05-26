@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
@@ -26,6 +27,7 @@ class DashboardController extends GetxController {
   var weatherCode = 0.obs;
 
   final Dio _dio = Dio();
+  Timer? _acTimer;
 
   void changeTab(int index) {
     currentNavigationIndex.value = index;
@@ -36,6 +38,13 @@ class DashboardController extends GetxController {
     super.onInit();
     _loadMockData();
     fetchLiveWeather();
+    _startAcTimer();
+  }
+
+  @override
+  void onClose() {
+    _acTimer?.cancel();
+    super.onClose();
   }
 
   void _loadMockData() {
@@ -242,4 +251,16 @@ class DashboardController extends GetxController {
     }
     return "Weather is pleasant. Open windows for fresh air or keep lights dim for a relaxed evening.";
   }
+
+  void _startAcTimer() {
+    _acTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      for (int i = 0; i < devices.length; i++) {
+        final d = devices[i];
+        if (d.type == DeviceType.airConditioner && d.isOn) {
+          devices[i] = d.copyWith(coolingTime: (d.coolingTime ?? 0) + 1);
+        }
+      }
+    });
+  }
 }
+

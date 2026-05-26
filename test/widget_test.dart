@@ -1,31 +1,20 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('Smart Home Dashboard App smoke test', (WidgetTester tester) async {
+    // Set a tablet/desktop screen size (1440x900)
+    tester.view.physicalSize = const Size(1440, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const ProviderScope(child: SmartHomeApp()));
+    await tester.pumpWidget(const SmartHomeApp());
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that the main rooms from our mock data are present on screen.
+    expect(find.text('Bedroom'), findsOneWidget);
+    expect(find.text('Living room'), findsOneWidget);
   });
 }

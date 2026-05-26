@@ -32,22 +32,25 @@ class LampCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      device.name, 
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        device.name, 
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      '3 Devices Connected', 
-                      style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      const Text(
+                        '3 Devices Connected', 
+                        style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
+                      ),
+                    ],
+                  ),
                 ),
                 Switch(
                   value: isDeviceOn,

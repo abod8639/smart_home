@@ -51,13 +51,16 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  'Weather Update',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
+                const Expanded(
+                  child: Text(
+                    'Weather Update',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],

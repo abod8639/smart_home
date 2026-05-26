@@ -24,19 +24,22 @@ class AcCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      device.name, 
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        device.name, 
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text('Full house', style: TextStyle(color: AppTheme.textGrey, fontSize: 11)),
-                  ],
+                      const SizedBox(height: 4),
+                      const Text('Full house', style: TextStyle(color: AppTheme.textGrey, fontSize: 11)),
+                    ],
+                  ),
                 ),
                 Switch(
                   value: isDeviceOn,
@@ -149,21 +152,23 @@ class AcCard extends StatelessWidget {
     );
   }
 
-  // Format running time from seconds to a readable string (e.g. 35m 12s)
-  String _formatRunningTime(int? totalSeconds) {
-    if (totalSeconds == null || totalSeconds == 0) return '0s';
-    final hours = totalSeconds ~/ 3600;
-    final minutes = (totalSeconds % 3600) ~/ 60;
-    final seconds = totalSeconds % 60;
+  // Format running time from minutes to a readable string (e.g. 35 min or 1h 15m)
+  String _formatRunningTime(int? totalMinutes) {
+    if (totalMinutes == null || totalMinutes == 0) return '0 min';
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
 
     if (hours > 0) {
-      return '${hours}h ${minutes}m ${seconds}s';
-    } else if (minutes > 0) {
-      return '${minutes}m ${seconds}s';
+      if (minutes > 0) {
+        return '${hours}h ${minutes}m';
+      } else {
+        return '${hours}h';
+      }
     } else {
-      return '${seconds}s';
+      return '$minutes min';
     }
   }
+
 
   Widget _buildBottomStat(IconData icon, String value, String label) {
     return Container(
