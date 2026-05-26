@@ -29,6 +29,10 @@ class DeviceEntity extends Equatable {
   // Linked devices count
   final int? linkedDevicesCount;
 
+  // Placement coordinates (normalized 0.0 to 1.0)
+  final double? positionX;
+  final double? positionY;
+
   const DeviceEntity({
     required this.id,
     required this.name,
@@ -45,6 +49,8 @@ class DeviceEntity extends Equatable {
     this.brightness,
     this.isLocked,
     this.linkedDevicesCount,
+    this.positionX,
+    this.positionY,
   });
 
   DeviceEntity copyWith({
@@ -63,6 +69,8 @@ class DeviceEntity extends Equatable {
     int? brightness,
     bool? isLocked,
     int? linkedDevicesCount,
+    double? positionX,
+    double? positionY,
   }) {
     return DeviceEntity(
       id: id ?? this.id,
@@ -80,6 +88,8 @@ class DeviceEntity extends Equatable {
       brightness: brightness ?? this.brightness,
       isLocked: isLocked ?? this.isLocked,
       linkedDevicesCount: linkedDevicesCount ?? this.linkedDevicesCount,
+      positionX: positionX ?? this.positionX,
+      positionY: positionY ?? this.positionY,
     );
   }
 
@@ -100,5 +110,7 @@ class DeviceEntity extends Equatable {
         brightness,
         isLocked,
         linkedDevicesCount,
+        positionX,
+        positionY,
       ];
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
 class RoomPreviewWidget extends GetView<DashboardController> {
   const RoomPreviewWidget({super.key});
@@ -85,24 +87,34 @@ class RoomPreviewWidget extends GetView<DashboardController> {
               ),
             ),
 
-            // Mock Device Markers (Simulated AR)
-            Positioned(
-              top: 150,
-              left: 200,
-              child: _buildDeviceMarker('3 Device'),
-            ),
-            Positioned(
-              top: 250,
-              left: 300,
-              child: _buildDeviceMarker('2 Device'),
-            ),
+            // Dynamic Device Markers (Simulated AR Overlay)
+            Positioned.fill(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Obx(() {
+                    final validDevices = controller.devices
+                        .where((d) => d.positionX != null && d.positionY != null)
+                        .toList();
 
-            // Smart Door Widget Overlay
-            // Positioned(
-            //   bottom: 24,
-            //   right: 24,
-            //   child: _buildSmartDoorWidget(),
-            // ),
+                    return Stack(
+                      children: validDevices.map((device) {
+                        final posX = device.positionX! * constraints.maxWidth;
+                        final posY = device.positionY! * constraints.maxHeight;
+
+                        return Positioned(
+                          left: posX - 24,
+                          top: posY - 24,
+                          child: GestureDetector(
+                            onTap: () => controller.toggleDevice(device.id),
+                            child: _buildInteractiveMarker(device),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  });
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -124,118 +136,73 @@ class RoomPreviewWidget extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildDeviceMarker(String text) {
+  Widget _buildInteractiveMarker(DeviceEntity device) {
+    final isOn = device.isOn;
+    IconData iconData;
+    switch (device.type) {
+      case DeviceType.lamp:
+        iconData = Icons.lightbulb_outline;
+        break;
+      case DeviceType.airConditioner:
+        iconData = Icons.ac_unit;
+        break;
+      case DeviceType.vacuum:
+        iconData = Icons.cleaning_services_outlined;
+        break;
+      case DeviceType.door:
+        iconData = device.isLocked ?? true ? Icons.lock_outline : Icons.lock_open_outlined;
+        break;
+    }
+
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
+        // Pulsing / Glowing Dot
         Container(
           width: 16,
           height: 16,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white,
+            color: isOn ? AppTheme.primaryBlue : Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.white.withValues(alpha: 0.5),
-                blurRadius: 10,
-                spreadRadius: 5,
+                color: isOn 
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.6) 
+                    : Colors.white.withValues(alpha: 0.4),
+                blurRadius: isOn ? 14 : 8,
+                spreadRadius: isOn ? 6 : 3,
               )
             ],
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
+        
+        // Small Glass Label
         GlassContainer(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           borderRadius: BorderRadius.circular(12),
           borderGradient: false,
-          child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 12)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                iconData,
+                color: isOn ? AppTheme.primaryBlue : Colors.white70,
+                size: 12,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                device.name,
+                style: TextStyle(
+                  color: isOn ? Colors.white : Colors.white70,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
-
-  // Widget _buildSmartDoorWidget() {
-  //   return Obx(() {
-  //     final doorDevice = controller.devices.firstWhereOrNull((d) => d.id == 'door1');
-  //     final isLocked = doorDevice?.isLocked ?? true;
-      
-  //     return GlassContainer(
-  //       width: 250,
-  //       padding: const EdgeInsets.all(16),
-  //       child: Column(
-  //         children: [
-  //           Row(
-  //             children: [
-  //               Container(
-  //                 padding: const EdgeInsets.all(12),
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.white.withValues(alpha: 0.1),
-  //                   shape: BoxShape.circle,
-  //                 ),
-  //                 child: Icon(
-  //                   isLocked ? Icons.lock_outline : Icons.lock_open_outlined,
-  //                   color: isLocked ? AppTheme.accentCyan : Colors.greenAccent,
-  //                 ),
-  //               ),
-  //               const SizedBox(width: 16),
-  //               Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   const Text('Smart Door', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-  //                   Text(isLocked ? 'Locked' : 'Unlocked', style: const TextStyle(color: AppTheme.textGrey, fontSize: 14)),
-  //                 ],
-  //               ),
-  //             ],
-  //           ),
-  //           const SizedBox(height: 16),
-  //           // Mock Slide to unlock
-  //           Container(
-  //             height: 40,
-  //             decoration: BoxDecoration(
-  //               color: Colors.black.withValues(alpha: 0.5),
-  //               borderRadius: BorderRadius.circular(20),
-  //             ),
-  //             child: Row(
-  //               children: [
-  //                 GestureDetector(
-  //                   onTap: () => controller.toggleDoor('door1'),
-  //                   child: Container(
-  //                     width: 40,
-  //                     height: 40,
-  //                     decoration: const BoxDecoration(
-  //                       shape: BoxShape.circle,
-  //                       color: Colors.orangeAccent,
-  //                     ),
-  //                     child: const Icon(Icons.lock_outline, color: Colors.white, size: 20),
-  //                   ),
-  //                 ),
-  //                 const Expanded(
-  //                   child: Row(
-  //                     mainAxisAlignment: MainAxisAlignment.center,
-  //                     children: [
-  //                       Icon(Icons.chevron_right, color: Colors.white54, size: 16),
-  //                       Icon(Icons.chevron_right, color: Colors.white54, size: 16),
-  //                       Icon(Icons.chevron_right, color: Colors.white54, size: 16),
-  //                     ],
-  //                   ),
-  //                 ),
-  //                 Container(
-  //                   width: 40,
-  //                   height: 40,
-  //                   decoration: BoxDecoration(
-  //                     shape: BoxShape.circle,
-  //                     border: Border.all(color: Colors.greenAccent),
-  //                   ),
-  //                   child: const Icon(Icons.center_focus_strong_outlined, color: Colors.greenAccent, size: 20),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //   });
-  // }
-
-
-
 }

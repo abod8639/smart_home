@@ -61,6 +61,8 @@ class DashboardController extends GetxController {
         name: 'Smart Door',
         type: DeviceType.door,
         isLocked: true,
+        positionX: 0.8,
+        positionY: 0.55,
       ),
       const DeviceEntity(
         id: 'vac1',
@@ -72,6 +74,8 @@ class DashboardController extends GetxController {
         cleaningTime: 32,
         filterStatus: 72,
         nextCleaning: '10:30 AM',
+        positionX: 0.35,
+        positionY: 0.75,
       ),
       const DeviceEntity(
         id: 'ac1',
@@ -81,6 +85,8 @@ class DashboardController extends GetxController {
         temperature: 21,
         mode: 'Auto mode',
         coolingTime: 35,
+        positionX: 0.25,
+        positionY: 0.35,
       ),
       const DeviceEntity(
         id: 'ac2',
@@ -90,6 +96,8 @@ class DashboardController extends GetxController {
         temperature: 24,
         mode: 'Eco mode',
         coolingTime: 10,
+        positionX: 0.72,
+        positionY: 0.32,
       ),
       const DeviceEntity(
         id: 'lamp1',
@@ -97,6 +105,8 @@ class DashboardController extends GetxController {
         type: DeviceType.lamp,
         isOn: true,
         brightness: 62,
+        positionX: 0.52,
+        positionY: 0.18,
       ),
     ];
   }
@@ -136,13 +146,24 @@ class DashboardController extends GetxController {
   }
 
   void addDevice(DeviceEntity device) {
-    devices.add(device);
+    // Default position to center if null
+    final deviceWithPos = device.positionX == null 
+        ? device.copyWith(positionX: 0.5, positionY: 0.5)
+        : device;
+    devices.add(deviceWithPos);
   }
 
   void updateDevice(DeviceEntity device) {
     final index = devices.indexWhere((d) => d.id == device.id);
     if (index != -1) {
       devices[index] = device;
+    }
+  }
+
+  void updateDevicePosition(String id, double x, double y) {
+    final index = devices.indexWhere((d) => d.id == id);
+    if (index != -1) {
+      devices[index] = devices[index].copyWith(positionX: x, positionY: y);
     }
   }
 

@@ -7,6 +7,8 @@ import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/presentation/widgets/rooms_list_widget.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/ac_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/lamp_card.dart';
+import 'package:smart_home/features/device/presentation/widgets/device_cards/vacuum_card.dart';
+import 'package:smart_home/features/device/presentation/widgets/device_cards/door_card.dart';
 
 class DashboardMainView extends GetView<DashboardController> {
   const DashboardMainView({super.key});
@@ -55,10 +57,16 @@ class DashboardMainView extends GetView<DashboardController> {
                       device: device,
                       onToggle: () => controller.toggleDevice(device.id),
                     );
-                  default:
-                    // For now, render other types as an empty box or generic if needed
-                    // In a complete app, we'd add VacuumCard and DoorCard here.
-                    return const SizedBox.shrink(); 
+                  case DeviceType.vacuum:
+                    return VacuumCard(
+                      device: device,
+                      onToggle: () => controller.toggleDevice(device.id),
+                    );
+                  case DeviceType.door:
+                    return DoorCard(
+                      device: device,
+                      onToggle: () => controller.toggleDoor(device.id),
+                    );
                 }
               },
             );

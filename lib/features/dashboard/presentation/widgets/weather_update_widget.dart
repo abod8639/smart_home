@@ -129,26 +129,15 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
                   ),
                 ),
                 
-                // Right Moon Image with Glow
+                // Right Vector Icon with Glow
                 Center(
-                  child: Container(
+                  child: SizedBox(
                     width: 100,
                     height: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: _getWeatherGlowColor(code, dayFlag),
-                          blurRadius: 20,
-                          spreadRadius: 2,
-                        )
-                      ],
-                    ),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/moon.png',
-                        fit: BoxFit.cover,
-                      ),
+                    child: CustomPaint(
+                      painter: dayFlag == 1 
+                          ? SunPainter() 
+                          : MoonPainter(glowColor: _getWeatherGlowColor(code, dayFlag)),
                     ),
                   ),
                 ),
@@ -276,4 +265,70 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
         ? Colors.white.withValues(alpha: 0.1) 
         : Colors.amberAccent.withValues(alpha: 0.12);
   }
+}
+
+class SunPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    // Draw outer glow
+    final glowPaint = Paint()
+      ..color = Colors.amberAccent.withValues(alpha: 0.3)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15);
+    canvas.drawCircle(center, size.width / 2 - 4, glowPaint);
+    
+    // Draw sun body
+    final sunPaint = Paint()
+      ..shader = const RadialGradient(
+        colors: [
+          Colors.white,
+          Colors.amberAccent,
+          Colors.orangeAccent,
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    canvas.drawCircle(center, size.width / 2 - 12, sunPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class MoonPainter extends CustomPainter {
+  final Color glowColor;
+  MoonPainter({required this.glowColor});
+  
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    // Draw outer glow
+    final glowPaint = Paint()
+      ..color = glowColor.withValues(alpha: 0.4)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15);
+    canvas.drawCircle(center, size.width / 2 - 4, glowPaint);
+    
+    // Draw moon body
+    final moonPaint = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          Colors.white,
+          Colors.white.withValues(alpha: 0.95),
+          const Color(0xFFE2E8F0),
+        ],
+        stops: const [0.0, 0.6, 1.0],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+      
+    canvas.drawCircle(center, size.width / 2 - 12, moonPaint);
+    
+    // Draw some crater details
+    final craterPaint = Paint()
+      ..color = const Color(0xFFCBD5E1).withValues(alpha: 0.4)
+      ..style = PaintingStyle.fill;
+      
+    canvas.drawCircle(Offset(size.width * 0.4, size.height * 0.4), 6, craterPaint);
+    canvas.drawCircle(Offset(size.width * 0.6, size.height * 0.5), 8, craterPaint);
+    canvas.drawCircle(Offset(size.width * 0.45, size.height * 0.65), 5, craterPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -11,8 +11,8 @@ class VacuumCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      flex: 4,
+    return SizedBox(
+      width: 320,
       child: GlassContainer(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -21,14 +21,26 @@ class VacuumCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(device.name, style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 4),
-                    const Text('3 Device', style: TextStyle(color: AppTheme.textGrey, fontSize: 12)),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        device.name,
+                        style: Theme.of(context).textTheme.titleMedium,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (device.linkedDevicesCount != null && device.linkedDevicesCount! > 0) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '${device.linkedDevicesCount} Devices Connected',
+                          style: const TextStyle(color: AppTheme.textGrey, fontSize: 11),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 12),
                 Switch(
                   value: device.isOn,
                   onChanged: (_) => onToggle(),
@@ -40,11 +52,18 @@ class VacuumCard extends StatelessWidget {
               ],
             ),
             Expanded(
-              
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  Image.asset('assets/images/robot_vacuum.png', height: 190),
+                  Image.asset(
+                    'assets/images/robot_vacuum.png',
+                    height: 190,
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.cleaning_services_outlined,
+                      size: 100,
+                      color: Colors.white24,
+                    ),
+                  ),
                   Positioned(
                     left: 0,
                     top: 20,
@@ -72,9 +91,17 @@ class VacuumCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildBottomStat(Icons.square_foot_outlined, '${device.areaCleaned}m²', 'Area cleaned'),
-                _buildBottomStat(Icons.access_time, '${device.cleaningTime} min', 'Cleaning time'),
-                _buildBottomStat(Icons.battery_charging_full, '${device.batteryLevel}%', 'battery level'),
+                Expanded(
+                  child: _buildBottomStat(Icons.square_foot_outlined, '${device.areaCleaned}m²', 'Area'),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildBottomStat(Icons.access_time, '${device.cleaningTime}m', 'Time'),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildBottomStat(Icons.battery_charging_full, '${device.batteryLevel}%', 'Battery'),
+                ),
               ],
             ),
           ],
@@ -102,21 +129,33 @@ class VacuumCard extends StatelessWidget {
 
   Widget _buildBottomStat(IconData icon, String value, String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: AppTheme.textGrey, size: 20),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-              Text(label, style: const TextStyle(color: AppTheme.textGrey, fontSize: 10)),
-            ],
+          Icon(icon, color: AppTheme.textGrey, size: 16),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  label,
+                  style: const TextStyle(color: AppTheme.textGrey, fontSize: 9),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),
