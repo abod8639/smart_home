@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
-import 'package:smart_home/core/widgets/Shadow_container.dart';
+import 'package:smart_home/core/widgets/shadow_container.dart';
 
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';

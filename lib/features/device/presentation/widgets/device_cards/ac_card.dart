@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
@@ -16,13 +15,14 @@ class AcCard extends StatelessWidget {
     return Expanded(
       flex: 3,
       child: GlassContainer(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Row: Name and Switch
+            // Top Row: Name, Subtitle & Custom Switch
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Column(
@@ -30,110 +30,214 @@ class AcCard extends StatelessWidget {
                     children: [
                       Text(
                         device.name, 
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 20,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      const Text('Full house', style: TextStyle(color: AppTheme.textGrey, fontSize: 11)),
+                      Text(
+                        'FULL HOUSE', 
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.4), 
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                Switch(
-                  value: isDeviceOn,
-                  onChanged: (_) => onToggle(),
-                  activeThumbColor: AppTheme.primaryBlue,
-                  activeTrackColor: AppTheme.primaryBlue.withValues(alpha: 0.3),
-                  inactiveThumbColor: AppTheme.textGrey,
-                  inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
+                const SizedBox(width: 8),
+                // Custom Switch matching the screenshot
+                GestureDetector(
+                  onTap: onToggle,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    width: 52,
+                    height: 28,
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      color: isDeviceOn 
+                          ? const Color(0xFF00E5FF) 
+                          : const Color(0xFF334155),
+                      boxShadow: isDeviceOn ? [
+                        BoxShadow(
+                          color: const Color(0xFF00E5FF).withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        )
+                      ] : null,
+                    ),
+                    child: AnimatedAlign(
+                      duration: const Duration(milliseconds: 250),
+                      alignment: isDeviceOn ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
             
-            // Middle Area: AC Unit Image with dynamic glow & temperature indicator
+            const SizedBox(height: 20),
+            
+            // Middle Area: Custom Drawn AC Unit
             Expanded(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Blue glowing breeze effect behind AC when ON
-                  if (isDeviceOn)
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      width: 140,
-                      height: 140,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            AppTheme.primaryBlue.withValues(alpha: 0.2),
-                            AppTheme.primaryBlue.withValues(alpha: 0.05),
-                            Colors.transparent,
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    width: 1,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    // Temperature Badge (Top Left)
+                    Positioned(
+                      left: 12,
+                      top: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.05),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.thermostat, 
+                              color: isDeviceOn ? const Color(0xFF00E5FF) : Colors.white.withValues(alpha: 0.4), 
+                              size: 14,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${device.temperature}°',
+                              style: const TextStyle(
+                                color: Colors.white, 
+                                fontSize: 13, 
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ),
 
-                  // AC Unit Asset
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 300),
-                    opacity: isDeviceOn ? 1.0 : 0.45,
-                    child: Image.asset(
-                      'assets/images/ac_unit.png', 
-                      height: 140, 
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-
-                  // Temperature Badge Overlay
-                  Positioned(
-                    left: 0,
-                    top: 16,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isDeviceOn 
-                              ? AppTheme.primaryBlue.withValues(alpha: 0.3) 
-                              : Colors.white.withValues(alpha: 0.05),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                    // Central AC Unit & Breeze Visualizer
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.thermostat, 
-                            color: isDeviceOn ? AppTheme.primaryBlue : AppTheme.textGrey, 
-                            size: 14,
+                          const SizedBox(height: 15),
+                          // AC Body Shape
+                          Container(
+                            width: 150,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: isDeviceOn 
+                                    ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
+                                    : [const Color(0xFF1E293B), const Color(0xFF182235)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: isDeviceOn 
+                                    ? Colors.white.withValues(alpha: 0.12) 
+                                    : Colors.white.withValues(alpha: 0.05),
+                                width: 1,
+                              ),
+                              boxShadow: isDeviceOn ? [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.25),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                )
+                              ] : null,
+                            ),
+                            child: Stack(
+                              alignment: Alignment.bottomCenter,
+                              children: [
+                                // Air vent / LED slit inside AC body
+                                Positioned(
+                                  bottom: 4,
+                                  child: Container(
+                                    width: 130,
+                                    height: 3,
+                                    decoration: BoxDecoration(
+                                      color: isDeviceOn 
+                                          ? const Color(0xFF00E5FF) 
+                                          : const Color(0xFF334155),
+                                      borderRadius: BorderRadius.circular(1.5),
+                                      boxShadow: isDeviceOn ? [
+                                        BoxShadow(
+                                          color: const Color(0xFF00E5FF).withValues(alpha: 0.8),
+                                          blurRadius: 4,
+                                          spreadRadius: 0.5,
+                                        )
+                                      ] : null,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${device.temperature}°',
-                            style: const TextStyle(
-                              color: Colors.white, 
-                              fontSize: 14, 
-                              fontWeight: FontWeight.bold,
+                          
+                          // Dynamic blowing air breeze below AC
+                          AnimatedOpacity(
+                            duration: const Duration(milliseconds: 300),
+                            opacity: isDeviceOn ? 1.0 : 0.0,
+                            child: Container(
+                              width: 120,
+                              height: 16,
+                              margin: const EdgeInsets.only(top: 4),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    const Color(0xFF00E5FF).withValues(alpha: 0.15),
+                                    Colors.transparent,
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
+            
+            const SizedBox(height: 16),
             
             // Bottom Area: Mode & Live Running Time Stats
             Row(
               children: [
                 Expanded(
                   child: _buildBottomStat(
-                    Icons.wb_sunny_outlined, 
-                    device.mode ?? 'Auto', 
-                    'Auto mode',
+                    device.mode == 'Eco mode' ? Icons.eco_outlined : Icons.wb_sunny_outlined, 
+                    device.mode ?? 'Auto mode', 
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -141,7 +245,6 @@ class AcCard extends StatelessWidget {
                   child: _buildBottomStat(
                     Icons.access_time, 
                     _formatRunningTime(device.coolingTime), 
-                    'Running time',
                   ),
                 ),
               ],
@@ -169,37 +272,31 @@ class AcCard extends StatelessWidget {
     }
   }
 
-
-  Widget _buildBottomStat(IconData icon, String value, String label) {
+  Widget _buildBottomStat(IconData icon, String value) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.3),
+        color: Colors.black.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.04),
+          width: 1,
+        ),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: AppTheme.textGrey, size: 16),
+          Icon(icon, color: Colors.white.withValues(alpha: 0.7), size: 18),
           const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value, 
-                  style: const TextStyle(
-                    color: Colors.white, 
-                    fontWeight: FontWeight.bold, 
-                    fontSize: 11,
-                  ), 
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  label, 
-                  style: const TextStyle(color: AppTheme.textGrey, fontSize: 9), 
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+          Flexible(
+            child: Text(
+              value, 
+              style: const TextStyle(
+                color: Colors.white, 
+                fontWeight: FontWeight.w400, 
+                fontSize: 13,
+              ), 
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
