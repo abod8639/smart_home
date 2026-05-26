@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
@@ -47,29 +46,29 @@ class RoomPreviewWidget extends GetView<DashboardController> {
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   // Live indicator
-                  GlassContainer(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    borderRadius: BorderRadius.circular(20),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.redAccent,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Text('Live', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-
+                  // GlassContainer(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  //   borderRadius: BorderRadius.circular(20),
+                  //   child: Row(
+                  //     mainAxisSize: MainAxisSize.min,
+                  //     children: [
+                  //       Container(
+                  //         width: 8,
+                  //         height: 8,
+                  //         decoration: const BoxDecoration(
+                  //           shape: BoxShape.circle,
+                  //           color: Colors.redAccent,
+                  //         ),
+                  //       ),
+                  //       const SizedBox(width: 8),
+                  //       const Text('Live', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  //     ],
+                  //   ),
+                  // ),
+                  
                   // Environment Stats
                   Obx(() => Row(
                     children: [
@@ -78,8 +77,8 @@ class RoomPreviewWidget extends GetView<DashboardController> {
                       _buildStatChip(Icons.air_outlined, controller.airflow.value),
                       const SizedBox(width: 12),
                       _buildStatChip(Icons.thermostat_outlined, controller.temperature.value),
-                      const SizedBox(width: 12),
-                      _buildStatChip(Icons.electric_bolt_outlined, controller.powerUsage.value),
+                      // const SizedBox(width: 12),
+                      // _buildStatChip(Icons.electric_bolt_outlined, controller.powerUsage.value),
                     ],
                   )),
                 ],
@@ -154,86 +153,89 @@ class RoomPreviewWidget extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildSmartDoorWidget() {
-    return Obx(() {
-      final doorDevice = controller.devices.firstWhereOrNull((d) => d.id == 'door1');
-      final isLocked = doorDevice?.isLocked ?? true;
+  // Widget _buildSmartDoorWidget() {
+  //   return Obx(() {
+  //     final doorDevice = controller.devices.firstWhereOrNull((d) => d.id == 'door1');
+  //     final isLocked = doorDevice?.isLocked ?? true;
       
-      return GlassContainer(
-        width: 250,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    isLocked ? Icons.lock_outline : Icons.lock_open_outlined,
-                    color: isLocked ? AppTheme.accentCyan : Colors.greenAccent,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Smart Door', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text(isLocked ? 'Locked' : 'Unlocked', style: const TextStyle(color: AppTheme.textGrey, fontSize: 14)),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Mock Slide to unlock
-            Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => controller.toggleDoor('door1'),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.orangeAccent,
-                      ),
-                      child: const Icon(Icons.lock_outline, color: Colors.white, size: 20),
-                    ),
-                  ),
-                  const Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.chevron_right, color: Colors.white54, size: 16),
-                        Icon(Icons.chevron_right, color: Colors.white54, size: 16),
-                        Icon(Icons.chevron_right, color: Colors.white54, size: 16),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.greenAccent),
-                    ),
-                    child: const Icon(Icons.center_focus_strong_outlined, color: Colors.greenAccent, size: 20),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    });
-  }
+  //     return GlassContainer(
+  //       width: 250,
+  //       padding: const EdgeInsets.all(16),
+  //       child: Column(
+  //         children: [
+  //           Row(
+  //             children: [
+  //               Container(
+  //                 padding: const EdgeInsets.all(12),
+  //                 decoration: BoxDecoration(
+  //                   color: Colors.white.withValues(alpha: 0.1),
+  //                   shape: BoxShape.circle,
+  //                 ),
+  //                 child: Icon(
+  //                   isLocked ? Icons.lock_outline : Icons.lock_open_outlined,
+  //                   color: isLocked ? AppTheme.accentCyan : Colors.greenAccent,
+  //                 ),
+  //               ),
+  //               const SizedBox(width: 16),
+  //               Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   const Text('Smart Door', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+  //                   Text(isLocked ? 'Locked' : 'Unlocked', style: const TextStyle(color: AppTheme.textGrey, fontSize: 14)),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //           const SizedBox(height: 16),
+  //           // Mock Slide to unlock
+  //           Container(
+  //             height: 40,
+  //             decoration: BoxDecoration(
+  //               color: Colors.black.withValues(alpha: 0.5),
+  //               borderRadius: BorderRadius.circular(20),
+  //             ),
+  //             child: Row(
+  //               children: [
+  //                 GestureDetector(
+  //                   onTap: () => controller.toggleDoor('door1'),
+  //                   child: Container(
+  //                     width: 40,
+  //                     height: 40,
+  //                     decoration: const BoxDecoration(
+  //                       shape: BoxShape.circle,
+  //                       color: Colors.orangeAccent,
+  //                     ),
+  //                     child: const Icon(Icons.lock_outline, color: Colors.white, size: 20),
+  //                   ),
+  //                 ),
+  //                 const Expanded(
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.center,
+  //                     children: [
+  //                       Icon(Icons.chevron_right, color: Colors.white54, size: 16),
+  //                       Icon(Icons.chevron_right, color: Colors.white54, size: 16),
+  //                       Icon(Icons.chevron_right, color: Colors.white54, size: 16),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 Container(
+  //                   width: 40,
+  //                   height: 40,
+  //                   decoration: BoxDecoration(
+  //                     shape: BoxShape.circle,
+  //                     border: Border.all(color: Colors.greenAccent),
+  //                   ),
+  //                   child: const Icon(Icons.center_focus_strong_outlined, color: Colors.greenAccent, size: 20),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   });
+  // }
+
+
+
 }
