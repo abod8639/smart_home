@@ -31,11 +31,11 @@ class GlassContainer extends StatelessWidget {
           height: height,
           padding: padding,
           decoration: BoxDecoration(
-            color: AppTheme.cardBackground.withValues(alpha: 0.5),
+            color: AppTheme.cardBackground.withValues(alpha: 0.1),
             borderRadius: borderRadius,
             border: borderGradient
                 ? Border.all(
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: Colors.white.withValues(alpha: 0.15),
                     width: 1.5,
                   )
                 : null,
