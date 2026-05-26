@@ -85,6 +85,7 @@ class RoomsPage extends ConsumerWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              // ignore: non_const_argument_for_const_parameter
                               Icon(
                                 IconData(room.iconCode, fontFamily: 'MaterialIcons'),
                                 size: 48,

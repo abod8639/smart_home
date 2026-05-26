@@ -46,7 +46,7 @@ class SettingsPage extends StatelessWidget {
                       labelText: 'ESP32 IP Address',
                       labelStyle: const TextStyle(color: Colors.white54),
                       enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
                       ),
                       focusedBorder: const UnderlineInputBorder(
                         borderSide: BorderSide(color: AppTheme.neonCyan),

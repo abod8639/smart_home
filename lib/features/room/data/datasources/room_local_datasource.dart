@@ -20,6 +20,7 @@ class RoomLocalDatasourceImpl implements RoomLocalDatasource {
         final List<dynamic> decoded = jsonDecode(jsonString);
         return decoded.map((e) => RoomModel.fromJson(e)).toList();
       } catch (e) {
+        // ignore: avoid_print
         print('Error decoding rooms: \$e');
         return [];
       }
