@@ -99,11 +99,11 @@ class RoomPreviewWidget extends GetView<DashboardController> {
             ),
 
             // Smart Door Widget Overlay
-            Positioned(
-              bottom: 24,
-              right: 24,
-              child: _buildSmartDoorWidget(),
-            ),
+            // Positioned(
+            //   bottom: 24,
+            //   right: 24,
+            //   child: _buildSmartDoorWidget(),
+            // ),
           ],
         ),
       ),

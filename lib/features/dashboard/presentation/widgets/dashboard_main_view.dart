@@ -16,7 +16,7 @@ class DashboardMainView extends GetView<DashboardController> {
       children: [
         // Top Section: Room Preview, Weather Update & Rooms List
         const Expanded(
-          flex: 6,
+          flex: 8,
           child: Row(
             children: [
               RoomPreviewWidget(),
