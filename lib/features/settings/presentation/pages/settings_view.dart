@@ -6,6 +6,7 @@ import 'package:smart_home/features/settings/presentation/widgets/profile_card.d
 import 'package:smart_home/features/settings/presentation/widgets/preferences_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/hub_config_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/safety_card.dart';
+import 'package:smart_home/features/settings/presentation/widgets/device_management_card.dart';
 
 class SettingsView extends GetView<SettingsController> {
   const SettingsView({super.key});
@@ -76,23 +77,23 @@ class SettingsView extends GetView<SettingsController> {
                   children: [
                     ProfileCard(),
                     SizedBox(height: 24),
-                    Expanded(
-                      child: PreferencesCard(),
-                    ),
+                    PreferencesCard(),
                   ],
                 ),
               ),
               const SizedBox(width: 24),
 
-              // Right Column: Hub Configuration & Safety Systems
+              // Right Column: Hub Configuration, Safety & Device Management
               const Expanded(
                 flex: 5,
                 child: Column(
                   children: [
                     HubConfigCard(),
                     SizedBox(height: 24),
+                    SafetyCard(),
+                    SizedBox(height: 24),
                     Expanded(
-                      child: SafetyCard(),
+                      child: DeviceManagementCard(),
                     ),
                   ],
                 ),

@@ -31,7 +31,7 @@ class _AddDeviceDialogState extends State<AddDeviceDialog> {
     final linkedCount = int.tryParse(_linkedCountController.text) ?? 0;
     
     // Generate a random ID
-    final id = '\${_selectedType.name}_\${Random().nextInt(10000)}';
+    final id = '${_selectedType.name}_${Random().nextInt(10000)}';
 
     final newDevice = DeviceEntity(
       id: id,

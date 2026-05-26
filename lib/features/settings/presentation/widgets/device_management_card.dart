@@ -57,7 +57,9 @@ class DeviceManagementCard extends GetView<DashboardController> {
               return ReorderableListView.builder(
                 padding: EdgeInsets.zero,
                 itemCount: controller.devices.length,
+                // ignore: deprecated_member_use
                 onReorder: (oldIndex, newIndex) {
+                  // Fallback for compatibility, use both or either if needed
                   controller.reorderDevices(oldIndex, newIndex);
                 },
                 proxyDecorator: (child, index, animation) {
