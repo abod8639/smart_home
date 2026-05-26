@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
-import 'package:smart_home/core/widgets/glass_container.dart';
+
 
 class WeatherUpdateWidget extends StatelessWidget {
   const WeatherUpdateWidget({super.key});

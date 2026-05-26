@@ -16,7 +16,7 @@ class SidebarWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 24),
             decoration: BoxDecoration(
-              color: AppTheme.cardBackground.withOpacity(0.3),
+              color: AppTheme.cardBackground.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(40),
             ),
             child: Column(
@@ -60,7 +60,7 @@ class SidebarWidget extends StatelessWidget {
                 height: 30,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                 ),
                 child: const Icon(Icons.logout, color: Colors.redAccent),
               ),
@@ -77,7 +77,7 @@ class SidebarWidget extends StatelessWidget {
       decoration: isActive
           ? BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
             )
           : null,
       child: Icon(

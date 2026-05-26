@@ -32,10 +32,10 @@ class VacuumCard extends StatelessWidget {
                 Switch(
                   value: device.isOn,
                   onChanged: (_) => onToggle(),
-                  activeColor: AppTheme.primaryBlue,
-                  activeTrackColor: AppTheme.primaryBlue.withOpacity(0.3),
+                  activeThumbColor: AppTheme.primaryBlue,
+                  activeTrackColor: AppTheme.primaryBlue.withValues(alpha: 0.3),
                   inactiveThumbColor: AppTheme.textGrey,
-                  inactiveTrackColor: Colors.white.withOpacity(0.1),
+                  inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
                 ),
               ],
             ),
@@ -87,9 +87,9 @@ class VacuumCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         children: [
@@ -104,7 +104,7 @@ class VacuumCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
+        color: Colors.black.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

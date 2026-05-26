@@ -32,10 +32,10 @@ class AcCard extends StatelessWidget {
                 Switch(
                   value: device.isOn,
                   onChanged: (_) => onToggle(),
-                  activeColor: AppTheme.primaryBlue,
-                  activeTrackColor: AppTheme.primaryBlue.withOpacity(0.3),
+                  activeThumbColor: AppTheme.primaryBlue,
+                  activeTrackColor: AppTheme.primaryBlue.withValues(alpha: 0.3),
                   inactiveThumbColor: AppTheme.textGrey,
-                  inactiveTrackColor: Colors.white.withOpacity(0.1),
+                  inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
                 ),
               ],
             ),
@@ -50,9 +50,9 @@ class AcCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.black.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3)),
+                        border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -87,7 +87,7 @@ class AcCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
+        color: Colors.black.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

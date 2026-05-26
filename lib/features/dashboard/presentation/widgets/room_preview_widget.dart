@@ -19,7 +19,7 @@ class RoomPreviewWidget extends GetView<DashboardController> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               blurRadius: 20,
               offset: const Offset(0, 10),
             )
@@ -35,9 +35,9 @@ class RoomPreviewWidget extends GetView<DashboardController> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.4),
+                    Colors.black.withValues(alpha: 0.4),
                     Colors.transparent,
-                    Colors.black.withOpacity(0.4),
+                    Colors.black.withValues(alpha: 0.4),
                   ],
                 ),
               ),
@@ -136,7 +136,7 @@ class RoomPreviewWidget extends GetView<DashboardController> {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white.withValues(alpha: 0.5),
                 blurRadius: 10,
                 spreadRadius: 5,
               )
@@ -169,7 +169,7 @@ class RoomPreviewWidget extends GetView<DashboardController> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -192,7 +192,7 @@ class RoomPreviewWidget extends GetView<DashboardController> {
             Container(
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(

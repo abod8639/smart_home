@@ -14,7 +14,7 @@ class RoomsListWidget extends GetView<DashboardController> {
       width: 300,
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
-        color: AppTheme.cardBackground.withOpacity(0.3),
+        color: AppTheme.cardBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(32),
       ),
       child: Column(
@@ -59,15 +59,15 @@ class RoomsListWidget extends GetView<DashboardController> {
                   end: Alignment.bottomRight,
                 )
               : null,
-          color: isActive ? null : AppTheme.cardBackground.withOpacity(0.5),
+          color: isActive ? null : AppTheme.cardBackground.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isActive ? Colors.transparent : Colors.white.withOpacity(0.05),
+            color: isActive ? Colors.transparent : Colors.white.withValues(alpha: 0.05),
           ),
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: AppTheme.primaryPurple.withOpacity(0.3),
+                    color: AppTheme.primaryPurple.withValues(alpha: 0.3),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   )
@@ -141,7 +141,7 @@ class RoomsListWidget extends GetView<DashboardController> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           )

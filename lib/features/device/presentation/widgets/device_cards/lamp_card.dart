@@ -32,10 +32,10 @@ class LampCard extends StatelessWidget {
                 Switch(
                   value: device.isOn,
                   onChanged: (_) => onToggle(),
-                  activeColor: AppTheme.primaryBlue,
-                  activeTrackColor: AppTheme.primaryBlue.withOpacity(0.3),
+                  activeThumbColor: AppTheme.primaryBlue,
+                  activeTrackColor: AppTheme.primaryBlue.withValues(alpha: 0.3),
                   inactiveThumbColor: AppTheme.textGrey,
-                  inactiveTrackColor: Colors.white.withOpacity(0.1),
+                  inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
                 ),
               ],
             ),
@@ -50,7 +50,7 @@ class LampCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Row(
@@ -62,7 +62,7 @@ class LampCard extends StatelessWidget {
                       min: 0,
                       max: 100,
                       activeColor: Colors.white,
-                      inactiveColor: Colors.white.withOpacity(0.2),
+                      inactiveColor: Colors.white.withValues(alpha: 0.2),
                       onChanged: (val) {},
                     ),
                   ),
