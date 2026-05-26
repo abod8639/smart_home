@@ -40,82 +40,34 @@ class AcCard extends StatelessWidget {
               ],
             ),
             Expanded(
-              child: Center(
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.1), width: 2),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.asset('assets/images/ac_unit.png', height: 160, fit: BoxFit.contain),
+                  Positioned(
+                    left: 0,
+                    top: 20,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.thermostat, color: AppTheme.primaryBlue, size: 16),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${device.temperature}°',
+                            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Simulated glowing ring
-                      Container(
-                        width: 130,
-                        height: 130,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: SweepGradient(
-                            colors: [
-                              AppTheme.primaryBlue,
-                              AppTheme.primaryPurple,
-                              AppTheme.primaryBlue,
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppTheme.cardBackground,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '${device.temperature}°',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 40,
-                                fontWeight: FontWeight.w300,
-                              ),
-                            ),
-                            const Text(
-                              'Temperature',
-                              style: TextStyle(color: AppTheme.textGrey, fontSize: 10),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                        top: 5,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppTheme.primaryPurple,
-                          ),
-                          child: const Icon(Icons.settings, color: Colors.white, size: 12),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 5,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppTheme.primaryBlue,
-                          ),
-                          child: const Icon(Icons.ac_unit, color: Colors.white, size: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                ],
               ),
             ),
             Row(

@@ -47,7 +47,7 @@ class DashboardController extends GetxController {
       ),
       const DeviceEntity(
         id: 'ac1',
-        name: 'Air Conditioner 1',
+        name: 'Dining Area AC',
         type: DeviceType.airConditioner,
         isOn: true,
         temperature: 21,
@@ -56,7 +56,7 @@ class DashboardController extends GetxController {
       ),
       const DeviceEntity(
         id: 'ac2',
-        name: 'Air Conditioner 2',
+        name: 'TV Area AC',
         type: DeviceType.airConditioner,
         isOn: false,
         temperature: 24,
