@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
-import 'features/dashboard/presentation/pages/dashboard_page.dart';
-import 'features/dashboard/presentation/controllers/dashboard_binding.dart';
+import 'core/routes/app_router.dart';
 
 void main() {
-  runApp(const SmartHomeApp());
+  runApp(
+    const ProviderScope(
+      child: SmartHomeApp(),
+    ),
+  );
 }
 
 class SmartHomeApp extends StatelessWidget {
@@ -13,18 +16,11 @@ class SmartHomeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+    return MaterialApp.router(
       title: 'Smart Home IoT',
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      initialRoute: '/dashboard',
-      getPages: [
-        GetPage(
-          name: '/dashboard',
-          page: () => const DashboardPage(),
-          binding: DashboardBinding(),
-        ),
-      ],
-      );
+      routerConfig: appRouter,
+    );
   }
 }

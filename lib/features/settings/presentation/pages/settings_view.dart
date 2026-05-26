@@ -64,7 +64,7 @@ class SettingsView extends GetView<SettingsController> {
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 14),
 
         // Main Content Row
         Expanded(
@@ -77,14 +77,14 @@ class SettingsView extends GetView<SettingsController> {
                 child: Column(
                   children: [
                     ProfileCard(),
-                    SizedBox(height: 24),
+                    SizedBox(height: 14),
                     Expanded(
                       child: PreferencesCard(),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 24),
+              const SizedBox(width: 14),
 
               // Right Column: Hub Configuration, Device Placement & Device Management
               Expanded(
@@ -92,11 +92,11 @@ class SettingsView extends GetView<SettingsController> {
                 child: Column(
                   children: [
                     const HubConfigCard(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 14),
                     Expanded(
                       child: DevicePlacementCard(),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 14),
                     const Expanded(
                       child: DeviceManagementCard(),
                     ),

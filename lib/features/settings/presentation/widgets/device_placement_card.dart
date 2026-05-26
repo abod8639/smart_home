@@ -13,23 +13,29 @@ class DevicePlacementCard extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     return GlassContainer(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Room Device Placement',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Room Device Placement',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              IconButton(
+                color: AppTheme.primaryBlue,
+                onPressed: () => Get.toNamed('/room-placement'),
+                icon: const Icon(Icons.edit, color: AppTheme.primaryBlue),
+              )
+            ],
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Long press a marker on the room image and drag it to adjust its physical location.',
-            style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
-          ),
-          const SizedBox(height: 16),
+
           
           Expanded(
             child: ClipRRect(
