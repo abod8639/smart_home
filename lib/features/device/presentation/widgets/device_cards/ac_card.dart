@@ -15,7 +15,7 @@ class AcCard extends StatelessWidget {
     return Expanded(
       flex: 3,
       child: GlassContainer(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -87,53 +87,16 @@ class AcCard extends StatelessWidget {
             Expanded(
               child: Stack(
                 children: [
-                  // Temperature Badge (Top Left)
-                  // Positioned(
-                  //   left: 12,
-                  //   top: 12,
-                  //   child: Container(
-                  //     padding: const EdgeInsets.symmetric(
-                  //       horizontal: 8,
-                  //       vertical: 4,
-                  //     ),
-                  //     decoration: BoxDecoration(
-                  //       color: Colors.black.withValues(alpha: 0.4),
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       border: Border.all(
-                  //         color: Colors.white.withValues(alpha: 0.05),
-                  //       ),
-                  //     ),
-                  //     child: Row(
-                  //       mainAxisSize: MainAxisSize.min,
-                  //       children: [
-                  //         Icon(
-                  //           Icons.thermostat,
-                  //           color: isDeviceOn
-                  //               ? const Color(0xFF00E5FF)
-                  //               : Colors.white.withValues(alpha: 0.4),
-                  //           size: 14,
-                  //         ),
-                  //         const SizedBox(width: 4),
-                  //         Text(
-                  //           '${device.temperature}°',
-                  //           style: const TextStyle(
-                  //             color: Colors.white,
-                  //             fontSize: 13,
-                  //             fontWeight: FontWeight.bold,
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
-
                   // Central AC Unit & Breeze Visualizer
                   Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      // crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            // TODO: call update device temp API
+                          },
                           icon: Icon(Icons.horizontal_rule),
                           color: Colors.blueAccent,
                         ),
@@ -182,6 +145,25 @@ class AcCard extends StatelessWidget {
                               child: Stack(
                                 alignment: Alignment.bottomCenter,
                                 children: [
+                                  Center(
+                                    child: Text(
+                                      '${device.temperature}°',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        shadows: <Shadow>[
+                                          BoxShadow(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.25,
+                                            ),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                   // Air vent / LED slit inside AC body
                                   Positioned(
                                     bottom: 4,
@@ -238,7 +220,9 @@ class AcCard extends StatelessWidget {
                           ],
                         ),
                         IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            // TODO: call update device temp API
+                          },
                           icon: Icon(Icons.add),
                           color: Colors.red,
                         ),
@@ -248,11 +232,10 @@ class AcCard extends StatelessWidget {
                 ],
               ),
             ),
-
-            const SizedBox(height: 16),
-
-            // Bottom Area: Mode & Live Running Time Stats
+            
             Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Expanded(
                   child: _buildBottomStat(
@@ -271,6 +254,7 @@ class AcCard extends StatelessWidget {
                 ),
               ],
             ),
+            // Bottom Area: Mode & Live Running Time Stats
           ],
         ),
       ),

@@ -102,6 +102,7 @@ class DashboardController extends GetxController {
   }
 
   void toggleDevice(String id) {
+    // TODO: Call update device API
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
@@ -110,6 +111,7 @@ class DashboardController extends GetxController {
   }
   
   void toggleDoor(String id) {
+    // TODO: Call update device API
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
@@ -122,6 +124,7 @@ class DashboardController extends GetxController {
   }
 
   void updateDeviceBrightness(String id, int brightness) {
+    // TODO: Call update device API
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];

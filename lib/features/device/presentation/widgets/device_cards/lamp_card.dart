@@ -109,98 +109,101 @@ class LampCard extends StatelessWidget {
                         ),
                       
                       // Pendant Lamp Widget Structure
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        // crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Cord/wire
-                          Container(
-                            width: 1.5,
-                            height: 12,
-                            color: Colors.white.withValues(alpha: 0.25),
-                          ),
-                          // Lamp Shade (curved dome cap)
-                          Container(
-                            width: 64,
-                            height: 18,
-                            decoration: BoxDecoration(
-                              color: isDeviceOn ? const Color(0xFF475569) : const Color(0xFF1E293B),
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(16),
-                                topRight: Radius.circular(16),
-                              ),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.08),
-                                width: 1,
+                      FittedBox(
+                        fit: BoxFit.contain,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          // crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Cord/wire
+                            Container(
+                              width: 1.5,
+                              height: 12,
+                              color: Colors.white.withValues(alpha: 0.25),
+                            ),
+                            // Lamp Shade (curved dome cap)
+                            Container(
+                              width: 64,
+                              height: 18,
+                              decoration: BoxDecoration(
+                                color: isDeviceOn ? const Color(0xFF475569) : const Color(0xFF1E293B),
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(16),
+                                  topRight: Radius.circular(16),
+                                ),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.08),
+                                  width: 1,
+                                ),
                               ),
                             ),
-                          ),
-                          // Metal socket rim
-                          Container(
-                            width: 66,
-                            height: 3,
-                            decoration: BoxDecoration(
-                              color: isDeviceOn 
-                                  ? Colors.amberAccent.withValues(alpha: 0.8) 
-                                  : const Color(0xFF0F172A),
-                              borderRadius: BorderRadius.circular(1.5),
+                            // Metal socket rim
+                            Container(
+                              width: 66,
+                              height: 3,
+                              decoration: BoxDecoration(
+                                color: isDeviceOn 
+                                    ? Colors.amberAccent.withValues(alpha: 0.8) 
+                                    : const Color(0xFF0F172A),
+                                borderRadius: BorderRadius.circular(1.5),
+                              ),
                             ),
-                          ),
-                          // Light Bulb & Light Beam Stack
-                          Stack(
-                            alignment: Alignment.topCenter,
-                            children: [
-                              // Projecting Light Beam
-                              AnimatedOpacity(
-                                duration: const Duration(milliseconds: 300),
-                                opacity: isDeviceOn ? 1.0 : 0.0,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: ClipPath(
-                                    clipper: LightBeamClipper(),
-                                    child: Container(
-                                      width: 130,
-                                      height: 48,
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.amberAccent.withValues(alpha: glowOpacity),
-                                            Colors.transparent,
-                                          ],
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
+                            // Light Bulb & Light Beam Stack
+                            Stack(
+                              alignment: Alignment.topCenter,
+                              children: [
+                                // Projecting Light Beam
+                                AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 300),
+                                  opacity: isDeviceOn ? 1.0 : 0.0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: ClipPath(
+                                      clipper: LightBeamClipper(),
+                                      child: Container(
+                                        width: 130,
+                                        height: 48,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.amberAccent.withValues(alpha: glowOpacity),
+                                              Colors.transparent,
+                                            ],
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              // Light Bulb Body
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                width: 22,
-                                height: 22,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: isDeviceOn 
-                                      ? Colors.amberAccent 
-                                      : Colors.white.withValues(alpha: 0.1),
-                                  border: Border.all(
-                                    color: isDeviceOn ? Colors.amber : Colors.white.withValues(alpha: 0.15),
-                                    width: 1,
+                                // Light Bulb Body
+                                AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  width: 22,
+                                  height: 22,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: isDeviceOn 
+                                        ? Colors.amberAccent 
+                                        : Colors.white.withValues(alpha: 0.1),
+                                    border: Border.all(
+                                      color: isDeviceOn ? Colors.amber : Colors.white.withValues(alpha: 0.15),
+                                      width: 1,
+                                    ),
+                                    boxShadow: isDeviceOn ? [
+                                      BoxShadow(
+                                        color: Colors.amberAccent.withValues(alpha: glowOpacity),
+                                        blurRadius: 12,
+                                        spreadRadius: 1,
+                                      )
+                                    ] : null,
                                   ),
-                                  boxShadow: isDeviceOn ? [
-                                    BoxShadow(
-                                      color: Colors.amberAccent.withValues(alpha: glowOpacity),
-                                      blurRadius: 12,
-                                      spreadRadius: 1,
-                                    )
-                                  ] : null,
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
