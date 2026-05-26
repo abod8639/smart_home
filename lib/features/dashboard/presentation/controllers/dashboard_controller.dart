@@ -135,6 +135,25 @@ class DashboardController extends GetxController {
     }
   }
 
+  void addDevice(DeviceEntity device) {
+    devices.add(device);
+  }
+
+  void updateDevice(DeviceEntity device) {
+    final index = devices.indexWhere((d) => d.id == device.id);
+    if (index != -1) {
+      devices[index] = device;
+    }
+  }
+
+  void reorderDevices(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final device = devices.removeAt(oldIndex);
+    devices.insert(newIndex, device);
+  }
+
   // Fetch real weather and geolocation details
   Future<void> fetchLiveWeather() async {
     isWeatherLoading.value = true;

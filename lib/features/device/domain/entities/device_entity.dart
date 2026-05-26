@@ -26,6 +26,9 @@ class DeviceEntity extends Equatable {
   // Door specifics
   final bool? isLocked;
 
+  // Linked devices count
+  final int? linkedDevicesCount;
+
   const DeviceEntity({
     required this.id,
     required this.name,
@@ -41,6 +44,7 @@ class DeviceEntity extends Equatable {
     this.coolingTime,
     this.brightness,
     this.isLocked,
+    this.linkedDevicesCount,
   });
 
   DeviceEntity copyWith({
@@ -58,6 +62,7 @@ class DeviceEntity extends Equatable {
     int? coolingTime,
     int? brightness,
     bool? isLocked,
+    int? linkedDevicesCount,
   }) {
     return DeviceEntity(
       id: id ?? this.id,
@@ -74,6 +79,7 @@ class DeviceEntity extends Equatable {
       coolingTime: coolingTime ?? this.coolingTime,
       brightness: brightness ?? this.brightness,
       isLocked: isLocked ?? this.isLocked,
+      linkedDevicesCount: linkedDevicesCount ?? this.linkedDevicesCount,
     );
   }
 
@@ -93,5 +99,6 @@ class DeviceEntity extends Equatable {
         coolingTime,
         brightness,
         isLocked,
+        linkedDevicesCount,
       ];
 }

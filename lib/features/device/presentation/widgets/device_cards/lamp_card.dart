@@ -61,11 +61,13 @@ class LampCard extends StatelessWidget {
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        '3 Devices Connected', 
-                        style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
-                      ),
+                      if (device.linkedDevicesCount != null && device.linkedDevicesCount! > 0) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '${device.linkedDevicesCount} Devices Connected', 
+                          style: const TextStyle(color: AppTheme.textGrey, fontSize: 11),
+                        ),
+                      ],
                     ],
                   ),
                 ),

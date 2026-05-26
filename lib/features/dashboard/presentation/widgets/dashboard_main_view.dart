@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/room_preview_widget.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/weather_update_widget.dart';
+import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/presentation/widgets/rooms_list_widget.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/ac_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/lamp_card.dart';
@@ -36,32 +37,30 @@ class DashboardMainView extends GetView<DashboardController> {
           child: Obx(() {
             if (controller.devices.isEmpty) return const SizedBox.shrink();
 
-            final ac1 = controller.devices.firstWhereOrNull((d) => d.id == 'ac1');
-            final ac2 = controller.devices.firstWhereOrNull((d) => d.id == 'ac2');
-            final lamp = controller.devices.firstWhereOrNull((d) => d.id == 'lamp1');
-
-            return Row(
-              children: [
-                if (ac1 != null) ...[
-                  AcCard(
-                    device: ac1,
-                    onToggle: () => controller.toggleDevice(ac1.id),
-                  ),
-                  const SizedBox(width: 24),
-                ],
-                if (ac2 != null) ...[
-                  AcCard(
-                    device: ac2,
-                    onToggle: () => controller.toggleDevice(ac2.id),
-                  ),
-                  const SizedBox(width: 24),
-                ],
-                if (lamp != null)
-                  LampCard(
-                    device: lamp,
-                    onToggle: () => controller.toggleDevice(lamp.id),
-                  ),
-              ],
+            return ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.devices.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 24),
+              itemBuilder: (context, index) {
+                final device = controller.devices[index];
+                
+                switch (device.type) {
+                  case DeviceType.airConditioner:
+                    return AcCard(
+                      device: device,
+                      onToggle: () => controller.toggleDevice(device.id),
+                    );
+                  case DeviceType.lamp:
+                    return LampCard(
+                      device: device,
+                      onToggle: () => controller.toggleDevice(device.id),
+                    );
+                  default:
+                    // For now, render other types as an empty box or generic if needed
+                    // In a complete app, we'd add VacuumCard and DoorCard here.
+                    return const SizedBox.shrink(); 
+                }
+              },
             );
           }),
         ),
