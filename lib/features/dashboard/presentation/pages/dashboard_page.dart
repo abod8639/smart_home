@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/room_preview_widget.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/sidebar_widget.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:smart_home/features/dashboard/presentation/widgets/weather_update_widget.dart';
 import 'package:smart_home/features/room/presentation/widgets/rooms_list_widget.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/ac_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/lamp_card.dart';
@@ -32,6 +33,8 @@ class DashboardPage extends GetView<DashboardController> {
                         children: [
                           RoomPreviewWidget(),
                           SizedBox(width: 24),
+                          WeatherUpdateWidget(),
+                          SizedBox(width: 24),
                           RoomsListWidget(),
                         ],
                       ),
@@ -45,7 +48,6 @@ class DashboardPage extends GetView<DashboardController> {
                       child: Obx(() {
                         if (controller.devices.isEmpty) return const SizedBox.shrink();
 
-                        final vac = controller.devices.firstWhereOrNull((d) => d.id == 'vac1');
                         final ac1 = controller.devices.firstWhereOrNull((d) => d.id == 'ac1');
                         final ac2 = controller.devices.firstWhereOrNull((d) => d.id == 'ac2');
                         final lamp = controller.devices.firstWhereOrNull((d) => d.id == 'lamp1');
