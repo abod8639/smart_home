@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
-class SidebarWidget extends StatelessWidget {
+class SidebarWidget extends GetView<DashboardController> {
   const SidebarWidget({super.key});
 
   @override
@@ -21,19 +23,19 @@ class SidebarWidget extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _buildNavItem(Icons.home_filled, isActive: true),
+                _buildNavItem(Icons.home_filled, 0),
                 const SizedBox(height: 32),
-                _buildNavItem(Icons.bolt),
+                _buildNavItem(Icons.bolt, 1),
                 const SizedBox(height: 32),
-                _buildNavItem(Icons.storage),
+                _buildNavItem(Icons.storage, 2),
                 const SizedBox(height: 32),
-                _buildNavItem(Icons.notifications_none),
+                _buildNavItem(Icons.notifications_none, 3),
                 const SizedBox(height: 32),
-                _buildNavItem(Icons.pie_chart_outline),
+                _buildNavItem(Icons.pie_chart_outline, 4),
                 const SizedBox(height: 32),
-                _buildNavItem(Icons.videocam_outlined),
+                _buildNavItem(Icons.videocam_outlined, 5),
                 const SizedBox(height: 32),
-                _buildNavItem(Icons.settings_outlined),
+                _buildNavItem(Icons.settings_outlined, 6),
                 const SizedBox(height: 32),
                 const Icon(Icons.keyboard_arrow_down, color: AppTheme.textGrey),
               ],
@@ -71,20 +73,27 @@ class SidebarWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(IconData icon, {bool isActive = false}) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: isActive
-          ? BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.1),
-            )
-          : null,
-      child: Icon(
-        icon,
-        color: isActive ? Colors.white : AppTheme.textGrey,
-        size: 28,
-      ),
-    );
+  Widget _buildNavItem(IconData icon, int index) {
+    return Obx(() {
+      final isActive = controller.currentNavigationIndex.value == index;
+      return GestureDetector(
+        onTap: () => controller.changeTab(index),
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: isActive
+              ? BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.1),
+                )
+              : null,
+          child: Icon(
+            icon,
+            color: isActive ? Colors.white : AppTheme.textGrey,
+            size: 28,
+          ),
+        ),
+      );
+    });
   }
 }

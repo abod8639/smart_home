@@ -6,12 +6,17 @@ class DashboardController extends GetxController {
   // Observables
   var rooms = <RoomEntity>[].obs;
   var devices = <DeviceEntity>[].obs;
+  var currentNavigationIndex = 0.obs;
   
   // Environment Stats for the selected room
   var humidity = '50%'.obs;
   var airflow = '80%'.obs;
   var temperature = '27°'.obs;
   var powerUsage = '360W'.obs;
+
+  void changeTab(int index) {
+    currentNavigationIndex.value = index;
+  }
 
   @override
   void onInit() {
