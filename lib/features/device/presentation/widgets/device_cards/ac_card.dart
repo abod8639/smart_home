@@ -12,8 +12,8 @@ class AcCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDeviceOn = device.isOn;
 
-    return Expanded(
-      flex: 3,
+    return SizedBox(
+      width: 380,
       child: GlassContainer(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
@@ -131,7 +131,7 @@ class AcCard extends StatelessWidget {
                             const SizedBox(height: 15),
                             // AC Body Shape
                             Container(
-                              width: 300,
+                              width: 220,
                               height: 66,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
@@ -192,7 +192,7 @@ class AcCard extends StatelessWidget {
                                   Positioned(
                                     bottom: 4,
                                     child: Container(
-                                      width: 230,
+                                      width: 180,
                                       height: 4,
                                       decoration: BoxDecoration(
                                         color: isDeviceOn

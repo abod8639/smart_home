@@ -38,8 +38,8 @@ class LampCard extends StatelessWidget {
     final double glowOpacity = isDeviceOn ? (brightnessVal / 100.0 * 0.5).clamp(0.1, 0.5) : 0.0;
     final double glowSize = isDeviceOn ? (60.0 + (brightnessVal / 100.0 * 60.0)) : 0.0;
 
-    return Expanded(
-      flex: 2,
+    return SizedBox(
+      width: 260,
       child: GlassContainer(
         padding: const EdgeInsets.all(24),
         child: Column(

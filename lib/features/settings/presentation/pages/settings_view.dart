@@ -77,7 +77,9 @@ class SettingsView extends GetView<SettingsController> {
                   children: [
                     ProfileCard(),
                     SizedBox(height: 24),
-                    PreferencesCard(),
+                    Expanded(
+                      child: PreferencesCard(),
+                    ),
                   ],
                 ),
               ),
@@ -90,8 +92,10 @@ class SettingsView extends GetView<SettingsController> {
                   children: [
                     HubConfigCard(),
                     SizedBox(height: 24),
-                    SafetyCard(),
-                    SizedBox(height: 24),
+                    // Expanded(
+                    //   child: SafetyCard(),
+                    // ),
+                    // SizedBox(height: 24),
                     Expanded(
                       child: DeviceManagementCard(),
                     ),
