@@ -168,6 +168,10 @@ class DashboardController extends GetxController {
     }
   }
 
+  void deleteDevice(String id) {
+    devices.removeWhere((d) => d.id == id);
+  }
+
   void updateDevicePosition(String id, double x, double y) {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {

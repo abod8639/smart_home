@@ -203,12 +203,35 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Device Properties',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                'Device Properties',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                overflow: TextOverflow.ellipsis,
               ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, color: AppTheme.primaryBlue, size: 20),
+                  onPressed: () => _showEditDeviceDialog(context, device, dashboardController),
+                  tooltip: 'Edit Device',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                  onPressed: () => _showDeleteConfirmation(context, device, dashboardController),
+                  tooltip: 'Delete Device',
+                ),
+              ],
+            ),
+          ],
         ),
         const SizedBox(height: 24),
         _buildPropertyRow('Name', device.name),
@@ -262,6 +285,132 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, DeviceEntity device, DashboardController dashboardController) {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: AppTheme.cardBackground,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        ),
+        title: const Text('Delete Device', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: Text('Are you sure you want to delete ${device.name}?', style: const TextStyle(color: AppTheme.textGrey)),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
+          ),
+          TextButton(
+            onPressed: () {
+              dashboardController.deleteDevice(device.id);
+              controller.selectDevice(null); // Deselect
+              Get.back();
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditDeviceDialog(BuildContext context, DeviceEntity device, DashboardController dashboardController) {
+    final nameController = TextEditingController(text: device.name);
+    final linkedCountController = TextEditingController(text: (device.linkedDevicesCount ?? 0).toString());
+    var selectedType = device.type.obs;
+
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: AppTheme.cardBackground,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        ),
+        title: const Text('Edit Device', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: nameController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Device Name',
+                  labelStyle: TextStyle(color: AppTheme.textGrey),
+                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryBlue)),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text('Device Type', style: TextStyle(color: AppTheme.textGrey, fontSize: 12)),
+              const SizedBox(height: 8),
+              Obx(() => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white12),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<DeviceType>(
+                        value: selectedType.value,
+                        dropdownColor: AppTheme.cardBackground,
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        onChanged: (val) {
+                          if (val != null) selectedType.value = val;
+                        },
+                        items: DeviceType.values.map((type) {
+                          return DropdownMenuItem(
+                            value: type,
+                            child: Text(type.name.capitalizeFirst ?? ''),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  )),
+              const SizedBox(height: 20),
+              TextField(
+                controller: linkedCountController,
+                style: const TextStyle(color: Colors.white),
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Linked Devices Count',
+                  labelStyle: TextStyle(color: AppTheme.textGrey),
+                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryBlue)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
+          ),
+          TextButton(
+            onPressed: () {
+              final name = nameController.text.trim();
+              if (name.isEmpty) return;
+
+              final updatedDevice = device.copyWith(
+                name: name,
+                type: selectedType.value,
+                linkedDevicesCount: int.tryParse(linkedCountController.text) ?? 0,
+              );
+
+              dashboardController.updateDevice(updatedDevice);
+              Get.back();
+            },
+            child: const Text('Save', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
     );
   }
 
