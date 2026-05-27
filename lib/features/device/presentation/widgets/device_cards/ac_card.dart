@@ -226,7 +226,7 @@ class AcCard extends StatelessWidget {
                               opacity: isDeviceOn ? 1.0 : 0.0,
                               child: Container(
                                 width: breezeW,
-                                height: breezeH,
+                                height: Responsive.isMobile(context) ?  breezeH-16: breezeH,
                                 margin: EdgeInsets.only(top: 4 * m.scale),
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
