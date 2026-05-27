@@ -91,13 +91,16 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Living Room',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
+          Obx(() {
+            final activeRoom = dashboardController.activeRoom;
+            return Text(
+              activeRoom?.name ?? 'Living Room',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+            );
+          }),
           const SizedBox(height: 16),
           Expanded(
             child: Center(
@@ -109,10 +112,14 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                     key: imageKey,
                     children: [
                       Positioned.fill(
-                        child: Image.asset(
-                          'assets/images/living_room.png',
-                          fit: BoxFit.cover,
-                        ),
+                        child: Obx(() {
+                          final activeRoom = dashboardController.activeRoom;
+                          final bgImage = _getRoomBackgroundImage(activeRoom?.name);
+                          return Image.asset(
+                            bgImage,
+                            fit: BoxFit.cover,
+                          );
+                        }),
                       ),
                       Positioned.fill(
                         child: Container(
@@ -123,8 +130,10 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                         child: LayoutBuilder(
                           builder: (context, constraints) {
                             return Obx(() {
+                              final activeRoomId = dashboardController.activeRoom?.id ?? '3';
                               final validDevices = dashboardController.devices
                                   .where((d) => d.positionX != null && d.positionY != null)
+                                  .where((d) => d.roomId == activeRoomId || (d.roomId == null && activeRoomId == '3'))
                                   .toList();
 
                               return Stack(
@@ -812,5 +821,20 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         ),
       ],
     );
+  }
+
+  String _getRoomBackgroundImage(String? roomName) {
+    if (roomName == null) return 'assets/images/living_room.png';
+    switch (roomName.toLowerCase()) {
+      case 'kitchen':
+        return 'assets/images/kitchen.png';
+      case 'bedroom':
+        return 'assets/images/bedroom.png';
+      case 'bathroom':
+        return 'assets/images/bathroom.png';
+      case 'living room':
+      default:
+        return 'assets/images/living_room.png';
+    }
   }
 }

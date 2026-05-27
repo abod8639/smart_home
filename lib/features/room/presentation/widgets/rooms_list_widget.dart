@@ -301,44 +301,6 @@ class RoomsListWidget extends GetView<DashboardController> {
     }
   }
 
-  Widget _buildAddRoomButton() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        // color: AppTheme.primaryBlue.withValues(alpha: 0.05),
-        gradient: LinearGradient(
-          colors: [AppTheme.cardBackground, AppTheme.cardBackground],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: AppTheme.primaryBlue.withValues(alpha: 0.3),
-        //     blurRadius: 15,
-        //     offset: const Offset(0, 5),
-        //   )
-        // ],
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.add, color: Colors.white, size: 20),
-          SizedBox(width: 8),
-          Text(
-            'ADD ROOM',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showRoomOptions(BuildContext context, RoomEntity room) {
     showDialog(
       context: context,

@@ -34,6 +34,8 @@ class DashboardController extends GetxController {
   final DeviceLocalDatasource _datasource = DeviceLocalDatasource();
   final RoomLocalDatasource _roomDatasource = RoomLocalDatasource();
 
+  RoomEntity? get activeRoom => rooms.firstWhereOrNull((r) => r.isActive);
+
   void changeTab(int index) {
     currentNavigationIndex.value = index;
   }
@@ -105,6 +107,7 @@ class DashboardController extends GetxController {
         isLocked: true,
         positionX: 0.8,
         positionY: 0.55,
+        roomId: '3',
       ),
       const DeviceEntity(
         id: 'vac1',
@@ -118,6 +121,7 @@ class DashboardController extends GetxController {
         nextCleaning: '10:30 AM',
         positionX: 0.35,
         positionY: 0.75,
+        roomId: '3',
       ),
       const DeviceEntity(
         id: 'ac1',
@@ -129,6 +133,7 @@ class DashboardController extends GetxController {
         coolingTime: 35,
         positionX: 0.25,
         positionY: 0.35,
+        roomId: '3',
       ),
       const DeviceEntity(
         id: 'ac2',
@@ -140,6 +145,7 @@ class DashboardController extends GetxController {
         coolingTime: 10,
         positionX: 0.72,
         positionY: 0.32,
+        roomId: '3',
       ),
       const DeviceEntity(
         id: 'lamp1',
@@ -149,6 +155,7 @@ class DashboardController extends GetxController {
         brightness: 62,
         positionX: 0.52,
         positionY: 0.18,
+        roomId: '3',
       ),
       const DeviceEntity(
         id: 'rgb1',
@@ -161,6 +168,65 @@ class DashboardController extends GetxController {
         brightness: 80,
         positionX: 0.65,
         positionY: 0.65,
+        roomId: '3',
+      ),
+      // Bedroom (ID '1')
+      const DeviceEntity(
+        id: 'ac_bed',
+        name: 'Bedroom AC',
+        type: DeviceType.airConditioner,
+        isOn: true,
+        temperature: 22,
+        mode: 'Quiet mode',
+        coolingTime: 12,
+        positionX: 0.3,
+        positionY: 0.3,
+        roomId: '1',
+      ),
+      const DeviceEntity(
+        id: 'lamp_bed',
+        name: 'Bedside Lamp',
+        type: DeviceType.lamp,
+        isOn: true,
+        brightness: 40,
+        positionX: 0.7,
+        positionY: 0.4,
+        roomId: '1',
+      ),
+      // Kitchen (ID '2')
+      const DeviceEntity(
+        id: 'rgb_kitchen',
+        name: 'Kitchen LED Strip',
+        type: DeviceType.rgb,
+        isOn: true,
+        rgbR: 255,
+        rgbG: 180,
+        rgbB: 0,
+        brightness: 75,
+        positionX: 0.45,
+        positionY: 0.25,
+        roomId: '2',
+      ),
+      const DeviceEntity(
+        id: 'vac_kitchen',
+        name: 'Kitchen Vacuum',
+        type: DeviceType.vacuum,
+        isOn: false,
+        batteryLevel: 90,
+        positionX: 0.2,
+        positionY: 0.8,
+        roomId: '2',
+      ),
+      // Bathroom (ID '4')
+      const DeviceEntity(
+        id: 'lamp_bath',
+        name: 'Mirror Light',
+        type: DeviceType.lamp,
+        isOn: true,
+        brightness: 80,
+        positionX: 0.5,
+        positionY: 0.25,
+        roomId: '4',
       ),
     ];
   }
@@ -247,10 +313,13 @@ class DashboardController extends GetxController {
 
 
   void addDevice(DeviceEntity device) {
-    // Default position to center if null
-    final deviceWithPos = device.positionX == null 
-        ? device.copyWith(positionX: 0.5, positionY: 0.5)
+    var deviceWithRoom = device.roomId == null && activeRoom != null
+        ? device.copyWith(roomId: activeRoom!.id)
         : device;
+    // Default position to center if null
+    final deviceWithPos = deviceWithRoom.positionX == null 
+        ? deviceWithRoom.copyWith(positionX: 0.5, positionY: 0.5)
+        : deviceWithRoom;
     devices.add(deviceWithPos);
     _persistDevices();
   }
