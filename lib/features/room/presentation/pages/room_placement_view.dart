@@ -778,7 +778,13 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                         items: DeviceType.values.map((type) {
                           return DropdownMenuItem(
                             value: type,
-                            child: Text(type.name.capitalizeFirst ?? ''),
+                            child: Row(
+                              children: [
+                                Icon(_iconForType(type), color: AppTheme.primaryBlue, size: 18),
+                                const SizedBox(width: 8),
+                                Text(type.name.capitalizeFirst ?? ''),
+                              ],
+                            ),
                           );
                         }).toList(),
                       ),

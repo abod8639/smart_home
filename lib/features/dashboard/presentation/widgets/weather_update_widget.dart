@@ -45,41 +45,41 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 1. Top Header Row (Dynamic Weather Icon and Title)
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        width: 1,
-                      ),
-                    ),
-                    child: Icon(
-                      _getWeatherHeaderIcon(code, dayFlag),
-                      color: _getWeatherHeaderColor(code, dayFlag),
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text(
-                      'Weather Update',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
+              // Row(
+              //   children: [
+              //     Container(
+              //       padding: const EdgeInsets.all(10),
+              //       decoration: BoxDecoration(
+              //         color: Colors.white.withValues(alpha: 0.08),
+              //         shape: BoxShape.circle,
+              //         border: Border.all(
+              //           color: Colors.white.withValues(alpha: 0.1),
+              //           width: 1,
+              //         ),
+              //       ),
+              //       child: Icon(
+              //         _getWeatherHeaderIcon(code, dayFlag),
+              //         color: _getWeatherHeaderColor(code, dayFlag),
+              //         size: 20,
+              //       ),
+              //     ),
+              //     const SizedBox(width: 12),
+              //     const Expanded(
+              //       child: Text(
+              //         'Weather Update',
+              //         style: TextStyle(
+              //           color: Colors.white,
+              //           fontSize: 18,
+              //           fontWeight: FontWeight.bold,
+              //           letterSpacing: 0.5,
+              //         ),
+              //         overflow: TextOverflow.ellipsis,
+              //       ),
+              //     ),
+              //   ],
+              // ),
 
-              const SizedBox(height: 24),
+              // const SizedBox(height: 24),
 
               // 2. Middle Row (Location, Date, Temp, Condition, and Moon Image)
               Row(
