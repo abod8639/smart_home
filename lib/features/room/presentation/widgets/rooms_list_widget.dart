@@ -27,14 +27,14 @@ class RoomsListWidget extends GetView<DashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Rooms', style: Theme.of(context).textTheme.titleLarge),
-              const Icon(Icons.info_outline, color: AppTheme.textGrey, size: 20),
-            ],
-          ),
-          const SizedBox(height: 16),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     Text('Rooms', style: Theme.of(context).textTheme.titleLarge),
+          //     const Icon(Icons.info_outline, color: AppTheme.textGrey, size: 20),
+          //   ],
+          // ),
+          // const SizedBox(height: 16),
           Obx(() => ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),

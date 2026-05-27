@@ -234,28 +234,28 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
   }
 
   // Get dynamic header icon based on code and day/night status
-  IconData _getWeatherHeaderIcon(int code, int dayFlag) {
-    final isNight = dayFlag == 0;
-    if (code >= 95) return Icons.thunderstorm_outlined;
-    if (code >= 80) return Icons.water_drop_outlined;
-    if (code >= 71) return Icons.ac_unit_outlined;
-    if (code >= 51) return Icons.umbrella_outlined;
-    if (code >= 45) return Icons.filter_drama_outlined;
-    if (code >= 1) return Icons.cloud_outlined;
-    return isNight ? Icons.nights_stay_outlined : Icons.wb_sunny_outlined;
-  }
+  // IconData _getWeatherHeaderIcon(int code, int dayFlag) {
+  //   final isNight = dayFlag == 0;
+  //   if (code >= 95) return Icons.thunderstorm_outlined;
+  //   if (code >= 80) return Icons.water_drop_outlined;
+  //   if (code >= 71) return Icons.ac_unit_outlined;
+  //   if (code >= 51) return Icons.umbrella_outlined;
+  //   if (code >= 45) return Icons.filter_drama_outlined;
+  //   if (code >= 1) return Icons.cloud_outlined;
+  //   return isNight ? Icons.nights_stay_outlined : Icons.wb_sunny_outlined;
+  // }
 
   // Get dynamic weather icon color
-  Color _getWeatherHeaderColor(int code, int dayFlag) {
-    final isNight = dayFlag == 0;
-    if (code >= 95) return Colors.purpleAccent;
-    if (code >= 80) return AppTheme.primaryBlue;
-    if (code >= 71) return Colors.lightBlueAccent;
-    if (code >= 51) return AppTheme.primaryBlue;
-    if (code >= 45) return Colors.grey;
-    if (code >= 1) return Colors.white70;
-    return isNight ? Colors.white : Colors.amberAccent;
-  }
+  // Color _getWeatherHeaderColor(int code, int dayFlag) {
+  //   final isNight = dayFlag == 0;
+  //   if (code >= 95) return Colors.purpleAccent;
+  //   if (code >= 80) return AppTheme.primaryBlue;
+  //   if (code >= 71) return Colors.lightBlueAccent;
+  //   if (code >= 51) return AppTheme.primaryBlue;
+  //   if (code >= 45) return Colors.grey;
+  //   if (code >= 1) return Colors.white70;
+  //   return isNight ? Colors.white : Colors.amberAccent;
+  // }
 
   // Get dynamic shadow glow color for the moon element based on condition
   Color _getWeatherGlowColor(int code, int dayFlag) {
