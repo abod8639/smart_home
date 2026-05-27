@@ -7,6 +7,7 @@ class DeviceEntity extends Equatable {
   final String name;
   final DeviceType type;
   final bool isOn;
+  final String? roomId;
   
   // Vacuum specifics
   final int? batteryLevel;
@@ -33,7 +34,7 @@ class DeviceEntity extends Equatable {
   final double? positionX;
   final double? positionY;
 
-  // Marker display size in logical pixels (for room placement view)
+  // Display size in logical pixels (for room placement view)
   final double? markerWidth;
   final double? markerHeight;
 
@@ -47,6 +48,7 @@ class DeviceEntity extends Equatable {
     required this.name,
     required this.type,
     this.isOn = false,
+    this.roomId,
     this.batteryLevel,
     this.areaCleaned,
     this.cleaningTime,
@@ -72,6 +74,7 @@ class DeviceEntity extends Equatable {
     String? name,
     DeviceType? type,
     bool? isOn,
+    String? roomId,
     int? batteryLevel,
     int? areaCleaned,
     int? cleaningTime,
@@ -96,6 +99,7 @@ class DeviceEntity extends Equatable {
       name: name ?? this.name,
       type: type ?? this.type,
       isOn: isOn ?? this.isOn,
+      roomId: roomId ?? this.roomId,
       batteryLevel: batteryLevel ?? this.batteryLevel,
       areaCleaned: areaCleaned ?? this.areaCleaned,
       cleaningTime: cleaningTime ?? this.cleaningTime,
@@ -123,6 +127,7 @@ class DeviceEntity extends Equatable {
         name,
         type,
         isOn,
+        roomId,
         batteryLevel,
         areaCleaned,
         cleaningTime,
