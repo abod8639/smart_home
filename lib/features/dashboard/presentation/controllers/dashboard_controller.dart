@@ -201,8 +201,8 @@ class DashboardController extends GetxController {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       devices[index] = devices[index].copyWith(
-        markerWidth: width.clamp(60.0, 320.0),
-        markerHeight: height.clamp(44.0, 220.0),
+        markerWidth: width.clamp(0.05, 0.8),
+        markerHeight: height.clamp(0.05, 0.8),
       );
       _persistDevices();
     }

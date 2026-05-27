@@ -129,19 +129,27 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                               final posX = device.positionX! * constraints.maxWidth;
                               final posY = device.positionY! * constraints.maxHeight;
                               final isSelected = controller.selectedDeviceId.value == device.id;
-                              final mW = device.markerWidth ?? 110.0;
-                              final mH = device.markerHeight ?? 70.0;
+                              
+                              final rawW = device.markerWidth ?? 0.18;
+                              final rawH = device.markerHeight ?? 0.15;
+                              final normW = rawW > 1.0 ? (rawW / 600.0).clamp(0.05, 0.8) : rawW;
+                              final normH = rawH > 1.0 ? (rawH / 400.0).clamp(0.05, 0.8) : rawH;
+                              
+                              final mW = normW * constraints.maxWidth;
+                              final mH = normH * constraints.maxHeight;
 
                               return Positioned(
-                                left: posX - mW / 2,
-                                top: posY - mH / 2,
-                                child: _buildDraggableMarker(
-                                  device,
-                                  isSelected,
-                                  dashboardController,
-                                  imageKey,
-                                ),
-                              );
+                                  left: posX - mW / 2,
+                                  top: posY - mH / 2,
+                                  child: _buildDraggableMarker(
+                                    device,
+                                    isSelected,
+                                    dashboardController,
+                                    imageKey,
+                                    constraints.maxWidth,
+                                    constraints.maxHeight,
+                                  ),
+                                );
                             }).toList(),
                           );
                         });
@@ -181,6 +189,8 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     bool isSelected,
     DashboardController dashboardController,
     GlobalKey imageKey,
+    double parentWidth,
+    double parentHeight,
   ) {
     IconData iconData;
     switch (device.type) {
@@ -215,8 +225,13 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
             ? Colors.amber.withValues(alpha: 0.4)
             : Colors.black.withValues(alpha: 0.25);
 
-    final mW = device.markerWidth ?? 110.0;
-    final mH = device.markerHeight ?? 70.0;
+    final rawW = device.markerWidth ?? 0.18;
+    final rawH = device.markerHeight ?? 0.15;
+    final normW = rawW > 1.0 ? (rawW / 600.0).clamp(0.05, 0.8) : rawW;
+    final normH = rawH > 1.0 ? (rawH / 400.0).clamp(0.05, 0.8) : rawH;
+
+    final mW = normW * parentWidth;
+    final mH = normH * parentHeight;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -278,10 +293,15 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onPanUpdate: (details) {
+              final newW = mW + details.delta.dx;
+              final newH = mH + details.delta.dy;
+              final clampedW = newW.clamp(50.0, parentWidth * 0.8);
+              final clampedH = newH.clamp(40.0, parentHeight * 0.8);
+              
               dashboardController.updateDeviceMarkerSize(
                 device.id,
-                mW + details.delta.dx,
-                mH + details.delta.dy,
+                clampedW / parentWidth,
+                clampedH / parentHeight,
               );
             },
             child: Container(

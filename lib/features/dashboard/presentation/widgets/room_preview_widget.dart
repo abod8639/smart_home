@@ -76,8 +76,14 @@ class RoomPreviewWidget extends GetView<DashboardController> {
                     children: validDevices.map((device) {
                       final posX = device.positionX! * constraints.maxWidth;
                       final posY = device.positionY! * constraints.maxHeight;
-                      final mW = device.markerWidth ?? 110.0;
-                      final mH = device.markerHeight ?? 70.0;
+                      
+                      final rawW = device.markerWidth ?? 0.18;
+                      final rawH = device.markerHeight ?? 0.15;
+                      final normW = rawW > 1.0 ? (rawW / 600.0).clamp(0.05, 0.8) : rawW;
+                      final normH = rawH > 1.0 ? (rawH / 400.0).clamp(0.05, 0.8) : rawH;
+                      
+                      final mW = normW * constraints.maxWidth;
+                      final mH = normH * constraints.maxHeight;
 
                       return Positioned(
                         left: posX - mW / 2,
