@@ -59,15 +59,10 @@ class RoomsListWidget extends GetView<DashboardController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Rooms', style: Theme.of(context).textTheme.titleLarge),
-            const Icon(Icons.info_outline, color: AppTheme.textGrey, size: 20),
-          ],
-        ),
-        const SizedBox(height: 12),
+
+        // const SizedBox(height: 12),
         Expanded(
+          flex: 1,
           child: Obx(() {
             final roomsList = controller.rooms;
             return ListView.separated(

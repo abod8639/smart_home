@@ -93,21 +93,11 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(
-            height: 165,
+            height: 110,
             child: RoomsListWidget(isCompact: true),
           ),
-          const SizedBox(height: 12),
-          Obx(() {
-            final activeRoom = dashboardController.activeRoom;
-            return Text(
-              'Active Room: ${activeRoom?.name ?? 'Living Room'}',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white70,
-                    fontWeight: FontWeight.bold,
-                  ),
-            );
-          }),
-          const SizedBox(height: 12),
+
+          const SizedBox(height: 5),
           Expanded(
             child: Center(
               child: AspectRatio(
@@ -188,7 +178,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
   Widget _buildSidePanel(BuildContext context, DashboardController dashboardController) {
     final selectedId = controller.selectedDeviceId.value;
     if (selectedId == null) {
-      return _buildAddDevicePanel(context, dashboardController);
+      return _buildRoomDetailsPanel(context, dashboardController);
     }
 
     final device = dashboardController.devices.firstWhereOrNull((d) => d.id == selectedId);
@@ -476,49 +466,79 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     );
   }
 
-  // ── Add Device Panel ────────────────────────────────────────────────────────
+  // ── Room Details Panel ──────────────────────────────────────────────────────
 
-  Widget _buildAddDevicePanel(BuildContext context, DashboardController dashboardController) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Icon
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppTheme.primaryBlue.withValues(alpha: 0.15),
-            border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.4), width: 2),
-          ),
-          child: const Icon(
-            Icons.add_rounded,
-            color: AppTheme.primaryBlue,
-            size: 40,
-          ),
+  Widget _buildRoomDetailsPanel(BuildContext context, DashboardController dashboardController) {
+    final activeRoom = dashboardController.activeRoom;
+    if (activeRoom == null) {
+      return const Center(
+        child: Text(
+          'No active room selected',
+          style: TextStyle(color: AppTheme.textGrey),
         ),
-        const SizedBox(height: 20),
-        const Text(
-          'Add New Device',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+      );
+    }
+
+    final roomDevices = dashboardController.devices
+        .where((d) => d.roomId == activeRoom.id || (d.roomId == null && activeRoom.id == '3'))
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                activeRoom.name,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryPurple.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.primaryPurple.withValues(alpha: 0.3)),
+              ),
+              child: Text(
+                'Room Active',
+                style: TextStyle(
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.9),
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         const Text(
-          'Place a new smart device\nin your room',
+          'Room Statistics & Configuration',
           style: TextStyle(color: AppTheme.textGrey, fontSize: 13),
-          textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 22),
+        const SizedBox(height: 24),
+        _buildPropertyRow('Total Devices', '${roomDevices.length} device(s)'),
+        const SizedBox(height: 16),
+        _buildPropertyRow('Temperature', dashboardController.temperature.value),
+        const SizedBox(height: 16),
+        _buildPropertyRow('Humidity', dashboardController.humidity.value),
+        const SizedBox(height: 16),
+        _buildPropertyRow('Airflow', dashboardController.airflow.value),
+        const SizedBox(height: 16),
+        _buildPropertyRow('Power Usage', dashboardController.powerUsage.value),
+        const Spacer(),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
             icon: const Icon(Icons.add_rounded, color: Colors.white),
             label: const Text(
-              'Add Device',
+              'Add Device to Room',
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             style: ElevatedButton.styleFrom(
