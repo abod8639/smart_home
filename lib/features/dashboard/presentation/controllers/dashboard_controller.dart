@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:smart_home/core/services/esp32_service.dart';
 import 'package:smart_home/features/device/data/datasources/device_local_datasource.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
@@ -32,6 +33,7 @@ class DashboardController extends GetxController {
 
   final Dio _dio = Dio();
   Timer? _acTimer;
+  Timer? _espTimer;
   final DeviceLocalDatasource _datasource = DeviceLocalDatasource();
   final RoomLocalDatasource _roomDatasource = RoomLocalDatasource();
 
@@ -48,6 +50,7 @@ class DashboardController extends GetxController {
     if (!Platform.environment.containsKey('FLUTTER_TEST')) {
       fetchLiveWeather();
       _startAcTimer();
+      _startEsp32Polling();
     } else {
       isWeatherLoading.value = false;
       weatherLocation.value = 'Mock City';
@@ -59,6 +62,7 @@ class DashboardController extends GetxController {
   @override
   void onClose() {
     _acTimer?.cancel();
+    _espTimer?.cancel();
     super.onClose();
   }
 
@@ -234,22 +238,36 @@ class DashboardController extends GetxController {
 
 
   void toggleDevice(String id) {
-    // TODO: Call update device API
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
-      devices[index] = device.copyWith(isOn: !device.isOn);
+      final newIsOn = !device.isOn;
+      devices[index] = device.copyWith(isOn: newIsOn);
       _persistDevices();
+
+      // Trigger ESP32 if the device matches our GPIO mappings
+      if (Get.isRegistered<Esp32Service>()) {
+        if (id == 'lamp1') {
+          Get.find<Esp32Service>().setDigitalOutput(2, newIsOn);
+        } else if (id == 'ac1' || id == 'ac_bed') {
+          Get.find<Esp32Service>().setDigitalOutput(19, newIsOn);
+        }
+      }
     }
   }
   
   void toggleDoor(String id) {
-    // TODO: Call update device API
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
-      devices[index] = device.copyWith(isLocked: !(device.isLocked ?? false));
+      final newIsLocked = !(device.isLocked ?? false);
+      devices[index] = device.copyWith(isLocked: newIsLocked);
       _persistDevices();
+
+      // Unlocked = Relay HIGH, Locked = Relay LOW
+      if (id == 'door1' && Get.isRegistered<Esp32Service>()) {
+        Get.find<Esp32Service>().setDigitalOutput(18, !newIsLocked);
+      }
     }
   }
 
@@ -284,15 +302,40 @@ class DashboardController extends GetxController {
     _persistRooms();
   }
 
-  void updateDeviceBrightness(String id, int brightness) {
-    // TODO: Call update device API
+  void updateAcTemperature(String id, int temp) {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
+      final newTemp = temp.clamp(16, 30);
+      devices[index] = device.copyWith(temperature: newTemp);
+      _persistDevices();
+
+      // Control ESP32 AC Target Temperature via raw endpoint /control/ac
+      if (Get.isRegistered<Esp32Service>()) {
+        Get.find<Esp32Service>().sendRawCommand(
+          'control/ac',
+          method: 'POST',
+          data: {'target_temp': newTemp},
+        );
+      }
+    }
+  }
+
+  void updateDeviceBrightness(String id, int brightness) {
+    final index = devices.indexWhere((d) => d.id == id);
+    if (index != -1) {
+      final device = devices[index];
+      final newIsOn = brightness > 0;
       devices[index] = device.copyWith(
         brightness: brightness,
-        isOn: brightness > 0,
+        isOn: newIsOn,
       );
+      _persistDevices();
+
+      // Control ESP32 PWM lamp (pin 22)
+      if (id == 'lamp1' && Get.isRegistered<Esp32Service>()) {
+        Get.find<Esp32Service>().setAnalogOutput(22, brightness);
+      }
     }
   }
 
@@ -301,6 +344,14 @@ class DashboardController extends GetxController {
     if (index != -1) {
       devices[index] = devices[index].copyWith(rgbR: r, rgbG: g, rgbB: b);
       _persistDevices();
+
+      // Control ESP32 RGB Strip channels (R: 23, G: 25, B: 26)
+      if (id == 'rgb1' && Get.isRegistered<Esp32Service>()) {
+        final esp = Get.find<Esp32Service>();
+        esp.setAnalogOutput(23, r);
+        esp.setAnalogOutput(25, g);
+        esp.setAnalogOutput(26, b);
+      }
     }
   }
 
@@ -493,6 +544,66 @@ class DashboardController extends GetxController {
         if (d.type == DeviceType.airConditioner && d.isOn) {
           devices[i] = d.copyWith(coolingTime: (d.coolingTime ?? 0) + 1);
         }
+      }
+    });
+  }
+
+  void _startEsp32Polling() {
+    _espTimer = Timer.periodic(const Duration(seconds: 4), (timer) async {
+      if (!Get.isRegistered<Esp32Service>()) return;
+      try {
+        final response = await Get.find<Esp32Service>().getSensorData();
+        if (response.isSuccess && response.data != null) {
+          final data = response.data!;
+          if (data['temperature'] != null) {
+            temperature.value = '${data['temperature']}°';
+          }
+          if (data['humidity'] != null) {
+            humidity.value = '${data['humidity']}%';
+          }
+
+          // Sync target AC temperature
+          if (data['target_temperature'] != null) {
+            final int targetTemp = data['target_temperature'];
+            final acIndex = devices.indexWhere((d) => d.id == 'ac1');
+            if (acIndex != -1 && devices[acIndex].temperature != targetTemp) {
+              devices[acIndex] = devices[acIndex].copyWith(temperature: targetTemp);
+            }
+          }
+
+          if (data['pins'] != null) {
+            final pinsMap = data['pins'] as Map<String, dynamic>;
+
+            // Sync GPIO 2 (relay_1 / lamp1)
+            if (pinsMap.containsKey('relay_1')) {
+              final int val = pinsMap['relay_1'];
+              final lampIndex = devices.indexWhere((d) => d.id == 'lamp1');
+              if (lampIndex != -1 && devices[lampIndex].isOn != (val == 1)) {
+                devices[lampIndex] = devices[lampIndex].copyWith(isOn: val == 1);
+              }
+            }
+
+            // Sync GPIO 18 (relay_2 / door1)
+            if (pinsMap.containsKey('relay_2')) {
+              final int val = pinsMap['relay_2'];
+              final doorIndex = devices.indexWhere((d) => d.id == 'door1');
+              if (doorIndex != -1 && (devices[doorIndex].isLocked ?? true) != (val == 0)) {
+                devices[doorIndex] = devices[doorIndex].copyWith(isLocked: val == 0);
+              }
+            }
+
+            // Sync GPIO 19 (relay_3 / ac1)
+            if (pinsMap.containsKey('relay_3')) {
+              final int val = pinsMap['relay_3'];
+              final acIndex = devices.indexWhere((d) => d.id == 'ac1');
+              if (acIndex != -1 && devices[acIndex].isOn != (val == 1)) {
+                devices[acIndex] = devices[acIndex].copyWith(isOn: val == 1);
+              }
+            }
+          }
+        }
+      } catch (e) {
+        // Silently catch background polling exceptions
       }
     });
   }

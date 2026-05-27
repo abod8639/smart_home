@@ -14,7 +14,7 @@ class SettingsController extends GetxController {
   var hubConnectionMode = 'Zigbee'.obs;
   var autoBackups = true.obs;
   var lockTimeout = 5.0.obs; // in minutes
-  var ipAddress = '192.168.1.145'.obs;
+  var ipAddress = '192.168.1.2'.obs;
 
   // Google Home Integration settings
   var isGoogleLinked = false.obs;
