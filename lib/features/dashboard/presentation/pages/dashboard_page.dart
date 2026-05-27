@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/sidebar_widget.dart';
+import 'package:smart_home/features/dashboard/presentation/widgets/app_navigation.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
 import 'package:smart_home/features/settings/presentation/pages/settings_view.dart';
@@ -10,33 +12,47 @@ class DashboardPage extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
+    final padding = Responsive.pagePadding(context);
+    final gap = Responsive.contentGap(context);
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: EdgeInsets.fromLTRB(
+            padding,
+            padding,
+            padding,
+            Responsive.isMobile(context) ? 0 : padding,
+          ),
           child: Row(
             children: [
-              // 1. Sidebar Navigation
-              const SidebarWidget(),
-
-              // 2. Main Content Area (Dynamic View Swapping)
-              Expanded(
-                child: Obx(() {
-                  switch (controller.currentNavigationIndex.value) {
-                    case 0:
-                      return const DashboardMainView();
-                    case 6:
-                      return const SettingsView();
-                    default:
-                      return _buildUnderConstructionView();
-                  }
-                }),
-              ),
+              if (Responsive.isDesktop(context)) ...[
+                const SidebarWidget(),
+                SizedBox(width: gap),
+              ] else if (Responsive.isTablet(context)) ...[
+                AppNavigationRail(width: Responsive.sidebarWidth(context)!),
+                SizedBox(width: gap),
+              ],
+              Expanded(child: _buildMainContent()),
             ],
           ),
         ),
       ),
+      bottomNavigationBar: Responsive.isMobile(context) ? const MobileBottomNav() : null,
     );
+  }
+
+  Widget _buildMainContent() {
+    return Obx(() {
+      switch (controller.currentNavigationIndex.value) {
+        case 0:
+          return const DashboardMainView();
+        case 6:
+          return const SettingsView();
+        default:
+          return _buildUnderConstructionView();
+      }
+    });
   }
 
   Widget _buildUnderConstructionView() {
@@ -65,6 +81,7 @@ class DashboardPage extends GetView<DashboardController> {
               color: Colors.grey,
               fontSize: 14,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

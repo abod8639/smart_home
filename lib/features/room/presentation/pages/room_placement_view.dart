@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
@@ -28,117 +29,151 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Left Side: Interactive Room Image
-            Expanded(
-              flex: 3,
-              child: GlassContainer(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Living Room',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Stack(
-                          key: imageKey,
-                          children: [
-                            // Room Background
-                            Positioned.fill(
-                              child: Image.asset(
-                                'assets/images/living_room.png',
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            // Semi-transparent overlay
-                            Positioned.fill(
-                              child: Container(
-                                color: Colors.black.withValues(alpha: 0.2),
-                              ),
-                            ),
-                            // Dynamic Draggable Markers
-                            Positioned.fill(
-                              child: LayoutBuilder(
-                                builder: (context, constraints) {
-                                  return Obx(() {
-                                    final validDevices = dashboardController.devices
-                                        .where((d) => d.positionX != null && d.positionY != null)
-                                        .toList();
-
-                                    return Stack(
-                                      children: validDevices.map((device) {
-                                        final posX = device.positionX! * constraints.maxWidth;
-                                        final posY = device.positionY! * constraints.maxHeight;
-                                        final isSelected = controller.selectedDeviceId.value == device.id;
-                                        final mW = device.markerWidth ?? 110.0;
-                                        final mH = device.markerHeight ?? 70.0;
-
-                                        return Positioned(
-                                          // Center the rectangle on the stored position
-                                          left: posX - mW / 2,
-                                          top: posY - mH / 2,
-                                          child: _buildDraggableMarker(
-                                            device,
-                                            isSelected,
-                                            dashboardController,
-                                            imageKey,
-                                          ),
-                                        );
-                                      }).toList(),
-                                    );
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 24),
-            // Right Side: Device Properties Panel
-            Expanded(
-              flex: 1,
-              child: GlassContainer(
-                padding: const EdgeInsets.all(24),
-                child: Obx(() {
-                  final selectedId = controller.selectedDeviceId.value;
-                  if (selectedId == null) {
-                    return _buildAddDevicePanel(context, dashboardController);
-                  }
-
-                  final device = dashboardController.devices.firstWhereOrNull((d) => d.id == selectedId);
-                  if (device == null) {
-                    return const Center(
-                      child: Text(
-                        'Device not found',
-                        style: TextStyle(color: AppTheme.textGrey),
-                      ),
-                    );
-                  }
-
-                  return _buildDevicePropertiesPanel(context, device, dashboardController);
-                }),
-              ),
-            ),
-          ],
-        ),
+        padding: EdgeInsets.all(Responsive.pagePadding(context)),
+        child: Responsive.isMobile(context)
+            ? _buildMobileLayout(context, dashboardController, imageKey)
+            : _buildWideLayout(context, dashboardController, imageKey),
       ),
     );
+  }
+
+  Widget _buildMobileLayout(
+    BuildContext context,
+    DashboardController dashboardController,
+    GlobalKey imageKey,
+  ) {
+    return Column(
+      children: [
+        Expanded(flex: 3, child: _buildRoomImagePanel(context, dashboardController, imageKey)),
+        SizedBox(height: Responsive.contentGap(context)),
+        Expanded(
+          flex: 2,
+          child: GlassContainer(
+            padding: const EdgeInsets.all(16),
+            child: Obx(() => _buildSidePanel(context, dashboardController)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWideLayout(
+    BuildContext context,
+    DashboardController dashboardController,
+    GlobalKey imageKey,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: Responsive.isTablet(context) ? 2 : 3,
+          child: _buildRoomImagePanel(context, dashboardController, imageKey),
+        ),
+        SizedBox(width: Responsive.contentGap(context)),
+        Expanded(
+          flex: 1,
+          child: GlassContainer(
+            padding: EdgeInsets.all(Responsive.isTablet(context) ? 16 : 24),
+            child: Obx(() => _buildSidePanel(context, dashboardController)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRoomImagePanel(
+    BuildContext context,
+    DashboardController dashboardController,
+    GlobalKey imageKey,
+  ) {
+    return GlassContainer(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Living Room',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                key: imageKey,
+                children: [
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/living_room.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return Obx(() {
+                          final validDevices = dashboardController.devices
+                              .where((d) => d.positionX != null && d.positionY != null)
+                              .toList();
+
+                          return Stack(
+                            children: validDevices.map((device) {
+                              final posX = device.positionX! * constraints.maxWidth;
+                              final posY = device.positionY! * constraints.maxHeight;
+                              final isSelected = controller.selectedDeviceId.value == device.id;
+                              final mW = device.markerWidth ?? 110.0;
+                              final mH = device.markerHeight ?? 70.0;
+
+                              return Positioned(
+                                left: posX - mW / 2,
+                                top: posY - mH / 2,
+                                child: _buildDraggableMarker(
+                                  device,
+                                  isSelected,
+                                  dashboardController,
+                                  imageKey,
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSidePanel(BuildContext context, DashboardController dashboardController) {
+    final selectedId = controller.selectedDeviceId.value;
+    if (selectedId == null) {
+      return _buildAddDevicePanel(context, dashboardController);
+    }
+
+    final device = dashboardController.devices.firstWhereOrNull((d) => d.id == selectedId);
+    if (device == null) {
+      return const Center(
+        child: Text(
+          'Device not found',
+          style: TextStyle(color: AppTheme.textGrey),
+        ),
+      );
+    }
+
+    return _buildDevicePropertiesPanel(context, device, dashboardController);
   }
 
   Widget _buildDraggableMarker(

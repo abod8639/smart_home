@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
@@ -9,14 +10,40 @@ class AcCard extends StatelessWidget {
 
   const AcCard({super.key, required this.device, required this.onToggle});
 
+  static _AcCardMetrics _metrics(BuildContext context) {
+    final sw = MediaQuery.sizeOf(context).width;
+    final double cardWidth;
+    if (Responsive.isMobile(context)) {
+      cardWidth = (sw * 0.82).clamp(240.0, 340.0);
+    } else if (Responsive.isTablet(context)) {
+      cardWidth = 340;
+    } else {
+      cardWidth = 380;
+    }
+    final scale = (cardWidth / 380).clamp(0.72, 1.0);
+    return _AcCardMetrics(cardWidth: cardWidth, scale: scale);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDeviceOn = device.isOn;
+    final m = _metrics(context);
+    final acW = 220 * m.scale;
+    final acH = 66 * m.scale;
+    final ventW = 180 * m.scale;
+    final ventH = (4 * m.scale).clamp(2.0, 4.0);
+    final breezeW = 220 * m.scale;
+    final breezeH = 16 * m.scale;
+    final titleSize = (20 * m.scale).clamp(15.0, 20.0);
+    final tempSize = (16 * m.scale).clamp(13.0, 18.0);
 
     return SizedBox(
-      width: 380,
+      width: m.cardWidth,
       child: GlassContainer(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: EdgeInsets.symmetric(
+          horizontal: (20 * m.scale).clamp(12.0, 20.0),
+          vertical: (10 * m.scale).clamp(6.0, 10.0),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -34,7 +61,7 @@ class AcCard extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
-                          fontSize: 20,
+                          fontSize: titleSize,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -58,13 +85,17 @@ class AcCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: (8 * m.scale).clamp(4.0, 8.0)),
                 // Custom Switch matching the screenshot
-                GlassSwitch(onToggle: onToggle, isDeviceOn: isDeviceOn),
+                GlassSwitch(
+                  onToggle: onToggle,
+                  isDeviceOn: isDeviceOn,
+                  scale: m.scale,
+                ),
               ],
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: (20 * m.scale).clamp(12.0, 20.0)),
 
             // Middle Area: Custom Drawn AC Unit
             Expanded(
@@ -77,21 +108,27 @@ class AcCard extends StatelessWidget {
                       // crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         IconButton(
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.all(4 * m.scale),
+                          constraints: BoxConstraints(
+                            minWidth: 36 * m.scale,
+                            minHeight: 36 * m.scale,
+                          ),
                           onPressed: () {
                             // TODO: call update device temp API
                           },
-                          icon: Icon(Icons.horizontal_rule),
+                          icon: Icon(Icons.horizontal_rule, size: 22 * m.scale),
                           color: Colors.blueAccent,
                         ),
 
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const SizedBox(height: 15),
+                            SizedBox(height: (15 * m.scale).clamp(6.0, 15.0)),
                             // AC Body Shape
                             Container(
-                              width: 220,
-                              height: 66,
+                              width: acW,
+                              height: acH,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: isDeviceOn
@@ -133,7 +170,7 @@ class AcCard extends StatelessWidget {
                                       '${device.temperature}°',
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 16,
+                                        fontSize: tempSize,
                                         fontWeight: FontWeight.bold,
                                         shadows: <Shadow>[
                                           BoxShadow(
@@ -149,10 +186,10 @@ class AcCard extends StatelessWidget {
                                   ),
                                   // Air vent / LED slit inside AC body
                                   Positioned(
-                                    bottom: 4,
+                                    bottom: 4 * m.scale,
                                     child: Container(
-                                      width: 180,
-                                      height: 4,
+                                      width: ventW,
+                                      height: ventH,
                                       decoration: BoxDecoration(
                                         color: isDeviceOn
                                             ? const Color(0xFF00E5FF)
@@ -183,9 +220,9 @@ class AcCard extends StatelessWidget {
                               duration: const Duration(milliseconds: 300),
                               opacity: isDeviceOn ? 1.0 : 0.0,
                               child: Container(
-                                width: 220,
-                                height: 16,
-                                margin: const EdgeInsets.only(top: 4),
+                                width: breezeW,
+                                height: breezeH,
+                                margin: EdgeInsets.only(top: 4 * m.scale),
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
@@ -203,10 +240,16 @@ class AcCard extends StatelessWidget {
                           ],
                         ),
                         IconButton(
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.all(4 * m.scale),
+                          constraints: BoxConstraints(
+                            minWidth: 36 * m.scale,
+                            minHeight: 36 * m.scale,
+                          ),
                           onPressed: () {
                             // TODO: call update device temp API
                           },
-                          icon: Icon(Icons.add),
+                          icon: Icon(Icons.add, size: 22 * m.scale),
                           color: Colors.red,
                         ),
                       ],
@@ -226,13 +269,15 @@ class AcCard extends StatelessWidget {
                         ? Icons.eco_outlined
                         : Icons.wb_sunny_outlined,
                     device.mode ?? 'Auto mode',
+                    m.scale,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: (12 * m.scale).clamp(8.0, 12.0)),
                 Expanded(
                   child: _buildBottomStat(
                     Icons.access_time,
                     _formatRunningTime(device.coolingTime),
+                    m.scale,
                   ),
                 ),
               ],
@@ -261,9 +306,14 @@ class AcCard extends StatelessWidget {
     }
   }
 
-  Widget _buildBottomStat(IconData icon, String value) {
+  Widget _buildBottomStat(IconData icon, String value, double scale) {
+    final padH = (16 * scale).clamp(10.0, 16.0);
+    final padV = (14 * scale).clamp(10.0, 14.0);
+    final iconSize = (18 * scale).clamp(14.0, 18.0);
+    final fontSize = (13 * scale).clamp(11.0, 13.0);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: padH, vertical: padV),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(16),
@@ -275,15 +325,15 @@ class AcCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.white.withValues(alpha: 0.7), size: 18),
-          const SizedBox(width: 8),
+          Icon(icon, color: Colors.white.withValues(alpha: 0.7), size: iconSize),
+          SizedBox(width: (8 * scale).clamp(4.0, 8.0)),
           Flexible(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w400,
-                fontSize: 13,
+                fontSize: fontSize,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -299,22 +349,29 @@ class GlassSwitch extends StatelessWidget {
     super.key,
     required this.onToggle,
     required this.isDeviceOn,
+    this.scale = 1.0,
   });
 
   final VoidCallback onToggle;
   final bool isDeviceOn;
+  final double scale;
 
   @override
   Widget build(BuildContext context) {
+    final w = (52 * scale).clamp(44.0, 52.0);
+    final h = (28 * scale).clamp(24.0, 28.0);
+    final knob = (20 * scale).clamp(16.0, 20.0);
+    final radius = h / 2;
+
     return GestureDetector(
       onTap: onToggle,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        width: 52,
-        height: 28,
-        padding: const EdgeInsets.all(4),
+        width: w,
+        height: h,
+        padding: EdgeInsets.all((4 * scale).clamp(3.0, 4.0)),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(radius),
           color: isDeviceOn
               ? AppTheme.primaryBlue
               : const Color(0xFF334155),
@@ -339,8 +396,8 @@ class GlassSwitch extends StatelessWidget {
               ? Alignment.centerRight
               : Alignment.centerLeft,
           child: Container(
-            width: 20,
-            height: 20,
+            width: knob,
+            height: knob,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white,
@@ -350,4 +407,11 @@ class GlassSwitch extends StatelessWidget {
       ),
     );
   }
+}
+
+class _AcCardMetrics {
+  final double cardWidth;
+  final double scale;
+
+  const _AcCardMetrics({required this.cardWidth, required this.scale});
 }

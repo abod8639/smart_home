@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/shadow_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
@@ -9,8 +10,10 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
+    final cardWidth = Responsive.isDesktop(context) ? 280.0 : null;
+
     return ShadowContainer(
-      width: 280,
+      width: cardWidth,
       padding: const EdgeInsets.all(24.0),
       // decoration: BoxDecoration(
       //   color: AppTheme.cardBackground.withValues(alpha: 0.3),
@@ -21,7 +24,7 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
       //       color: Colors.white.withValues(alpha: 0.08),
       //       blurRadius: 20,
       //       spreadRadius: 2,
-          
+
       //     )
       //   ],
       // ),
@@ -42,158 +45,159 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            // 1. Top Header Row (Dynamic Weather Icon and Title)
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      width: 1,
-                    ),
-                  ),
-                  child: Icon(
-                    _getWeatherHeaderIcon(code, dayFlag),
-                    color: _getWeatherHeaderColor(code, dayFlag),
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'Weather Update',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 24),
-
-            // 2. Middle Row (Location, Date, Temp, Condition, and Moon Image)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Left Text Column
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        location,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        date,
-                        style: const TextStyle(
-                          color: AppTheme.textGrey,
-                          fontSize: 12,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        temp,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        condition,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // Right Vector Icon with Glow
-                Center(
-                  child: SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: CustomPaint(
-                      painter: dayFlag == 1 
-                          ? SunPainter() 
-                          : MoonPainter(glowColor: _getWeatherGlowColor(code, dayFlag)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            // 3. AI Suggestion Section
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // 1. Top Header Row (Dynamic Weather Icon and Title)
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.lightbulb_outline,
-                        color: Colors.amberAccent,
-                        size: 16,
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        width: 1,
                       ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          'AI Suggestion :',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+                    ),
+                    child: Icon(
+                      _getWeatherHeaderIcon(code, dayFlag),
+                      color: _getWeatherHeaderColor(code, dayFlag),
+                      size: 20,
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    suggestion,
-                    style: const TextStyle(
-                      color: AppTheme.textGrey,
-                      fontSize: 11,
-                      height: 1.45,
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Weather Update',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
-            ),
+
+              const SizedBox(height: 24),
+
+              // 2. Middle Row (Location, Date, Temp, Condition, and Moon Image)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Left Text Column
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          location,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          date,
+                          style: const TextStyle(
+                            color: AppTheme.textGrey,
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          temp,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          condition,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Right Vector Icon with Glow
+                  Center(
+                    child: SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: CustomPaint(
+                        painter: dayFlag == 1
+                            ? SunPainter()
+                            : MoonPainter(
+                                glowColor: _getWeatherGlowColor(code, dayFlag),
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // 3. AI Suggestion Section
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.lightbulb_outline,
+                          color: Colors.amberAccent,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'AI Suggestion :',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.9),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      suggestion,
+                      style: const TextStyle(
+                        color: AppTheme.textGrey,
+                        fontSize: 11,
+                        height: 1.45,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         );
@@ -223,10 +227,7 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
           SizedBox(height: 6),
           Text(
             'Locating smart hub coordinates',
-            style: TextStyle(
-              color: Colors.white24,
-              fontSize: 11,
-            ),
+            style: TextStyle(color: Colors.white24, fontSize: 11),
           ),
         ],
       ),
@@ -266,8 +267,8 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
     if (code >= 51) return AppTheme.primaryBlue.withValues(alpha: 0.1);
     if (code >= 45) return Colors.grey.withValues(alpha: 0.1);
     if (code >= 1) return Colors.white.withValues(alpha: 0.08);
-    return isNight 
-        ? Colors.white.withValues(alpha: 0.1) 
+    return isNight
+        ? Colors.white.withValues(alpha: 0.1)
         : Colors.amberAccent.withValues(alpha: 0.12);
   }
 }
@@ -281,15 +282,11 @@ class SunPainter extends CustomPainter {
       ..color = Colors.amberAccent.withValues(alpha: 0.3)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15);
     canvas.drawCircle(center, size.width / 2 - 4, glowPaint);
-    
+
     // Draw sun body
     final sunPaint = Paint()
       ..shader = const RadialGradient(
-        colors: [
-          Colors.white,
-          Colors.amberAccent,
-          Colors.orangeAccent,
-        ],
+        colors: [Colors.white, Colors.amberAccent, Colors.orangeAccent],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawCircle(center, size.width / 2 - 12, sunPaint);
   }
@@ -301,7 +298,7 @@ class SunPainter extends CustomPainter {
 class MoonPainter extends CustomPainter {
   final Color glowColor;
   MoonPainter({required this.glowColor});
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -310,7 +307,7 @@ class MoonPainter extends CustomPainter {
       ..color = glowColor.withValues(alpha: 0.4)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15);
     canvas.drawCircle(center, size.width / 2 - 4, glowPaint);
-    
+
     // Draw moon body
     final moonPaint = Paint()
       ..shader = RadialGradient(
@@ -321,17 +318,29 @@ class MoonPainter extends CustomPainter {
         ],
         stops: const [0.0, 0.6, 1.0],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-      
+
     canvas.drawCircle(center, size.width / 2 - 12, moonPaint);
-    
+
     // Draw some crater details
     final craterPaint = Paint()
       ..color = const Color(0xFFCBD5E1).withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
-      
-    canvas.drawCircle(Offset(size.width * 0.4, size.height * 0.4), 6, craterPaint);
-    canvas.drawCircle(Offset(size.width * 0.6, size.height * 0.5), 8, craterPaint);
-    canvas.drawCircle(Offset(size.width * 0.45, size.height * 0.65), 5, craterPaint);
+
+    canvas.drawCircle(
+      Offset(size.width * 0.4, size.height * 0.4),
+      6,
+      craterPaint,
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.6, size.height * 0.5),
+      8,
+      craterPaint,
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.45, size.height * 0.65),
+      5,
+      craterPaint,
+    );
   }
 
   @override

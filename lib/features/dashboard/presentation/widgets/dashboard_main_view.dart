@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/room_preview_widget.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/weather_update_widget.dart';
@@ -16,68 +17,113 @@ class DashboardMainView extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
+    final gap = Responsive.contentGap(context);
+    final deviceHeight = Responsive.deviceCardsHeight(context);
+
     return Column(
       children: [
-        // Top Section: Room Preview, Weather Update & Rooms List
-        const Expanded(
-          child: Row(
-            children: [
-              RoomPreviewWidget(),
-              SizedBox(width: 20),
-              WeatherUpdateWidget(),
-              SizedBox(width: 20),
-              RoomsListWidget(),
-            ],
-          ),
-        ),
-        
-        const SizedBox(height: 20),
-
-        // Bottom Section: Device Cards
-        SizedBox(
-          height: 240,
-          child: Obx(() {
-            if (controller.devices.isEmpty) return const SizedBox.shrink();
-
-            return ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: controller.devices.length,
-              separatorBuilder: (context, index) => const SizedBox(width: 24),
-              itemBuilder: (context, index) {
-                final device = controller.devices[index];
-                
-                switch (device.type) {
-                  case DeviceType.airConditioner:
-                    return AcCard(
-                      device: device,
-                      onToggle: () => controller.toggleDevice(device.id),
-                    );
-                  case DeviceType.lamp:
-                    return LampCard(
-                      device: device,
-                      onToggle: () => controller.toggleDevice(device.id),
-                    );
-                  case DeviceType.vacuum:
-                    return VacuumCard(
-                      device: device,
-                      onToggle: () => controller.toggleDevice(device.id),
-                    );
-                  case DeviceType.door:
-                    return DoorCard(
-                      device: device,
-                      onToggle: () => controller.toggleDoor(device.id),
-                    );
-                  case DeviceType.rgb:
-                    return RgbCard(
-                      device: device,
-                      onToggle: () => controller.toggleDevice(device.id),
-                    );
-                }
-              },
-            );
-          }),
-        ),
+        Expanded(child: _buildTopSection(context, gap)),
+        SizedBox(height: gap),
+        SizedBox(height: deviceHeight, child: _buildDeviceCards()),
       ],
     );
+  }
+
+  Widget _buildTopSection(BuildContext context, double gap) {
+    if (Responsive.isMobile(context)) {
+      return Column(
+        children: [
+          const Expanded(flex: 5, child: RoomPreviewWidget()),
+          SizedBox(height: gap),
+          Expanded(
+            flex: 4,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // const WeatherUpdateWidget(),
+                  SizedBox(height: gap),
+                  SizedBox(height: 280, child: const RoomsListWidget()),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (Responsive.isTablet(context)) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Expanded(flex: 4, child: RoomPreviewWidget()),
+          SizedBox(width: gap),
+          Expanded(
+            flex: 1,
+            child: ListView(
+              children: [
+                SizedBox(height: gap),
+                const WeatherUpdateWidget(),
+                SizedBox(height: gap),
+                RoomsListWidget(),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        const RoomPreviewWidget(),
+        SizedBox(width: gap),
+        const WeatherUpdateWidget(),
+        SizedBox(width: gap),
+        const RoomsListWidget(),
+      ],
+    );
+  }
+
+  Widget _buildDeviceCards() {
+    return Obx(() {
+      if (controller.devices.isEmpty) return const SizedBox.shrink();
+
+      return ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: controller.devices.length,
+        separatorBuilder: (context, index) =>
+            SizedBox(width: Responsive.contentGap(context)),
+        itemBuilder: (context, index) {
+          final device = controller.devices[index];
+
+          switch (device.type) {
+            case DeviceType.airConditioner:
+              return AcCard(
+                device: device,
+                onToggle: () => controller.toggleDevice(device.id),
+              );
+            case DeviceType.lamp:
+              return LampCard(
+                device: device,
+                onToggle: () => controller.toggleDevice(device.id),
+              );
+            case DeviceType.vacuum:
+              return VacuumCard(
+                device: device,
+                onToggle: () => controller.toggleDevice(device.id),
+              );
+            case DeviceType.door:
+              return DoorCard(
+                device: device,
+                onToggle: () => controller.toggleDoor(device.id),
+              );
+            case DeviceType.rgb:
+              return RgbCard(
+                device: device,
+                onToggle: () => controller.toggleDevice(device.id),
+              );
+          }
+        },
+      );
+    });
   }
 }
