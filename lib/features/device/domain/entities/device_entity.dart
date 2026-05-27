@@ -33,6 +33,10 @@ class DeviceEntity extends Equatable {
   final double? positionX;
   final double? positionY;
 
+  // Marker display size in logical pixels (for room placement view)
+  final double? markerWidth;
+  final double? markerHeight;
+
   // RGB specifics (0–255 per channel)
   final int? rgbR;
   final int? rgbG;
@@ -56,6 +60,8 @@ class DeviceEntity extends Equatable {
     this.linkedDevicesCount,
     this.positionX,
     this.positionY,
+    this.markerWidth,
+    this.markerHeight,
     this.rgbR,
     this.rgbG,
     this.rgbB,
@@ -79,6 +85,8 @@ class DeviceEntity extends Equatable {
     int? linkedDevicesCount,
     double? positionX,
     double? positionY,
+    double? markerWidth,
+    double? markerHeight,
     int? rgbR,
     int? rgbG,
     int? rgbB,
@@ -101,6 +109,8 @@ class DeviceEntity extends Equatable {
       linkedDevicesCount: linkedDevicesCount ?? this.linkedDevicesCount,
       positionX: positionX ?? this.positionX,
       positionY: positionY ?? this.positionY,
+      markerWidth: markerWidth ?? this.markerWidth,
+      markerHeight: markerHeight ?? this.markerHeight,
       rgbR: rgbR ?? this.rgbR,
       rgbG: rgbG ?? this.rgbG,
       rgbB: rgbB ?? this.rgbB,
@@ -126,6 +136,8 @@ class DeviceEntity extends Equatable {
         linkedDevicesCount,
         positionX,
         positionY,
+        markerWidth,
+        markerHeight,
         rgbR,
         rgbG,
         rgbB,

@@ -197,6 +197,18 @@ class DashboardController extends GetxController {
     }
   }
 
+  void updateDeviceMarkerSize(String id, double width, double height) {
+    final index = devices.indexWhere((d) => d.id == id);
+    if (index != -1) {
+      devices[index] = devices[index].copyWith(
+        markerWidth: width.clamp(60.0, 320.0),
+        markerHeight: height.clamp(44.0, 220.0),
+      );
+      _persistDevices();
+    }
+  }
+
+
   void addDevice(DeviceEntity device) {
     // Default position to center if null
     final deviceWithPos = device.positionX == null 

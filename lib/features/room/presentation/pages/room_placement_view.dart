@@ -81,25 +81,18 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                                         final posX = device.positionX! * constraints.maxWidth;
                                         final posY = device.positionY! * constraints.maxHeight;
                                         final isSelected = controller.selectedDeviceId.value == device.id;
+                                        final mW = device.markerWidth ?? 110.0;
+                                        final mH = device.markerHeight ?? 70.0;
 
                                         return Positioned(
-                                          left: posX - 24,
-                                          top: posY - 24,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              controller.selectDevice(device.id);
-                                            },
-                                            onLongPressMoveUpdate: (details) {
-                                              controller.selectDevice(device.id);
-                                              final RenderBox? renderBox = imageKey.currentContext?.findRenderObject() as RenderBox?;
-                                              if (renderBox != null) {
-                                                final Offset localOffset = renderBox.globalToLocal(details.globalPosition);
-                                                final double x = (localOffset.dx / renderBox.size.width).clamp(0.0, 1.0);
-                                                final double y = (localOffset.dy / renderBox.size.height).clamp(0.0, 1.0);
-                                                dashboardController.updateDevicePosition(device.id, x, y);
-                                              }
-                                            },
-                                            child: _buildDraggableMarker(device, isSelected),
+                                          // Center the rectangle on the stored position
+                                          left: posX - mW / 2,
+                                          top: posY - mH / 2,
+                                          child: _buildDraggableMarker(
+                                            device,
+                                            isSelected,
+                                            dashboardController,
+                                            imageKey,
                                           ),
                                         );
                                       }).toList(),
@@ -148,7 +141,12 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     );
   }
 
-  Widget _buildDraggableMarker(DeviceEntity device, bool isSelected) {
+  Widget _buildDraggableMarker(
+    DeviceEntity device,
+    bool isSelected,
+    DashboardController dashboardController,
+    GlobalKey imageKey,
+  ) {
     IconData iconData;
     switch (device.type) {
       case DeviceType.lamp:
@@ -168,47 +166,112 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         break;
     }
 
-    // For RGB devices, use the actual device color
-    final markerColor = (device.type == DeviceType.rgb && device.isOn)
-        ? Color.fromRGBO(device.rgbR ?? 255, device.rgbG ?? 0, device.rgbB ?? 128, 1.0)
+    final isRgbOn = device.type == DeviceType.rgb && device.isOn;
+    final markerColor = isRgbOn
+        ? Color.fromRGBO(device.rgbR ?? 255, device.rgbG ?? 0, device.rgbB ?? 128, 0.82)
         : device.isOn
-            ? AppTheme.primaryBlue
-            : Colors.white24;
+            ? AppTheme.primaryBlue.withValues(alpha: 0.82)
+            : Colors.white.withValues(alpha: 0.10);
 
-    final glowColor = (device.type == DeviceType.rgb && device.isOn)
-        ? Color.fromRGBO(device.rgbR ?? 255, device.rgbG ?? 0, device.rgbB ?? 128, 0.5)
+    final borderColor = isSelected ? Colors.amber : Colors.white.withValues(alpha: 0.55);
+    final glowColor = isRgbOn
+        ? Color.fromRGBO(device.rgbR ?? 255, device.rgbG ?? 0, device.rgbB ?? 128, 0.45)
         : isSelected
-            ? Colors.amber.withValues(alpha: 0.5)
-            : Colors.black.withValues(alpha: 0.3);
+            ? Colors.amber.withValues(alpha: 0.4)
+            : Colors.black.withValues(alpha: 0.25);
 
-    return Tooltip(
-      message: device.name,
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: markerColor,
-          border: Border.all(
-            color: isSelected ? Colors.amber : Colors.white,
-            width: isSelected ? 3 : 2,
+    final mW = device.markerWidth ?? 110.0;
+    final mH = device.markerHeight ?? 70.0;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // ── Main marker body ────────────────────────────────────────────────
+        GestureDetector(
+          onTap: () => controller.selectDevice(device.id),
+          onLongPressMoveUpdate: (details) {
+            controller.selectDevice(device.id);
+            final RenderBox? renderBox =
+                imageKey.currentContext?.findRenderObject() as RenderBox?;
+            if (renderBox != null) {
+              final Offset local = renderBox.globalToLocal(details.globalPosition);
+              final double x = (local.dx / renderBox.size.width).clamp(0.0, 1.0);
+              final double y = (local.dy / renderBox.size.height).clamp(0.0, 1.0);
+              dashboardController.updateDevicePosition(device.id, x, y);
+            }
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: mW,
+            height: mH,
+            decoration: BoxDecoration(
+              color: markerColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: borderColor, width: isSelected ? 2.5 : 1.5),
+              boxShadow: [
+                BoxShadow(color: glowColor, blurRadius: isSelected ? 14 : 6, spreadRadius: isSelected ? 2 : 0),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(iconData, color: Colors.white, size: 22),
+                const SizedBox(height: 4),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Text(
+                    device.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: glowColor,
-              blurRadius: isSelected ? 12 : 6,
-              spreadRadius: isSelected ? 2 : 1,
-            )
-          ],
         ),
-        child: Icon(
-          iconData,
-          color: Colors.white,
-          size: 24,
+
+        // ── Resize grip (bottom-right corner) ──────────────────────────────
+        Positioned(
+          right: -8,
+          bottom: -8,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onPanUpdate: (details) {
+              dashboardController.updateDeviceMarkerSize(
+                device.id,
+                mW + details.delta.dx,
+                mH + details.delta.dy,
+              );
+            },
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.amber : Colors.white.withValues(alpha: 0.85),
+                borderRadius: BorderRadius.circular(4),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 4),
+                ],
+              ),
+              child: Icon(
+                Icons.open_in_full_rounded,
+                size: 12,
+                color: isSelected ? Colors.black87 : AppTheme.backgroundDark,
+              ),
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
+
+
 
 
   Widget _buildDevicePropertiesPanel(BuildContext context, DeviceEntity device, DashboardController dashboardController) {

@@ -4,6 +4,7 @@ import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:smart_home/features/device/presentation/widgets/device_cards/ac_card.dart';
 
 class RgbCard extends StatelessWidget {
   final DeviceEntity device;
@@ -58,14 +59,7 @@ class RgbCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Switch(
-                  value: isOn,
-                  onChanged: (_) => onToggle(),
-                  activeTrackColor: AppTheme.primaryBlue,
-                  // activeThumbColor: currentColor,
-                  // inactiveThumbColor: AppTheme.textGrey,
-                  inactiveTrackColor: Colors.white,
-                ),
+             GlassSwitch(onToggle: onToggle, isDeviceOn: isOn)
               ],
             ),
 
