@@ -242,15 +242,29 @@ class DashboardController extends GetxController {
     if (index != -1) {
       final device = devices[index];
       final newIsOn = !device.isOn;
-      devices[index] = device.copyWith(isOn: newIsOn);
+
+      if (device.type == DeviceType.airConditioner) {
+        // Toggle all AC devices to match
+        for (int i = 0; i < devices.length; i++) {
+          if (devices[i].type == DeviceType.airConditioner) {
+            devices[i] = devices[i].copyWith(isOn: newIsOn);
+          }
+        }
+      } else {
+        devices[index] = device.copyWith(isOn: newIsOn);
+      }
       _persistDevices();
 
       // Trigger ESP32 if the device matches our GPIO mappings
       if (Get.isRegistered<Esp32Service>()) {
-        if (id == 'lamp1') {
+        if (device.type == DeviceType.lamp) {
           Get.find<Esp32Service>().setDigitalOutput(2, newIsOn);
-        } else if (id == 'ac1' || id == 'ac_bed') {
-          Get.find<Esp32Service>().setDigitalOutput(19, newIsOn);
+        } else if (device.type == DeviceType.airConditioner) {
+          Get.find<Esp32Service>().sendRawCommand(
+            'control/ac',
+            method: 'POST',
+            data: {'isOn': newIsOn},
+          );
         }
       }
     }
@@ -305,9 +319,14 @@ class DashboardController extends GetxController {
   void updateAcTemperature(String id, int temp) {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
-      final device = devices[index];
       final newTemp = temp.clamp(16, 30);
-      devices[index] = device.copyWith(temperature: newTemp);
+      
+      // Update all devices of type airConditioner to match new temperature
+      for (int i = 0; i < devices.length; i++) {
+        if (devices[i].type == DeviceType.airConditioner) {
+          devices[i] = devices[i].copyWith(temperature: newTemp);
+        }
+      }
       _persistDevices();
 
       // Control ESP32 AC Target Temperature via raw endpoint /control/ac
@@ -565,9 +584,10 @@ class DashboardController extends GetxController {
           // Sync target AC temperature
           if (data['target_temperature'] != null) {
             final int targetTemp = data['target_temperature'];
-            final acIndex = devices.indexWhere((d) => d.id == 'ac1');
-            if (acIndex != -1 && devices[acIndex].temperature != targetTemp) {
-              devices[acIndex] = devices[acIndex].copyWith(temperature: targetTemp);
+            for (int i = 0; i < devices.length; i++) {
+              if (devices[i].type == DeviceType.airConditioner && devices[i].temperature != targetTemp) {
+                devices[i] = devices[i].copyWith(temperature: targetTemp);
+              }
             }
           }
 
@@ -592,12 +612,14 @@ class DashboardController extends GetxController {
               }
             }
 
-            // Sync GPIO 19 (relay_3 / ac1)
+            // Sync GPIO 19 (relay_3 / all ACs)
             if (pinsMap.containsKey('relay_3')) {
               final int val = pinsMap['relay_3'];
-              final acIndex = devices.indexWhere((d) => d.id == 'ac1');
-              if (acIndex != -1 && devices[acIndex].isOn != (val == 1)) {
-                devices[acIndex] = devices[acIndex].copyWith(isOn: val == 1);
+              final isAcOn = (val == 1);
+              for (int i = 0; i < devices.length; i++) {
+                if (devices[i].type == DeviceType.airConditioner && devices[i].isOn != isAcOn) {
+                  devices[i] = devices[i].copyWith(isOn: isAcOn);
+                }
               }
             }
           }

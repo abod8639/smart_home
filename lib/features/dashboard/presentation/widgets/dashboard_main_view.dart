@@ -134,7 +134,19 @@ Widget buildDeviceCards() {
         switch (device.type) {
           case DeviceType.airConditioner:
             return AcCard(
+              onDecreaseTemp: () {
+                            Get.find<DashboardController>().updateAcTemperature(
+                              device.id,
+                              (device.temperature ?? 24) - 1,
+                            );
+                          },
               device: device,
+              onIncreaseTemp: () {
+                            Get.find<DashboardController>().updateAcTemperature(
+                              device.id,
+                              (device.temperature ?? 24) + 1,
+                            );
+                          },
               onToggle: () => controller.toggleDevice(device.id),
             );
           case DeviceType.lamp:

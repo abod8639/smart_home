@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
-import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
 class AcCard extends StatelessWidget {
   final DeviceEntity device;
   final VoidCallback onToggle;
+  final VoidCallback onIncreaseTemp;
+  final VoidCallback onDecreaseTemp;
 
-  const AcCard({super.key, required this.device, required this.onToggle});
+  const AcCard({super.key, required this.device, required this.onToggle, required this.onIncreaseTemp, required this.onDecreaseTemp});
 
   static _AcCardMetrics _metrics(BuildContext context) {
     final sw = MediaQuery.sizeOf(context).width;
@@ -116,12 +116,7 @@ class AcCard extends StatelessWidget {
                             minWidth: 36 * m.scale,
                             minHeight: 36 * m.scale,
                           ),
-                          onPressed: () {
-                            Get.find<DashboardController>().updateAcTemperature(
-                              device.id,
-                              (device.temperature ?? 24) - 1,
-                            );
-                          },
+                          onPressed: onDecreaseTemp,
                           icon: Icon(Icons.horizontal_rule, size: 22 * m.scale),
                           color: Colors.blueAccent,
                         ),
@@ -251,12 +246,7 @@ class AcCard extends StatelessWidget {
                             minWidth: 36 * m.scale,
                             minHeight: 36 * m.scale,
                           ),
-                          onPressed: () {
-                            Get.find<DashboardController>().updateAcTemperature(
-                              device.id,
-                              (device.temperature ?? 24) + 1,
-                            );
-                          },
+                          onPressed: onIncreaseTemp,
                           icon: Icon(Icons.add, size: 22 * m.scale),
                           color: Colors.red,
                         ),
