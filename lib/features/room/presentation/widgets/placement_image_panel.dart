@@ -1,0 +1,144 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:smart_home/core/widgets/glass_container.dart';
+import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
+import 'package:smart_home/features/room/presentation/widgets/placement_device_marker.dart';
+import 'package:smart_home/features/room/presentation/widgets/rooms_list_widget.dart';
+
+/// The left/main panel: room image + rooms list + draggable device markers.
+class PlacementImagePanel extends StatelessWidget {
+  final DashboardController dashboardController;
+  final RoomPlacementController placementController;
+  final GlobalKey imageKey;
+
+  const PlacementImagePanel({
+    super.key,
+    required this.dashboardController,
+    required this.placementController,
+    required this.imageKey,
+  });
+
+  String _backgroundImage(String? roomName) {
+    if (roomName == null) return 'assets/images/living_room.png';
+    switch (roomName.toLowerCase()) {
+      case 'kitchen':
+        return 'assets/images/kitchen.png';
+      case 'bedroom':
+        return 'assets/images/bedroom.png';
+      case 'bathroom':
+        return 'assets/images/bathroom.png';
+      case 'living room':
+      default:
+        return 'assets/images/living_room.png';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassContainer(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Room selector
+          const SizedBox(height: 110, child: RoomsListWidget(isCompact: true)),
+
+          const SizedBox(height: 5),
+
+          // Floor-plan image + marker overlay
+          Expanded(
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Stack(
+                    key: imageKey,
+                    children: [
+                      // Background image (reactive to selected room)
+                      Positioned.fill(
+                        child: Obx(() {
+                          final bgImage = _backgroundImage(
+                            dashboardController.activeRoom?.name,
+                          );
+                          return Image.asset(bgImage, fit: BoxFit.cover);
+                        }),
+                      ),
+
+                      // Dark overlay
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.2),
+                        ),
+                      ),
+
+                      // Device markers
+                      Positioned.fill(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return Obx(() {
+                              final activeRoomId =
+                                  dashboardController.activeRoom?.id ?? '3';
+                              final validDevices = dashboardController.devices
+                                  .where((d) =>
+                                      d.positionX != null && d.positionY != null)
+                                  .where((d) =>
+                                      d.roomId == activeRoomId ||
+                                      (d.roomId == null && activeRoomId == '3'))
+                                  .toList();
+
+                              return Stack(
+                                children: validDevices.map((device) {
+                                  final posX =
+                                      device.positionX! * constraints.maxWidth;
+                                  final posY =
+                                      device.positionY! * constraints.maxHeight;
+
+                                  final rawW = device.markerWidth ?? 0.18;
+                                  final rawH = device.markerHeight ?? 0.15;
+                                  final normW = rawW > 1.0
+                                      ? (rawW / 600.0).clamp(0.05, 0.8)
+                                      : rawW;
+                                  final normH = rawH > 1.0
+                                      ? (rawH / 400.0).clamp(0.05, 0.8)
+                                      : rawH;
+
+                                  final mW = normW * constraints.maxWidth;
+                                  final mH = normH * constraints.maxHeight;
+
+                                  final isSelected =
+                                      placementController.selectedDeviceId.value ==
+                                      device.id;
+
+                                  return Positioned(
+                                    left: posX - mW / 2,
+                                    top: posY - mH / 2,
+                                    child: PlacementDeviceMarker(
+                                      key: ValueKey(device.id),
+                                      device: device,
+                                      isSelected: isSelected,
+                                      dashboardController: dashboardController,
+                                      placementController: placementController,
+                                      imageKey: imageKey,
+                                      parentWidth: constraints.maxWidth,
+                                      parentHeight: constraints.maxHeight,
+                                    ),
+                                  );
+                                }).toList(),
+                              );
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
