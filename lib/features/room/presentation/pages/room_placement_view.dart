@@ -241,53 +241,49 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     double parentWidth,
     double parentHeight,
   ) {
+    // ── Icon ────────────────────────────────────────────────────────────────
     IconData iconData;
     switch (device.type) {
       case DeviceType.lamp:
-        iconData = Icons.lightbulb_outline;
+        iconData = device.isOn ? Icons.lightbulb : Icons.lightbulb_outline;
         break;
       case DeviceType.airConditioner:
         iconData = Icons.ac_unit;
         break;
       case DeviceType.vacuum:
-        iconData = Icons.cleaning_services_outlined;
+        iconData = Icons.cleaning_services_rounded;
         break;
       case DeviceType.door:
         iconData = device.isLocked ?? true
-            ? Icons.lock_outline
-            : Icons.lock_open_outlined;
+            ? Icons.lock_rounded
+            : Icons.lock_open_rounded;
         break;
       case DeviceType.rgb:
         iconData = Icons.wb_incandescent_rounded;
         break;
     }
 
+    // ── Colors ────────────────────────────────────────────────────────────
+    final isDoor = device.type == DeviceType.door;
     final isRgbOn = device.type == DeviceType.rgb && device.isOn;
-    final markerColor = isRgbOn
-        ? Color.fromRGBO(
-            device.rgbR ?? 255,
-            device.rgbG ?? 0,
-            device.rgbB ?? 128,
-            0.82,
-          )
-        : device.isOn
-        ? AppTheme.primaryBlue.withValues(alpha: 0.82)
-        : Colors.white.withValues(alpha: 0.10);
+    final isLocked = device.isLocked ?? true;
+    final isActive = isDoor ? !isLocked : device.isOn;
 
-    final borderColor = isSelected
-        ? Colors.amber
-        : Colors.white.withValues(alpha: 0.55);
-    final glowColor = isRgbOn
-        ? Color.fromRGBO(
-            device.rgbR ?? 255,
-            device.rgbG ?? 0,
-            device.rgbB ?? 128,
-            0.45,
-          )
-        : isSelected
-        ? Colors.amber.withValues(alpha: 0.4)
-        : Colors.black.withValues(alpha: 0.25);
+    Color accentColor;
+    if (isDoor) {
+      accentColor = isLocked ? Colors.redAccent : Colors.greenAccent;
+    } else if (isRgbOn) {
+      accentColor = Color.fromRGBO(
+          device.rgbR ?? 255, device.rgbG ?? 100, device.rgbB ?? 200, 1.0);
+    } else {
+      accentColor = isActive ? AppTheme.primaryBlue : Colors.white54;
+    }
 
+    final String statusLabel = isDoor
+        ? (isLocked ? 'LOCKED' : 'OPEN')
+        : (device.isOn ? 'ON' : 'OFF');
+
+    // ── Marker dimensions ─────────────────────────────────────────────────
     final rawW = device.markerWidth ?? 0.18;
     final rawH = device.markerHeight ?? 0.15;
     final normW = rawW > 1.0 ? (rawW / 600.0).clamp(0.05, 0.8) : rawW;
@@ -295,6 +291,10 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
 
     final mW = normW * parentWidth;
     final mH = normH * parentHeight;
+
+    final iconSize = (mH * 0.28).clamp(14.0, 26.0);
+    final labelSize = (mH * 0.11).clamp(7.5, 11.0);
+    final statusSize = (mH * 0.085).clamp(6.5, 9.0);
 
     return Stack(
       clipBehavior: Clip.none,
@@ -312,63 +312,142 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               final Offset local = renderBox.globalToLocal(
                 details.globalPosition,
               );
-              final double x = (local.dx / renderBox.size.width).clamp(
-                0.0,
-                1.0,
-              );
-              final double y = (local.dy / renderBox.size.height).clamp(
-                0.0,
-                1.0,
-              );
+              final double x = (local.dx / renderBox.size.width).clamp(0.0, 1.0);
+              final double y = (local.dy / renderBox.size.height).clamp(0.0, 1.0);
               dashboardController.updateDevicePosition(
-                device.id,
-                x,
-                y,
-                persist: false,
+                device.id, x, y, persist: false,
               );
             }
           },
           onPanEnd: (details) {
             dashboardController.persistDevices();
           },
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
             width: mW,
             height: mH,
             decoration: BoxDecoration(
-              color: markerColor,
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.black.withValues(alpha: 0.62),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: borderColor,
+                color: isSelected
+                    ? Colors.amber
+                    : accentColor.withValues(alpha: 0.55),
                 width: isSelected ? 2.5 : 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: glowColor,
-                  blurRadius: isSelected ? 14 : 6,
-                  spreadRadius: isSelected ? 2 : 0,
+                  color: isSelected
+                      ? Colors.amber.withValues(alpha: 0.45)
+                      : accentColor.withValues(alpha: 0.28),
+                  blurRadius: isSelected ? 18 : 8,
+                  spreadRadius: isSelected ? 3 : 0,
                 ),
               ],
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(iconData, color: Colors.white, size: 22),
-                const SizedBox(height: 4),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: Text(
-                    device.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(13),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── Colored top accent stripe ─────────────────────────
+                  Container(
+                    height: 3,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          accentColor,
+                          accentColor.withValues(alpha: 0.3),
+                        ],
+                      ),
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                  // ── Body ─────────────────────────────────────────────
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 4),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Icon in circle badge
+                          Container(
+                            width: iconSize + 12,
+                            height: iconSize + 12,
+                            decoration: BoxDecoration(
+                              color: accentColor.withValues(alpha: 0.15),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: accentColor.withValues(alpha: 0.35),
+                                width: 1.0,
+                              ),
+                            ),
+                            child: Icon(
+                              iconData,
+                              color: accentColor,
+                              size: iconSize,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          // Device name
+                          Text(
+                            device.name,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: labelSize,
+                              fontWeight: FontWeight.w600,
+                              shadows: const [
+                                Shadow(color: Colors.black87, blurRadius: 4),
+                              ],
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 3),
+                          // Status pill badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 7, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: accentColor.withValues(alpha: 0.18),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: accentColor.withValues(alpha: 0.45),
+                                width: 0.8,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 5,
+                                  height: 5,
+                                  decoration: BoxDecoration(
+                                    color: accentColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 3),
+                                Text(
+                                  statusLabel,
+                                  style: TextStyle(
+                                    color: accentColor,
+                                    fontSize: statusSize,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
