@@ -54,25 +54,27 @@ class DashboardMainView extends GetView<DashboardController> {
     }
 
     if (Responsive.isTablet(context)) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Expanded(flex: 4, child: RoomPreviewWidget()),
-          SizedBox(width: gap),
-          SizedBox(
-            width: 280,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  const WeatherUpdateWidget(),
-                  SizedBox(height: gap),
-                  const RoomsListWidget(),
-                ],
+      return Expanded(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // SizedBox(width: gap),
+            SizedBox(
+              // width: 280,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+            RoomPreviewWidget(),
+                    const WeatherUpdateWidget(),
+                    SizedBox(height: gap),
+                    const RoomsListWidget(),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     }
 

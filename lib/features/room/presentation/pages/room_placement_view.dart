@@ -497,7 +497,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
           style: TextStyle(color: AppTheme.textGrey, fontSize: 13),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 22),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(

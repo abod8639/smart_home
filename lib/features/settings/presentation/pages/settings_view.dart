@@ -5,9 +5,9 @@ import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/settings/presentation/widgets/profile_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/preferences_card.dart';
+import 'package:smart_home/features/settings/presentation/widgets/google_home_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/hub_config_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/device_management_card.dart';
-
 import 'package:smart_home/features/settings/presentation/widgets/device_placement_card.dart';
 
 class SettingsView extends GetView<SettingsController> {
@@ -102,6 +102,8 @@ class SettingsView extends GetView<SettingsController> {
           SizedBox(height: gap),
           const PreferencesCard(),
           SizedBox(height: gap),
+          const GoogleHomeCard(),
+          SizedBox(height: gap),
           const HubConfigCard(),
           SizedBox(height: gap),
           SizedBox(height: 320, child: DevicePlacementCard()),
@@ -124,6 +126,8 @@ class SettingsView extends GetView<SettingsController> {
                 const ProfileCard(),
                 SizedBox(height: gap),
                 const PreferencesCard(),
+                SizedBox(height: gap),
+                const GoogleHomeCard(),
               ],
             ),
           ),
@@ -141,10 +145,10 @@ class SettingsView extends GetView<SettingsController> {
                   child: DevicePlacementCard(),
                 ),
                 SizedBox(height: gap),
-                SizedBox(
-                  height: Responsive.isTablet(context) ? 240 : 280,
-                  child: const DeviceManagementCard(),
-                ),
+                // SizedBox(
+                //   height: Responsive.isTablet(context) ? 240 : 280,
+                //   child: const DeviceManagementCard(),
+                // ),
               ],
             ),
           ),

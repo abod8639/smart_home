@@ -16,6 +16,12 @@ class SettingsController extends GetxController {
   var lockTimeout = 5.0.obs; // in minutes
   var ipAddress = '192.168.1.145'.obs;
 
+  // Google Home Integration settings
+  var isGoogleLinked = false.obs;
+  var googleEmail = 'dexter.smart.home@gmail.com'.obs;
+  var isSyncing = false.obs;
+  var lastSyncTime = 'Never'.obs;
+
   // Available options
   final voiceAssistants = ['Alexa', 'Google Assistant', 'Siri', 'None'];
   final connectionModes = ['Zigbee', 'Wi-Fi', 'Bluetooth'];
@@ -58,5 +64,30 @@ class SettingsController extends GetxController {
 
   void updateLockTimeout(double value) {
     lockTimeout.value = value.clamp(1.0, 30.0);
+  }
+
+  void toggleGoogleLink() async {
+    if (isGoogleLinked.value) {
+      isGoogleLinked.value = false;
+      lastSyncTime.value = 'Never';
+    } else {
+      isSyncing.value = true;
+      await Future.delayed(const Duration(seconds: 1));
+      isGoogleLinked.value = true;
+      isSyncing.value = false;
+      lastSyncTime.value = 'Just now';
+    }
+  }
+
+  void syncGoogleDevices() async {
+    if (!isGoogleLinked.value) return;
+    isSyncing.value = true;
+    await Future.delayed(const Duration(seconds: 1));
+    isSyncing.value = false;
+    final now = DateTime.now();
+    final minutesStr = now.minute < 10 ? '0${now.minute}' : '${now.minute}';
+    final ampm = now.hour >= 12 ? 'PM' : 'AM';
+    final hour = now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour);
+    lastSyncTime.value = '$hour:$minutesStr $ampm';
   }
 }

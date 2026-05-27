@@ -135,8 +135,8 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
                   // Right Vector Icon with Glow
                   Center(
                     child: SizedBox(
-                      width: 100,
-                      height: 100,
+                      width: 120,
+                      height: 120,
                       child: CustomPaint(
                         painter: dayFlag == 1
                             ? SunPainter()
