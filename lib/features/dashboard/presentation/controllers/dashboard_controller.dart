@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:smart_home/features/device/data/datasources/device_local_datasource.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
+import 'package:smart_home/features/room/data/datasources/room_local_datasource.dart';
 
 class DashboardController extends GetxController {
   // Observables
@@ -31,6 +32,7 @@ class DashboardController extends GetxController {
   final Dio _dio = Dio();
   Timer? _acTimer;
   final DeviceLocalDatasource _datasource = DeviceLocalDatasource();
+  final RoomLocalDatasource _roomDatasource = RoomLocalDatasource();
 
   void changeTab(int index) {
     currentNavigationIndex.value = index;
@@ -58,13 +60,18 @@ class DashboardController extends GetxController {
   }
 
   void _loadData() {
-    // Load rooms mock (rooms don't need persistence for now)
-    rooms.value = [
-      const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 3),
-      const RoomEntity(id: '2', name: 'Kitchen', deviceCount: 2),
-      const RoomEntity(id: '3', name: 'Living room', deviceCount: 5, isActive: true),
-      const RoomEntity(id: '4', name: 'Bathroom', deviceCount: 3),
-    ];
+    // Prefer Hive-persisted rooms; fall back to mock only on first launch
+    if (_roomDatasource.hasData) {
+      rooms.value = _roomDatasource.loadRooms();
+    } else {
+      rooms.value = [
+        const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 3),
+        const RoomEntity(id: '2', name: 'Kitchen', deviceCount: 2),
+        const RoomEntity(id: '3', name: 'Living room', deviceCount: 5, isActive: true),
+        const RoomEntity(id: '4', name: 'Bathroom', deviceCount: 3),
+      ];
+      _persistRooms();
+    }
 
     // Prefer Hive-persisted devices; fall back to mock only on first launch
     if (_datasource.hasData) {
@@ -72,6 +79,12 @@ class DashboardController extends GetxController {
     } else {
       _loadMockData();
       _persistDevices(); // seed Hive with the initial mock data
+    }
+  }
+
+  void _persistRooms() {
+    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+      _roomDatasource.saveRooms(rooms.toList());
     }
   }
 
@@ -175,6 +188,30 @@ class DashboardController extends GetxController {
 
   void selectRoom(String id) {
     rooms.value = rooms.map((r) => r.copyWith(isActive: r.id == id)).toList();
+    _persistRooms();
+  }
+
+  void addRoom(RoomEntity room) {
+    rooms.add(room);
+    _persistRooms();
+  }
+
+  void updateRoom(RoomEntity room) {
+    final index = rooms.indexWhere((r) => r.id == room.id);
+    if (index != -1) {
+      rooms[index] = room;
+      _persistRooms();
+    }
+  }
+
+  void deleteRoom(String id) {
+    rooms.removeWhere((r) => r.id == id);
+    // If the active room is deleted, select the first remaining room
+    final hasActive = rooms.any((r) => r.isActive);
+    if (!hasActive && rooms.isNotEmpty) {
+      rooms[0] = rooms[0].copyWith(isActive: true);
+    }
+    _persistRooms();
   }
 
   void updateDeviceBrightness(String id, int brightness) {

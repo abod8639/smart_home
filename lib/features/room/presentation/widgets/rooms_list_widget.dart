@@ -42,11 +42,14 @@ class RoomsListWidget extends GetView<DashboardController> {
                 separatorBuilder: (context, index) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final room = controller.rooms[index];
-                  return _buildRoomTile(room);
+                  return _buildRoomTile(context, room);
                 },
               )),
-          const SizedBox(height: 12),
-          _buildAddRoomButton(),
+          // const SizedBox(height: 12),
+          // GestureDetector(
+          //   onTap: () => _showAddRoomDialog(context),
+          //   child: _buildAddRoomButton(),
+          // ),
         ],
       ),
     );
@@ -74,10 +77,13 @@ class RoomsListWidget extends GetView<DashboardController> {
               separatorBuilder: (context, index) => const SizedBox(width: 14),
               itemBuilder: (context, index) {
                 if (index == roomsList.length) {
-                  return _buildMobileAddRoomCard();
+                  return GestureDetector(
+                    onTap: () => _showAddRoomDialog(context),
+                    child: _buildMobileAddRoomCard(),
+                  );
                 }
                 final room = roomsList[index];
-                return _buildMobileRoomCard(room);
+                return _buildMobileRoomCard(context, room);
               },
             );
           }),
@@ -86,10 +92,11 @@ class RoomsListWidget extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildMobileRoomCard(RoomEntity room) {
+  Widget _buildMobileRoomCard(BuildContext context, RoomEntity room) {
     final isActive = room.isActive;
     return GestureDetector(
       onTap: () => controller.selectRoom(room.id),
+      onLongPress: () => _showRoomOptions(context, room),
       child: Container(
         height: 120,
         width: 150,
@@ -210,10 +217,11 @@ class RoomsListWidget extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildRoomTile(RoomEntity room) {
+  Widget _buildRoomTile(BuildContext context, RoomEntity room) {
     final isActive = room.isActive;
     return GestureDetector(
       onTap: () => controller.selectRoom(room.id),
+      onLongPress: () => _showRoomOptions(context, room),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -328,6 +336,199 @@ class RoomsListWidget extends GetView<DashboardController> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showRoomOptions(BuildContext context, RoomEntity room) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppTheme.cardBackground,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          title: Text(
+            'Room Options: ${room.name}',
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit_outlined, color: AppTheme.primaryBlue),
+                title: const Text('Edit Room Name', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showEditRoomDialog(context, room);
+                },
+              ),
+              if (room.name.toLowerCase() != 'living room')
+                ListTile(
+                  leading: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                  title: const Text('Delete Room', style: TextStyle(color: Colors.white)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showDeleteConfirmation(context, room);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAddRoomDialog(BuildContext context) {
+    final textController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppTheme.cardBackground,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          title: const Text(
+            'Add New Room',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: TextField(
+            controller: textController,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              labelText: 'Room Name',
+              labelStyle: const TextStyle(color: AppTheme.textGrey),
+              hintText: 'e.g. Office, Bedroom',
+              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+              ),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: AppTheme.primaryBlue),
+              ),
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
+            ),
+            TextButton(
+              onPressed: () {
+                final name = textController.text.trim();
+                if (name.isNotEmpty) {
+                  final newRoom = RoomEntity(
+                    id: 'room_${DateTime.now().millisecondsSinceEpoch}',
+                    name: name,
+                    deviceCount: 0,
+                    isActive: false,
+                  );
+                  controller.addRoom(newRoom);
+                }
+                Navigator.pop(context);
+              },
+              child: const Text('Add', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditRoomDialog(BuildContext context, RoomEntity room) {
+    final textController = TextEditingController(text: room.name);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppTheme.cardBackground,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          title: const Text(
+            'Edit Room Name',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: TextField(
+            controller: textController,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              labelText: 'Room Name',
+              labelStyle: const TextStyle(color: AppTheme.textGrey),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+              ),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: AppTheme.primaryBlue),
+              ),
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
+            ),
+            TextButton(
+              onPressed: () {
+                final name = textController.text.trim();
+                if (name.isNotEmpty) {
+                  controller.updateRoom(room.copyWith(name: name));
+                }
+                Navigator.pop(context);
+              },
+              child: const Text('Save', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, RoomEntity room) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppTheme.cardBackground,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          title: const Text(
+            'Delete Room',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Are you sure you want to delete "${room.name}"? This action cannot be undone.',
+            style: const TextStyle(color: AppTheme.textGrey),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
+            ),
+            TextButton(
+              onPressed: () {
+                controller.deleteRoom(room.id);
+                Navigator.pop(context);
+              },
+              child: const Text('Delete', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

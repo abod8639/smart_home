@@ -1,54 +1,67 @@
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+import 'package:smart_home/core/services/hive_service.dart';
+import '../../domain/entities/room_entity.dart';
 import '../models/room_model.dart';
 
-abstract class RoomLocalDatasource {
-  Future<List<RoomModel>> getRooms();
-  Future<void> saveRooms(List<RoomModel> rooms);
-}
+/// Local data source for persisting and retrieving [RoomEntity] objects
+/// using Hive. Rooms are stored as plain [Map] objects (no TypeAdapter needed).
+class RoomLocalDatasource {
+  // ── Serialization ────────────────────────────────────────────────────────────
 
-class RoomLocalDatasourceImpl implements RoomLocalDatasource {
-  static const String _key = 'saved_rooms';
+  static Map<String, dynamic> _toMap(RoomEntity r) => {
+        'id': r.id,
+        'name': r.name,
+        'deviceCount': r.deviceCount,
+        'isActive': r.isActive,
+        'iconPath': r.iconPath,
+      };
 
-  @override
-  Future<List<RoomModel>> getRooms() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString(_key);
-    
-    if (jsonString != null) {
-      try {
-        final List<dynamic> decoded = jsonDecode(jsonString);
-        return decoded.map((e) => RoomModel.fromJson(e)).toList();
-      } catch (e) {
-        // ignore: avoid_print
-        print('Error decoding rooms: \$e');
-        return [];
-      }
-    } else {
-      // Default initial rooms if none are saved
-      return [
-        RoomModel(
-          id: 'r1', 
-          name: 'Living Room',
-           deviceCount: 3, 
-           isActive: true, 
-           iconPath: 'assets/icons/living_room.png'
-           ),
-        RoomModel(
-          id: 'r2', 
-          name: 'Bedroom',  
-          deviceCount: 2, 
-          isActive: false, 
-          iconPath: 'assets/icons/bedroom.png'
-          ),
-      ];
-    }
+  static RoomModel _fromMap(Map map) {
+    return RoomModel(
+      id: map['id'] as String,
+      name: map['name'] as String,
+      deviceCount: map['deviceCount'] as int? ?? 0,
+      isActive: map['isActive'] as bool? ?? false,
+      iconPath: map['iconPath'] as String? ?? '',
+    );
   }
 
-  @override
-  Future<void> saveRooms(List<RoomModel> rooms) async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = jsonEncode(rooms.map((e) => e.toJson()).toList());
-    await prefs.setString(_key, jsonString);
+  // ── Public API ────────────────────────────────────────────────────────────────
+
+  /// Interface matching clean architecture Repository dependencies.
+  Future<List<RoomModel>> getRooms() async {
+    return loadRooms();
+  }
+
+  /// Returns all saved rooms. Empty list if nothing has been saved yet.
+  List<RoomModel> loadRooms() {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) return [];
+    final box = HiveService.roomsBox;
+    return box.values
+        .map((raw) => _fromMap(Map<String, dynamic>.from(raw)))
+        .toList();
+  }
+
+  /// Overwrites all saved rooms with [rooms].
+  Future<void> saveRooms(List<RoomEntity> rooms) async {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) return;
+    final box = HiveService.roomsBox;
+    await box.clear();
+    final entries = {
+      for (var r in rooms) r.id: _toMap(r),
+    };
+    await box.putAll(entries);
+  }
+
+  /// Clears the entire rooms box.
+  Future<void> clearRooms() async {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) return;
+    await HiveService.roomsBox.clear();
+  }
+
+  /// Returns true if there are any saved rooms.
+  bool get hasData {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) return false;
+    return HiveService.roomsBox.isNotEmpty;
   }
 }
