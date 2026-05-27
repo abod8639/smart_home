@@ -24,7 +24,8 @@ class DashboardMainView extends GetView<DashboardController> {
       children: [
         Expanded(child: _buildTopSection(context, gap)),
         SizedBox(height: gap),
-       if (!Responsive.isMobile(context)) SizedBox(height: deviceHeight, child: _buildDeviceCards()),
+        if (!Responsive.isMobile(context))
+          SizedBox(height: deviceHeight, child: buildDeviceCards()),
       ],
     );
   }
@@ -44,7 +45,7 @@ class DashboardMainView extends GetView<DashboardController> {
                   SizedBox(height: gap),
                   SizedBox(height: 180, child: const RoomsListWidget()),
                   SizedBox(height: gap),
-                  SizedBox(height: 180, child: _buildDeviceCards()),
+                  SizedBox(height: 180, child: buildDeviceCards()),
                 ],
               ),
             ),
@@ -92,67 +93,72 @@ class DashboardMainView extends GetView<DashboardController> {
       ],
     );
   }
+}
 
-  Widget _buildDeviceCards() {
-    return Obx(() {
-      final activeRoomId = controller.activeRoom?.id ?? '3';
-      final filteredDevices = controller.devices
-          .where((d) => d.roomId == activeRoomId || (d.roomId == null && activeRoomId == '3'))
-          .toList();
+Widget buildDeviceCards() {
+  final DashboardController controller = Get.find();
+  return Obx(() {
+    final activeRoomId = controller.activeRoom?.id ?? '3';
+    final filteredDevices = controller.devices
+        .where(
+          (d) =>
+              d.roomId == activeRoomId ||
+              (d.roomId == null && activeRoomId == '3'),
+        )
+        .toList();
 
-      if (filteredDevices.isEmpty) {
-        return const Center(
-          child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'No devices in this room',
-              style: TextStyle(
-                color: Colors.white38,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
+    if (filteredDevices.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            'No devices in this room',
+            style: TextStyle(
+              color: Colors.white38,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
           ),
-        );
-      }
-
-      return ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: filteredDevices.length,
-        separatorBuilder: (context, index) =>
-            SizedBox(width: Responsive.contentGap(context)),
-        itemBuilder: (context, index) {
-          final device = filteredDevices[index];
-
-          switch (device.type) {
-            case DeviceType.airConditioner:
-              return AcCard(
-                device: device,
-                onToggle: () => controller.toggleDevice(device.id),
-              );
-            case DeviceType.lamp:
-              return LampCard(
-                device: device,
-                onToggle: () => controller.toggleDevice(device.id),
-              );
-            case DeviceType.vacuum:
-              return VacuumCard(
-                device: device,
-                onToggle: () => controller.toggleDevice(device.id),
-              );
-            case DeviceType.door:
-              return DoorCard(
-                device: device,
-                onToggle: () => controller.toggleDoor(device.id),
-              );
-            case DeviceType.rgb:
-              return RgbCard(
-                device: device,
-                onToggle: () => controller.toggleDevice(device.id),
-              );
-          }
-        },
+        ),
       );
-    });
-  }
+    }
+
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      itemCount: filteredDevices.length,
+      separatorBuilder: (context, index) =>
+          SizedBox(width: Responsive.contentGap(context)),
+      itemBuilder: (context, index) {
+        final device = filteredDevices[index];
+
+        switch (device.type) {
+          case DeviceType.airConditioner:
+            return AcCard(
+              device: device,
+              onToggle: () => controller.toggleDevice(device.id),
+            );
+          case DeviceType.lamp:
+            return LampCard(
+              device: device,
+              onToggle: () => controller.toggleDevice(device.id),
+            );
+          case DeviceType.vacuum:
+            return VacuumCard(
+              device: device,
+              onToggle: () => controller.toggleDevice(device.id),
+            );
+          case DeviceType.door:
+            return DoorCard(
+              device: device,
+              onToggle: () => controller.toggleDoor(device.id),
+            );
+          case DeviceType.rgb:
+            return RgbCard(
+              device: device,
+              onToggle: () => controller.toggleDevice(device.id),
+            );
+        }
+      },
+    );
+  });
 }

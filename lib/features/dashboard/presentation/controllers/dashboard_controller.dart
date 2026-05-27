@@ -6,6 +6,7 @@ import 'package:smart_home/features/device/data/datasources/device_local_datasou
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 import 'package:smart_home/features/room/data/datasources/room_local_datasource.dart';
+import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
 
 class DashboardController extends GetxController {
   // Observables
@@ -255,6 +256,9 @@ class DashboardController extends GetxController {
   void selectRoom(String id) {
     rooms.value = rooms.map((r) => r.copyWith(isActive: r.id == id)).toList();
     _persistRooms();
+    if (Get.isRegistered<RoomPlacementController>()) {
+      Get.find<RoomPlacementController>().selectDevice(null);
+    }
   }
 
   void addRoom(RoomEntity room) {

@@ -4,6 +4,7 @@ import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
 import 'package:smart_home/features/room/presentation/widgets/rooms_list_widget.dart';
@@ -45,7 +46,10 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
   ) {
     return Column(
       children: [
-        Expanded(flex: 3, child: _buildRoomImagePanel(context, dashboardController, imageKey)),
+        Expanded(
+          flex: 3,
+          child: _buildRoomImagePanel(context, dashboardController, imageKey),
+        ),
         SizedBox(height: Responsive.contentGap(context)),
         Expanded(
           flex: 2,
@@ -92,10 +96,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
-            height: 110,
-            child: RoomsListWidget(isCompact: true),
-          ),
+          const SizedBox(height: 110, child: RoomsListWidget(isCompact: true)),
 
           const SizedBox(height: 5),
           Expanded(
@@ -110,13 +111,13 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                       Positioned.fill(
                         child: Obx(() {
                           final activeRoom = dashboardController.activeRoom;
-                          final bgImage = _getRoomBackgroundImage(activeRoom?.name);
-                          return Image.asset(
-                            bgImage,
-                            fit: BoxFit.cover,
+                          final bgImage = _getRoomBackgroundImage(
+                            activeRoom?.name,
                           );
+                          return Image.asset(bgImage, fit: BoxFit.cover);
                         }),
                       ),
+
                       Positioned.fill(
                         child: Container(
                           color: Colors.black.withValues(alpha: 0.2),
@@ -126,27 +127,51 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                         child: LayoutBuilder(
                           builder: (context, constraints) {
                             return Obx(() {
-                              final activeRoomId = dashboardController.activeRoom?.id ?? '3';
+                              final activeRoomId =
+                                  dashboardController.activeRoom?.id ?? '3';
                               final validDevices = dashboardController.devices
-                                  .where((d) => d.positionX != null && d.positionY != null)
-                                  .where((d) => d.roomId == activeRoomId || (d.roomId == null && activeRoomId == '3'))
+                                  .where(
+                                    (d) =>
+                                        d.positionX != null &&
+                                        d.positionY != null,
+                                  )
+                                  .where(
+                                    (d) =>
+                                        d.roomId == activeRoomId ||
+                                        (d.roomId == null &&
+                                            activeRoomId == '3'),
+                                  )
                                   .toList();
 
-                              return Stack(
-                                children: validDevices.map((device) {
-                                  final posX = device.positionX! * constraints.maxWidth;
-                                  final posY = device.positionY! * constraints.maxHeight;
-                                  final isSelected = controller.selectedDeviceId.value == device.id;
-                                  
-                                  final rawW = device.markerWidth ?? 0.18;
-                                  final rawH = device.markerHeight ?? 0.15;
-                                  final normW = rawW > 1.0 ? (rawW / 600.0).clamp(0.05, 0.8) : rawW;
-                                  final normH = rawH > 1.0 ? (rawH / 400.0).clamp(0.05, 0.8) : rawH;
-                                  
-                                  final mW = normW * constraints.maxWidth;
-                                  final mH = normH * constraints.maxHeight;
+                              return GestureDetector(
+                                onTap: () {
+                                  print("aa");
+                                },
+                                child: Stack(
+                                  children: validDevices.map((device) {
+                                    final posX =
+                                        device.positionX! *
+                                        constraints.maxWidth;
+                                    final posY =
+                                        device.positionY! *
+                                        constraints.maxHeight;
+                                    final isSelected =
+                                        controller.selectedDeviceId.value ==
+                                        device.id;
 
-                                  return Positioned(
+                                    final rawW = device.markerWidth ?? 0.18;
+                                    final rawH = device.markerHeight ?? 0.15;
+                                    final normW = rawW > 1.0
+                                        ? (rawW / 600.0).clamp(0.05, 0.8)
+                                        : rawW;
+                                    final normH = rawH > 1.0
+                                        ? (rawH / 400.0).clamp(0.05, 0.8)
+                                        : rawH;
+
+                                    final mW = normW * constraints.maxWidth;
+                                    final mH = normH * constraints.maxHeight;
+
+                                    return Positioned(
                                       left: posX - mW / 2,
                                       top: posY - mH / 2,
                                       child: _buildDraggableMarker(
@@ -158,7 +183,8 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                                         constraints.maxHeight,
                                       ),
                                     );
-                                }).toList(),
+                                  }).toList(),
+                                ),
                               );
                             });
                           },
@@ -175,13 +201,18 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     );
   }
 
-  Widget _buildSidePanel(BuildContext context, DashboardController dashboardController) {
+  Widget _buildSidePanel(
+    BuildContext context,
+    DashboardController dashboardController,
+  ) {
     final selectedId = controller.selectedDeviceId.value;
     if (selectedId == null) {
       return _buildRoomDetailsPanel(context, dashboardController);
     }
 
-    final device = dashboardController.devices.firstWhereOrNull((d) => d.id == selectedId);
+    final device = dashboardController.devices.firstWhereOrNull(
+      (d) => d.id == selectedId,
+    );
     if (device == null) {
       return const Center(
         child: Text(
@@ -189,6 +220,14 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
           style: TextStyle(color: AppTheme.textGrey),
         ),
       );
+    }
+
+    // Verify if the selected device belongs to the active room
+    final activeRoom = dashboardController.activeRoom;
+    final activeRoomId = activeRoom?.id ?? '3';
+    final deviceRoomId = device.roomId ?? '3';
+    if (deviceRoomId != activeRoomId) {
+      return _buildRoomDetailsPanel(context, dashboardController);
     }
 
     return _buildDevicePropertiesPanel(context, device, dashboardController);
@@ -214,7 +253,9 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         iconData = Icons.cleaning_services_outlined;
         break;
       case DeviceType.door:
-        iconData = device.isLocked ?? true ? Icons.lock_outline : Icons.lock_open_outlined;
+        iconData = device.isLocked ?? true
+            ? Icons.lock_outline
+            : Icons.lock_open_outlined;
         break;
       case DeviceType.rgb:
         iconData = Icons.wb_incandescent_rounded;
@@ -223,17 +264,29 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
 
     final isRgbOn = device.type == DeviceType.rgb && device.isOn;
     final markerColor = isRgbOn
-        ? Color.fromRGBO(device.rgbR ?? 255, device.rgbG ?? 0, device.rgbB ?? 128, 0.82)
+        ? Color.fromRGBO(
+            device.rgbR ?? 255,
+            device.rgbG ?? 0,
+            device.rgbB ?? 128,
+            0.82,
+          )
         : device.isOn
-            ? AppTheme.primaryBlue.withValues(alpha: 0.82)
-            : Colors.white.withValues(alpha: 0.10);
+        ? AppTheme.primaryBlue.withValues(alpha: 0.82)
+        : Colors.white.withValues(alpha: 0.10);
 
-    final borderColor = isSelected ? Colors.amber : Colors.white.withValues(alpha: 0.55);
+    final borderColor = isSelected
+        ? Colors.amber
+        : Colors.white.withValues(alpha: 0.55);
     final glowColor = isRgbOn
-        ? Color.fromRGBO(device.rgbR ?? 255, device.rgbG ?? 0, device.rgbB ?? 128, 0.45)
+        ? Color.fromRGBO(
+            device.rgbR ?? 255,
+            device.rgbG ?? 0,
+            device.rgbB ?? 128,
+            0.45,
+          )
         : isSelected
-            ? Colors.amber.withValues(alpha: 0.4)
-            : Colors.black.withValues(alpha: 0.25);
+        ? Colors.amber.withValues(alpha: 0.4)
+        : Colors.black.withValues(alpha: 0.25);
 
     final rawW = device.markerWidth ?? 0.18;
     final rawH = device.markerHeight ?? 0.15;
@@ -249,30 +302,51 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         // ── Main marker body ────────────────────────────────────────────────
         GestureDetector(
           onTap: () => controller.selectDevice(device.id),
-          onLongPressMoveUpdate: (details) {
+          onPanStart: (details) {
             controller.selectDevice(device.id);
+          },
+          onPanUpdate: (details) {
             final RenderBox? renderBox =
                 imageKey.currentContext?.findRenderObject() as RenderBox?;
             if (renderBox != null) {
-              final Offset local = renderBox.globalToLocal(details.globalPosition);
-              final double x = (local.dx / renderBox.size.width).clamp(0.0, 1.0);
-              final double y = (local.dy / renderBox.size.height).clamp(0.0, 1.0);
-              dashboardController.updateDevicePosition(device.id, x, y, persist: false);
+              final Offset local = renderBox.globalToLocal(
+                details.globalPosition,
+              );
+              final double x = (local.dx / renderBox.size.width).clamp(
+                0.0,
+                1.0,
+              );
+              final double y = (local.dy / renderBox.size.height).clamp(
+                0.0,
+                1.0,
+              );
+              dashboardController.updateDevicePosition(
+                device.id,
+                x,
+                y,
+                persist: false,
+              );
             }
           },
-          onLongPressEnd: (details) {
+          onPanEnd: (details) {
             dashboardController.persistDevices();
           },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+          child: Container(
             width: mW,
             height: mH,
             decoration: BoxDecoration(
               color: markerColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: borderColor, width: isSelected ? 2.5 : 1.5),
+              border: Border.all(
+                color: borderColor,
+                width: isSelected ? 2.5 : 1.5,
+              ),
               boxShadow: [
-                BoxShadow(color: glowColor, blurRadius: isSelected ? 14 : 6, spreadRadius: isSelected ? 2 : 0),
+                BoxShadow(
+                  color: glowColor,
+                  blurRadius: isSelected ? 14 : 6,
+                  spreadRadius: isSelected ? 2 : 0,
+                ),
               ],
             ),
             child: Column(
@@ -310,7 +384,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               final newH = mH + details.delta.dy;
               final clampedW = newW.clamp(50.0, parentWidth * 0.8);
               final clampedH = newH.clamp(40.0, parentHeight * 0.8);
-              
+
               dashboardController.updateDeviceMarkerSize(
                 device.id,
                 clampedW / parentWidth,
@@ -325,10 +399,15 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               width: 20,
               height: 20,
               decoration: BoxDecoration(
-                color: isSelected ? Colors.amber : Colors.white.withValues(alpha: 0.85),
+                color: isSelected
+                    ? Colors.amber
+                    : Colors.white.withValues(alpha: 0.85),
                 borderRadius: BorderRadius.circular(4),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 4),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 4,
+                  ),
                 ],
               ),
               child: Icon(
@@ -343,10 +422,11 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     );
   }
 
-
-
-
-  Widget _buildDevicePropertiesPanel(BuildContext context, DeviceEntity device, DashboardController dashboardController) {
+  Widget _buildDevicePropertiesPanel(
+    BuildContext context,
+    DeviceEntity device,
+    DashboardController dashboardController,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -357,9 +437,9 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               child: Text(
                 'Device Properties',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -367,13 +447,29 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined, color: AppTheme.primaryBlue, size: 20),
-                  onPressed: () => _showEditDeviceDialog(context, device, dashboardController),
+                  icon: const Icon(
+                    Icons.edit_outlined,
+                    color: AppTheme.primaryBlue,
+                    size: 20,
+                  ),
+                  onPressed: () => _showEditDeviceDialog(
+                    context,
+                    device,
+                    dashboardController,
+                  ),
                   tooltip: 'Edit Device',
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                  onPressed: () => _showDeleteConfirmation(context, device, dashboardController),
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.redAccent,
+                    size: 20,
+                  ),
+                  onPressed: () => _showDeleteConfirmation(
+                    context,
+                    device,
+                    dashboardController,
+                  ),
                   tooltip: 'Delete Device',
                 ),
               ],
@@ -390,7 +486,8 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
           const SizedBox(height: 16),
           _buildPropertyRow('Brightness', '${device.brightness}%'),
         ],
-        if (device.type == DeviceType.airConditioner && device.temperature != null) ...[
+        if (device.type == DeviceType.airConditioner &&
+            device.temperature != null) ...[
           const SizedBox(height: 16),
           _buildPropertyRow('Temperature', '${device.temperature}°C'),
           const SizedBox(height: 16),
@@ -400,7 +497,8 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
           const SizedBox(height: 16),
           _buildPropertyRow('Battery', '${device.batteryLevel ?? 0}%'),
         ],
-        if (device.type == DeviceType.lamp && device.linkedDevicesCount != null) ...[
+        if (device.type == DeviceType.lamp &&
+            device.linkedDevicesCount != null) ...[
           const SizedBox(height: 16),
           _buildPropertyRow('Linked Devices', '${device.linkedDevicesCount}'),
         ],
@@ -432,7 +530,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                   ),
                   blurRadius: 12,
                   spreadRadius: 2,
-                )
+                ),
               ],
             ),
           ),
@@ -462,10 +560,13 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               }
             },
             child: Text(
-              device.type == DeviceType.door 
+              device.type == DeviceType.door
                   ? (device.isLocked ?? true ? 'Unlock Device' : 'Lock Device')
                   : (device.isOn ? 'Turn OFF' : 'Turn ON'),
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
@@ -475,7 +576,10 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
 
   // ── Room Details Panel ──────────────────────────────────────────────────────
 
-  Widget _buildRoomDetailsPanel(BuildContext context, DashboardController dashboardController) {
+  Widget _buildRoomDetailsPanel(
+    BuildContext context,
+    DashboardController dashboardController,
+  ) {
     final activeRoom = dashboardController.activeRoom;
     if (activeRoom == null) {
       return const Center(
@@ -487,7 +591,11 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     }
 
     final roomDevices = dashboardController.devices
-        .where((d) => d.roomId == activeRoom.id || (d.roomId == null && activeRoom.id == '3'))
+        .where(
+          (d) =>
+              d.roomId == activeRoom.id ||
+              (d.roomId == null && activeRoom.id == '3'),
+        )
         .toList();
 
     return Column(
@@ -500,9 +608,9 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               child: Text(
                 activeRoom.name,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -511,7 +619,9 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               decoration: BoxDecoration(
                 color: AppTheme.primaryPurple.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.primaryPurple.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.3),
+                ),
               ),
               child: Text(
                 'Room Active',
@@ -532,6 +642,8 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         const SizedBox(height: 24),
         _buildPropertyRow('Total Devices', '${roomDevices.length} device(s)'),
         const SizedBox(height: 16),
+        SizedBox(height: 200, child: buildDeviceCards()),
+        const SizedBox(height: 16),
         _buildPropertyRow('Temperature', dashboardController.temperature.value),
         const SizedBox(height: 16),
         _buildPropertyRow('Humidity', dashboardController.humidity.value),
@@ -546,12 +658,17 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
             icon: const Icon(Icons.add_rounded, color: Colors.white),
             label: const Text(
               'Add Device to Room',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryBlue,
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => _showAddDeviceDialog(context, dashboardController),
           ),
@@ -579,7 +696,10 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
 
   // ── Add Device Dialog ─────────────────────────────────────────────────────────
 
-  void _showAddDeviceDialog(BuildContext context, DashboardController dashboardController) {
+  void _showAddDeviceDialog(
+    BuildContext context,
+    DashboardController dashboardController,
+  ) {
     final nameController = TextEditingController();
     final linkedCountController = TextEditingController(text: '0');
     var selectedType = DeviceType.lamp.obs;
@@ -594,9 +714,19 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         ),
         title: const Row(
           children: [
-            Icon(Icons.add_circle_outline, color: AppTheme.primaryBlue, size: 22),
+            Icon(
+              Icons.add_circle_outline,
+              color: AppTheme.primaryBlue,
+              size: 22,
+            ),
             SizedBox(width: 8),
-            Text('Add New Device', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(
+              'Add New Device',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
         content: SingleChildScrollView(
@@ -613,44 +743,57 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                   hintText: 'e.g. Bedroom Lamp',
                   hintStyle: TextStyle(color: Colors.white24),
                   labelStyle: TextStyle(color: AppTheme.textGrey),
-                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryBlue)),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppTheme.primaryBlue),
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
-              const Text('Device Type', style: TextStyle(color: AppTheme.textGrey, fontSize: 12)),
+              const Text(
+                'Device Type',
+                style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
+              ),
               const SizedBox(height: 8),
-              Obx(() => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.white12),
+              Obx(
+                () => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white12),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<DeviceType>(
+                      value: selectedType.value,
+                      dropdownColor: AppTheme.cardBackground,
+                      isExpanded: true,
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      onChanged: (val) {
+                        if (val != null) selectedType.value = val;
+                      },
+                      items: DeviceType.values.map((type) {
+                        return DropdownMenuItem(
+                          value: type,
+                          child: Row(
+                            children: [
+                              Icon(
+                                _iconForType(type),
+                                color: AppTheme.primaryBlue,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(type.name.capitalizeFirst ?? ''),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                     ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<DeviceType>(
-                        value: selectedType.value,
-                        dropdownColor: AppTheme.cardBackground,
-                        isExpanded: true,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
-                        onChanged: (val) {
-                          if (val != null) selectedType.value = val;
-                        },
-                        items: DeviceType.values.map((type) {
-                          return DropdownMenuItem(
-                            value: type,
-                            child: Row(
-                              children: [
-                                Icon(_iconForType(type), color: AppTheme.primaryBlue, size: 18),
-                                const SizedBox(width: 8),
-                                Text(type.name.capitalizeFirst ?? ''),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  )),
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
               TextField(
                 controller: linkedCountController,
@@ -659,8 +802,12 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                 decoration: const InputDecoration(
                   labelText: 'Linked Devices Count',
                   labelStyle: TextStyle(color: AppTheme.textGrey),
-                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryBlue)),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppTheme.primaryBlue),
+                  ),
                 ),
               ),
             ],
@@ -669,7 +816,10 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppTheme.textGrey),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -689,24 +839,36 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                 id: const Uuid().v4(),
                 name: name,
                 type: selectedType.value,
-                linkedDevicesCount: int.tryParse(linkedCountController.text) ?? 0,
+                linkedDevicesCount:
+                    int.tryParse(linkedCountController.text) ?? 0,
                 // Placed at center by default; user can drag it
                 positionX: 0.5,
                 positionY: 0.5,
               );
               dashboardController.addDevice(newDevice);
-              controller.selectDevice(newDevice.id); // auto-select so properties appear
+              controller.selectDevice(
+                newDevice.id,
+              ); // auto-select so properties appear
               Get.back();
             },
-            child: const Text('Add', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Add',
+              style: TextStyle(
+                color: AppTheme.primaryBlue,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, DeviceEntity device, DashboardController dashboardController) {
-
+  void _showDeleteConfirmation(
+    BuildContext context,
+    DeviceEntity device,
+    DashboardController dashboardController,
+  ) {
     Get.dialog(
       AlertDialog(
         backgroundColor: AppTheme.cardBackground,
@@ -715,12 +877,21 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
           borderRadius: BorderRadius.circular(24),
           side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
-        title: const Text('Delete Device', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        content: Text('Are you sure you want to delete ${device.name}?', style: const TextStyle(color: AppTheme.textGrey)),
+        title: const Text(
+          'Delete Device',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Are you sure you want to delete ${device.name}?',
+          style: const TextStyle(color: AppTheme.textGrey),
+        ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppTheme.textGrey),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -728,16 +899,28 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               controller.selectDevice(null); // Deselect
               Get.back();
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(
+                color: Colors.redAccent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  void _showEditDeviceDialog(BuildContext context, DeviceEntity device, DashboardController dashboardController) {
+  void _showEditDeviceDialog(
+    BuildContext context,
+    DeviceEntity device,
+    DashboardController dashboardController,
+  ) {
     final nameController = TextEditingController(text: device.name);
-    final linkedCountController = TextEditingController(text: (device.linkedDevicesCount ?? 0).toString());
+    final linkedCountController = TextEditingController(
+      text: (device.linkedDevicesCount ?? 0).toString(),
+    );
     var selectedType = device.type.obs;
 
     Get.dialog(
@@ -748,7 +931,10 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
           borderRadius: BorderRadius.circular(24),
           side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
-        title: const Text('Edit Device', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Edit Device',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -760,43 +946,56 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                 decoration: const InputDecoration(
                   labelText: 'Device Name',
                   labelStyle: TextStyle(color: AppTheme.textGrey),
-                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryBlue)),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppTheme.primaryBlue),
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
-              const Text('Device Type', style: TextStyle(color: AppTheme.textGrey, fontSize: 12)),
+              const Text(
+                'Device Type',
+                style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
+              ),
               const SizedBox(height: 8),
-              Obx(() => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.white12),
+              Obx(
+                () => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white12),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<DeviceType>(
+                      value: selectedType.value,
+                      dropdownColor: AppTheme.cardBackground,
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      onChanged: (val) {
+                        if (val != null) selectedType.value = val;
+                      },
+                      items: DeviceType.values.map((type) {
+                        return DropdownMenuItem(
+                          value: type,
+                          child: Row(
+                            children: [
+                              Icon(
+                                _iconForType(type),
+                                color: AppTheme.primaryBlue,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(type.name.capitalizeFirst ?? ''),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                     ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<DeviceType>(
-                        value: selectedType.value,
-                        dropdownColor: AppTheme.cardBackground,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
-                        onChanged: (val) {
-                          if (val != null) selectedType.value = val;
-                        },
-                        items: DeviceType.values.map((type) {
-                          return DropdownMenuItem(
-                            value: type,
-                            child: Row(
-                              children: [
-                                Icon(_iconForType(type), color: AppTheme.primaryBlue, size: 18),
-                                const SizedBox(width: 8),
-                                Text(type.name.capitalizeFirst ?? ''),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  )),
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
               TextField(
                 controller: linkedCountController,
@@ -805,8 +1004,12 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                 decoration: const InputDecoration(
                   labelText: 'Linked Devices Count',
                   labelStyle: TextStyle(color: AppTheme.textGrey),
-                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryBlue)),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppTheme.primaryBlue),
+                  ),
                 ),
               ),
             ],
@@ -815,7 +1018,10 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppTheme.textGrey),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -825,13 +1031,20 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               final updatedDevice = device.copyWith(
                 name: name,
                 type: selectedType.value,
-                linkedDevicesCount: int.tryParse(linkedCountController.text) ?? 0,
+                linkedDevicesCount:
+                    int.tryParse(linkedCountController.text) ?? 0,
               );
 
               dashboardController.updateDevice(updatedDevice);
               Get.back();
             },
-            child: const Text('Save', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Save',
+              style: TextStyle(
+                color: AppTheme.primaryBlue,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -844,10 +1057,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: AppTheme.textGrey,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: AppTheme.textGrey, fontSize: 12),
         ),
         const SizedBox(height: 4),
         Text(

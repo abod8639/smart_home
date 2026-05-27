@@ -162,7 +162,7 @@ class RoomsListWidget extends GetView<DashboardController> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${room.deviceCount} device(s)',
+                  '${room.deviceCount} devices',
                   style: TextStyle(
                     color: isActive ? Colors.white70 : AppTheme.textGrey,
                     fontSize: 11,
