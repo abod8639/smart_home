@@ -100,63 +100,68 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Stack(
-                key: imageKey,
-                children: [
-                  Positioned.fill(
-                    child: Image.asset(
-                      'assets/images/living_room.png',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: Container(
-                      color: Colors.black.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return Obx(() {
-                          final validDevices = dashboardController.devices
-                              .where((d) => d.positionX != null && d.positionY != null)
-                              .toList();
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Stack(
+                    key: imageKey,
+                    children: [
+                      Positioned.fill(
+                        child: Image.asset(
+                          'assets/images/living_room.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return Obx(() {
+                              final validDevices = dashboardController.devices
+                                  .where((d) => d.positionX != null && d.positionY != null)
+                                  .toList();
 
-                          return Stack(
-                            children: validDevices.map((device) {
-                              final posX = device.positionX! * constraints.maxWidth;
-                              final posY = device.positionY! * constraints.maxHeight;
-                              final isSelected = controller.selectedDeviceId.value == device.id;
-                              
-                              final rawW = device.markerWidth ?? 0.18;
-                              final rawH = device.markerHeight ?? 0.15;
-                              final normW = rawW > 1.0 ? (rawW / 600.0).clamp(0.05, 0.8) : rawW;
-                              final normH = rawH > 1.0 ? (rawH / 400.0).clamp(0.05, 0.8) : rawH;
-                              
-                              final mW = normW * constraints.maxWidth;
-                              final mH = normH * constraints.maxHeight;
+                              return Stack(
+                                children: validDevices.map((device) {
+                                  final posX = device.positionX! * constraints.maxWidth;
+                                  final posY = device.positionY! * constraints.maxHeight;
+                                  final isSelected = controller.selectedDeviceId.value == device.id;
+                                  
+                                  final rawW = device.markerWidth ?? 0.18;
+                                  final rawH = device.markerHeight ?? 0.15;
+                                  final normW = rawW > 1.0 ? (rawW / 600.0).clamp(0.05, 0.8) : rawW;
+                                  final normH = rawH > 1.0 ? (rawH / 400.0).clamp(0.05, 0.8) : rawH;
+                                  
+                                  final mW = normW * constraints.maxWidth;
+                                  final mH = normH * constraints.maxHeight;
 
-                              return Positioned(
-                                  left: posX - mW / 2,
-                                  top: posY - mH / 2,
-                                  child: _buildDraggableMarker(
-                                    device,
-                                    isSelected,
-                                    dashboardController,
-                                    imageKey,
-                                    constraints.maxWidth,
-                                    constraints.maxHeight,
-                                  ),
-                                );
-                            }).toList(),
-                          );
-                        });
-                      },
-                    ),
+                                  return Positioned(
+                                      left: posX - mW / 2,
+                                      top: posY - mH / 2,
+                                      child: _buildDraggableMarker(
+                                        device,
+                                        isSelected,
+                                        dashboardController,
+                                        imageKey,
+                                        constraints.maxWidth,
+                                        constraints.maxHeight,
+                                      ),
+                                    );
+                                }).toList(),
+                              );
+                            });
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

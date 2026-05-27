@@ -10,23 +10,26 @@ class RoomPreviewWidget extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
-        image: const DecorationImage(
-          image: AssetImage('assets/images/living_room.png'),
-          fit: BoxFit.fill,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          )
-        ],
-      ),
-      child: Stack(
-        children: [
+    return Center(
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(32),
+            image: const DecorationImage(
+              image: AssetImage('assets/images/living_room.png'),
+              fit: BoxFit.cover,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              )
+            ],
+          ),
+          child: Stack(
+            children: [
           // Top overlay gradient for text visibility
           Container(
             decoration: BoxDecoration(
@@ -106,6 +109,8 @@ class RoomPreviewWidget extends GetView<DashboardController> {
             ),
           ),
         ],
+      ),
+    ),
       ),
     );
   }
