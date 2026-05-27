@@ -8,11 +8,14 @@ import 'package:smart_home/features/dashboard/presentation/controllers/dashboard
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 
 class RoomsListWidget extends GetView<DashboardController> {
-  const RoomsListWidget({super.key});
+  final bool isCompact;
+  const RoomsListWidget({
+    this.isCompact = false,
+    super.key});
 
   @override
   Widget build(BuildContext context) {
-    if (Responsive.isMobile(context)) {
+    if (Responsive.isMobile(context) || isCompact) {
       return _buildMobileHorizontalList(context);
     }
 

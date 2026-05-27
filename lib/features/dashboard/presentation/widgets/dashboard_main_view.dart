@@ -62,7 +62,10 @@ class DashboardMainView extends GetView<DashboardController> {
             SizedBox(height: gap),
             const WeatherUpdateWidget(),
             SizedBox(height: gap),
-            const RoomsListWidget(),
+            SizedBox(
+              height: 180,
+              child: const RoomsListWidget(isCompact: true),
+            ),
           ],
         ),
       );
