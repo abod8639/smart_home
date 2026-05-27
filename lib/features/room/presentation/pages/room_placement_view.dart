@@ -6,6 +6,7 @@ import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
+import 'package:smart_home/features/room/presentation/widgets/rooms_list_widget.dart';
 import 'package:uuid/uuid.dart';
 
 class RoomPlacementView extends GetView<RoomPlacementController> {
@@ -91,17 +92,22 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(
+            height: 165,
+            child: RoomsListWidget(isCompact: true),
+          ),
+          const SizedBox(height: 12),
           Obx(() {
             final activeRoom = dashboardController.activeRoom;
             return Text(
-              activeRoom?.name ?? 'Living Room',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.white,
+              'Active Room: ${activeRoom?.name ?? 'Living Room'}',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.white70,
                     fontWeight: FontWeight.bold,
                   ),
             );
           }),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Expanded(
             child: Center(
               child: AspectRatio(
