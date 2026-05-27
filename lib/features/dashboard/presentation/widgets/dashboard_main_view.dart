@@ -95,15 +95,34 @@ class DashboardMainView extends GetView<DashboardController> {
 
   Widget _buildDeviceCards() {
     return Obx(() {
-      if (controller.devices.isEmpty) return const SizedBox.shrink();
+      final activeRoomId = controller.activeRoom?.id ?? '3';
+      final filteredDevices = controller.devices
+          .where((d) => d.roomId == activeRoomId || (d.roomId == null && activeRoomId == '3'))
+          .toList();
+
+      if (filteredDevices.isEmpty) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              'No devices in this room',
+              style: TextStyle(
+                color: Colors.white38,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        );
+      }
 
       return ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: controller.devices.length,
+        itemCount: filteredDevices.length,
         separatorBuilder: (context, index) =>
             SizedBox(width: Responsive.contentGap(context)),
         itemBuilder: (context, index) {
-          final device = controller.devices[index];
+          final device = filteredDevices[index];
 
           switch (device.type) {
             case DeviceType.airConditioner:
