@@ -26,11 +26,8 @@ class DashboardPage extends GetView<DashboardController> {
           ),
           child: Row(
             children: [
-              if (Responsive.isDesktop(context)) ...[
+              if (!Responsive.isMobile(context)) ...[
                 const SidebarWidget(),
-                SizedBox(width: gap),
-              ] else if (Responsive.isTablet(context)) ...[
-                AppNavigationRail(width: Responsive.sidebarWidth(context)!),
                 SizedBox(width: gap),
               ],
               Expanded(child: _buildMainContent()),

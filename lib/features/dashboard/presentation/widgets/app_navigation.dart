@@ -20,70 +20,6 @@ const List<AppNavItem> kAppNavItems = [
   AppNavItem(icon: Icons.settings_outlined, index: 6),
 ];
 
-class AppNavigationRail extends GetView<DashboardController> {
-  final double width;
-
-  const AppNavigationRail({super.key, this.width = 72});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      color: Colors.transparent,
-      child: Obx(
-        () => Column(
-          children: [
-            const SizedBox(height: 16),
-            Expanded(
-              child: NavigationRail(
-                extended: false,
-                minWidth: width,
-                backgroundColor: Colors.transparent,
-                selectedIndex: controller.currentNavigationIndex.value,
-                onDestinationSelected: controller.changeTab,
-                labelType: NavigationRailLabelType.none,
-                destinations: kAppNavItems
-                    .map(
-                      (item) => NavigationRailDestination(
-                        icon: Icon(item.icon, color: AppTheme.textGrey),
-                        selectedIcon: Icon(item.icon, color: Colors.white),
-                        label: const Text(''),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: AssetImage('assets/images/user_avatar.png'),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Icon(
-                    Icons.logout,
-                    color: Colors.redAccent.withValues(alpha: 0.8),
-                    size: 22,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class MobileBottomNav extends GetView<DashboardController> {
   const MobileBottomNav({super.key});
@@ -101,61 +37,65 @@ class MobileBottomNav extends GetView<DashboardController> {
         top: false,
         child: SizedBox(
           height: 64,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            itemCount: kAppNavItems.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 4),
-            itemBuilder: (context, i) {
-              final item = kAppNavItems[i];
-              final isActive =
-                  controller.currentNavigationIndex.value == item.index;
-              return _MobileNavButton(
-                icon: item.icon,
-                isActive: isActive,
-                onTap: () => controller.changeTab(item.index),
-              );
-            },
-          ),
+          child:  ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              itemCount: kAppNavItems.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 4),
+              itemBuilder: (context, i) {
+                final item = kAppNavItems[i];
+                final isActive =
+                    controller.currentNavigationIndex.value == item.index;
+                return AppNavigationButton(
+                  icon: item.icon,
+                  isActive: isActive,
+                  onTap: () => controller.changeTab(item.index),
+                  iconSize: 24,
+                  padding: const EdgeInsets.all(8),
+                );
+              },
+            ),
+          
         ),
       ),
     );
   }
 }
 
-class _MobileNavButton extends StatelessWidget {
+class AppNavigationButton extends StatelessWidget {
   final IconData icon;
   final bool isActive;
   final VoidCallback onTap;
+  final double iconSize;
+  final EdgeInsetsGeometry padding;
 
-  const _MobileNavButton({
+  const AppNavigationButton({
+    super.key,
     required this.icon,
     required this.isActive,
     required this.onTap,
+    this.iconSize = 28,
+    this.padding = const EdgeInsets.all(12),
   });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: 52,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            color: isActive
-                ? Colors.white.withValues(alpha: 0.12)
-                : Colors.transparent,
-          ),
-          child: Icon(
-            icon,
-            color: isActive ? Colors.white : AppTheme.textGrey,
-            size: 26,
-          ),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: padding,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isActive
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.transparent,
+        ),
+        child: Icon(
+          icon,
+          color: isActive ? Colors.white : AppTheme.textGrey,
+          size: iconSize,
         ),
       ),
     );

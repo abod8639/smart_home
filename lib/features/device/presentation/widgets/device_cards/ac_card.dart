@@ -42,7 +42,7 @@ class AcCard extends StatelessWidget {
       child: GlassContainer(
         padding: EdgeInsets.symmetric(
           horizontal: (20 * m.scale).clamp(12.0, 20.0),
-          vertical: (10 * m.scale).clamp(6.0, 10.0),
+          vertical: (1 * m.scale).clamp(6.0, 10.0),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +85,7 @@ class AcCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(width: (8 * m.scale).clamp(4.0, 8.0)),
+                // SizedBox(width: (8 * m.scale).clamp(4.0, 8.0)),
                 // Custom Switch matching the screenshot
                 GlassSwitch(
                   onToggle: onToggle,
@@ -95,7 +95,7 @@ class AcCard extends StatelessWidget {
               ],
             ),
 
-            SizedBox(height: (20 * m.scale).clamp(12.0, 20.0)),
+            // SizedBox(height: (20 * m.scale).clamp(12.0, 20.0)),
 
             // Middle Area: Custom Drawn AC Unit
             Expanded(
@@ -272,7 +272,7 @@ class AcCard extends StatelessWidget {
                     m.scale,
                   ),
                 ),
-                SizedBox(width: (12 * m.scale).clamp(8.0, 12.0)),
+                // SizedBox(width: (12 * m.scale).clamp(8.0, 12.0)),
                 Expanded(
                   child: _buildBottomStat(
                     Icons.access_time,

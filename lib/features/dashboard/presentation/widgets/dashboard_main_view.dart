@@ -24,7 +24,7 @@ class DashboardMainView extends GetView<DashboardController> {
       children: [
         Expanded(child: _buildTopSection(context, gap)),
         SizedBox(height: gap),
-        SizedBox(height: deviceHeight, child: _buildDeviceCards()),
+       if (!Responsive.isMobile(context)) SizedBox(height: deviceHeight, child: _buildDeviceCards()),
       ],
     );
   }
@@ -33,7 +33,7 @@ class DashboardMainView extends GetView<DashboardController> {
     if (Responsive.isMobile(context)) {
       return Column(
         children: [
-          const Expanded(flex: 5, child: RoomPreviewWidget()),
+          const Expanded(flex: 4, child: RoomPreviewWidget()),
           SizedBox(height: gap),
           Expanded(
             flex: 4,
@@ -42,7 +42,9 @@ class DashboardMainView extends GetView<DashboardController> {
                 children: [
                   // const WeatherUpdateWidget(),
                   SizedBox(height: gap),
-                  SizedBox(height: 280, child: const RoomsListWidget()),
+                  SizedBox(height: 180, child: const RoomsListWidget()),
+                  SizedBox(height: gap),
+                  SizedBox(height: 180, child: _buildDeviceCards()),
                 ],
               ),
             ),
@@ -59,12 +61,15 @@ class DashboardMainView extends GetView<DashboardController> {
           SizedBox(width: gap),
           SizedBox(
             width: 280,
-            child: Column(
-              children: [
-                const WeatherUpdateWidget(),
-                SizedBox(height: gap),
-                const Expanded(child: RoomsListWidget()),
-              ],
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  const WeatherUpdateWidget(),
+                  SizedBox(height: gap),
+                  const RoomsListWidget(),
+                ],
+              ),
             ),
           ),
         ],
@@ -75,17 +80,20 @@ class DashboardMainView extends GetView<DashboardController> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Expanded(child: RoomPreviewWidget()),
-        SizedBox(width: gap),
-          SizedBox(
-            width: 280,
+        // SizedBox(width: gap),
+        SizedBox(
+          width: 280,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
                 const WeatherUpdateWidget(),
                 SizedBox(height: gap),
-                const Expanded(child: RoomsListWidget()),
+                const RoomsListWidget(),
               ],
             ),
           ),
+        ),
       ],
     );
   }

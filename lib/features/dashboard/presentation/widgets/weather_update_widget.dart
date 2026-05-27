@@ -37,7 +37,6 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
         final date = controller.weatherDate.value;
         final temp = controller.weatherTemp.value;
         final condition = controller.weatherCondition.value;
-        final suggestion = controller.weatherSuggestion.value;
         final code = controller.weatherCode.value;
         final dayFlag = controller.isDay.value;
 
@@ -149,55 +148,55 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              // const SizedBox(height: 20),
 
               // 3. AI Suggestion Section
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    width: 1,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.lightbulb_outline,
-                          color: Colors.amberAccent,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            'AI Suggestion :',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.9),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      suggestion,
-                      style: const TextStyle(
-                        color: AppTheme.textGrey,
-                        fontSize: 11,
-                        height: 1.45,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Container(
+              //   padding: const EdgeInsets.all(16),
+              //   decoration: BoxDecoration(
+              //     color: Colors.black.withValues(alpha: 0.2),
+              //     borderRadius: BorderRadius.circular(20),
+              //     border: Border.all(
+              //       color: Colors.white.withValues(alpha: 0.05),
+              //       width: 1,
+              //     ),
+              //   ),
+              //   child: Column(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       Row(
+              //         children: [
+              //           const Icon(
+              //             Icons.lightbulb_outline,
+              //             color: Colors.amberAccent,
+              //             size: 16,
+              //           ),
+              //           const SizedBox(width: 6),
+              //           Expanded(
+              //             child: Text(
+              //               'AI Suggestion :',
+              //               style: TextStyle(
+              //                 color: Colors.white.withValues(alpha: 0.9),
+              //                 fontSize: 12,
+              //                 fontWeight: FontWeight.bold,
+              //               ),
+              //               overflow: TextOverflow.ellipsis,
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //       const SizedBox(height: 8),
+              //       Text(
+              //         suggestion,
+              //         style: const TextStyle(
+              //           color: AppTheme.textGrey,
+              //           fontSize: 11,
+              //           height: 1.45,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
         );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
@@ -15,7 +16,7 @@ class RoomPreviewWidget extends GetView<DashboardController> {
         aspectRatio: 16 / 9,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(12),
             image: const DecorationImage(
               image: AssetImage('assets/images/living_room.png'),
               fit: BoxFit.cover,
@@ -33,7 +34,7 @@ class RoomPreviewWidget extends GetView<DashboardController> {
           // Top overlay gradient for text visibility
           Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(32),
+              borderRadius: BorderRadius.circular(12),
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -47,8 +48,8 @@ class RoomPreviewWidget extends GetView<DashboardController> {
           ),
           
           // Top Bar
-          Padding(
-            padding: const EdgeInsets.all(24.0),
+       if(!Responsive.isMobile(context)) Padding(
+            padding: const EdgeInsets.all(14.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -179,13 +180,13 @@ class RoomPreviewWidget extends GetView<DashboardController> {
       glowColor = Color.fromRGBO(r, g, b, 0.4);
     } else {
       markerColor = isOn
-          ? AppTheme.primaryBlue.withValues(alpha: 0.45)
-          : Colors.black.withValues(alpha: 0.15);
+          ? AppTheme.primaryBlue.withValues(alpha: 0.05)
+          : Colors.black.withValues(alpha: 0.05);
       borderColor = isOn
-          ? AppTheme.primaryBlue.withValues(alpha: 0.8)
-          : Colors.white.withValues(alpha: 0.25);
+          ? AppTheme.primaryBlue.withValues(alpha: 0.05)
+          : Colors.white.withValues(alpha: 0.15);
       glowColor = isOn
-          ? AppTheme.primaryBlue.withValues(alpha: 0.4)
+          ? AppTheme.primaryBlue.withValues(alpha: 0.05)
           : Colors.transparent;
     }
 
@@ -220,14 +221,21 @@ class RoomPreviewWidget extends GetView<DashboardController> {
               children: [
                 Icon(
                   iconData,
-                  color: isOn || (isDoor && !isLocked) ? Colors.white : Colors.white70,
+                  color: isOn || (isDoor && !isLocked) ? AppTheme.primaryBlue : Colors.white70,
                   size: 20,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   device.name,
                   style: TextStyle(
-                    color: isOn || (isDoor && !isLocked) ? Colors.white : Colors.white70,
+                    shadows: [
+                      BoxShadow(
+                        color: Colors.black,
+                        blurRadius: 10,
+                        spreadRadius: 10,
+                      )
+                    ],
+                    color: isOn || (isDoor && !isLocked) ? AppTheme.primaryBlue: Colors.white70,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:smart_home/features/room/presentation/widgets/rooms_list_widget.dart';
+import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
 import 'package:smart_home/main.dart';
 
 void main() {
@@ -20,9 +20,9 @@ void main() {
     expect(find.text('Bedroom'), findsOneWidget);
 
     final roomsListView = find.descendant(
-      of: find.byType(RoomsListWidget),
+      of: find.byType(DashboardMainView),
       matching: find.byType(Scrollable),
-    );
+    ).first;
     await tester.scrollUntilVisible(
       find.text('Living room'),
       50.0,
