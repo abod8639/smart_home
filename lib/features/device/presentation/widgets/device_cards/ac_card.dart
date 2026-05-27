@@ -32,8 +32,8 @@ class AcCard extends StatelessWidget {
     final acH = 66 * m.scale;
     final ventW = 180 * m.scale;
     final ventH = (4 * m.scale).clamp(2.0, 4.0);
-    final breezeW = 220 * m.scale;
-    final breezeH = 16 * m.scale;
+    final breezeW = 180 * m.scale;
+    final breezeH = 40 * m.scale;
     final titleSize = (20 * m.scale).clamp(15.0, 20.0);
     final tempSize = (16 * m.scale).clamp(13.0, 18.0);
 

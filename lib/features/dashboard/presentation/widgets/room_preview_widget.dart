@@ -74,45 +74,49 @@ class RoomPreviewWidget extends GetView<DashboardController> {
 
                 // Dynamic Device Markers (Simulated AR Overlay)
                 Positioned.fill(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final activeRoomId = activeRoom?.id ?? '3';
-                      final validDevices = controller.devices
-                          .where((d) => d.positionX != null && d.positionY != null)
-                          .where((d) => d.roomId == activeRoomId || (d.roomId == null && activeRoomId == '3'))
-                          .toList();
+                  child: Obx(() {
+                    // Reading controller.devices here ensures GetX tracks it
+                    // as a reactive dependency — so markers rebuild on toggle.
+                    final activeRoomId = controller.activeRoom?.id ?? '3';
+                    final validDevices = controller.devices
+                        .where((d) => d.positionX != null && d.positionY != null)
+                        .where((d) => d.roomId == activeRoomId || (d.roomId == null && activeRoomId == '3'))
+                        .toList();
 
-                      return Stack(
-                        children: validDevices.map((device) {
-                          final posX = device.positionX! * constraints.maxWidth;
-                          final posY = device.positionY! * constraints.maxHeight;
-                          
-                          final rawW = device.markerWidth ?? 0.18;
-                          final rawH = device.markerHeight ?? 0.15;
-                          final normW = rawW > 1.0 ? (rawW / 600.0).clamp(0.05, 0.8) : rawW;
-                          final normH = rawH > 1.0 ? (rawH / 400.0).clamp(0.05, 0.8) : rawH;
-                          
-                          final mW = normW * constraints.maxWidth;
-                          final mH = normH * constraints.maxHeight;
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        return Stack(
+                          children: validDevices.map((device) {
+                            final posX = device.positionX! * constraints.maxWidth;
+                            final posY = device.positionY! * constraints.maxHeight;
 
-                          return Positioned(
-                            left: posX - mW / 2,
-                            top: posY - mH / 2,
-                            child: GestureDetector(
-                              onTap: () {
-                                if (device.type == DeviceType.door) {
-                                  controller.toggleDoor(device.id);
-                                } else {
-                                  controller.toggleDevice(device.id);
-                                }
-                              },
-                              child: _buildInteractiveMarker(device, mW, mH),
-                            ),
-                          );
-                        }).toList(),
-                      );
-                    },
-                  ),
+                            final rawW = device.markerWidth ?? 0.18;
+                            final rawH = device.markerHeight ?? 0.15;
+                            final normW = rawW > 1.0 ? (rawW / 600.0).clamp(0.05, 0.8) : rawW;
+                            final normH = rawH > 1.0 ? (rawH / 400.0).clamp(0.05, 0.8) : rawH;
+
+                            final mW = normW * constraints.maxWidth;
+                            final mH = normH * constraints.maxHeight;
+
+                            return Positioned(
+                              left: posX - mW / 2,
+                              top: posY - mH / 2,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (device.type == DeviceType.door) {
+                                    controller.toggleDoor(device.id);
+                                  } else {
+                                    controller.toggleDevice(device.id);
+                                  }
+                                },
+                                child: _buildInteractiveMarker(device, mW, mH),
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      },
+                    );
+                  }),
                 ),
               ],
             ),
