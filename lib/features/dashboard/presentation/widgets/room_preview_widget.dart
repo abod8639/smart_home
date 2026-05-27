@@ -215,58 +215,61 @@ class RoomPreviewWidget extends GetView<DashboardController> {
           : Colors.transparent;
     }
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: markerColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: borderColor,
-          width: isOn || (isDoor && !isLocked) ? 2.0 : 1.0,
+    return Hero(
+      tag: device.id,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: markerColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: borderColor,
+            width: isOn || (isDoor && !isLocked) ? 2.0 : 1.0,
+          ),
+          boxShadow: showGlow
+              ? [
+                  BoxShadow(
+                    color: glowColor,
+                    blurRadius: 12,
+                    spreadRadius: 2,
+                  )
+                ]
+              : [],
         ),
-        boxShadow: showGlow
-            ? [
-                BoxShadow(
-                  color: glowColor,
-                  blurRadius: 12,
-                  spreadRadius: 2,
-                )
-              ]
-            : [],
-      ),
-      child: Center(
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  iconData,
-                  color: isOn || (isDoor && !isLocked) ? AppTheme.primaryBlue : Colors.white70,
-                  size: 20,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  device.name,
-                  style: TextStyle(
-                    shadows: [
-                      BoxShadow(
-                        color: Colors.black,
-                        blurRadius: 10,
-                        spreadRadius: 10,
-                      )
-                    ],
-                    color: isOn || (isDoor && !isLocked) ? AppTheme.primaryBlue: Colors.white70,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
+        child: Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    iconData,
+                    color: isOn || (isDoor && !isLocked) ? AppTheme.primaryBlue : Colors.white70,
+                    size: 20,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    device.name,
+                    style: TextStyle(
+                      shadows: [
+                        BoxShadow(
+                          color: Colors.black,
+                          blurRadius: 10,
+                          spreadRadius: 10,
+                        )
+                      ],
+                      color: isOn || (isDoor && !isLocked) ? AppTheme.primaryBlue: Colors.white70,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

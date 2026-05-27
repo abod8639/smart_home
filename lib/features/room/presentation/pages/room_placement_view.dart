@@ -382,8 +382,8 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
             onPanUpdate: (details) {
               final newW = mW + details.delta.dx;
               final newH = mH + details.delta.dy;
-              final clampedW = newW.clamp(50.0, parentWidth * 0.8);
-              final clampedH = newH.clamp(40.0, parentHeight * 0.8);
+              final clampedW = newW.clamp(90.0, parentWidth * 0.8);
+              final clampedH = newH.clamp(80.0, parentHeight * 0.8);
 
               dashboardController.updateDeviceMarkerSize(
                 device.id,
@@ -642,7 +642,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         const SizedBox(height: 24),
         _buildPropertyRow('Total Devices', '${roomDevices.length} device(s)'),
         const SizedBox(height: 16),
-        SizedBox(height: 200, child: buildDeviceCards()),
+        SizedBox(height: 220, child: buildDeviceCards()),
         const SizedBox(height: 16),
         _buildPropertyRow('Temperature', dashboardController.temperature.value),
         const SizedBox(height: 16),
