@@ -16,8 +16,7 @@ class RoomsListWidget extends GetView<DashboardController> {
 
     return ShadowContainer(
       width: cardWidth,
-      padding: const EdgeInsets.all(24.0),
-
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -28,18 +27,18 @@ class RoomsListWidget extends GetView<DashboardController> {
               const Icon(Icons.info_outline, color: AppTheme.textGrey, size: 20),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           Expanded(
             child: Obx(() => ListView.separated(
                   itemCount: controller.rooms.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 16),
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final room = controller.rooms[index];
                     return _buildRoomTile(room);
                   },
                 )),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _buildAddRoomButton(),
         ],
       ),

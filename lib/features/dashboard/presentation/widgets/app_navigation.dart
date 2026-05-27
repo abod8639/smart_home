@@ -27,56 +27,58 @@ class AppNavigationRail extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: width,
+      color: Colors.transparent,
       child: Obx(
-        () => NavigationRail(
-          extended: false,
-          minWidth: width,
-          backgroundColor: Colors.transparent,
-          selectedIndex: controller.currentNavigationIndex.value,
-          onDestinationSelected: controller.changeTab,
-          labelType: NavigationRailLabelType.none,
-          leading: const SizedBox(height: 16),
-          trailing: Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: AssetImage('assets/images/user_avatar.png'),
-                          fit: BoxFit.cover,
-                        ),
+        () => Column(
+          children: [
+            const SizedBox(height: 16),
+            Expanded(
+              child: NavigationRail(
+                extended: false,
+                minWidth: width,
+                backgroundColor: Colors.transparent,
+                selectedIndex: controller.currentNavigationIndex.value,
+                onDestinationSelected: controller.changeTab,
+                labelType: NavigationRailLabelType.none,
+                destinations: kAppNavItems
+                    .map(
+                      (item) => NavigationRailDestination(
+                        icon: Icon(item.icon, color: AppTheme.textGrey),
+                        selectedIcon: Icon(item.icon, color: Colors.white),
+                        label: const Text(''),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Icon(
-                      Icons.logout,
-                      color: Colors.redAccent.withValues(alpha: 0.8),
-                      size: 22,
-                    ),
-                  ],
-                ),
+                    )
+                    .toList(),
               ),
             ),
-          ),
-          destinations: kAppNavItems
-              .map(
-                (item) => NavigationRailDestination(
-                  icon: Icon(item.icon, color: AppTheme.textGrey),
-                  selectedIcon: Icon(item.icon, color: Colors.white),
-                  label: const Text(''),
-                ),
-              )
-              .toList(),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/user_avatar.png'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Icon(
+                    Icons.logout,
+                    color: Colors.redAccent.withValues(alpha: 0.8),
+                    size: 22,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

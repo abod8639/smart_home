@@ -57,14 +57,13 @@ class DashboardMainView extends GetView<DashboardController> {
         children: [
           const Expanded(flex: 4, child: RoomPreviewWidget()),
           SizedBox(width: gap),
-          Expanded(
-            flex: 1,
-            child: ListView(
+          SizedBox(
+            width: 280,
+            child: Column(
               children: [
-                SizedBox(height: gap),
                 const WeatherUpdateWidget(),
                 SizedBox(height: gap),
-                RoomsListWidget(),
+                const Expanded(child: RoomsListWidget()),
               ],
             ),
           ),
@@ -73,12 +72,20 @@ class DashboardMainView extends GetView<DashboardController> {
     }
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const RoomPreviewWidget(),
+        const Expanded(child: RoomPreviewWidget()),
         SizedBox(width: gap),
-        const WeatherUpdateWidget(),
-        SizedBox(width: gap),
-        const RoomsListWidget(),
+          SizedBox(
+            width: 280,
+            child: Column(
+              children: [
+                const WeatherUpdateWidget(),
+                SizedBox(height: gap),
+                const Expanded(child: RoomsListWidget()),
+              ],
+            ),
+          ),
       ],
     );
   }

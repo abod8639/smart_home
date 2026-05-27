@@ -10,113 +10,96 @@ class RoomPreviewWidget extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(32),
-          image: const DecorationImage(
-            image: AssetImage('assets/images/living_room.png'),
-            fit: BoxFit.fill,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            )
-          ],
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(32),
+        image: const DecorationImage(
+          image: AssetImage('assets/images/living_room.png'),
+          fit: BoxFit.fill,
         ),
-        child: Stack(
-          children: [
-            // Top overlay gradient for text visibility
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(32),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.4),
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.4),
-                  ],
-                ),
-              ),
-            ),
-            
-            // Top Bar
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  // Live indicator
-                  // GlassContainer(
-                  //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  //   borderRadius: BorderRadius.circular(20),
-                  //   child: Row(
-                  //     mainAxisSize: MainAxisSize.min,
-                  //     children: [
-                  //       Container(
-                  //         width: 8,
-                  //         height: 8,
-                  //         decoration: const BoxDecoration(
-                  //           shape: BoxShape.circle,
-                  //           color: Colors.redAccent,
-                  //         ),
-                  //       ),
-                  //       const SizedBox(width: 8),
-                  //       const Text('Live', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  //     ],
-                  //   ),
-                  // ),
-                  
-                  // Environment Stats
-                  Obx(() => Row(
-                    children: [
-                      _buildStatChip(Icons.water_drop_outlined, controller.humidity.value),
-                      const SizedBox(width: 12),
-                      _buildStatChip(Icons.air_outlined, controller.airflow.value),
-                      const SizedBox(width: 12),
-                      _buildStatChip(Icons.thermostat_outlined, controller.temperature.value),
-                      // const SizedBox(width: 12),
-                      // _buildStatChip(Icons.electric_bolt_outlined, controller.powerUsage.value),
-                    ],
-                  )),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.5),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          )
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Top overlay gradient for text visibility
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(32),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.4),
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.4),
                 ],
               ),
             ),
-
-            // Dynamic Device Markers (Simulated AR Overlay)
-            Positioned.fill(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return Obx(() {
-                    final validDevices = controller.devices
-                        .where((d) => d.positionX != null && d.positionY != null)
-                        .toList();
-
-                    return Stack(
-                      children: validDevices.map((device) {
-                        final posX = device.positionX! * constraints.maxWidth;
-                        final posY = device.positionY! * constraints.maxHeight;
-
-                        return Positioned(
-                          left: posX - 24,
-                          top: posY - 24,
-                          child: GestureDetector(
-                            onTap: () => controller.toggleDevice(device.id),
-                            child: _buildInteractiveMarker(device),
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  });
-                },
-              ),
+          ),
+          
+          // Top Bar
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // Environment Stats
+                Obx(() => Row(
+                  children: [
+                    _buildStatChip(Icons.water_drop_outlined, controller.humidity.value),
+                    const SizedBox(width: 12),
+                    _buildStatChip(Icons.air_outlined, controller.airflow.value),
+                    const SizedBox(width: 12),
+                    _buildStatChip(Icons.thermostat_outlined, controller.temperature.value),
+                  ],
+                )),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          // Dynamic Device Markers (Simulated AR Overlay)
+          Positioned.fill(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Obx(() {
+                  final validDevices = controller.devices
+                      .where((d) => d.positionX != null && d.positionY != null)
+                      .toList();
+
+                  return Stack(
+                    children: validDevices.map((device) {
+                      final posX = device.positionX! * constraints.maxWidth;
+                      final posY = device.positionY! * constraints.maxHeight;
+                      final mW = device.markerWidth ?? 110.0;
+                      final mH = device.markerHeight ?? 70.0;
+
+                      return Positioned(
+                        left: posX - mW / 2,
+                        top: posY - mH / 2,
+                        child: GestureDetector(
+                          onTap: () {
+                            if (device.type == DeviceType.door) {
+                              controller.toggleDoor(device.id);
+                            } else {
+                              controller.toggleDevice(device.id);
+                            }
+                          },
+                          child: _buildInteractiveMarker(device, mW, mH),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                });
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -136,7 +119,7 @@ class RoomPreviewWidget extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildInteractiveMarker(DeviceEntity device) {
+  Widget _buildInteractiveMarker(DeviceEntity device, double width, double height) {
     final isOn = device.isOn;
     IconData iconData;
     switch (device.type) {
@@ -157,55 +140,93 @@ class RoomPreviewWidget extends GetView<DashboardController> {
         break;
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Pulsing / Glowing Dot
-        Container(
-          width: 16,
-          height: 16,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isOn ? AppTheme.primaryBlue : Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: isOn 
-                    ? AppTheme.primaryBlue.withValues(alpha: 0.6) 
-                    : Colors.white.withValues(alpha: 0.4),
-                blurRadius: isOn ? 14 : 8,
-                spreadRadius: isOn ? 6 : 3,
-              )
-            ],
-          ),
+    final isDoor = device.type == DeviceType.door;
+    final isLocked = device.isLocked ?? true;
+    final isRgbOn = device.type == DeviceType.rgb && isOn;
+
+    Color markerColor;
+    Color borderColor;
+    Color glowColor;
+    bool showGlow = isOn || (isDoor && !isLocked);
+
+    if (isDoor) {
+      markerColor = isLocked
+          ? Colors.redAccent.withValues(alpha: 0.2)
+          : Colors.greenAccent.withValues(alpha: 0.2);
+      borderColor = isLocked
+          ? Colors.redAccent.withValues(alpha: 0.6)
+          : Colors.greenAccent.withValues(alpha: 0.6);
+      glowColor = isLocked
+          ? Colors.redAccent.withValues(alpha: 0.3)
+          : Colors.greenAccent.withValues(alpha: 0.3);
+    } else if (isRgbOn) {
+      final r = device.rgbR ?? 255;
+      final g = device.rgbG ?? 0;
+      final b = device.rgbB ?? 128;
+      markerColor = Color.fromRGBO(r, g, b, 0.45);
+      borderColor = Color.fromRGBO(r, g, b, 0.8);
+      glowColor = Color.fromRGBO(r, g, b, 0.4);
+    } else {
+      markerColor = isOn
+          ? AppTheme.primaryBlue.withValues(alpha: 0.45)
+          : Colors.black.withValues(alpha: 0.15);
+      borderColor = isOn
+          ? AppTheme.primaryBlue.withValues(alpha: 0.8)
+          : Colors.white.withValues(alpha: 0.25);
+      glowColor = isOn
+          ? AppTheme.primaryBlue.withValues(alpha: 0.4)
+          : Colors.transparent;
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: markerColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: borderColor,
+          width: isOn || (isDoor && !isLocked) ? 2.0 : 1.0,
         ),
-        const SizedBox(height: 6),
-        
-        // Small Glass Label
-        GlassContainer(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          borderRadius: BorderRadius.circular(12),
-          borderGradient: false,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                iconData,
-                color: isOn ? AppTheme.primaryBlue : Colors.white70,
-                size: 12,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                device.name,
-                style: TextStyle(
-                  color: isOn ? Colors.white : Colors.white70,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
+        boxShadow: showGlow
+            ? [
+                BoxShadow(
+                  color: glowColor,
+                  blurRadius: 12,
+                  spreadRadius: 2,
+                )
+              ]
+            : [],
+      ),
+      child: Center(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  iconData,
+                  color: isOn || (isDoor && !isLocked) ? Colors.white : Colors.white70,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  device.name,
+                  style: TextStyle(
+                    color: isOn || (isDoor && !isLocked) ? Colors.white : Colors.white70,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
-      ],
+      ),
     );
   }
 }

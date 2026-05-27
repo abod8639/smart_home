@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
+import 'package:smart_home/features/room/presentation/widgets/rooms_list_widget.dart';
 import 'package:smart_home/main.dart';
 
 void main() {
@@ -17,6 +18,18 @@ void main() {
 
     // Verify that the main rooms from our mock data are present on screen.
     expect(find.text('Bedroom'), findsOneWidget);
+
+    final roomsListView = find.descendant(
+      of: find.byType(RoomsListWidget),
+      matching: find.byType(Scrollable),
+    );
+    await tester.scrollUntilVisible(
+      find.text('Living room'),
+      50.0,
+      scrollable: roomsListView,
+    );
+    await tester.pumpAndSettle();
+
     expect(find.text('Living room'), findsOneWidget);
   });
 }
