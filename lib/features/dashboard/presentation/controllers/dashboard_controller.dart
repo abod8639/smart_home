@@ -300,14 +300,16 @@ class DashboardController extends GetxController {
     }
   }
 
-  void updateDeviceMarkerSize(String id, double width, double height) {
+  void updateDeviceMarkerSize(String id, double width, double height, {bool persist = true}) {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       devices[index] = devices[index].copyWith(
         markerWidth: width.clamp(0.05, 0.8),
         markerHeight: height.clamp(0.05, 0.8),
       );
-      _persistDevices();
+      if (persist) {
+        _persistDevices();
+      }
     }
   }
 
@@ -337,12 +339,18 @@ class DashboardController extends GetxController {
     _persistDevices();
   }
 
-  void updateDevicePosition(String id, double x, double y) {
+  void updateDevicePosition(String id, double x, double y, {bool persist = true}) {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       devices[index] = devices[index].copyWith(positionX: x, positionY: y);
-      _persistDevices();
+      if (persist) {
+        _persistDevices();
+      }
     }
+  }
+
+  void persistDevices() {
+    _persistDevices();
   }
 
   void reorderDevices(int oldIndex, int newIndex) {

@@ -257,8 +257,11 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               final Offset local = renderBox.globalToLocal(details.globalPosition);
               final double x = (local.dx / renderBox.size.width).clamp(0.0, 1.0);
               final double y = (local.dy / renderBox.size.height).clamp(0.0, 1.0);
-              dashboardController.updateDevicePosition(device.id, x, y);
+              dashboardController.updateDevicePosition(device.id, x, y, persist: false);
             }
+          },
+          onLongPressEnd: (details) {
+            dashboardController.persistDevices();
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
@@ -312,7 +315,11 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
                 device.id,
                 clampedW / parentWidth,
                 clampedH / parentHeight,
+                persist: false,
               );
+            },
+            onPanEnd: (details) {
+              dashboardController.persistDevices();
             },
             child: Container(
               width: 20,
