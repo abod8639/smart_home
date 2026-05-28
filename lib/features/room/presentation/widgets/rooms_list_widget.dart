@@ -36,16 +36,17 @@ class RoomsListWidget extends GetView<DashboardController> {
           //   ],
           // ),
           // const SizedBox(height: 16),
-          Obx(() => ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: controller.rooms.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final room = controller.rooms[index];
-                  return _buildRoomTile(context, room);
-                },
-              )),
+          Expanded(
+            child: Obx(() => ListView.separated(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: controller.rooms.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final room = controller.rooms[index];
+                    return _buildRoomTile(context, room);
+                  },
+                )),
+          ),
           // const SizedBox(height: 12),
           // GestureDetector(
           //   onTap: () => _showAddRoomDialog(context),

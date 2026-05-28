@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
@@ -39,10 +40,14 @@ class LampCard extends StatelessWidget {
     final double glowOpacity = isDeviceOn ? (brightnessVal / 100.0 * 0.5).clamp(0.1, 0.5) : 0.0;
     final double glowSize = isDeviceOn ? (60.0 + (brightnessVal / 100.0 * 60.0)) : 0.0;
 
+    final isMobile = Responsive.isMobile(context);
+    final double cardWidth = isMobile ? 210.0 : 260.0;
+    final double innerPadding = isMobile ? 10.0 : 14.0;
+
     return SizedBox(
-      width: 260,
+      width: cardWidth,
       child: GlassContainer(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(innerPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -98,8 +103,8 @@ class LampCard extends StatelessWidget {
                       if (isDeviceOn)
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
-                          width: glowSize,
-                          height: glowSize,
+                          width: Responsive.isMobile(context) ? glowSize -10  : glowSize,
+                          height: Responsive.isMobile(context) ? glowSize -10: glowSize,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
@@ -218,7 +223,9 @@ class LampCard extends StatelessWidget {
             // Bottom Area: Brightness Slider Controls
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: isMobile
+                  ? const EdgeInsets.symmetric(horizontal: 8, vertical: 6)
+                  : const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: isDeviceOn 
                     ? Colors.black.withValues(alpha: 0.4) 

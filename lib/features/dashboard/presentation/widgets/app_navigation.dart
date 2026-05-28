@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
@@ -11,15 +12,14 @@ class AppNavItem {
 }
 
 const List<AppNavItem> kAppNavItems = [
-  AppNavItem(icon: Icons.home_filled, index: 0),
-  AppNavItem(icon: Icons.bolt, index: 1),
-  AppNavItem(icon: Icons.storage, index: 2),
-  AppNavItem(icon: Icons.notifications_none, index: 3),
-  AppNavItem(icon: Icons.pie_chart_outline, index: 4),
-  AppNavItem(icon: Icons.videocam_outlined, index: 5),
-  AppNavItem(icon: Icons.settings_outlined, index: 6),
+  AppNavItem(icon: Icons.home_rounded, index: 0),
+  AppNavItem(icon: Icons.bolt_rounded, index: 1),
+  AppNavItem(icon: Icons.storage_rounded, index: 2),
+  AppNavItem(icon: Icons.notifications_rounded, index: 3),
+  AppNavItem(icon: Icons.pie_chart_rounded, index: 4),
+  AppNavItem(icon: Icons.videocam_rounded, index: 5),
+  AppNavItem(icon: Icons.settings_rounded, index: 6),
 ];
-
 
 class MobileBottomNav extends GetView<DashboardController> {
   const MobileBottomNav({super.key});
@@ -27,35 +27,56 @@ class MobileBottomNav extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.cardBackground.withValues(alpha: 0.95),
-        border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
-        ),
-      ),
+      color: Colors.transparent, // Ensures scaffold bottom navigation background is transparent
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          height: 64,
-          child:  ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              itemCount: kAppNavItems.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 4),
-              itemBuilder: (context, i) {
-                final item = kAppNavItems[i];
-                final isActive =
-                    controller.currentNavigationIndex.value == item.index;
-                return AppNavigationButton(
-                  icon: item.icon,
-                  isActive: isActive,
-                  onTap: () => controller.changeTab(item.index),
-                  iconSize: 24,
-                  padding: const EdgeInsets.all(8),
-                );
-              },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: Container(
+              height: 72,
+              decoration: BoxDecoration(
+                color: AppTheme.cardBackground.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  width: 1.2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.4),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                itemCount: kAppNavItems.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
+                itemBuilder: (context, i) {
+                  final item = kAppNavItems[i];
+                  return Center(
+                    child: Obx(() {
+                      final isActive =
+                          controller.currentNavigationIndex.value == item.index;
+                      return AppNavigationButton(
+                        icon: item.icon,
+                        isActive: isActive,
+                        onTap: () => controller.changeTab(item.index),
+                        iconSize: 24,
+                        padding: const EdgeInsets.all(10),
+                      );
+                    }),
+                  );
+                },
+              ),
             ),
-          
+          ),
         ),
       ),
     );
@@ -83,19 +104,47 @@ class AppNavigationButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: padding,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isActive
-              ? Colors.white.withValues(alpha: 0.1)
-              : Colors.transparent,
-        ),
-        child: Icon(
-          icon,
-          color: isActive ? Colors.white : AppTheme.textGrey,
-          size: iconSize,
+      child: AnimatedScale(
+        scale: isActive ? 1.12 : 1.0,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutBack,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: padding,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: isActive
+                ? const LinearGradient(
+                    colors: [AppTheme.primaryPurple, AppTheme.primaryBlue],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : null,
+            color: isActive
+                ? null
+                : Colors.white.withValues(alpha: 0.03),
+            border: Border.all(
+              color: isActive
+                  ? Colors.white.withValues(alpha: 0.25)
+                  : Colors.white.withValues(alpha: 0.05),
+              width: 1.0,
+            ),
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: AppTheme.primaryPurple.withValues(alpha: 0.35),
+                      blurRadius: 12,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Icon(
+            icon,
+            color: isActive ? Colors.white : AppTheme.textGrey,
+            size: iconSize,
+          ),
         ),
       ),
     );

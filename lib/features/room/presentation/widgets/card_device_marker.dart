@@ -77,6 +77,19 @@ class CardDeviceMarker extends StatelessWidget {
       glowColor = isLocked
           ? Colors.redAccent.withValues(alpha: 0.3)
           : Colors.greenAccent.withValues(alpha: 0.3);
+    final isAcOn = device.type == DeviceType.airConditioner && isOn;
+    Color activeColor = AppTheme.primaryBlue;
+
+    if (isDoor) {
+      markerColor = isLocked
+          ? Colors.redAccent.withValues(alpha: 0.2)
+          : Colors.greenAccent.withValues(alpha: 0.2);
+      borderColor = isLocked
+          ? Colors.redAccent.withValues(alpha: 0.6)
+          : Colors.greenAccent.withValues(alpha: 0.6);
+      glowColor = isLocked
+          ? Colors.redAccent.withValues(alpha: 0.3)
+          : Colors.greenAccent.withValues(alpha: 0.3);
     } else if (isRgbOn) {
       final r = device.rgbR ?? 255;
       final g = device.rgbG ?? 0;
@@ -84,6 +97,13 @@ class CardDeviceMarker extends StatelessWidget {
       markerColor = Color.fromRGBO(r, g, b, 0.45);
       borderColor = Color.fromRGBO(r, g, b, 0.8);
       glowColor = Color.fromRGBO(r, g, b, 0.4);
+      activeColor = Color.fromARGB(255, r, g, b);
+    } else if (isAcOn) {
+      final acColor = _modeColor(device.mode);
+      markerColor = acColor.withValues(alpha: 0.2);
+      borderColor = acColor.withValues(alpha: 0.7);
+      glowColor = acColor.withValues(alpha: 0.45);
+      activeColor = acColor;
     } else {
       markerColor = isOn
           ? AppTheme.primaryBlue.withValues(alpha: 0.05)
@@ -146,7 +166,7 @@ class CardDeviceMarker extends StatelessWidget {
                         children: [
                           Icon(
                             iconData,
-                            color: isOn || (isDoor && !isLocked) ? AppTheme.primaryBlue : Colors.white70,
+                            color: isOn || (isDoor && !isLocked) ? activeColor : Colors.white70,
                             size: iconSize,
                           ),
                           const SizedBox(height: 4),
@@ -160,7 +180,7 @@ class CardDeviceMarker extends StatelessWidget {
                                   spreadRadius: 10,
                                 )
                               ],
-                              color: isOn || (isDoor && !isLocked) ? AppTheme.primaryBlue : Colors.white70,
+                              color: isOn || (isDoor && !isLocked) ? activeColor : Colors.white70,
                               fontSize: labelSize,
                               fontWeight: FontWeight.w600,
                             ),

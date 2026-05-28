@@ -52,26 +52,34 @@ class PlacementRoomDetails extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-
           ],
         ),
-
-
         const SizedBox(height: 10),
 
-        buildPropertyRow('Total Devices', '${roomDevices.length} device(s)'),
-        const SizedBox(height: 16),
-        SizedBox(height: 220, child: buildDeviceCards()),
-        const SizedBox(height: 16),
-        buildPropertyRow('Temperature', dashboardController.temperature.value),
-        const SizedBox(height: 16),
-        buildPropertyRow('Humidity', dashboardController.humidity.value),
-        const SizedBox(height: 16),
-        buildPropertyRow('Airflow', dashboardController.airflow.value),
-        const SizedBox(height: 16),
-        buildPropertyRow('Power Usage', dashboardController.powerUsage.value),
+        // Scrollable content area
+        Expanded(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildPropertyRow('Total Devices', '${roomDevices.length} device(s)'),
+                const SizedBox(height: 12),
+                SizedBox(height: 180, child: buildDeviceCards()),
+                const SizedBox(height: 16),
+                buildPropertyRow('Temperature', dashboardController.temperature.value),
+                const SizedBox(height: 16),
+                buildPropertyRow('Humidity', dashboardController.humidity.value),
+                const SizedBox(height: 16),
+                buildPropertyRow('Airflow', dashboardController.airflow.value),
+                const SizedBox(height: 16),
+                buildPropertyRow('Power Usage', dashboardController.powerUsage.value),
+              ],
+            ),
+          ),
+        ),
 
-        const Spacer(),
+        const SizedBox(height: 12),
 
         // Add device button
         SizedBox(

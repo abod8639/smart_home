@@ -44,27 +44,38 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     DashboardController dashboardController,
     GlobalKey imageKey,
   ) {
-    return Column(
-      children: [
-        Expanded(
-          flex: 3,
-          child: PlacementImagePanel(
-            dashboardController: dashboardController,
-            placementController: controller,
-            imageKey: imageKey,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double maxHeight = constraints.maxHeight.isInfinite
+            ? MediaQuery.of(context).size.height - 120
+            : constraints.maxHeight;
+
+        return SizedBox(
+          height: maxHeight,
+          child: Column(
+            children: [
+              Expanded(
+                flex: 3,
+                child: PlacementImagePanel(
+                  dashboardController: dashboardController,
+                  placementController: controller,
+                  imageKey: imageKey,
+                ),
+              ),
+              SizedBox(height: Responsive.contentGap(context)),
+              Expanded(
+                flex: 2,
+                child: GlassContainer(
+                  padding: const EdgeInsets.all(16),
+                  child: Obx(
+                    () => _buildSidePanel(context, dashboardController),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-        // SizedBox(height: Responsive.contentGap(context)),
-        Expanded(
-          flex: 2,
-          child: GlassContainer(
-            padding: const EdgeInsets.all(16),
-            child: Obx(
-              () => _buildSidePanel(context, dashboardController),
-            ),
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 

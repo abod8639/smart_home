@@ -14,7 +14,7 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
 
     return ShadowContainer(
       width: cardWidth,
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
       // decoration: BoxDecoration(
       //   color: AppTheme.cardBackground.withValues(alpha: 0.3),
       //   borderRadius: BorderRadius.circular(32),

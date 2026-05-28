@@ -20,79 +20,169 @@ class DashboardMainView extends GetView<DashboardController> {
     final gap = Responsive.contentGap(context);
     final deviceHeight = Responsive.deviceCardsHeight(context);
 
-    return Column(
-      children: [
-        Expanded(child: _buildTopSection(context, gap)),
-        SizedBox(height: gap),
-        if (!Responsive.isMobile(context))
-          SizedBox(height: deviceHeight, child: buildDeviceCards()),
-      ],
-    );
-  }
+    return LayoutBuilder(
+      builder: (context, constraints) {
 
-  Widget _buildTopSection(BuildContext context, double gap) {
-    if (Responsive.isMobile(context)) {
-      return Column(
-        children: [
-          const Expanded(flex: 4, child: RoomPreviewWidget()),
-          SizedBox(height: gap),
-          Expanded(
-            flex: 4,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // const WeatherUpdateWidget(),
-                  SizedBox(height: gap),
-                  SizedBox(height: 180, child: const RoomsListWidget()),
-                  SizedBox(height: gap),
-                  SizedBox(height: 180, child: buildDeviceCards()),
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    if (Responsive.isTablet(context)) {
-      return SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            const RoomPreviewWidget(),
-            SizedBox(height: gap),
-            const WeatherUpdateWidget(),
-            SizedBox(height: gap),
-            SizedBox(
-              height: 180,
-              child: const RoomsListWidget(isCompact: true),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Expanded(
-          flex:   1,
-          child: RoomPreviewWidget()),
-        // SizedBox(width: gap),
-        SizedBox(
-          width: 300,
-          child: SingleChildScrollView(
+        if (Responsive.isMobile(context)) {
+          // Mobile Layout: One single vertical scrollable Column to avoid layout issues
+          return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const RoomPreviewWidget(),
+                SizedBox(height: gap),
                 const WeatherUpdateWidget(),
                 SizedBox(height: gap),
-                const RoomsListWidget(),
+                Text(
+                  'Devices',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                SizedBox(height: gap * 0.5),
+                SizedBox(
+                  height: deviceHeight,
+                  child: buildDeviceCards(),
+                ),
+                SizedBox(height: gap),
+                Text(
+                  'Rooms',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                SizedBox(height: gap * 0.5),
+                const SizedBox(
+                  height: 140,
+                  child: RoomsListWidget(),
+                ),
+                SizedBox(height: gap * 2), // spacing at bottom for navbar clearance
               ],
             ),
-          ),
-        ),
-      ],
+          );
+        }
+
+        if (Responsive.isTablet(context)) {
+          // Tablet / Medium Layout: Scrollable Column with side-by-side preview and weather
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top section: Room Preview & Weather side-by-side
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Expanded(
+                      flex: 5,
+                      child: RoomPreviewWidget(),
+                    ),
+                    SizedBox(width: gap),
+                    const SizedBox(
+                      width: 280,
+                      child: WeatherUpdateWidget(),
+                    ),
+                  ],
+                ),
+                SizedBox(height: gap),
+
+                // Rooms section
+                Text(
+                  'Rooms',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                ),
+                SizedBox(height: gap * 0.5),
+                const SizedBox(
+                  height: 130, // Fits the horizontal room card height
+                  child: RoomsListWidget(isCompact: true),
+                ),
+                SizedBox(height: gap),
+
+                // Devices section
+                Text(
+                  'Devices',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                ),
+                SizedBox(height: gap * 0.5),
+                SizedBox(
+                  height: deviceHeight,
+                  child: buildDeviceCards(),
+                ),
+                SizedBox(height: gap * 2),
+              ],
+            ),
+          );
+        }
+
+        // Desktop / Wide Layout (width >= 950): 2-Column Layout
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left Column: Room Preview + Room Devices
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const RoomPreviewWidget(),
+                    SizedBox(height: gap),
+                    Text(
+                      'Devices',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    SizedBox(height: gap * 0.5),
+                    SizedBox(
+                      height: deviceHeight,
+                      child: buildDeviceCards(),
+                    ),
+                    SizedBox(height: gap * 2),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(width: gap),
+            // Right Column: Live Weather + Rooms List
+            SizedBox(
+              width: 320,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const WeatherUpdateWidget(),
+                    SizedBox(height: gap),
+                    Text(
+                      'Rooms',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    SizedBox(height: gap * 0.5),
+                    const RoomsListWidget(),
+                    SizedBox(height: gap * 2),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
