@@ -80,11 +80,11 @@ class DashboardMainView extends GetView<DashboardController> {
                       flex: 5,
                       child: RoomPreviewWidget(),
                     ),
-                    SizedBox(width: gap),
-                    const SizedBox(
-                      width: 280,
-                      child: WeatherUpdateWidget(),
-                    ),
+                    // SizedBox(width: gap),
+                    // const SizedBox(
+                    //   width: 280,
+                    //   child: WeatherUpdateWidget(),
+                    // ),
                   ],
                 ),
                 SizedBox(height: gap),

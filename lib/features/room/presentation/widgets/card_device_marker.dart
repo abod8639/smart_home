@@ -67,16 +67,6 @@ class CardDeviceMarker extends StatelessWidget {
     Color glowColor;
     bool showGlow = isOn || (isDoor && !isLocked);
 
-    if (isDoor) {
-      markerColor = isLocked
-          ? Colors.redAccent.withValues(alpha: 0.2)
-          : Colors.greenAccent.withValues(alpha: 0.2);
-      borderColor = isLocked
-          ? Colors.redAccent.withValues(alpha: 0.6)
-          : Colors.greenAccent.withValues(alpha: 0.6);
-      glowColor = isLocked
-          ? Colors.redAccent.withValues(alpha: 0.3)
-          : Colors.greenAccent.withValues(alpha: 0.3);
     final isAcOn = device.type == DeviceType.airConditioner && isOn;
     Color activeColor = AppTheme.primaryBlue;
 
@@ -100,9 +90,9 @@ class CardDeviceMarker extends StatelessWidget {
       activeColor = Color.fromARGB(255, r, g, b);
     } else if (isAcOn) {
       final acColor = _modeColor(device.mode);
-      markerColor = acColor.withValues(alpha: 0.2);
-      borderColor = acColor.withValues(alpha: 0.7);
-      glowColor = acColor.withValues(alpha: 0.45);
+      markerColor = acColor.withValues(alpha: 0.01);
+      borderColor = acColor.withValues(alpha: 0.3);
+      glowColor = acColor.withValues(alpha: 0.08);
       activeColor = acColor;
     } else {
       markerColor = isOn
@@ -136,7 +126,7 @@ class CardDeviceMarker extends StatelessWidget {
               width: mW,
               height: mH,
               decoration: BoxDecoration(
-                color: markerColor,
+                color:   markerColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isSelected ? Colors.amber : borderColor,
@@ -244,5 +234,14 @@ class CardDeviceMarker extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Color _modeColor(String? mode) {
+    switch (mode) {
+      case 'Cool mode': return const Color(0xFF60A5FA); // blue
+      case 'Heat mode': return const Color(0xFFFB923C); // orange
+      case 'Eco mode':  return const Color(0xFF4ADE80); // green
+      default:          return const Color(0xFF00E5FF); // cyan – Auto
+    }
   }
 }

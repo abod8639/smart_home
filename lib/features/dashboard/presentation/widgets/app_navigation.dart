@@ -13,11 +13,11 @@ class AppNavItem {
 
 const List<AppNavItem> kAppNavItems = [
   AppNavItem(icon: Icons.home_rounded, index: 0),
-  AppNavItem(icon: Icons.bolt_rounded, index: 1),
+  // AppNavItem(icon: Icons.bolt_rounded, index: 1),
   AppNavItem(icon: Icons.storage_rounded, index: 2),
   AppNavItem(icon: Icons.notifications_rounded, index: 3),
   AppNavItem(icon: Icons.pie_chart_rounded, index: 4),
-  AppNavItem(icon: Icons.videocam_rounded, index: 5),
+  // AppNavItem(icon: Icons.videocam_rounded, index: 5),
   AppNavItem(icon: Icons.settings_rounded, index: 6),
 ];
 
@@ -32,8 +32,11 @@ class MobileBottomNav extends GetView<DashboardController> {
       child: SafeArea(
         top: false,
         child: ClipRRect(
+
+
           borderRadius: BorderRadius.circular(24),
           child: BackdropFilter(
+
             filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
             child: Container(
               height: 72,
@@ -52,28 +55,35 @@ class MobileBottomNav extends GetView<DashboardController> {
                   ),
                 ],
               ),
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                itemCount: kAppNavItems.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 12),
-                itemBuilder: (context, i) {
-                  final item = kAppNavItems[i];
-                  return Center(
-                    child: Obx(() {
-                      final isActive =
-                          controller.currentNavigationIndex.value == item.index;
-                      return AppNavigationButton(
-                        icon: item.icon,
-                        isActive: isActive,
-                        onTap: () => controller.changeTab(item.index),
-                        iconSize: 24,
-                        padding: const EdgeInsets.all(10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ListView.separated(
+                    
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                    itemCount: kAppNavItems.length,
+                    separatorBuilder: (_, _) => const SizedBox(width: 30),
+                    itemBuilder: (context, i) {
+                      final item = kAppNavItems[i];
+                      return Center(
+                        child: Obx(() {
+                          final isActive =
+                              controller.currentNavigationIndex.value == item.index;
+                          return AppNavigationButton(
+                            icon: item.icon,
+                            isActive: isActive,
+                            onTap: () => controller.changeTab(item.index),
+                            iconSize: 24,
+                            padding: const EdgeInsets.all(10),
+                          );
+                        }),
                       );
-                    }),
-                  );
-                },
+                    },
+                  ),
+                ],
               ),
             ),
           ),
