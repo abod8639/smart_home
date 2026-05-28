@@ -166,6 +166,49 @@ class Esp32Service extends GetxService {
     }
   }
 
+  /// Starts IR remote code learning on the ESP32
+  Future<EspResponse<Map<String, dynamic>>> learnIrCode() async {
+    try {
+      // Set an extended timeout for learning, since the ESP32 can block for up to 10 seconds.
+      final response = await _dio.get(
+        '$baseUrl/control/ir/learn',
+        options: Options(
+          receiveTimeout: const Duration(seconds: 12),
+        ),
+      );
+      if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+        return EspResponse.success(response.data as Map<String, dynamic>);
+      }
+      return EspResponse.failure('IR learning rejected by ESP32');
+    } on DioException catch (e) {
+      return EspResponse.failure(_handleDioError(e));
+    } catch (e) {
+      return EspResponse.failure(e.toString());
+    }
+  }
+
+  /// Sends a recorded IR remote code via the ESP32 transmitter
+  Future<EspResponse<bool>> sendIrCode(String protocol, String value, int bits) async {
+    try {
+      final response = await _dio.post(
+        '$baseUrl/control/ir/send',
+        data: {
+          'protocol': protocol,
+          'value': value,
+          'bits': bits,
+        },
+      );
+      if (response.statusCode == 200) {
+        return EspResponse.success(true);
+      }
+      return EspResponse.failure('IR transmission rejected by ESP32');
+    } on DioException catch (e) {
+      return EspResponse.failure(_handleDioError(e));
+    } catch (e) {
+      return EspResponse.failure(e.toString());
+    }
+  }
+
   /// Convert Dio errors to clean user-friendly messages for debugging hardware networks
   String _handleDioError(DioException error) {
     switch (error.type) {

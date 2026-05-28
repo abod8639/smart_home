@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:smart_home/core/services/esp32_service.dart';
@@ -252,7 +254,9 @@ class DashboardController extends GetxController {
           final pin = device.pin ?? 2;
           Get.find<Esp32Service>().setDigitalOutput(pin, newIsOn);
         } else if (device.type == DeviceType.airConditioner) {
-          if (device.pin != null) {
+          if (device.irPower != null) {
+            sendIrCommand(device.irPower!);
+          } else if (device.pin != null) {
             Get.find<Esp32Service>().setDigitalOutput(device.pin!, newIsOn);
           } else {
             Get.find<Esp32Service>().sendRawCommand(
@@ -316,18 +320,27 @@ class DashboardController extends GetxController {
   void updateAcTemperature(String id, int temp) {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
+      final device = devices[index];
+      final oldTemp = device.temperature ?? 24;
       final newTemp = temp.clamp(16, 30);
       
-      devices[index] = devices[index].copyWith(temperature: newTemp);
+      devices[index] = device.copyWith(temperature: newTemp);
       _persistDevices();
 
-      // Control ESP32 AC Target Temperature via raw endpoint /control/ac
+      // Control ESP32 AC Target Temperature
       if (Get.isRegistered<Esp32Service>()) {
-        Get.find<Esp32Service>().sendRawCommand(
-          'control/ac',
-          method: 'POST',
-          data: {'target_temp': newTemp},
-        );
+        if (newTemp > oldTemp && device.irTempUp != null) {
+          sendIrCommand(device.irTempUp!);
+        } else if (newTemp < oldTemp && device.irTempDown != null) {
+          sendIrCommand(device.irTempDown!);
+        } else {
+          // Fallback to default AC Target Temperature via raw endpoint /control/ac
+          Get.find<Esp32Service>().sendRawCommand(
+            'control/ac',
+            method: 'POST',
+            data: {'target_temp': newTemp},
+          );
+        }
       }
     }
   }
@@ -388,6 +401,132 @@ class DashboardController extends GetxController {
     }
   }
 
+  Future<bool> learnAndSaveIrCode(String deviceId, String fieldKey) async {
+    if (!Get.isRegistered<Esp32Service>()) {
+      Get.snackbar(
+        'خطأ / Error',
+        'خدمة ESP32 غير مسجلة. تأكد من إعدادات الشبكة.',
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+        colorText: Colors.white,
+      );
+      return false;
+    }
+
+    // Show learning overlay dialog
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2E), // AppTheme.cardBackground / dark background
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        ),
+        title: const Text(
+          'IR Learning / نسخ إشارة الريموت',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: Color(0xFF4C86FF)), // AppTheme.primaryBlue
+            SizedBox(height: 20),
+            Text(
+              'قم بتوجيه ريموت التكييف نحو مستشعر الـ ESP32 واضغط على الزر المطلوب...',
+              style: TextStyle(color: Colors.white70),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 8),
+            Text(
+              'سيتم إغلاق النافذة تلقائياً بعد 10 ثوانٍ في حال عدم تلقي إشارة.',
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+      barrierDismissible: false,
+    );
+
+    try {
+      final response = await Get.find<Esp32Service>().learnIrCode();
+      Get.back(); // Close dialog
+
+      if (response.isSuccess && response.data != null) {
+        final data = response.data!;
+        final protocol = data['protocol'] as String?;
+        final value = data['value'] as String?;
+        final bits = data['bits'] as int?;
+
+        if (protocol != null && value != null && bits != null) {
+          final jsonCode = jsonEncode({
+            'protocol': protocol,
+            'value': value,
+            'bits': bits,
+          });
+
+          // Update the device field based on key
+          final index = devices.indexWhere((d) => d.id == deviceId);
+          if (index != -1) {
+            final device = devices[index];
+            DeviceEntity updated;
+            if (fieldKey == 'irPower') {
+              updated = device.copyWith(irPower: jsonCode);
+            } else if (fieldKey == 'irTempUp') {
+              updated = device.copyWith(irTempUp: jsonCode);
+            } else if (fieldKey == 'irTempDown') {
+              updated = device.copyWith(irTempDown: jsonCode);
+            } else if (fieldKey == 'irAuto') {
+              updated = device.copyWith(irAuto: jsonCode);
+            } else {
+              return false;
+            }
+
+            devices[index] = updated;
+            _persistDevices();
+
+            Get.snackbar(
+              'نجاح / Success',
+              'تم نسخ زر الريموت وحفظه كـ $protocol ($value)',
+              backgroundColor: const Color(0xFF4C86FF).withValues(alpha: 0.85),
+              colorText: Colors.white,
+            );
+            return true;
+          }
+        }
+      }
+
+      Get.snackbar(
+        'خطأ / Error',
+        response.errorMessage ?? 'لم يتم تلقي أي إشارة IR من الريموت.',
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+        colorText: Colors.white,
+      );
+      return false;
+    } catch (e) {
+      Get.back(); // Ensure dialog is closed
+      Get.snackbar(
+        'خطأ / Error',
+        'فشل عملية النسخ: $e',
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+        colorText: Colors.white,
+      );
+      return false;
+    }
+  }
+
+  Future<void> sendIrCommand(String jsonCodeString) async {
+    if (!Get.isRegistered<Esp32Service>()) return;
+    try {
+      final Map<String, dynamic> data = jsonDecode(jsonCodeString);
+      final protocol = data['protocol'] as String;
+      final value = data['value'] as String;
+      final bits = data['bits'] as int;
+
+      await Get.find<Esp32Service>().sendIrCode(protocol, value, bits);
+    } catch (e) {
+      debugPrint('Error sending IR command: $e');
+    }
+  }
 
   void addDevice(DeviceEntity device) {
     var deviceWithRoom = device.roomId == null && activeRoom != null

@@ -49,6 +49,12 @@ class DeviceEntity extends Equatable {
   // ESP32 GPIO pin mapping
   final int? pin;
 
+  // IR remote codes for AC (stored as JSON string containing protocol, value, bits)
+  final String? irPower;
+  final String? irTempUp;
+  final String? irTempDown;
+  final String? irAuto;
+
   const DeviceEntity({
     required this.id,
     required this.name,
@@ -75,6 +81,10 @@ class DeviceEntity extends Equatable {
     this.rgbB,
     this.showAsDot = false,
     this.pin,
+    this.irPower,
+    this.irTempUp,
+    this.irTempDown,
+    this.irAuto,
   });
 
   DeviceEntity copyWith({
@@ -103,6 +113,10 @@ class DeviceEntity extends Equatable {
     int? rgbB,
     bool? showAsDot,
     Object? pin = const Object(),
+    Object? irPower = const Object(),
+    Object? irTempUp = const Object(),
+    Object? irTempDown = const Object(),
+    Object? irAuto = const Object(),
   }) {
     return DeviceEntity(
       id: id ?? this.id,
@@ -130,6 +144,10 @@ class DeviceEntity extends Equatable {
       rgbB: rgbB ?? this.rgbB,
       showAsDot: showAsDot ?? this.showAsDot,
       pin: pin == const Object() ? this.pin : (pin as int?),
+      irPower: irPower == const Object() ? this.irPower : (irPower as String?),
+      irTempUp: irTempUp == const Object() ? this.irTempUp : (irTempUp as String?),
+      irTempDown: irTempDown == const Object() ? this.irTempDown : (irTempDown as String?),
+      irAuto: irAuto == const Object() ? this.irAuto : (irAuto as String?),
     );
   }
 
@@ -160,5 +178,9 @@ class DeviceEntity extends Equatable {
         rgbB,
         showAsDot,
         pin,
+        irPower,
+        irTempUp,
+        irTempDown,
+        irAuto,
       ];
 }

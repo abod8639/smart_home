@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
@@ -223,6 +224,53 @@ class PlacementDeviceProperties extends StatelessWidget {
           ],
         ],
 
+        if (device.type == DeviceType.airConditioner) ...[
+          const SizedBox(height: 24),
+          const Divider(color: Colors.white10),
+          const SizedBox(height: 12),
+          const Text(
+            'IR Remote Codes / أزرار ريموت الأشعة تحت الحمراء',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'يمكنك نسخ وحفظ أزرار ريموت التكييف للتحكم به مباشرة عبر مستشعر الـ ESP32.',
+            style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
+          ),
+          const SizedBox(height: 16),
+          _buildIrRecordRow(
+            context,
+            label: 'رفع درجة الحرارة (Temp Up)',
+            savedValue: device.irTempUp,
+            fieldKey: 'irTempUp',
+          ),
+          const SizedBox(height: 10),
+          _buildIrRecordRow(
+            context,
+            label: 'خفض درجة الحرارة (Temp Down)',
+            savedValue: device.irTempDown,
+            fieldKey: 'irTempDown',
+          ),
+          const SizedBox(height: 10),
+          _buildIrRecordRow(
+            context,
+            label: 'التشغيل والإيقاف (Power)',
+            savedValue: device.irPower,
+            fieldKey: 'irPower',
+          ),
+          const SizedBox(height: 10),
+          _buildIrRecordRow(
+            context,
+            label: 'الوضع التلقائي (Auto Mode)',
+            savedValue: device.irAuto,
+            fieldKey: 'irAuto',
+          ),
+        ],
+
         const Spacer(),
 
         // Toggle button
@@ -255,6 +303,99 @@ class PlacementDeviceProperties extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildIrRecordRow(
+    BuildContext context, {
+    required String label,
+    required String? savedValue,
+    required String fieldKey,
+  }) {
+    final hasCode = savedValue != null;
+    String infoText = 'Not Set / لم يتم النسخ';
+    if (hasCode) {
+      try {
+        final Map<String, dynamic> data = jsonDecode(savedValue);
+        infoText = '${data['protocol']} - ${data['value']}';
+      } catch (_) {
+        infoText = 'Recorded / تم الحفظ';
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                hasCode ? Icons.check_circle_outline : Icons.help_outline,
+                color: hasCode ? Colors.greenAccent : AppTheme.textGrey,
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            infoText,
+            style: TextStyle(
+              color: hasCode ? Colors.cyanAccent : Colors.white30,
+              fontSize: 11,
+              fontFamily: hasCode ? 'monospace' : null,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              if (hasCode) ...[
+                TextButton.icon(
+                  onPressed: () => dashboardController.sendIrCommand(savedValue),
+                  icon: const Icon(Icons.play_arrow, size: 16),
+                  label: const Text('Test / تجربة', style: TextStyle(fontSize: 12)),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.greenAccent,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+              ElevatedButton.icon(
+                onPressed: () => dashboardController.learnAndSaveIrCode(device.id, fieldKey),
+                icon: const Icon(Icons.settings_remote, size: 16),
+                label: Text(hasCode ? 'Re-record / إعادة نسخ' : 'Record / نسخ', style: const TextStyle(fontSize: 12)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryBlue.withValues(alpha: 0.2),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
