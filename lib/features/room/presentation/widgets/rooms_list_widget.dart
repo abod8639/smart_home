@@ -162,7 +162,7 @@ class RoomsListWidget extends GetView<DashboardController> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${room.deviceCount} devices',
+                  '${controller.devices.where((d) => d.roomId == room.id || (d.roomId == null && room.id == "3")).length} devices',
                   style: TextStyle(
                     color: isActive ? Colors.white70 : AppTheme.textGrey,
                     fontSize: 11,
@@ -262,7 +262,7 @@ class RoomsListWidget extends GetView<DashboardController> {
                     ),
                   ),
                   Text(
-                    '${room.deviceCount} device(s)',
+                    '${controller.devices.where((d) => d.roomId == room.id || (d.roomId == null && room.id == "3")).length} device(s)',
                     style: TextStyle(
                       color: isActive ? Colors.white70 : AppTheme.textGrey,
                       fontSize: 12,
