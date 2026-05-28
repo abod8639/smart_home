@@ -75,10 +75,12 @@ class DashboardMainView extends GetView<DashboardController> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Expanded(child: RoomPreviewWidget()),
+        const Expanded(
+          flex:   1,
+          child: RoomPreviewWidget()),
         // SizedBox(width: gap),
         SizedBox(
-          width: 280,
+          width: 300,
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Column(
