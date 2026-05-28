@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/pulsing_dot_marker.dart';
-import 'package:smart_home/features/dashboard/presentation/widgets/interactive_preview_marker.dart';
+import 'package:smart_home/features/room/presentation/widgets/card_device_marker.dart';
 
 class RoomPreviewWidget extends GetView<DashboardController> {
   const RoomPreviewWidget({super.key});
@@ -120,11 +119,11 @@ class RoomPreviewWidget extends GetView<DashboardController> {
                                   }
                                 },
                                 child: device.showAsDot
-                                    ? _buildDotMarker(device)
-                                    : InteractivePreviewMarker(
+                                    ? PulsingDotMarker(device: device)
+                                    : CardDeviceMarker(
                                         device: device,
-                                        width: mW,
-                                        height: mH,
+                                        mW: mW,
+                                        mH: mH,
                                       ),
                               ),
                             );
@@ -169,46 +168,6 @@ class RoomPreviewWidget extends GetView<DashboardController> {
           Text(value, style: const TextStyle(color: Colors.white, fontSize: 12)),
         ],
       ),
-    );
-  }
-
-  Widget _buildDotMarker(DeviceEntity device) {
-    IconData iconData;
-    switch (device.type) {
-      case DeviceType.lamp:
-        iconData = Icons.lightbulb_outline;
-        break;
-      case DeviceType.airConditioner:
-        iconData = Icons.ac_unit;
-        break;
-      case DeviceType.vacuum:
-        iconData = Icons.cleaning_services_rounded;
-        break;
-      case DeviceType.door:
-        iconData = device.isLocked ?? true ? Icons.lock_outline : Icons.lock_open_outlined;
-        break;
-      case DeviceType.rgb:
-        iconData = Icons.wb_incandescent_rounded;
-        break;
-    }
-
-    final isDoor = device.type == DeviceType.door;
-    final isLocked = device.isLocked ?? true;
-    final isRgbOn = device.type == DeviceType.rgb && device.isOn;
-
-    Color accentColor;
-    if (isDoor) {
-      accentColor = isLocked ? Colors.redAccent : Colors.greenAccent;
-    } else if (isRgbOn) {
-      accentColor = Color.fromRGBO(device.rgbR ?? 255, device.rgbG ?? 100, device.rgbB ?? 200, 1.0);
-    } else {
-      accentColor = device.isOn ? AppTheme.primaryBlue : Colors.white54;
-    }
-
-    return PulsingDotMarker(
-      device: device,
-      accentColor: accentColor,
-      iconData: iconData,
     );
   }
 }

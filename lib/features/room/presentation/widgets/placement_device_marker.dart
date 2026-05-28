@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
@@ -69,45 +68,6 @@ class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker> {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-
-  IconData get _icon {
-    switch (widget.device.type) {
-      case DeviceType.lamp:
-        return widget.device.isOn ? Icons.lightbulb : Icons.lightbulb_outline;
-      case DeviceType.airConditioner:
-        return Icons.ac_unit;
-      case DeviceType.vacuum:
-        return Icons.cleaning_services_rounded;
-      case DeviceType.door:
-        return widget.device.isLocked ?? true
-            ? Icons.lock_rounded
-            : Icons.lock_open_rounded;
-      case DeviceType.rgb:
-        return Icons.wb_incandescent_rounded;
-    }
-  }
-
-  Color get _accentColor {
-    final d = widget.device;
-    final isDoor = d.type == DeviceType.door;
-    final isRgbOn = d.type == DeviceType.rgb && d.isOn;
-    if (isDoor) {
-      return (d.isLocked ?? true) ? Colors.redAccent : Colors.greenAccent;
-    }
-    if (isRgbOn) {
-      return Color.fromRGBO(d.rgbR ?? 255, d.rgbG ?? 100, d.rgbB ?? 200, 1.0);
-    }
-    final isActive = isDoor ? !(d.isLocked ?? true) : d.isOn;
-    return isActive ? AppTheme.primaryBlue : Colors.white54;
-  }
-
-  String get _statusLabel {
-    final d = widget.device;
-    if (d.type == DeviceType.door) {
-      return (d.isLocked ?? true) ? 'LOCKED' : 'OPEN';
-    }
-    return d.isOn ? 'ON' : 'OFF';
-  }
 
   (double mW, double mH) get _markerSize {
     final d = widget.device;
@@ -185,7 +145,6 @@ class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = _accentColor;
     final animDuration = (_isResizing || _isDragging)
         ? Duration.zero
         : const Duration(milliseconds: 250);
@@ -195,8 +154,6 @@ class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker> {
     if (widget.device.showAsDot) {
       markerWidget = PulsingDotMarker(
         device: widget.device,
-        accentColor: accent,
-        iconData: _icon,
         isSelected: widget.isSelected,
         onTap: () => widget.placementController.selectDevice(widget.device.id),
         onPanStart: _onDragStart,
@@ -210,9 +167,6 @@ class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker> {
           return CardDeviceMarker(
             device: widget.device,
             isSelected: widget.isSelected,
-            accentColor: accent,
-            icon: _icon,
-            statusLabel: _statusLabel,
             mW: size.width,
             mH: size.height,
             animDuration: animDuration,
