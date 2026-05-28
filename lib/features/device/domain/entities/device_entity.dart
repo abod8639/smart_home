@@ -46,6 +46,9 @@ class DeviceEntity extends Equatable {
   // Presentation style style
   final bool showAsDot;
 
+  // ESP32 GPIO pin mapping
+  final int? pin;
+
   const DeviceEntity({
     required this.id,
     required this.name,
@@ -71,6 +74,7 @@ class DeviceEntity extends Equatable {
     this.rgbG,
     this.rgbB,
     this.showAsDot = false,
+    this.pin,
   });
 
   DeviceEntity copyWith({
@@ -98,6 +102,7 @@ class DeviceEntity extends Equatable {
     int? rgbG,
     int? rgbB,
     bool? showAsDot,
+    Object? pin = const Object(),
   }) {
     return DeviceEntity(
       id: id ?? this.id,
@@ -124,6 +129,7 @@ class DeviceEntity extends Equatable {
       rgbG: rgbG ?? this.rgbG,
       rgbB: rgbB ?? this.rgbB,
       showAsDot: showAsDot ?? this.showAsDot,
+      pin: pin == const Object() ? this.pin : (pin as int?),
     );
   }
 
@@ -153,5 +159,6 @@ class DeviceEntity extends Equatable {
         rgbG,
         rgbB,
         showAsDot,
+        pin,
       ];
 }

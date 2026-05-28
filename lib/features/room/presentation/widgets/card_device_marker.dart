@@ -89,10 +89,10 @@ class CardDeviceMarker extends StatelessWidget {
           ? AppTheme.primaryBlue.withValues(alpha: 0.05)
           : Colors.black.withValues(alpha: 0.05);
       borderColor = isOn
-          ? AppTheme.primaryBlue.withValues(alpha: 0.55)
+          ? AppTheme.primaryBlue.withValues(alpha: 0.25)
           : Colors.white.withValues(alpha: 0.15);
       glowColor = isOn
-          ? AppTheme.primaryBlue.withValues(alpha: 0.28)
+          ? AppTheme.primaryBlue.withValues(alpha: 0.18)
           : Colors.transparent;
     }
 

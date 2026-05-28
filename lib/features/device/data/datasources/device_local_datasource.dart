@@ -32,6 +32,7 @@ class DeviceLocalDatasource {
         'rgbG': d.rgbG,
         'rgbB': d.rgbB,
         'showAsDot': d.showAsDot,
+        'pin': d.pin,
       };
 
   static DeviceEntity _fromMap(Map map) {
@@ -66,6 +67,7 @@ class DeviceLocalDatasource {
       rgbG: map['rgbG'] as int?,
       rgbB: map['rgbB'] as int?,
       showAsDot: map['showAsDot'] as bool? ?? false,
+      pin: map['pin'] as int?,
     );
   }
 
