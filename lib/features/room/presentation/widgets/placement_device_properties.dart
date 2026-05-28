@@ -69,209 +69,220 @@ class PlacementDeviceProperties extends StatelessWidget {
         ),
         const SizedBox(height: 24),
 
-        // Properties
-        buildPropertyRow('Name', device.name),
-        const SizedBox(height: 16),
-        buildPropertyRow('Type', device.type.name.capitalizeFirst ?? ''),
-        const SizedBox(height: 16),
-        buildPropertyRow('Status', device.isOn ? 'ON' : 'OFF'),
-        const SizedBox(height: 16),
-
-        // Marker Style Selector
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Column(
+        // Scrollable Properties List
+        Expanded(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Marker Style',
-                  style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Display shape',
-                  style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.black38,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.white10),
-              ),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (device.showAsDot) {
-                        dashboardController.updateDevice(
-                          device.copyWith(showAsDot: false),
-                        );
-                      }
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: !device.showAsDot
-                            ? AppTheme.primaryBlue.withValues(alpha: 0.85)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(9),
-                      ),
-                      child: const Text(
-                        'Card',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                // Properties
+                buildPropertyRow('Name', device.name),
+                const SizedBox(height: 16),
+                buildPropertyRow('Type', device.type.name.capitalizeFirst ?? ''),
+                const SizedBox(height: 16),
+                buildPropertyRow('Status', device.isOn ? 'ON' : 'OFF'),
+                const SizedBox(height: 16),
+
+                // Marker Style Selector
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Marker Style',
+                          style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
                         ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Display shape',
+                          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black38,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.white10),
                       ),
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              if (device.showAsDot) {
+                                dashboardController.updateDevice(
+                                  device.copyWith(showAsDot: false),
+                                );
+                              }
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: !device.showAsDot
+                                    ? AppTheme.primaryBlue.withValues(alpha: 0.85)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(9),
+                              ),
+                              child: const Text(
+                                'Card',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              if (!device.showAsDot) {
+                                dashboardController.updateDevice(
+                                  device.copyWith(showAsDot: true),
+                                );
+                              }
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: device.showAsDot
+                                    ? AppTheme.primaryBlue.withValues(alpha: 0.85)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(9),
+                              ),
+                              child: const Text(
+                                'Glowing Dot',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                if (device.type == DeviceType.lamp && device.brightness != null) ...[
+                  const SizedBox(height: 16),
+                  buildPropertyRow('Brightness', '${device.brightness}%'),
+                ],
+
+                if (device.type == DeviceType.airConditioner &&
+                    device.temperature != null) ...[
+                  const SizedBox(height: 16),
+                  buildPropertyRow('Temperature', '${device.temperature}°C'),
+                  const SizedBox(height: 16),
+                  buildPropertyRow('Mode', device.mode ?? 'Auto'),
+                ],
+
+                if (device.type == DeviceType.vacuum) ...[
+                  const SizedBox(height: 16),
+                  buildPropertyRow('Battery', '${device.batteryLevel ?? 0}%'),
+                ],
+
+                if (device.type == DeviceType.lamp && device.linkedDevicesCount != null) ...[
+                  const SizedBox(height: 16),
+                  buildPropertyRow('Linked Devices', '${device.linkedDevicesCount}'),
+                ],
+
+                if (device.type == DeviceType.rgb) ...[
+                  const SizedBox(height: 16),
+                  buildPropertyRow(
+                    'Color',
+                    'rgb(${device.rgbR ?? 0}, ${device.rgbG ?? 0}, ${device.rgbB ?? 0})',
+                  ),
+                  const SizedBox(height: 10),
+                  // Live colour swatch
+                  Container(
+                    height: 32,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Color.fromRGBO(
+                        device.rgbR ?? 0,
+                        device.rgbG ?? 0,
+                        device.rgbB ?? 0,
+                        1.0,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color.fromRGBO(
+                            device.rgbR ?? 0,
+                            device.rgbG ?? 0,
+                            device.rgbB ?? 0,
+                            0.5,
+                          ),
+                          blurRadius: 12,
+                          spreadRadius: 2,
+                        ),
+                      ],
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      if (!device.showAsDot) {
-                        dashboardController.updateDevice(
-                          device.copyWith(showAsDot: true),
-                        );
-                      }
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: device.showAsDot
-                            ? AppTheme.primaryBlue.withValues(alpha: 0.85)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(9),
-                      ),
-                      child: const Text(
-                        'Glowing Dot',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                  if (device.brightness != null) ...[
+                    const SizedBox(height: 16),
+                    buildPropertyRow('Brightness', '${device.brightness}%'),
+                  ],
+                ],
+
+                if (device.type == DeviceType.airConditioner) ...[
+                  const SizedBox(height: 24),
+                  const Divider(color: Colors.white10),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'IR Remote Codes / أزرار ريموت الأشعة تحت الحمراء',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                     ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'يمكنك نسخ وحفظ أزرار ريموت التكييف للتحكم به مباشرة عبر مستشعر الـ ESP32.',
+                    style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildIrRecordRow(
+                    context,
+                    label: 'رفع درجة الحرارة (Temp Up)',
+                    savedValue: device.irTempUp,
+                    fieldKey: 'irTempUp',
+                  ),
+                  const SizedBox(height: 10),
+                  _buildIrRecordRow(
+                    context,
+                    label: 'خفض درجة الحرارة (Temp Down)',
+                    savedValue: device.irTempDown,
+                    fieldKey: 'irTempDown',
+                  ),
+                  const SizedBox(height: 10),
+                  _buildIrRecordRow(
+                    context,
+                    label: 'التشغيل والإيقاف (Power)',
+                    savedValue: device.irPower,
+                    fieldKey: 'irPower',
+                  ),
+                  const SizedBox(height: 10),
+                  _buildIrRecordRow(
+                    context,
+                    label: 'الوضع التلقائي (Auto Mode)',
+                    savedValue: device.irAuto,
+                    fieldKey: 'irAuto',
                   ),
                 ],
-              ),
-            ),
-          ],
-        ),
-
-        if (device.type == DeviceType.lamp && device.brightness != null) ...[
-          const SizedBox(height: 16),
-          buildPropertyRow('Brightness', '${device.brightness}%'),
-        ],
-
-        if (device.type == DeviceType.airConditioner &&
-            device.temperature != null) ...[
-          const SizedBox(height: 16),
-          buildPropertyRow('Temperature', '${device.temperature}°C'),
-          const SizedBox(height: 16),
-          buildPropertyRow('Mode', device.mode ?? 'Auto'),
-        ],
-
-        if (device.type == DeviceType.vacuum) ...[
-          const SizedBox(height: 16),
-          buildPropertyRow('Battery', '${device.batteryLevel ?? 0}%'),
-        ],
-
-        if (device.type == DeviceType.lamp && device.linkedDevicesCount != null) ...[
-          const SizedBox(height: 16),
-          buildPropertyRow('Linked Devices', '${device.linkedDevicesCount}'),
-        ],
-
-        if (device.type == DeviceType.rgb) ...[
-          const SizedBox(height: 16),
-          buildPropertyRow(
-            'Color',
-            'rgb(${device.rgbR ?? 0}, ${device.rgbG ?? 0}, ${device.rgbB ?? 0})',
-          ),
-          const SizedBox(height: 10),
-          // Live colour swatch
-          Container(
-            height: 32,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: Color.fromRGBO(
-                device.rgbR ?? 0,
-                device.rgbG ?? 0,
-                device.rgbB ?? 0,
-                1.0,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Color.fromRGBO(
-                    device.rgbR ?? 0,
-                    device.rgbG ?? 0,
-                    device.rgbB ?? 0,
-                    0.5,
-                  ),
-                  blurRadius: 12,
-                  spreadRadius: 2,
-                ),
               ],
             ),
           ),
-          if (device.brightness != null) ...[
-            const SizedBox(height: 16),
-            buildPropertyRow('Brightness', '${device.brightness}%'),
-          ],
-        ],
+        ),
 
-        if (device.type == DeviceType.airConditioner) ...[
-          const SizedBox(height: 24),
-          const Divider(color: Colors.white10),
-          const SizedBox(height: 12),
-          const Text(
-            'IR Remote Codes / أزرار ريموت الأشعة تحت الحمراء',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'يمكنك نسخ وحفظ أزرار ريموت التكييف للتحكم به مباشرة عبر مستشعر الـ ESP32.',
-            style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
-          ),
-          const SizedBox(height: 16),
-          _buildIrRecordRow(
-            context,
-            label: 'رفع درجة الحرارة (Temp Up)',
-            savedValue: device.irTempUp,
-            fieldKey: 'irTempUp',
-          ),
-          const SizedBox(height: 10),
-          _buildIrRecordRow(
-            context,
-            label: 'خفض درجة الحرارة (Temp Down)',
-            savedValue: device.irTempDown,
-            fieldKey: 'irTempDown',
-          ),
-          const SizedBox(height: 10),
-          _buildIrRecordRow(
-            context,
-            label: 'التشغيل والإيقاف (Power)',
-            savedValue: device.irPower,
-            fieldKey: 'irPower',
-          ),
-          const SizedBox(height: 10),
-          _buildIrRecordRow(
-            context,
-            label: 'الوضع التلقائي (Auto Mode)',
-            savedValue: device.irAuto,
-            fieldKey: 'irAuto',
-          ),
-        ],
-
-        const Spacer(),
+        const SizedBox(height: 16),
 
         // Toggle button
         SizedBox(
