@@ -90,13 +90,21 @@ class RoomPreviewWidget extends GetView<DashboardController> {
                             final posX = device.positionX! * constraints.maxWidth;
                             final posY = device.positionY! * constraints.maxHeight;
 
-                            final rawW = device.markerWidth ?? 0.18;
-                            final rawH = device.markerHeight ?? 0.15;
-                            final normW = rawW > 1.0 ? (rawW / 600.0).clamp(0.05, 0.8) : rawW;
-                            final normH = rawH > 1.0 ? (rawH / 400.0).clamp(0.05, 0.8) : rawH;
+                            final double mW;
+                            final double mH;
 
-                            final mW = normW * constraints.maxWidth;
-                            final mH = normH * constraints.maxHeight;
+                            if (device.showAsDot) {
+                              mW = 28.0;
+                              mH = 28.0;
+                            } else {
+                              final rawW = device.markerWidth ?? 0.18;
+                              final rawH = device.markerHeight ?? 0.15;
+                              final normW = rawW > 1.0 ? (rawW / 600.0).clamp(0.05, 0.8) : rawW;
+                              final normH = rawH > 1.0 ? (rawH / 400.0).clamp(0.05, 0.8) : rawH;
+
+                              mW = normW * constraints.maxWidth;
+                              mH = normH * constraints.maxHeight;
+                            }
 
                             return Positioned(
                               left: posX - mW / 2,
@@ -109,7 +117,9 @@ class RoomPreviewWidget extends GetView<DashboardController> {
                                     controller.toggleDevice(device.id);
                                   }
                                 },
-                                child: _buildInteractiveMarker(device, mW, mH),
+                                child: device.showAsDot
+                                    ? _buildDotMarker(device)
+                                    : _buildInteractiveMarker(device, mW, mH),
                               ),
                             );
                           }).toList(),
@@ -273,6 +283,173 @@ class RoomPreviewWidget extends GetView<DashboardController> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDotMarker(DeviceEntity device) {
+    IconData iconData;
+    switch (device.type) {
+      case DeviceType.lamp:
+        iconData = Icons.lightbulb_outline;
+        break;
+      case DeviceType.airConditioner:
+        iconData = Icons.ac_unit;
+        break;
+      case DeviceType.vacuum:
+        iconData = Icons.cleaning_services_outlined;
+        break;
+      case DeviceType.door:
+        iconData = device.isLocked ?? true ? Icons.lock_outline : Icons.lock_open_outlined;
+        break;
+      case DeviceType.rgb:
+        iconData = Icons.wb_incandescent_rounded;
+        break;
+    }
+
+    final isDoor = device.type == DeviceType.door;
+    final isLocked = device.isLocked ?? true;
+    final isRgbOn = device.type == DeviceType.rgb && device.isOn;
+
+    Color accentColor;
+    if (isDoor) {
+      accentColor = isLocked ? Colors.redAccent : Colors.greenAccent;
+    } else if (isRgbOn) {
+      accentColor = Color.fromRGBO(device.rgbR ?? 255, device.rgbG ?? 100, device.rgbB ?? 200, 1.0);
+    } else {
+      accentColor = device.isOn ? AppTheme.primaryBlue : Colors.white54;
+    }
+
+    return PulsingDotMarker(
+      device: device,
+      accentColor: accentColor,
+      iconData: iconData,
+    );
+  }
+}
+
+class PulsingDotMarker extends StatefulWidget {
+  final DeviceEntity device;
+  final Color accentColor;
+  final IconData iconData;
+
+  const PulsingDotMarker({
+    super.key,
+    required this.device,
+    required this.accentColor,
+    required this.iconData,
+  });
+
+  @override
+  State<PulsingDotMarker> createState() => _PulsingDotMarkerState();
+}
+
+class _PulsingDotMarkerState extends State<PulsingDotMarker>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late Animation<double> _glowAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+    _glowAnimation = Tween<double>(begin: 4.0, end: 14.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isOn = widget.device.isOn;
+    final isDoor = widget.device.type == DeviceType.door;
+    final isLocked = widget.device.isLocked ?? true;
+    final showGlow = isOn || (isDoor && !isLocked);
+
+    return Hero(
+      tag: widget.device.id,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          AnimatedBuilder(
+            animation: _glowAnimation,
+            builder: (context, child) {
+              final glow = _glowAnimation.value;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black.withValues(alpha: 0.65),
+                  border: Border.all(
+                    color: widget.accentColor,
+                    width: 1.5,
+                  ),
+                  boxShadow: showGlow
+                      ? [
+                          BoxShadow(
+                            color: widget.accentColor.withValues(alpha: 0.6),
+                            blurRadius: glow,
+                            spreadRadius: 1,
+                          ),
+                        ]
+                      : [],
+                ),
+                child: Center(
+                  child: Icon(
+                    widget.iconData,
+                    color: showGlow ? widget.accentColor : Colors.white70,
+                    size: 14,
+                  ),
+                ),
+              );
+            },
+          ),
+          Positioned(
+            bottom: -20,
+            left: -45,
+            right: -45,
+            child: IgnorePointer(
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                  decoration: BoxDecoration(
+                    color: Colors.white10.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                      color: widget.accentColor.withValues(alpha: 0.25),
+                      width: 0.8,
+                    ),
+                  ),
+                  child: Text(
+                    widget.device.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                      fontWeight: FontWeight.w600,
+                      shadows: [
+                        Shadow(color: Colors.black, blurRadius: 1),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

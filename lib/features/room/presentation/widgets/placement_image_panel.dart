@@ -124,7 +124,7 @@ class PlacementImagePanel extends StatelessWidget {
                                     left: posX - mW / 2,
                                     top: posY - mH / 2,
                                     child: PlacementDeviceMarker(
-                                      key: ValueKey(device.id),
+                                      key: ValueKey('${device.id}_${device.showAsDot}'),
                                       device: device,
                                       isSelected: isSelected,
                                       dashboardController: dashboardController,
