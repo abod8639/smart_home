@@ -4,7 +4,7 @@ import 'package:smart_home/features/dashboard/presentation/controllers/dashboard
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
 import 'package:smart_home/features/room/presentation/widgets/card_device_marker.dart';
-import 'package:smart_home/features/room/presentation/widgets/dot_device_marker.dart';
+import 'package:smart_home/features/dashboard/presentation/widgets/pulsing_dot_marker.dart';
 
 /// A draggable, resizable device card placed on the room floor-plan image.
 class PlacementDeviceMarker extends StatefulWidget {
@@ -31,14 +31,10 @@ class PlacementDeviceMarker extends StatefulWidget {
   State<PlacementDeviceMarker> createState() => _PlacementDeviceMarkerState();
 }
 
-class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker>
-    with SingleTickerProviderStateMixin {
+class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker> {
   /// Disables AnimatedContainer transitions during active drag/resize.
   bool _isResizing = false;
   bool _isDragging = false;
-
-  late AnimationController _pulseController;
-  late Animation<double> _glowAnimation;
 
   // ValueNotifiers to update position and size during gestures without rebuilding the whole widget tree
   late final ValueNotifier<Offset> _dragOffsetNotifier;
@@ -47,14 +43,6 @@ class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker>
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
-    _glowAnimation = Tween<double>(begin: 4.0, end: 16.0).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-
     final (mW, mH) = _markerSize;
     _sizeNotifier = ValueNotifier<Size>(Size(mW, mH));
     _dragOffsetNotifier = ValueNotifier<Offset>(Offset.zero);
@@ -62,7 +50,6 @@ class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker>
 
   @override
   void dispose() {
-    _pulseController.dispose();
     _sizeNotifier.dispose();
     _dragOffsetNotifier.dispose();
     super.dispose();
@@ -206,13 +193,11 @@ class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker>
     final Widget markerWidget;
 
     if (widget.device.showAsDot) {
-      markerWidget = DotDeviceMarker(
+      markerWidget = PulsingDotMarker(
         device: widget.device,
-        isSelected: widget.isSelected,
         accentColor: accent,
-        icon: _icon,
-        glowAnimation: _glowAnimation,
-        animDuration: animDuration,
+        iconData: _icon,
+        isSelected: widget.isSelected,
         onTap: () => widget.placementController.selectDevice(widget.device.id),
         onPanStart: _onDragStart,
         onPanUpdate: _onDragUpdate,

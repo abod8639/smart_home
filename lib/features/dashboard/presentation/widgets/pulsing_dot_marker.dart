@@ -5,12 +5,22 @@ class PulsingDotMarker extends StatefulWidget {
   final DeviceEntity device;
   final Color accentColor;
   final IconData iconData;
+  final bool isSelected;
+  final VoidCallback? onTap;
+  final GestureDragStartCallback? onPanStart;
+  final GestureDragUpdateCallback? onPanUpdate;
+  final GestureDragEndCallback? onPanEnd;
 
   const PulsingDotMarker({
     super.key,
     required this.device,
     required this.accentColor,
     required this.iconData,
+    this.isSelected = false,
+    this.onTap,
+    this.onPanStart,
+    this.onPanUpdate,
+    this.onPanEnd,
   });
 
   @override
@@ -53,54 +63,65 @@ class _PulsingDotMarkerState extends State<PulsingDotMarker>
         clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
-          AnimatedBuilder(
-            animation: _glowAnimation,
-            builder: (context, child) {
-              final glow = _glowAnimation.value;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withValues(alpha: 0.65),
-                  border: Border.all(
-                    color: widget.accentColor,
-                    width: 1.5,
+          GestureDetector(
+            onTap: widget.onTap,
+            onPanStart: widget.onPanStart,
+            onPanUpdate: widget.onPanUpdate,
+            onPanEnd: widget.onPanEnd,
+            child: AnimatedBuilder(
+              animation: _glowAnimation,
+              builder: (context, child) {
+                final glow = _glowAnimation.value;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black.withValues(alpha: 0.65),
+                    border: Border.all(
+                      color: widget.isSelected ? Colors.amber : widget.accentColor,
+                      width: widget.isSelected ? 2.0 : 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: widget.isSelected
+                            ? Colors.amber.withValues(alpha: 0.6)
+                            : widget.accentColor.withValues(alpha: showGlow ? 0.6 : 0.25),
+                        blurRadius: glow + (widget.isSelected ? 4 : 0),
+                        spreadRadius: widget.isSelected ? 2 : 0,
+                      ),
+                    ],
                   ),
-                  boxShadow: showGlow
-                      ? [
-                          BoxShadow(
-                            color: widget.accentColor.withValues(alpha: 0.6),
-                            blurRadius: glow,
-                            spreadRadius: 1,
-                          ),
-                        ]
-                      : [],
-                ),
-                child: Center(
-                  child: Icon(
-                    widget.iconData,
-                    color: showGlow ? widget.accentColor : Colors.white70,
-                    size: 14,
+                  child: Center(
+                    child: Icon(
+                      widget.iconData,
+                      color: widget.isSelected
+                          ? Colors.amber
+                          : (showGlow ? widget.accentColor : Colors.white70),
+                      size: 16,
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
           Positioned(
-            bottom: -20,
-            left: -45,
-            right: -45,
+            bottom: -22,
+            left: -50,
+            right: -50,
             child: IgnorePointer(
               child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
                   decoration: BoxDecoration(
-                    color: Colors.white10.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.black.withValues(alpha: 0.75),
+                    borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: widget.accentColor.withValues(alpha: 0.25),
+                      color: widget.isSelected
+                          ? Colors.amber.withValues(alpha: 0.5)
+                          : widget.accentColor.withValues(alpha: 0.25),
                       width: 0.8,
                     ),
                   ),
@@ -108,10 +129,10 @@ class _PulsingDotMarkerState extends State<PulsingDotMarker>
                     widget.device.name,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 8,
+                      fontSize: 8.5,
                       fontWeight: FontWeight.w600,
                       shadows: [
-                        Shadow(color: Colors.black, blurRadius: 1),
+                        Shadow(color: Colors.black, blurRadius: 2),
                       ],
                     ),
                     textAlign: TextAlign.center,
