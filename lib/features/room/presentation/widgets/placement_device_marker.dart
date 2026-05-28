@@ -38,6 +38,11 @@ class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker>
   late AnimationController _pulseController;
   late Animation<double> _glowAnimation;
 
+  // Local drag/resize tracking to optimize performance and prevent stuttering
+  Offset _dragOffset = Offset.zero;
+  double _resizeWidthDelta = 0.0;
+  double _resizeHeightDelta = 0.0;
+
   @override
   void initState() {
     super.initState();
@@ -109,24 +114,58 @@ class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker>
   // ── Resize callbacks ──────────────────────────────────────────────────────
 
   void _onResizeStart(DragStartDetails _) {
+    _resizeWidthDelta = 0.0;
+    _resizeHeightDelta = 0.0;
     if (!_isResizing) setState(() => _isResizing = true);
   }
 
   void _onResizeUpdate(DragUpdateDetails details) {
+    setState(() {
+      _resizeWidthDelta += details.delta.dx;
+      _resizeHeightDelta += details.delta.dy;
+    });
+  }
+
+  void _onResizeEnd(DragEndDetails _) {
     final (mW, mH) = _markerSize;
-    final newW = (mW + details.delta.dx).clamp(70.0, widget.parentWidth * 0.8);
-    final newH = (mH + details.delta.dy).clamp(60.0, widget.parentHeight * 0.8);
+    final newW = (mW + _resizeWidthDelta).clamp(70.0, widget.parentWidth * 0.8);
+    final newH = (mH + _resizeHeightDelta).clamp(60.0, widget.parentHeight * 0.8);
     widget.dashboardController.updateDeviceMarkerSize(
       widget.device.id,
       newW / widget.parentWidth,
       newH / widget.parentHeight,
-      persist: false,
+      persist: true,
     );
+    _resizeWidthDelta = 0.0;
+    _resizeHeightDelta = 0.0;
+    if (_isResizing) setState(() => _isResizing = false);
   }
 
-  void _onResizeEnd(DragEndDetails _) {
-    widget.dashboardController.persistDevices();
-    if (_isResizing) setState(() => _isResizing = false);
+  // ── Drag callbacks ────────────────────────────────────────────────────────
+
+  void _onDragStart(DragStartDetails details) {
+    widget.placementController.selectDevice(widget.device.id);
+    _dragOffset = Offset.zero;
+    if (!_isDragging) setState(() => _isDragging = true);
+  }
+
+  void _onDragUpdate(DragUpdateDetails details) {
+    setState(() {
+      _dragOffset += details.delta;
+    });
+  }
+
+  void _onDragEnd(DragEndDetails details) {
+    final box = widget.imageKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box != null) {
+      final dx = _dragOffset.dx / box.size.width;
+      final dy = _dragOffset.dy / box.size.height;
+      final x = ((widget.device.positionX ?? 0.5) + dx).clamp(0.0, 1.0);
+      final y = ((widget.device.positionY ?? 0.5) + dy).clamp(0.0, 1.0);
+      widget.dashboardController.updateDevicePosition(widget.device.id, x, y, persist: true);
+    }
+    _dragOffset = Offset.zero;
+    if (_isDragging) setState(() => _isDragging = false);
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────
@@ -138,34 +177,19 @@ class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker>
         ? Duration.zero
         : const Duration(milliseconds: 250);
 
+    final Widget markerWidget;
+
     if (widget.device.showAsDot) {
-      return Stack(
+      markerWidget = Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
           // ── Pulsing Glowing Dot ─────────────────────────────────────────────
           GestureDetector(
             onTap: () => widget.placementController.selectDevice(widget.device.id),
-            onPanStart: (_) {
-              widget.placementController.selectDevice(widget.device.id);
-              if (!_isDragging) setState(() => _isDragging = true);
-            },
-            onPanUpdate: (details) {
-              final box = widget.imageKey.currentContext?.findRenderObject()
-                  as RenderBox?;
-              if (box != null) {
-                final dx = details.delta.dx / box.size.width;
-                final dy = details.delta.dy / box.size.height;
-                final x = ((widget.device.positionX ?? 0.5) + dx).clamp(0.0, 1.0);
-                final y = ((widget.device.positionY ?? 0.5) + dy).clamp(0.0, 1.0);
-                widget.dashboardController
-                    .updateDevicePosition(widget.device.id, x, y, persist: false);
-              }
-            },
-            onPanEnd: (_) {
-              widget.dashboardController.persistDevices();
-              if (_isDragging) setState(() => _isDragging = false);
-            },
+            onPanStart: _onDragStart,
+            onPanUpdate: _onDragUpdate,
+            onPanEnd: _onDragEnd,
             child: AnimatedBuilder(
               animation: _glowAnimation,
               builder: (context, child) {
@@ -247,215 +271,198 @@ class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker>
           ),
         ],
       );
-    }
+    } else {
+      final (mW, mH) = _markerSize;
+      final iconSize = (mH * 0.28).clamp(14.0, 26.0);
+      final labelSize = (mH * 0.11).clamp(7.5, 11.0);
+      final statusSize = (mH * 0.085).clamp(6.5, 9.0);
 
-    final (mW, mH) = _markerSize;
-    final iconSize = (mH * 0.28).clamp(14.0, 26.0);
-    final labelSize = (mH * 0.11).clamp(7.5, 11.0);
-    final statusSize = (mH * 0.085).clamp(6.5, 9.0);
-
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        // ── Draggable body ───────────────────────────────────────────────────
-        GestureDetector(
-          onTap: () => widget.placementController.selectDevice(widget.device.id),
-          onPanStart: (_) {
-            widget.placementController.selectDevice(widget.device.id);
-            if (!_isDragging) setState(() => _isDragging = true);
-          },
-          onPanUpdate: (details) {
-            // Delta-based: moves the marker by how much the finger moved,
-            // so it never jumps regardless of touch-point on the marker.
-            final box = widget.imageKey.currentContext?.findRenderObject()
-                as RenderBox?;
-            if (box != null) {
-              final dx = details.delta.dx / box.size.width;
-              final dy = details.delta.dy / box.size.height;
-              final x = ((widget.device.positionX ?? 0.5) + dx).clamp(0.0, 1.0);
-              final y = ((widget.device.positionY ?? 0.5) + dy).clamp(0.0, 1.0);
-              widget.dashboardController
-                  .updateDevicePosition(widget.device.id, x, y, persist: false);
-            }
-          },
-          onPanEnd: (_) {
-            widget.dashboardController.persistDevices();
-            if (_isDragging) setState(() => _isDragging = false);
-          },
-          child: AnimatedContainer(
-            duration: animDuration,
-            curve: Curves.easeOut,
-            width: mW,
-            height: mH,
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.62),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: widget.isSelected
-                    ? Colors.amber
-                    : accent.withValues(alpha: 0.55),
-                width: widget.isSelected ? 2.5 : 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
+      markerWidget = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // ── Draggable body ───────────────────────────────────────────────────
+          GestureDetector(
+            onTap: () => widget.placementController.selectDevice(widget.device.id),
+            onPanStart: _onDragStart,
+            onPanUpdate: _onDragUpdate,
+            onPanEnd: _onDragEnd,
+            child: AnimatedContainer(
+              duration: animDuration,
+              curve: Curves.easeOut,
+              width: mW + _resizeWidthDelta,
+              height: mH + _resizeHeightDelta,
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.62),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
                   color: widget.isSelected
-                      ? Colors.amber.withValues(alpha: 0.45)
-                      : accent.withValues(alpha: 0.28),
-                  blurRadius: widget.isSelected ? 18 : 8,
-                  spreadRadius: widget.isSelected ? 3 : 0,
+                      ? Colors.amber
+                      : accent.withValues(alpha: 0.55),
+                  width: widget.isSelected ? 2.5 : 1.5,
                 ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(13),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Coloured top stripe
-                  Container(
-                    height: 3,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [accent, accent.withValues(alpha: 0.3)],
-                      ),
-                    ),
-                  ),
-                  // Body content
-                  Expanded(
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Icon badge
-                          Container(
-                            width: iconSize + 2,
-                            height: iconSize + 2,
-                            decoration: BoxDecoration(
-                              color: accent.withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: accent.withValues(alpha: 0.35),
-                                width: 1.0,
-                              ),
-                            ),
-                            child: Icon(_icon, color: accent, size: iconSize),
-                          ),
-                          const SizedBox(height: 4),
-                          // Name
-                          Text(
-                            widget.device.name,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: labelSize,
-                              fontWeight: FontWeight.w600,
-                              shadows: const [
-                                Shadow(color: Colors.black87, blurRadius: 4)
-                              ],
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 3),
-                          // Status pill
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: accent.withValues(alpha: 0.18),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: accent.withValues(alpha: 0.45),
-                                width: 0.8,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 5,
-                                  height: 5,
-                                  decoration: BoxDecoration(
-                                    color: accent,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const SizedBox(width: 3),
-                                Text(
-                                  _statusLabel,
-                                  style: TextStyle(
-                                    color: accent,
-                                    fontSize: statusSize,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.isSelected
+                        ? Colors.amber.withValues(alpha: 0.45)
+                        : accent.withValues(alpha: 0.28),
+                    blurRadius: widget.isSelected ? 18 : 8,
+                    spreadRadius: widget.isSelected ? 3 : 0,
                   ),
                 ],
               ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(13),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Coloured top stripe
+                    Container(
+                      height: 3,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [accent, accent.withValues(alpha: 0.3)],
+                        ),
+                      ),
+                    ),
+                    // Body content
+                    Expanded(
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Icon badge
+                            Container(
+                              width: iconSize + 2,
+                              height: iconSize + 2,
+                              decoration: BoxDecoration(
+                                color: accent.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: accent.withValues(alpha: 0.35),
+                                  width: 1.0,
+                                ),
+                              ),
+                              child: Icon(_icon, color: accent, size: iconSize),
+                            ),
+                            const SizedBox(height: 4),
+                            // Name
+                            Text(
+                              widget.device.name,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: labelSize,
+                                fontWeight: FontWeight.w600,
+                                shadows: const [
+                                  Shadow(color: Colors.black87, blurRadius: 4)
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 3),
+                            // Status pill
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: accent.withValues(alpha: 0.18),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: accent.withValues(alpha: 0.45),
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 5,
+                                    height: 5,
+                                    decoration: BoxDecoration(
+                                      color: accent,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    _statusLabel,
+                                    style: TextStyle(
+                                      color: accent,
+                                      fontSize: statusSize,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
 
-        // ── Resize grip ──────────────────────────────────────────────────────
-        // Larger transparent hit area (44×44) around the visible 24×24 icon
-        // so the user can grab it easily even on small markers.
-        Positioned(
-          right: -14,
-          bottom: -14,
-          child: GestureDetector(
-            onTap: () {
-           
-            },
-            behavior: HitTestBehavior.opaque,
-            onPanStart: _onResizeStart,
-            onPanUpdate: _onResizeUpdate,
-            onPanEnd: _onResizeEnd,
-            child: SizedBox(
-              width: 50,
-              height: 50,
-              child: Align(
-                alignment: Alignment.bottomRight,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  width: _isResizing ? 28 : 24,
-                  height: _isResizing ? 28 : 24,
-                  decoration: BoxDecoration(
-                    color: _isResizing
-                        ? Colors.amber
-                        : widget.isSelected
-                            ? Colors.amber
-                            : Colors.white.withValues(alpha: 0.85),
-                    borderRadius: BorderRadius.circular(6),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.35),
-                        blurRadius: _isResizing ? 8 : 4,
-                        spreadRadius: _isResizing ? 1 : 0,
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.open_in_full_rounded,
-                    size: 14,
-                    color: _isResizing || widget.isSelected
-                        ? Colors.black87
-                        : AppTheme.backgroundDark,
+          // ── Resize grip ──────────────────────────────────────────────────────
+          // Larger transparent hit area (44×44) around the visible 24×24 icon
+          // so the user can grab it easily even on small markers.
+          Positioned(
+            right: -14,
+            bottom: -14,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onPanStart: _onResizeStart,
+              onPanUpdate: _onResizeUpdate,
+              onPanEnd: _onResizeEnd,
+              child: SizedBox(
+                width: 50,
+                height: 50,
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    width: _isResizing ? 28 : 24,
+                    height: _isResizing ? 28 : 24,
+                    decoration: BoxDecoration(
+                      color: _isResizing
+                          ? Colors.amber
+                          : widget.isSelected
+                              ? Colors.amber
+                              : Colors.white.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(6),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.35),
+                          blurRadius: _isResizing ? 8 : 4,
+                          spreadRadius: _isResizing ? 1 : 0,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.open_in_full_rounded,
+                      size: 14,
+                      color: _isResizing || widget.isSelected
+                          ? Colors.black87
+                          : AppTheme.backgroundDark,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      );
+    }
+
+    return Transform.translate(
+      offset: _dragOffset,
+      child: markerWidget,
     );
   }
 }
