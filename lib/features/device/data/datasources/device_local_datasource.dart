@@ -37,6 +37,9 @@ class DeviceLocalDatasource {
         'irTempUp': d.irTempUp,
         'irTempDown': d.irTempDown,
         'irAuto': d.irAuto,
+        'irCool': d.irCool,
+        'irHeat': d.irHeat,
+        'irEco': d.irEco,
       };
 
   static DeviceEntity _fromMap(Map map) {
@@ -76,6 +79,9 @@ class DeviceLocalDatasource {
       irTempUp: map['irTempUp'] as String?,
       irTempDown: map['irTempDown'] as String?,
       irAuto: map['irAuto'] as String?,
+      irCool: map['irCool'] as String?,
+      irHeat: map['irHeat'] as String?,
+      irEco: map['irEco'] as String?,
     );
   }
 

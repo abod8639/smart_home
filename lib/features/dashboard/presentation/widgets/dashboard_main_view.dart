@@ -150,6 +150,8 @@ Widget buildDeviceCards() {
                             );
                           },
               onToggle: () => controller.toggleDevice(device.id),
+              onModeChange: (mode) =>
+                  Get.find<DashboardController>().setAcMode(device.id, mode),
             );
           case DeviceType.lamp:
             return LampCard(

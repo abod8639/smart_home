@@ -345,6 +345,46 @@ class DashboardController extends GetxController {
     }
   }
 
+  /// Activates the given AC [mode]: sends the learned IR signal and
+  /// updates the device [mode] field to reflect it in the UI.
+  void setAcMode(String id, String mode) {
+    final index = devices.indexWhere((d) => d.id == id);
+    if (index == -1) return;
+
+    final device = devices[index];
+
+    // Resolve which stored IR code corresponds to the requested mode
+    final String? irCode = switch (mode) {
+      'Auto mode' => device.irAuto,
+      'Cool mode' => device.irCool,
+      'Heat mode' => device.irHeat,
+      'Eco mode'  => device.irEco,
+      _           => null,
+    };
+
+    if (irCode == null) {
+      Get.snackbar(
+        mode,
+        'لم يتم تسجيل زر هذا الوضع بعد.\nافتح إعدادات الجهاز وسجّل زر $mode.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF1E293B),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
+      return;
+    }
+
+    // Update mode label in UI
+    devices[index] = device.copyWith(mode: mode);
+    _persistDevices();
+
+    // Send IR signal
+    sendIrCommand(irCode);
+  }
+
+  /// Legacy convenience — kept for backward compat.
+  void setAcAutoMode(String id) => setAcMode(id, 'Auto mode');
+
   void updateDeviceBrightness(String id, int brightness) {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
@@ -477,6 +517,12 @@ class DashboardController extends GetxController {
               updated = device.copyWith(irTempDown: jsonCode);
             } else if (fieldKey == 'irAuto') {
               updated = device.copyWith(irAuto: jsonCode);
+            } else if (fieldKey == 'irCool') {
+              updated = device.copyWith(irCool: jsonCode);
+            } else if (fieldKey == 'irHeat') {
+              updated = device.copyWith(irHeat: jsonCode);
+            } else if (fieldKey == 'irEco') {
+              updated = device.copyWith(irEco: jsonCode);
             } else {
               return false;
             }
@@ -775,9 +821,13 @@ class DashboardController extends GetxController {
                       devices[i] = device.copyWith(rgbR: rVal, rgbG: gVal, rgbB: bVal);
                     }
                   } else {
-                    final bool isOn = (val == 1);
-                    if (device.isOn != isOn) {
-                      devices[i] = device.copyWith(isOn: isOn);
+                    // Skip IR-controlled devices (AC) — their state is managed
+                    // locally via IR commands, not GPIO pin readings.
+                    if (device.type != DeviceType.airConditioner) {
+                      final bool isOn = (val == 1);
+                      if (device.isOn != isOn) {
+                        devices[i] = device.copyWith(isOn: isOn);
+                      }
                     }
                   }
                 }
@@ -793,14 +843,11 @@ class DashboardController extends GetxController {
                   if ((device.isLocked ?? true) != (val == 0)) {
                     devices[i] = device.copyWith(isLocked: val == 0);
                   }
-                } else if (device.id == 'ac1' && pinsMap.containsKey('relay_3')) {
-                  final int val = pinsMap['relay_3'];
-                  if (device.isOn != (val == 1)) {
-                    devices[i] = device.copyWith(isOn: val == 1);
-                  }
                 }
-              }
-            }
+                // ac1/airConditioner is IR-controlled — never sync isOn from relay pins.
+              }           // end: else (pin == null)
+            }             // end: for loop
+
           }
         }
       } catch (e) {

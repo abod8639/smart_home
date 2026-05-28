@@ -54,6 +54,9 @@ class DeviceEntity extends Equatable {
   final String? irTempUp;
   final String? irTempDown;
   final String? irAuto;
+  final String? irCool;
+  final String? irHeat;
+  final String? irEco;
 
   const DeviceEntity({
     required this.id,
@@ -85,6 +88,9 @@ class DeviceEntity extends Equatable {
     this.irTempUp,
     this.irTempDown,
     this.irAuto,
+    this.irCool,
+    this.irHeat,
+    this.irEco,
   });
 
   DeviceEntity copyWith({
@@ -117,6 +123,9 @@ class DeviceEntity extends Equatable {
     Object? irTempUp = const Object(),
     Object? irTempDown = const Object(),
     Object? irAuto = const Object(),
+    Object? irCool = const Object(),
+    Object? irHeat = const Object(),
+    Object? irEco = const Object(),
   }) {
     return DeviceEntity(
       id: id ?? this.id,
@@ -148,6 +157,9 @@ class DeviceEntity extends Equatable {
       irTempUp: irTempUp == const Object() ? this.irTempUp : (irTempUp as String?),
       irTempDown: irTempDown == const Object() ? this.irTempDown : (irTempDown as String?),
       irAuto: irAuto == const Object() ? this.irAuto : (irAuto as String?),
+      irCool: irCool == const Object() ? this.irCool : (irCool as String?),
+      irHeat: irHeat == const Object() ? this.irHeat : (irHeat as String?),
+      irEco: irEco == const Object() ? this.irEco : (irEco as String?),
     );
   }
 
@@ -182,5 +194,8 @@ class DeviceEntity extends Equatable {
         irTempUp,
         irTempDown,
         irAuto,
+        irCool,
+        irHeat,
+        irEco,
       ];
 }

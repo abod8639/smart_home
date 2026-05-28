@@ -9,8 +9,17 @@ class AcCard extends StatelessWidget {
   final VoidCallback onToggle;
   final VoidCallback onIncreaseTemp;
   final VoidCallback onDecreaseTemp;
+  /// Called when the user picks a mode. Receives the selected mode label.
+  final void Function(String mode)? onModeChange;
 
-  const AcCard({super.key, required this.device, required this.onToggle, required this.onIncreaseTemp, required this.onDecreaseTemp});
+  const AcCard({
+    super.key,
+    required this.device,
+    required this.onToggle,
+    required this.onIncreaseTemp,
+    required this.onDecreaseTemp,
+    this.onModeChange,
+  });
 
   static _AcCardMetrics _metrics(BuildContext context) {
     final sw = MediaQuery.sizeOf(context).width;
@@ -192,7 +201,7 @@ class AcCard extends StatelessWidget {
                                       height: ventH,
                                       decoration: BoxDecoration(
                                         color: isDeviceOn
-                                            ? const Color(0xFF00E5FF)
+                                            ? _modeColor(device.mode)
                                             : const Color(0xFF334155),
                                         borderRadius: BorderRadius.circular(
                                           1.5,
@@ -200,9 +209,8 @@ class AcCard extends StatelessWidget {
                                         boxShadow: isDeviceOn
                                             ? [
                                                 BoxShadow(
-                                                  color: const Color(
-                                                    0xFF00E5FF,
-                                                  ).withValues(alpha: 0.8),
+                                                  color: _modeColor(device.mode)
+                                                      .withValues(alpha: 0.8),
                                                   blurRadius: 4,
                                                   spreadRadius: 0.5,
                                                 ),
@@ -226,9 +234,7 @@ class AcCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      const Color(
-                                        0xFF00E5FF,
-                                      ).withValues(alpha: 0.15),
+                                      _modeColor(device.mode).withValues(alpha: 0.15),
                                       Colors.transparent,
                                     ],
                                     begin: Alignment.topCenter,
@@ -263,24 +269,135 @@ class AcCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildBottomStat(
-                    device.mode == 'Eco mode'
-                        ? Icons.eco_outlined
-                        : Icons.wb_sunny_outlined,
-                    device.mode ?? 'Auto mode',
-                    m.scale,
+                    icon: _modeIcon(device.mode),
+                    value: device.mode ?? 'Auto mode',
+                    scale: m.scale,
+                    onTap: () => _showModeSheet(context),
+                    iconColor: _modeColor(device.mode)
                   ),
                 ),
                 // SizedBox(width: (12 * m.scale).clamp(8.0, 12.0)),
                 Expanded(
                   child: _buildBottomStat(
-                    Icons.access_time,
-                    _formatRunningTime(device.coolingTime),
-                    m.scale,
+                    icon: Icons.access_time,
+                    value: _formatRunningTime(device.coolingTime),
+                    scale: m.scale,
                   ),
                 ),
               ],
             ),
             // Bottom Area: Mode & Live Running Time Stats
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── helpers ──────────────────────────────────────────────────────────────
+
+  IconData _modeIcon(String? mode) {
+    switch (mode) {
+      case 'Eco mode':  return Icons.eco_outlined;
+      case 'Heat mode': return Icons.whatshot_outlined;
+      case 'Cool mode': return Icons.ac_unit_outlined;
+      default:          return Icons.autorenew_outlined; // Auto mode
+    }
+  }
+
+  /// Returns the accent colour that matches the current AC mode.
+  Color _modeColor(String? mode) {
+    switch (mode) {
+      case 'Cool mode': return const Color(0xFF60A5FA); // blue
+      case 'Heat mode': return const Color(0xFFFB923C); // orange
+      case 'Eco mode':  return const Color(0xFF4ADE80); // green
+      default:          return const Color(0xFF00E5FF); // cyan – Auto
+    }
+  }
+  void _showModeSheet(BuildContext context) {
+    const modes = [
+      _AcMode('Auto mode',  Icons.autorenew_outlined,  Color(0xFF00E5FF)),
+      _AcMode('Cool mode',  Icons.ac_unit_outlined,    Color(0xFF60A5FA)),
+      _AcMode('Heat mode',  Icons.whatshot_outlined,   Color(0xFFFB923C)),
+      _AcMode('Eco mode',   Icons.eco_outlined,        Color(0xFF4ADE80)),
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        decoration: const BoxDecoration(
+          color: Color(0xFF0F172A),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border(
+            top: BorderSide(color: Colors.white10, width: 1),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle bar
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const Text(
+              'Select Mode / اختر الوضع',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ...modes.map((m) {
+              final isSelected = (device.mode ?? 'Auto mode') == m.label;
+              return GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                  onModeChange?.call(m.label);
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? m.color.withValues(alpha: 0.15)
+                        : Colors.white.withValues(alpha: 0.04),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isSelected ? m.color.withValues(alpha: 0.6) : Colors.white12,
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(m.icon, color: isSelected ? m.color : Colors.white54, size: 22),
+                      const SizedBox(width: 12),
+                      Text(
+                        m.label,
+                        style: TextStyle(
+                          color: isSelected ? m.color : Colors.white70,
+                          fontSize: 14,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                      const Spacer(),
+                      if (isSelected)
+                        Icon(Icons.check_circle, color: m.color, size: 18),
+                    ],
+                  ),
+                ),
+              );
+            }),
           ],
         ),
       ),
@@ -304,39 +421,51 @@ class AcCard extends StatelessWidget {
     }
   }
 
-  Widget _buildBottomStat(IconData icon, String value, double scale) {
+  Widget _buildBottomStat({
+    required IconData icon,
+    required String value,
+    required double scale,
+    VoidCallback? onTap,
+    Color? iconColor
+  }) {
     final padH = (16 * scale).clamp(10.0, 16.0);
     final padV = (14 * scale).clamp(10.0, 14.0);
     final iconSize = (18 * scale).clamp(14.0, 18.0);
     final fontSize = (13 * scale).clamp(11.0, 13.0);
 
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: padH, vertical: padV),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.04),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: Colors.white.withValues(alpha: 0.7), size: iconSize),
-          SizedBox(width: (8 * scale).clamp(4.0, 8.0)),
-          Flexible(
-            child: Text(
-              value,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w400,
-                fontSize: fontSize,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: padH, vertical: padV),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.04),
+            width: 1,
           ),
-        ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: 
+          iconColor
+            , size: iconSize),
+            SizedBox(width: (8 * scale).clamp(4.0, 8.0)),
+            Flexible(
+              child:  Text(
+                value,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w400,
+                  fontSize: fontSize,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              ),
+            
+          ],
+        ),
       ),
     );
   }
@@ -412,4 +541,13 @@ class _AcCardMetrics {
   final double scale;
 
   const _AcCardMetrics({required this.cardWidth, required this.scale});
+}
+
+/// Simple data class for AC mode options in the bottom sheet.
+class _AcMode {
+  final String label;
+  final IconData icon;
+  final Color color;
+
+  const _AcMode(this.label, this.icon, this.color);
 }

@@ -10,7 +10,7 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
-    final cardWidth = Responsive.isDesktop(context) ? 280.0 : null;
+    final cardWidth = Responsive.isDesktop(context) ? 320.0 : null;
 
     return ShadowContainer(
       width: cardWidth,

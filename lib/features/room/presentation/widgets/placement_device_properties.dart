@@ -276,6 +276,27 @@ class PlacementDeviceProperties extends StatelessWidget {
                     savedValue: device.irAuto,
                     fieldKey: 'irAuto',
                   ),
+                  const SizedBox(height: 10),
+                  _buildIrRecordRow(
+                    context,
+                    label: 'وضع التبريد (Cool Mode)',
+                    savedValue: device.irCool,
+                    fieldKey: 'irCool',
+                  ),
+                  const SizedBox(height: 10),
+                  _buildIrRecordRow(
+                    context,
+                    label: 'وضع التدفئة (Heat Mode)',
+                    savedValue: device.irHeat,
+                    fieldKey: 'irHeat',
+                  ),
+                  const SizedBox(height: 10),
+                  _buildIrRecordRow(
+                    context,
+                    label: 'الوضع الاقتصادي (Eco Mode)',
+                    savedValue: device.irEco,
+                    fieldKey: 'irEco',
+                  ),
                 ],
               ],
             ),
@@ -329,6 +350,7 @@ class PlacementDeviceProperties extends StatelessWidget {
       try {
         final Map<String, dynamic> data = jsonDecode(savedValue);
         infoText = '${data['protocol']} - ${data['value']}';
+        debugPrint(infoText);
       } catch (_) {
         infoText = 'Recorded / تم الحفظ';
       }
