@@ -377,6 +377,7 @@ class PlacementDeviceDialogs {
     );
     var selectedType = device.type.obs;
     var showAsDot = device.showAsDot.obs;
+    var selectedPin = Rx<int?>(device.pin);
 
     Get.dialog(
       AlertDialog(
@@ -449,6 +450,92 @@ class PlacementDeviceDialogs {
                 ),
               ),
               const SizedBox(height: 20),
+              const Text(
+                'ESP32 Pin / طرف ESP32',
+                style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'الطرف (GPIO) المتحكم في تشغيل وإطفاء الجهاز',
+                style: TextStyle(color: AppTheme.textGrey, fontSize: 10),
+              ),
+              const SizedBox(height: 8),
+              Obx(
+                () {
+                  final usedPins = dashboardController.devices
+                      .where((d) => d.id != device.id)
+                      .map((d) => d.pin)
+                      .whereType<int>()
+                      .toSet();
+
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white12),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<int?>(
+                        value: selectedPin.value,
+                        dropdownColor: AppTheme.cardBackground,
+                        isExpanded: true,
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        onChanged: (val) {
+                          selectedPin.value = val;
+                        },
+                        items: [
+                          const DropdownMenuItem<int?>(
+                            value: null,
+                            child: Row(
+                              children: [
+                                Icon(Icons.link_off, color: AppTheme.textGrey, size: 18),
+                                SizedBox(width: 8),
+                                Text('None / Not Connected (غير متصل)', style: TextStyle(color: AppTheme.textGrey)),
+                              ],
+                            ),
+                          ),
+                          ...esp32Pins.map((p) {
+                            final pinVal = p['pin'] as int;
+                            final isPwm = p['isPwm'] as bool;
+                            final isUsed = usedPins.contains(pinVal);
+
+                            return DropdownMenuItem<int?>(
+                              value: pinVal,
+                              enabled: !isUsed,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isPwm ? Icons.waves : Icons.bolt,
+                                    color: isUsed ? Colors.white24 : (isPwm ? Colors.orangeAccent : AppTheme.primaryBlue),
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      p['label'] as String,
+                                      style: TextStyle(
+                                        color: isUsed ? Colors.white24 : Colors.white,
+                                        decoration: isUsed ? TextDecoration.lineThrough : null,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isUsed)
+                                    const Text(
+                                      'In Use (مستعمل)',
+                                      style: TextStyle(color: Colors.redAccent, fontSize: 11),
+                                    ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
               TextField(
                 controller: linkedCountController,
                 style: const TextStyle(color: Colors.white),
@@ -498,6 +585,7 @@ class PlacementDeviceDialogs {
                 type: selectedType.value,
                 linkedDevicesCount: int.tryParse(linkedCountController.text) ?? 0,
                 showAsDot: showAsDot.value,
+                pin: selectedPin.value,
               );
               dashboardController.updateDevice(updated);
               Get.back();

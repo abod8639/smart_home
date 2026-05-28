@@ -249,13 +249,18 @@ class DashboardController extends GetxController {
       // Trigger ESP32 if the device matches our GPIO mappings
       if (Get.isRegistered<Esp32Service>()) {
         if (device.type == DeviceType.lamp) {
-          Get.find<Esp32Service>().setDigitalOutput(2, newIsOn);
+          final pin = device.pin ?? 2;
+          Get.find<Esp32Service>().setDigitalOutput(pin, newIsOn);
         } else if (device.type == DeviceType.airConditioner) {
-          Get.find<Esp32Service>().sendRawCommand(
-            'control/ac',
-            method: 'POST',
-            data: {'isOn': newIsOn},
-          );
+          if (device.pin != null) {
+            Get.find<Esp32Service>().setDigitalOutput(device.pin!, newIsOn);
+          } else {
+            Get.find<Esp32Service>().sendRawCommand(
+              'control/ac',
+              method: 'POST',
+              data: {'isOn': newIsOn},
+            );
+          }
         }
       }
     }
@@ -270,8 +275,9 @@ class DashboardController extends GetxController {
       _persistDevices();
 
       // Unlocked = Relay HIGH, Locked = Relay LOW
-      if (id == 'door1' && Get.isRegistered<Esp32Service>()) {
-        Get.find<Esp32Service>().setDigitalOutput(18, !newIsLocked);
+      if (Get.isRegistered<Esp32Service>()) {
+        final pin = device.pin ?? 18;
+        Get.find<Esp32Service>().setDigitalOutput(pin, !newIsLocked);
       }
     }
   }
@@ -338,8 +344,9 @@ class DashboardController extends GetxController {
       _persistDevices();
 
       // Control ESP32 PWM lamp (pin 22)
-      if (id == 'lamp1' && Get.isRegistered<Esp32Service>()) {
-        Get.find<Esp32Service>().setAnalogOutput(22, brightness);
+      if (Get.isRegistered<Esp32Service>()) {
+        final pin = device.pin ?? 22;
+        Get.find<Esp32Service>().setAnalogOutput(pin, brightness);
       }
     }
   }
@@ -347,15 +354,23 @@ class DashboardController extends GetxController {
   void updateDeviceColor(String id, int r, int g, int b) {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
-      devices[index] = devices[index].copyWith(rgbR: r, rgbG: g, rgbB: b);
+      final device = devices[index];
+      devices[index] = device.copyWith(rgbR: r, rgbG: g, rgbB: b);
       _persistDevices();
 
       // Control ESP32 RGB Strip channels (R: 23, G: 25, B: 26)
-      if (id == 'rgb1' && Get.isRegistered<Esp32Service>()) {
+      if (Get.isRegistered<Esp32Service>()) {
         final esp = Get.find<Esp32Service>();
-        esp.setAnalogOutput(23, r);
-        esp.setAnalogOutput(25, g);
-        esp.setAnalogOutput(26, b);
+        final pin = device.pin ?? 23;
+        if (pin == 23) {
+          esp.setAnalogOutput(23, r);
+          esp.setAnalogOutput(25, g);
+          esp.setAnalogOutput(26, b);
+        } else {
+          esp.setAnalogOutput(pin, r);
+          esp.setAnalogOutput(25, g);
+          esp.setAnalogOutput(26, b);
+        }
       }
     }
   }
@@ -579,31 +594,67 @@ class DashboardController extends GetxController {
           if (data['pins'] != null) {
             final pinsMap = data['pins'] as Map<String, dynamic>;
 
-            // Sync GPIO 2 (relay_1 / lamp1)
-            if (pinsMap.containsKey('relay_1')) {
-              final int val = pinsMap['relay_1'];
-              final lampIndex = devices.indexWhere((d) => d.id == 'lamp1');
-              if (lampIndex != -1 && devices[lampIndex].isOn != (val == 1)) {
-                devices[lampIndex] = devices[lampIndex].copyWith(isOn: val == 1);
-              }
-            }
+            for (var i = 0; i < devices.length; i++) {
+              final device = devices[i];
+              final pin = device.pin;
 
-            // Sync GPIO 18 (relay_2 / door1)
-            if (pinsMap.containsKey('relay_2')) {
-              final int val = pinsMap['relay_2'];
-              final doorIndex = devices.indexWhere((d) => d.id == 'door1');
-              if (doorIndex != -1 && (devices[doorIndex].isLocked ?? true) != (val == 0)) {
-                devices[doorIndex] = devices[doorIndex].copyWith(isLocked: val == 0);
-              }
-            }
+              if (pin != null) {
+                // Find label corresponding to the configured pin
+                String? label;
+                if (pin == 2) label = 'relay_1';
+                else if (pin == 18) label = 'relay_2';
+                else if (pin == 19) label = 'relay_3';
+                else if (pin == 21) label = 'relay_4';
+                else if (pin == 22) label = 'pwm_lamp';
+                else if (pin == 23) label = 'pwm_rgb_r';
+                else if (pin == 25) label = 'pwm_rgb_g';
+                else if (pin == 26) label = 'pwm_rgb_b';
 
-            // Sync GPIO 19 (relay_3 / primary AC: ac1)
-            if (pinsMap.containsKey('relay_3')) {
-              final int val = pinsMap['relay_3'];
-              final isAcOn = (val == 1);
-              final acIndex = devices.indexWhere((d) => d.id == 'ac1');
-              if (acIndex != -1 && devices[acIndex].isOn != isAcOn) {
-                devices[acIndex] = devices[acIndex].copyWith(isOn: isAcOn);
+                if (label != null && pinsMap.containsKey(label)) {
+                  final val = pinsMap[label];
+                  if (device.type == DeviceType.door) {
+                    final bool isLocked = (val == 0);
+                    if (device.isLocked != isLocked) {
+                      devices[i] = device.copyWith(isLocked: isLocked);
+                    }
+                  } else if (device.type == DeviceType.lamp && pin == 22) {
+                    final int brightness = val as int;
+                    final bool isOn = brightness > 0;
+                    if (device.brightness != brightness || device.isOn != isOn) {
+                      devices[i] = device.copyWith(brightness: brightness, isOn: isOn);
+                    }
+                  } else if (device.type == DeviceType.rgb) {
+                    final int rVal = pinsMap['pwm_rgb_r'] ?? device.rgbR ?? 0;
+                    final int gVal = pinsMap['pwm_rgb_g'] ?? device.rgbG ?? 0;
+                    final int bVal = pinsMap['pwm_rgb_b'] ?? device.rgbB ?? 0;
+                    if (device.rgbR != rVal || device.rgbG != gVal || device.rgbB != bVal) {
+                      devices[i] = device.copyWith(rgbR: rVal, rgbG: gVal, rgbB: bVal);
+                    }
+                  } else {
+                    final bool isOn = (val == 1);
+                    if (device.isOn != isOn) {
+                      devices[i] = device.copyWith(isOn: isOn);
+                    }
+                  }
+                }
+              } else {
+                // Backward-compatible fallback for hardcoded default devices when pin is null
+                if (device.id == 'lamp1' && pinsMap.containsKey('relay_1')) {
+                  final int val = pinsMap['relay_1'];
+                  if (device.isOn != (val == 1)) {
+                    devices[i] = device.copyWith(isOn: val == 1);
+                  }
+                } else if (device.id == 'door1' && pinsMap.containsKey('relay_2')) {
+                  final int val = pinsMap['relay_2'];
+                  if ((device.isLocked ?? true) != (val == 0)) {
+                    devices[i] = device.copyWith(isLocked: val == 0);
+                  }
+                } else if (device.id == 'ac1' && pinsMap.containsKey('relay_3')) {
+                  final int val = pinsMap['relay_3'];
+                  if (device.isOn != (val == 1)) {
+                    devices[i] = device.copyWith(isOn: val == 1);
+                  }
+                }
               }
             }
           }
