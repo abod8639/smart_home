@@ -29,10 +29,32 @@ class PlacementDeviceMarker extends StatefulWidget {
   State<PlacementDeviceMarker> createState() => _PlacementDeviceMarkerState();
 }
 
-class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker> {
+class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker>
+    with SingleTickerProviderStateMixin {
   /// Disables AnimatedContainer transitions during active drag/resize.
   bool _isResizing = false;
   bool _isDragging = false;
+
+  late AnimationController _pulseController;
+  late Animation<double> _glowAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+    _glowAnimation = Tween<double>(begin: 4.0, end: 16.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -112,16 +134,125 @@ class _PlacementDeviceMarkerState extends State<PlacementDeviceMarker> {
   @override
   Widget build(BuildContext context) {
     final accent = _accentColor;
+    final animDuration = (_isResizing || _isDragging)
+        ? Duration.zero
+        : const Duration(milliseconds: 250);
+
+    if (widget.device.showAsDot) {
+      return Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          // ── Pulsing Glowing Dot ─────────────────────────────────────────────
+          GestureDetector(
+            onTap: () => widget.placementController.selectDevice(widget.device.id),
+            onPanStart: (_) {
+              widget.placementController.selectDevice(widget.device.id);
+              if (!_isDragging) setState(() => _isDragging = true);
+            },
+            onPanUpdate: (details) {
+              final box = widget.imageKey.currentContext?.findRenderObject()
+                  as RenderBox?;
+              if (box != null) {
+                final dx = details.delta.dx / box.size.width;
+                final dy = details.delta.dy / box.size.height;
+                final x = ((widget.device.positionX ?? 0.5) + dx).clamp(0.0, 1.0);
+                final y = ((widget.device.positionY ?? 0.5) + dy).clamp(0.0, 1.0);
+                widget.dashboardController
+                    .updateDevicePosition(widget.device.id, x, y, persist: false);
+              }
+            },
+            onPanEnd: (_) {
+              widget.dashboardController.persistDevices();
+              if (_isDragging) setState(() => _isDragging = false);
+            },
+            child: AnimatedBuilder(
+              animation: _glowAnimation,
+              builder: (context, child) {
+                final glow = _glowAnimation.value;
+                return AnimatedContainer(
+                  duration: animDuration,
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black.withValues(alpha: 0.65),
+                    border: Border.all(
+                      color: widget.isSelected
+                          ? Colors.amber
+                          : accent,
+                      width: widget.isSelected ? 2.0 : 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: widget.isSelected
+                            ? Colors.amber.withValues(alpha: 0.6)
+                            : accent.withValues(alpha: widget.device.isOn ? 0.6 : 0.25),
+                        blurRadius: glow + (widget.isSelected ? 4 : 0),
+                        spreadRadius: widget.isSelected ? 2 : 0,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Icon(
+                      _icon,
+                      color: widget.isSelected
+                          ? Colors.amber
+                          : (widget.device.isOn ? accent : Colors.white70),
+                      size: 16,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // ── Device Name Tag ────────────────────────────────────────────────
+          Positioned(
+            bottom: -22,
+            left: -50,
+            right: -50,
+            child: IgnorePointer(
+              child: Center(
+                child: AnimatedContainer(
+                  duration: animDuration,
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.75),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: widget.isSelected
+                          ? Colors.amber.withValues(alpha: 0.5)
+                          : accent.withValues(alpha: 0.25),
+                      width: 0.8,
+                    ),
+                  ),
+                  child: Text(
+                    widget.device.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.w600,
+                      shadows: [
+                        Shadow(color: Colors.black, blurRadius: 2),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     final (mW, mH) = _markerSize;
     final iconSize = (mH * 0.28).clamp(14.0, 26.0);
     final labelSize = (mH * 0.11).clamp(7.5, 11.0);
     final statusSize = (mH * 0.085).clamp(6.5, 9.0);
-
-    // Zero duration during any active interaction → immediate pixel-perfect
-    // response. Smooth animation is reserved for state changes (on/off, selection).
-    final animDuration = (_isResizing || _isDragging)
-        ? Duration.zero
-        : const Duration(milliseconds: 250);
 
     return Stack(
       clipBehavior: Clip.none,

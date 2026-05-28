@@ -61,6 +61,7 @@ class PlacementDeviceDialogs {
     final nameController = TextEditingController();
     final linkedCountController = TextEditingController(text: '0');
     var selectedType = DeviceType.lamp.obs;
+    var showAsDot = false.obs;
 
     Get.dialog(
       AlertDialog(
@@ -158,6 +159,23 @@ class PlacementDeviceDialogs {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+              Obx(
+                () => SwitchListTile(
+                  title: const Text(
+                    'Show as Glowing Dot',
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                  subtitle: const Text(
+                    'Compact glowing marker instead of card',
+                    style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
+                  ),
+                  value: showAsDot.value,
+                  activeColor: AppTheme.primaryBlue,
+                  contentPadding: EdgeInsets.zero,
+                  onChanged: (val) => showAsDot.value = val,
+                ),
+              ),
             ],
           ),
         ),
@@ -187,6 +205,7 @@ class PlacementDeviceDialogs {
                 linkedDevicesCount: int.tryParse(linkedCountController.text) ?? 0,
                 positionX: 0.5,
                 positionY: 0.5,
+                showAsDot: showAsDot.value,
               );
               dashboardController.addDevice(newDevice);
               placementController.selectDevice(newDevice.id);
@@ -259,6 +278,7 @@ class PlacementDeviceDialogs {
       text: (device.linkedDevicesCount ?? 0).toString(),
     );
     var selectedType = device.type.obs;
+    var showAsDot = device.showAsDot.obs;
 
     Get.dialog(
       AlertDialog(
@@ -346,6 +366,23 @@ class PlacementDeviceDialogs {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+              Obx(
+                () => SwitchListTile(
+                  title: const Text(
+                    'Show as Glowing Dot',
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                  subtitle: const Text(
+                    'Compact glowing marker instead of card',
+                    style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
+                  ),
+                  value: showAsDot.value,
+                  activeColor: AppTheme.primaryBlue,
+                  contentPadding: EdgeInsets.zero,
+                  onChanged: (val) => showAsDot.value = val,
+                ),
+              ),
             ],
           ),
         ),
@@ -362,6 +399,7 @@ class PlacementDeviceDialogs {
                 name: name,
                 type: selectedType.value,
                 linkedDevicesCount: int.tryParse(linkedCountController.text) ?? 0,
+                showAsDot: showAsDot.value,
               );
               dashboardController.updateDevice(updated);
               Get.back();

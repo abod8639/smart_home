@@ -43,6 +43,9 @@ class DeviceEntity extends Equatable {
   final int? rgbG;
   final int? rgbB;
 
+  // Presentation style style
+  final bool showAsDot;
+
   const DeviceEntity({
     required this.id,
     required this.name,
@@ -67,6 +70,7 @@ class DeviceEntity extends Equatable {
     this.rgbR,
     this.rgbG,
     this.rgbB,
+    this.showAsDot = false,
   });
 
   DeviceEntity copyWith({
@@ -93,6 +97,7 @@ class DeviceEntity extends Equatable {
     int? rgbR,
     int? rgbG,
     int? rgbB,
+    bool? showAsDot,
   }) {
     return DeviceEntity(
       id: id ?? this.id,
@@ -118,6 +123,7 @@ class DeviceEntity extends Equatable {
       rgbR: rgbR ?? this.rgbR,
       rgbG: rgbG ?? this.rgbG,
       rgbB: rgbB ?? this.rgbB,
+      showAsDot: showAsDot ?? this.showAsDot,
     );
   }
 
@@ -146,5 +152,6 @@ class DeviceEntity extends Equatable {
         rgbR,
         rgbG,
         rgbB,
+        showAsDot,
       ];
 }

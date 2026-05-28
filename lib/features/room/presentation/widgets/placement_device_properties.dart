@@ -74,6 +74,93 @@ class PlacementDeviceProperties extends StatelessWidget {
         buildPropertyRow('Type', device.type.name.capitalizeFirst ?? ''),
         const SizedBox(height: 16),
         buildPropertyRow('Status', device.isOn ? 'ON' : 'OFF'),
+        const SizedBox(height: 16),
+
+        // Marker Style Selector
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Marker Style',
+                  style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Display shape',
+                  style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.black38,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.white10),
+              ),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      if (device.showAsDot) {
+                        dashboardController.updateDevice(
+                          device.copyWith(showAsDot: false),
+                        );
+                      }
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: !device.showAsDot
+                            ? AppTheme.primaryBlue.withValues(alpha: 0.85)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: const Text(
+                        'Card',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      if (!device.showAsDot) {
+                        dashboardController.updateDevice(
+                          device.copyWith(showAsDot: true),
+                        );
+                      }
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: device.showAsDot
+                            ? AppTheme.primaryBlue.withValues(alpha: 0.85)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: const Text(
+                        'Glowing Dot',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
 
         if (device.type == DeviceType.lamp && device.brightness != null) ...[
           const SizedBox(height: 16),

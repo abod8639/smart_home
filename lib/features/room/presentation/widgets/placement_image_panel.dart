@@ -95,17 +95,26 @@ class PlacementImagePanel extends StatelessWidget {
                                   final posY =
                                       device.positionY! * constraints.maxHeight;
 
-                                  final rawW = device.markerWidth ?? 0.18;
-                                  final rawH = device.markerHeight ?? 0.15;
-                                  final normW = rawW > 1.0
-                                      ? (rawW / 600.0).clamp(0.05, 0.8)
-                                      : rawW;
-                                  final normH = rawH > 1.0
-                                      ? (rawH / 400.0).clamp(0.05, 0.8)
-                                      : rawH;
+                                  final showAsDot = device.showAsDot;
+                                  final double mW;
+                                  final double mH;
 
-                                  final mW = normW * constraints.maxWidth;
-                                  final mH = normH * constraints.maxHeight;
+                                  if (showAsDot) {
+                                    mW = 32.0;
+                                    mH = 32.0;
+                                  } else {
+                                    final rawW = device.markerWidth ?? 0.18;
+                                    final rawH = device.markerHeight ?? 0.15;
+                                    final normW = rawW > 1.0
+                                        ? (rawW / 600.0).clamp(0.05, 0.8)
+                                        : rawW;
+                                    final normH = rawH > 1.0
+                                        ? (rawH / 400.0).clamp(0.05, 0.8)
+                                        : rawH;
+
+                                    mW = normW * constraints.maxWidth;
+                                    mH = normH * constraints.maxHeight;
+                                  }
 
                                   final isSelected =
                                       placementController.selectedDeviceId.value ==
