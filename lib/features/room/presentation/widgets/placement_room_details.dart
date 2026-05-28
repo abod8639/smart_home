@@ -52,33 +52,12 @@ class PlacementRoomDetails extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryPurple.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppTheme.primaryPurple.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Text(
-                'Room Active',
-                style: TextStyle(
-                  color: AppTheme.primaryPurple.withValues(alpha: 0.9),
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+
           ],
         ),
 
-        const SizedBox(height: 8),
-        const Text(
-          'Room Statistics & Configuration',
-          style: TextStyle(color: AppTheme.textGrey, fontSize: 13),
-        ),
-        const SizedBox(height: 24),
+
+        const SizedBox(height: 10),
 
         buildPropertyRow('Total Devices', '${roomDevices.length} device(s)'),
         const SizedBox(height: 16),
