@@ -188,15 +188,11 @@ class Esp32Service extends GetxService {
   }
 
   /// Sends a recorded IR remote code via the ESP32 transmitter
-  Future<EspResponse<bool>> sendIrCode(String protocol, String value, int bits) async {
+  Future<EspResponse<bool>> sendIrCode(Map<String, dynamic> irData) async {
     try {
       final response = await _dio.post(
         '$baseUrl/control/ir/send',
-        data: {
-          'protocol': protocol,
-          'value': value,
-          'bits': bits,
-        },
+        data: irData,
       );
       if (response.statusCode == 200) {
         return EspResponse.success(true);

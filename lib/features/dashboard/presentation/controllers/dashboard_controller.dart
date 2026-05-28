@@ -518,11 +518,7 @@ class DashboardController extends GetxController {
     if (!Get.isRegistered<Esp32Service>()) return;
     try {
       final Map<String, dynamic> data = jsonDecode(jsonCodeString);
-      final protocol = data['protocol'] as String;
-      final value = data['value'] as String;
-      final bits = data['bits'] as int;
-
-      await Get.find<Esp32Service>().sendIrCode(protocol, value, bits);
+      await Get.find<Esp32Service>().sendIrCode(data);
     } catch (e) {
       debugPrint('Error sending IR command: $e');
     }
