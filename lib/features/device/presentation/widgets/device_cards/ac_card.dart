@@ -43,7 +43,7 @@ class AcCard extends StatelessWidget {
     final titleSize = (20 * m.scale).clamp(15.0, 20.0);
 
     return SizedBox(
-      width: m.cardWidth,
+      width: m.cardWidth-20,
       child: GlassContainer(
         padding: EdgeInsets.symmetric(
           horizontal: (20 * m.scale).clamp(12.0, 20.0),
@@ -274,7 +274,7 @@ class AcCard extends StatelessWidget {
     Color? iconColor,
   }) {
     final padH = (16 * scale).clamp(10.0, 16.0);
-    final padV = (14 * scale).clamp(10.0, 14.0);
+    final padV = (1 * scale).clamp(3.0, 14.0);
     final iconSize = (18 * scale).clamp(14.0, 18.0);
     final fontSize = (13 * scale).clamp(11.0, 13.0);
 

@@ -23,7 +23,7 @@ class RoomsListWidget extends GetView<DashboardController> {
 
     return ShadowContainer(
       width: cardWidth,
-      height: 420,
+      height: 415,
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

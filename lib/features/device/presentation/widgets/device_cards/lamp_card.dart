@@ -41,7 +41,7 @@ class LampCard extends StatelessWidget {
     final double glowSize = isDeviceOn ? (60.0 + (brightnessVal / 100.0 * 60.0)) : 0.0;
 
     final isMobile = Responsive.isMobile(context);
-    final double cardWidth = isMobile ? 210.0 : 260.0;
+    final double cardWidth = isMobile ? 210.0 : 230.0;
     final double innerPadding = isMobile ? 10.0 : 14.0;
 
     return SizedBox(
@@ -67,13 +67,13 @@ class LampCard extends StatelessWidget {
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (device.linkedDevicesCount != null && device.linkedDevicesCount! > 0) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          '${device.linkedDevicesCount} Devices Connected', 
-                          style: const TextStyle(color: AppTheme.textGrey, fontSize: 11),
-                        ),
-                      ],
+                      // if (device.linkedDevicesCount != null && device.linkedDevicesCount! > 0) ...[
+                      //   const SizedBox(height: 4),
+                      //   Text(
+                      //     '${device.linkedDevicesCount} Devices Connected', 
+                      //     style: const TextStyle(color: AppTheme.textGrey, fontSize: 11),
+                      //   ),
+                      // ],
                     ],
                   ),
                 ),

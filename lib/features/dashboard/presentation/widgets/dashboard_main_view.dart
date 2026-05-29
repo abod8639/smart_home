@@ -147,7 +147,7 @@ class DashboardMainView extends GetView<DashboardController> {
                                 fontWeight: FontWeight.bold,
                               ),
                         ),
-                        // SizedBox(height: gap * 0.5),
+                        SizedBox(height: gap ),
                         const RoomsListWidget(),
                         // SizedBox(height: gap * 0.5),
                         // SizedBox(height: gap),
@@ -157,7 +157,7 @@ class DashboardMainView extends GetView<DashboardController> {
                 ],
               ),
                         // SizedBox(height: gap * 0.5),
-              SizedBox(height: gap),
+              SizedBox(height: gap-10),
               Text(
                 'Devices',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -165,9 +165,9 @@ class DashboardMainView extends GetView<DashboardController> {
                       fontWeight: FontWeight.bold,
                     ),
               ),
-              // SizedBox(height: gap),
-              // SizedBox(height: gap * 0.5),
-              SizedBox(height: deviceHeight-70, child: buildDeviceCards()),
+              SizedBox(height: gap-10),
+
+              SizedBox(height: deviceHeight-65, child: buildDeviceCards()),
               // SizedBox(height: gap * 2),
             ],
           ),

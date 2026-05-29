@@ -38,6 +38,7 @@ class AcVisualizer extends StatelessWidget {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         IconButton(
           visualDensity: VisualDensity.compact,
@@ -53,7 +54,7 @@ class AcVisualizer extends StatelessWidget {
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: (15 * scale).clamp(6.0, 15.0)),
+            // SizedBox(height: (15 * scale).clamp(6.0, 15.0)),
             // AC Body Shape
             Container(
               width: acW,
