@@ -23,6 +23,7 @@ class DashboardMainView extends GetView<DashboardController> {
     return LayoutBuilder(
       builder: (context, constraints) {
 
+        // mobile view with better spacing
         if (Responsive.isMobile(context)) {
           // Mobile Layout: One single vertical scrollable Column to avoid layout issues
           return SingleChildScrollView(
@@ -37,34 +38,30 @@ class DashboardMainView extends GetView<DashboardController> {
                 Text(
                   'Devices',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: gap * 0.5),
-                SizedBox(
-                  height: deviceHeight,
-                  child: buildDeviceCards(),
-                ),
+                SizedBox(height: deviceHeight, child: buildDeviceCards()),
                 SizedBox(height: gap),
                 Text(
                   'Rooms',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: gap * 0.5),
-                const SizedBox(
-                  height: 140,
-                  child: RoomsListWidget(),
-                ),
-                SizedBox(height: gap * 2), // spacing at bottom for navbar clearance
+                const SizedBox(height: 140, child: RoomsListWidget()),
+                SizedBox(
+                  height: gap * 2,
+                ), // spacing at bottom for navbar clearance
               ],
             ),
           );
         }
-
+           // tablet view with spacing
         if (Responsive.isTablet(context)) {
           // Tablet / Medium Layout: Scrollable Column with side-by-side preview and weather
           return SingleChildScrollView(
@@ -76,10 +73,7 @@ class DashboardMainView extends GetView<DashboardController> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Expanded(
-                      flex: 5,
-                      child: RoomPreviewWidget(),
-                    ),
+                    const Expanded(flex: 5, child: RoomPreviewWidget()),
                     // SizedBox(width: gap),
                     // const SizedBox(
                     //   width: 280,
@@ -93,10 +87,10 @@ class DashboardMainView extends GetView<DashboardController> {
                 Text(
                   'Rooms',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
                 ),
                 SizedBox(height: gap * 0.5),
                 const SizedBox(
@@ -109,78 +103,74 @@ class DashboardMainView extends GetView<DashboardController> {
                 Text(
                   'Devices',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
                 ),
                 SizedBox(height: gap * 0.5),
-                SizedBox(
-                  height: deviceHeight,
-                  child: buildDeviceCards(),
-                ),
-                SizedBox(height: gap * 2),
+                SizedBox(height: deviceHeight, child: buildDeviceCards()),
+                // SizedBox(height: gap * 2),
               ],
             ),
           );
         }
 
         // Desktop / Wide Layout (width >= 950): 2-Column Layout
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Left Column: Room Preview + Room Devices
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const RoomPreviewWidget(),
-                    SizedBox(height: gap),
-                    Text(
-                      'Devices',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+        return Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Expanded(
+                    child: RoomPreviewWidget(),
+                  ),
+                  SizedBox(width: gap),
+          
+                  // Right Column: Live Weather + Rooms List
+                  SizedBox(
+                    width: 310,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const WeatherUpdateWidget(),
+                        SizedBox(height: gap),
+                        Text(
+                          'Rooms',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        // SizedBox(height: gap * 0.5),
+                        const RoomsListWidget(),
+                        // SizedBox(height: gap * 0.5),
+                        // SizedBox(height: gap),
+                      ],
                     ),
-                    SizedBox(height: gap * 0.5),
-                    SizedBox(
-                      height: deviceHeight,
-                      child: buildDeviceCards(),
-                    ),
-                    SizedBox(height: gap * 2),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(width: gap),
-            // Right Column: Live Weather + Rooms List
-            SizedBox(
-              width: 320,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const WeatherUpdateWidget(),
-                    SizedBox(height: gap),
-                    Text(
-                      'Rooms',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        // SizedBox(height: gap * 0.5),
+              SizedBox(height: gap),
+              Text(
+                'Devices',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
-                    SizedBox(height: gap * 0.5),
-                    const RoomsListWidget(),
-                    SizedBox(height: gap * 2),
-                  ],
-                ),
               ),
-            ),
-          ],
+              // SizedBox(height: gap),
+              // SizedBox(height: gap * 0.5),
+              SizedBox(height: deviceHeight-70, child: buildDeviceCards()),
+              // SizedBox(height: gap * 2),
+            ],
+          ),
         );
       },
     );
@@ -219,7 +209,9 @@ Widget buildDeviceCards() {
       scrollDirection: Axis.horizontal,
       itemCount: filteredDevices.length,
       separatorBuilder: (context, index) =>
-          SizedBox(width: Responsive.contentGap(context)),
+          SizedBox(
+            // height: 10,
+            width: Responsive.contentGap(context)),
       itemBuilder: (context, index) {
         final device = filteredDevices[index];
 
@@ -227,18 +219,18 @@ Widget buildDeviceCards() {
           case DeviceType.airConditioner:
             return AcCard(
               onDecreaseTemp: () {
-                            Get.find<DashboardController>().updateAcTemperature(
-                              device.id,
-                              (device.temperature ?? 24) - 1,
-                            );
-                          },
+                Get.find<DashboardController>().updateAcTemperature(
+                  device.id,
+                  (device.temperature ?? 24) - 1,
+                );
+              },
               device: device,
               onIncreaseTemp: () {
-                            Get.find<DashboardController>().updateAcTemperature(
-                              device.id,
-                              (device.temperature ?? 24) + 1,
-                            );
-                          },
+                Get.find<DashboardController>().updateAcTemperature(
+                  device.id,
+                  (device.temperature ?? 24) + 1,
+                );
+              },
               onToggle: () => controller.toggleDevice(device.id),
               onModeChange: (mode) =>
                   Get.find<DashboardController>().setAcMode(device.id, mode),

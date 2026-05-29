@@ -4,7 +4,7 @@ import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
-import 'package:smart_home/features/device/presentation/widgets/device_cards/ac_card.dart';
+import 'package:smart_home/features/device/presentation/widgets/device_cards/glass_switch.dart';
 
 class RgbCard extends StatelessWidget {
   final DeviceEntity device;

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
+import 'package:smart_home/features/device/presentation/widgets/device_cards/glass_switch.dart';
+import 'package:smart_home/features/device/presentation/widgets/device_cards/widgets/ac_visualizer.dart';
 
 class AcCard extends StatelessWidget {
   final DeviceEntity device;
@@ -39,14 +40,7 @@ class AcCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDeviceOn = device.isOn;
     final m = _metrics(context);
-    final acW = 220 * m.scale;
-    final acH = 66 * m.scale;
-    final ventW = 180 * m.scale;
-    final ventH = (4 * m.scale).clamp(2.0, 4.0);
-    final breezeW = 180 * m.scale;
-    final breezeH = 40 * m.scale;
     final titleSize = (20 * m.scale).clamp(15.0, 20.0);
-    final tempSize = (16 * m.scale).clamp(13.0, 18.0);
 
     return SizedBox(
       width: m.cardWidth,
@@ -96,7 +90,6 @@ class AcCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                // SizedBox(width: (8 * m.scale).clamp(4.0, 8.0)),
                 // Custom Switch matching the screenshot
                 GlassSwitch(
                   onToggle: onToggle,
@@ -106,160 +99,13 @@ class AcCard extends StatelessWidget {
               ],
             ),
 
-            // SizedBox(height: (20 * m.scale).clamp(12.0, 20.0)),
-
             // Middle Area: Custom Drawn AC Unit
             Expanded(
-              child: Stack(
-                children: [
-                  // Central AC Unit & Breeze Visualizer
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      // crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        IconButton(
-                          visualDensity: VisualDensity.compact,
-                          padding: EdgeInsets.all(4 * m.scale),
-                          constraints: BoxConstraints(
-                            minWidth: 36 * m.scale,
-                            minHeight: 36 * m.scale,
-                          ),
-                          onPressed: onDecreaseTemp,
-                          icon: Icon(Icons.horizontal_rule, size: 22 * m.scale),
-                          color: Colors.blueAccent,
-                        ),
-
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(height: (15 * m.scale).clamp(6.0, 15.0)),
-                            // AC Body Shape
-                            Container(
-                              width: acW,
-                              height: acH,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: isDeviceOn
-                                      ? [
-                                          const Color(0xFF1E293B),
-                                          const Color(0xFF0F172A),
-                                        ]
-                                      : [
-                                          const Color(0xFF1E293B),
-                                          const Color(0xFF182235),
-                                        ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                  color: isDeviceOn
-                                      ? Colors.white.withValues(alpha: 0.12)
-                                      : Colors.white.withValues(alpha: 0.05),
-                                  width: 1,
-                                ),
-                                boxShadow: isDeviceOn
-                                    ? [
-                                        BoxShadow(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.25,
-                                          ),
-                                          blurRadius: 4,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ]
-                                    : null,
-                              ),
-                              child: Stack(
-                                alignment: Alignment.bottomCenter,
-                                children: [
-                                  Center(
-                                    child: Text(
-                                      '${device.temperature}°',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: tempSize,
-                                        fontWeight: FontWeight.bold,
-                                        shadows: <Shadow>[
-                                          BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.25,
-                                            ),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  // Air vent / LED slit inside AC body
-                                  Positioned(
-                                    bottom: 4 * m.scale,
-                                    child: Container(
-                                      width: ventW,
-                                      height: ventH,
-                                      decoration: BoxDecoration(
-                                        color: isDeviceOn
-                                            ? _modeColor(device.mode)
-                                            : const Color(0xFF334155),
-                                        borderRadius: BorderRadius.circular(
-                                          1.5,
-                                        ),
-                                        boxShadow: isDeviceOn
-                                            ? [
-                                                BoxShadow(
-                                                  color: _modeColor(device.mode)
-                                                      .withValues(alpha: 0.8),
-                                                  blurRadius: 4,
-                                                  spreadRadius: 0.5,
-                                                ),
-                                              ]
-                                            : null,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Dynamic blowing air breeze below AC
-                            AnimatedOpacity(
-                              duration: const Duration(milliseconds: 300),
-                              opacity: isDeviceOn ? 1.0 : 0.0,
-                              child: Container(
-                                width: breezeW,
-                                height: Responsive.isMobile(context) ?  breezeH-16: breezeH,
-                                margin: EdgeInsets.only(top: 4 * m.scale),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      _modeColor(device.mode).withValues(alpha: 0.15),
-                                      Colors.transparent,
-                                    ],
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        IconButton(
-                          visualDensity: VisualDensity.compact,
-                          padding: EdgeInsets.all(4 * m.scale),
-                          constraints: BoxConstraints(
-                            minWidth: 36 * m.scale,
-                            minHeight: 36 * m.scale,
-                          ),
-                          onPressed: onIncreaseTemp,
-                          icon: Icon(Icons.add, size: 22 * m.scale),
-                          color: Colors.red,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              child: AcVisualizer(
+                device: device,
+                onDecreaseTemp: onDecreaseTemp,
+                onIncreaseTemp: onIncreaseTemp,
+                scale: m.scale,
               ),
             ),
             
@@ -273,10 +119,9 @@ class AcCard extends StatelessWidget {
                     value: device.mode ?? 'Auto mode',
                     scale: m.scale,
                     onTap: () => _showModeSheet(context),
-                    iconColor: _modeColor(device.mode)
+                    iconColor: _modeColor(device.mode),
                   ),
                 ),
-                // SizedBox(width: (12 * m.scale).clamp(8.0, 12.0)),
                 Expanded(
                   child: _buildBottomStat(
                     icon: Icons.access_time,
@@ -286,7 +131,6 @@ class AcCard extends StatelessWidget {
                 ),
               ],
             ),
-            // Bottom Area: Mode & Live Running Time Stats
           ],
         ),
       ),
@@ -313,6 +157,7 @@ class AcCard extends StatelessWidget {
       default:          return const Color(0xFF00E5FF); // cyan – Auto
     }
   }
+
   void _showModeSheet(BuildContext context) {
     const modes = [
       _AcMode('Auto mode',  Icons.autorenew_outlined,  Color(0xFF00E5FF)),
@@ -426,7 +271,7 @@ class AcCard extends StatelessWidget {
     required String value,
     required double scale,
     VoidCallback? onTap,
-    Color? iconColor
+    Color? iconColor,
   }) {
     final padH = (16 * scale).clamp(10.0, 16.0);
     final padV = (14 * scale).clamp(10.0, 14.0);
@@ -448,12 +293,10 @@ class AcCard extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: 
-          iconColor
-            , size: iconSize),
+            Icon(icon, color: iconColor, size: iconSize),
             SizedBox(width: (8 * scale).clamp(4.0, 8.0)),
             Flexible(
-              child:  Text(
+              child: Text(
                 value,
                 style: TextStyle(
                   color: Colors.white,
@@ -462,74 +305,8 @@ class AcCard extends StatelessWidget {
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
-              ),
-            
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class GlassSwitch extends StatelessWidget {
-  const GlassSwitch({
-    super.key,
-    required this.onToggle,
-    required this.isDeviceOn,
-    this.scale = 1.0,
-  });
-
-  final VoidCallback onToggle;
-  final bool isDeviceOn;
-  final double scale;
-
-  @override
-  Widget build(BuildContext context) {
-    final w = (52 * scale).clamp(44.0, 52.0);
-    final h = (28 * scale).clamp(24.0, 28.0);
-    final knob = (20 * scale).clamp(16.0, 20.0);
-    final radius = h / 2;
-
-    return GestureDetector(
-      onTap: onToggle,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        width: w,
-        height: h,
-        padding: EdgeInsets.all((4 * scale).clamp(3.0, 4.0)),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(radius),
-          color: isDeviceOn
-              ? AppTheme.primaryBlue
-              : const Color(0xFF334155),
-          boxShadow: isDeviceOn
-              ? [
-                  BoxShadow(
-                    color: const Color.fromARGB(
-                      81,
-                      0,
-                      229,
-                      255,
-                    ).withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 250),
-          alignment: isDeviceOn
-              ? Alignment.centerRight
-              : Alignment.centerLeft,
-          child: Container(
-            width: knob,
-            height: knob,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
             ),
-          ),
+          ],
         ),
       ),
     );
