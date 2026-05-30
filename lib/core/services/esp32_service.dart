@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 
 /// Generic response wrapper for ESP32 operations
@@ -166,10 +167,10 @@ class Esp32Service extends GetxService {
     }
   }
 
-  /// Starts IR remote code learning on the ESP32
-  Future<EspResponse<Map<String, dynamic>>> learnIrCode() async {
+  /// Starts IR remote code learning on the ESP32.
+  /// Returns a typed [IrCodeEntity] on success.
+  Future<EspResponse<IrCodeEntity>> learnIrCode() async {
     try {
-      // Set an extended timeout for learning, since the ESP32 can block for up to 10 seconds.
       final response = await _dio.get(
         '$baseUrl/control/ir/learn',
         options: Options(
@@ -177,7 +178,9 @@ class Esp32Service extends GetxService {
         ),
       );
       if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
-        return EspResponse.success(response.data as Map<String, dynamic>);
+        final data = response.data as Map<String, dynamic>;
+        final code = IrCodeEntity.fromMap(data);
+        return EspResponse.success(code);
       }
       return EspResponse.failure('IR learning rejected by ESP32');
     } on DioException catch (e) {
@@ -187,12 +190,12 @@ class Esp32Service extends GetxService {
     }
   }
 
-  /// Sends a recorded IR remote code via the ESP32 transmitter
-  Future<EspResponse<bool>> sendIrCode(Map<String, dynamic> irData) async {
+  /// Sends a recorded IR code via the ESP32 transmitter.
+  Future<EspResponse<bool>> sendIrCode(IrCodeEntity irCode) async {
     try {
       final response = await _dio.post(
         '$baseUrl/control/ir/send',
-        data: irData,
+        data: irCode.toEsp32Payload(),
       );
       if (response.statusCode == 200) {
         return EspResponse.success(true);
