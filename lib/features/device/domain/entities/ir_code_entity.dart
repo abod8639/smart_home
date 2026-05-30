@@ -40,6 +40,11 @@ class IrCodeEntity {
   final int? zeroSpace;    // µs
   final bool? isMsb;       // bit order
 
+  // ── Standard protocol fields (Samsung, NEC, LG, ...) ─────────────────────
+  final int? address;   // decoded address
+  final int? command;   // decoded command
+  final int? rawData;   // 32-bit raw data word (for single-word protocols)
+
   const IrCodeEntity({
     required this.protocol,
     required this.value,
@@ -52,6 +57,9 @@ class IrCodeEntity {
     this.zeroMark,
     this.zeroSpace,
     this.isMsb,
+    this.address,
+    this.command,
+    this.rawData,
   });
 
   // ── Serialization ─────────────────────────────────────────────────────────
@@ -69,6 +77,9 @@ class IrCodeEntity {
       if (zeroMark != null) 'zeroMark': zeroMark,
       if (zeroSpace != null) 'zeroSpace': zeroSpace,
       if (isMsb != null) 'isMsb': isMsb,
+      if (address != null) 'address': address,
+      if (command != null) 'command': command,
+      if (rawData != null) 'rawData': rawData,
     };
   }
 
@@ -85,6 +96,9 @@ class IrCodeEntity {
       zeroMark: (map['zeroMark'] as num?)?.toInt(),
       zeroSpace: (map['zeroSpace'] as num?)?.toInt(),
       isMsb: map['isMsb'] as bool?,
+      address: (map['address'] as num?)?.toInt(),
+      command: (map['command'] as num?)?.toInt(),
+      rawData: (map['rawData'] as num?)?.toInt(),
     );
   }
 
