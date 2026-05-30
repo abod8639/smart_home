@@ -25,6 +25,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   google_sign_in: ^7.2.0
+  image_picker: ^1.1.2
   flutter_matter:
     git:
       url: https://github.com/abod8639/flutter_matter.git

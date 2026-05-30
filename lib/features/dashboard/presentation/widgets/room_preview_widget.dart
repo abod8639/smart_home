@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/utils/responsive.dart';
@@ -17,13 +18,18 @@ class RoomPreviewWidget extends GetView<DashboardController> {
         aspectRatio: 16 / 9,
         child: Obx(() {
           final activeRoom = controller.activeRoom;
-          final bgImage = _getRoomBackgroundImage(activeRoom?.name);
+          final ImageProvider imageProvider;
+          if (activeRoom != null && activeRoom.imagePath != null && activeRoom.imagePath!.isNotEmpty && File(activeRoom.imagePath!).existsSync()) {
+            imageProvider = FileImage(File(activeRoom.imagePath!));
+          } else {
+            imageProvider = AssetImage(_getRoomBackgroundImage(activeRoom?.name));
+          }
 
           return Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               image: DecorationImage(
-                image: AssetImage(bgImage),
+                image: imageProvider,
                 fit: BoxFit.cover,
               ),
               boxShadow: [

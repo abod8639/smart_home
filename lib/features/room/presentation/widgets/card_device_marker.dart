@@ -122,7 +122,7 @@ class CardDeviceMarker extends StatelessWidget {
             onPanEnd: onPanEnd,
             child: AnimatedContainer(
               duration: animDuration,
-              curve: Curves.easeOut,
+              curve: Curves.easeInOut,
               width: mW,
               height: mH,
               decoration: BoxDecoration(

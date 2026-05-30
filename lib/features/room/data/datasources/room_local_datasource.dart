@@ -14,6 +14,7 @@ class RoomLocalDatasource {
         'deviceCount': r.deviceCount,
         'isActive': r.isActive,
         'iconPath': r.iconPath,
+        'imagePath': r.imagePath,
       };
 
   static RoomModel _fromMap(Map map) {
@@ -23,6 +24,7 @@ class RoomLocalDatasource {
       deviceCount: map['deviceCount'] as int? ?? 0,
       isActive: map['isActive'] as bool? ?? false,
       iconPath: map['iconPath'] as String? ?? '',
+      imagePath: map['imagePath'] as String?,
     );
   }
 

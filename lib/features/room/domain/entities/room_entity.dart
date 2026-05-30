@@ -6,6 +6,7 @@ class RoomEntity extends Equatable {
   final int deviceCount;
   final bool isActive;
   final String iconPath; // For simple icon representation if needed
+  final String? imagePath;
 
   const RoomEntity({
     required this.id,
@@ -13,6 +14,7 @@ class RoomEntity extends Equatable {
     required this.deviceCount,
     this.isActive = false,
     this.iconPath = '',
+    this.imagePath,
   });
 
   RoomEntity copyWith({
@@ -21,6 +23,7 @@ class RoomEntity extends Equatable {
     int? deviceCount,
     bool? isActive,
     String? iconPath,
+    String? imagePath,
   }) {
     return RoomEntity(
       id: id ?? this.id,
@@ -28,9 +31,10 @@ class RoomEntity extends Equatable {
       deviceCount: deviceCount ?? this.deviceCount,
       isActive: isActive ?? this.isActive,
       iconPath: iconPath ?? this.iconPath,
+      imagePath: imagePath ?? this.imagePath,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, deviceCount, isActive, iconPath];
+  List<Object?> get props => [id, name, deviceCount, isActive, iconPath, imagePath];
 }

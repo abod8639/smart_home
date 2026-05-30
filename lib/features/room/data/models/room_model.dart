@@ -7,6 +7,7 @@ class RoomModel extends RoomEntity {
     required super.deviceCount,
     required super.isActive,
     required super.iconPath,
+    super.imagePath,
   });
 
   factory RoomModel.fromJson(Map<String, dynamic> json) {
@@ -16,6 +17,7 @@ class RoomModel extends RoomEntity {
       deviceCount: json['deviceCount'] as int,
       isActive: json['isActive'] as bool,
       iconPath: json['iconPath'] as String,
+      imagePath: json['imagePath'] as String?,
     );
   }
 
@@ -26,6 +28,7 @@ class RoomModel extends RoomEntity {
       'deviceCount': deviceCount,
       'isActive': isActive,
       'iconPath': iconPath,
+      'imagePath': imagePath,
     };
   }
 
@@ -36,6 +39,7 @@ class RoomModel extends RoomEntity {
       deviceCount: entity.deviceCount,
       isActive: entity.isActive,
       iconPath: entity.iconPath,
+      imagePath: entity.imagePath,
     );
   }
 }

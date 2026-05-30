@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
@@ -59,9 +60,14 @@ class PlacementImagePanel extends StatelessWidget {
                       // Background image (reactive to selected room)
                       Positioned.fill(
                         child: Obx(() {
-                          final bgImage = _backgroundImage(
-                            dashboardController.activeRoom?.name,
-                          );
+                          final room = dashboardController.activeRoom;
+                          if (room != null && room.imagePath != null && room.imagePath!.isNotEmpty) {
+                            final file = File(room.imagePath!);
+                            if (file.existsSync()) {
+                              return Image.file(file, fit: BoxFit.cover);
+                            }
+                          }
+                          final bgImage = _backgroundImage(room?.name);
                           return Image.asset(bgImage, fit: BoxFit.cover);
                         }),
                       ),
