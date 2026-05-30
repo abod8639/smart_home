@@ -120,8 +120,8 @@ class DoorCard extends StatelessWidget {
                   child: Text(
                     isLocked ? 'TAP TO UNLOCK' : 'TAP TO LOCK',
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w900,
                       fontSize: 12,
                       letterSpacing: 1,
                     ),
