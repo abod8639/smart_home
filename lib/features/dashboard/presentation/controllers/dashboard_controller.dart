@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:smart_home/core/services/esp32_service.dart';
+import 'package:smart_home/core/services/matter_service.dart';
 import 'package:smart_home/features/device/data/datasources/device_local_datasource.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
@@ -248,8 +249,16 @@ class DashboardController extends GetxController {
       devices[index] = device.copyWith(isOn: newIsOn);
       _persistDevices();
 
+      // Matter Devices
+      if (device.matterNodeId != null && Get.isRegistered<MatterService>()) {
+        Get.find<MatterService>().toggleDevice(
+          device.matterNodeId!,
+          device.matterEndpointId ?? 1,
+          newIsOn,
+        );
+      }
       // Trigger ESP32 if the device matches our GPIO mappings
-      if (Get.isRegistered<Esp32Service>()) {
+      else if (Get.isRegistered<Esp32Service>()) {
         if (device.type == DeviceType.lamp) {
           final pin = device.pin ?? 2;
           Get.find<Esp32Service>().setDigitalOutput(pin, newIsOn);
@@ -396,8 +405,16 @@ class DashboardController extends GetxController {
       );
       _persistDevices();
 
+      // Matter Devices
+      if (device.matterNodeId != null && Get.isRegistered<MatterService>()) {
+        Get.find<MatterService>().setBrightness(
+          device.matterNodeId!,
+          device.matterEndpointId ?? 1,
+          brightness,
+        );
+      }
       // Control ESP32 PWM lamp (pin 22)
-      if (Get.isRegistered<Esp32Service>()) {
+      else if (Get.isRegistered<Esp32Service>()) {
         final pin = device.pin ?? 22;
         Get.find<Esp32Service>().setAnalogOutput(pin, brightness);
       }
@@ -411,8 +428,18 @@ class DashboardController extends GetxController {
       devices[index] = device.copyWith(rgbR: r, rgbG: g, rgbB: b);
       _persistDevices();
 
+      // Matter Devices
+      if (device.matterNodeId != null && Get.isRegistered<MatterService>()) {
+        Get.find<MatterService>().setColor(
+          device.matterNodeId!,
+          device.matterEndpointId ?? 1,
+          r,
+          g,
+          b,
+        );
+      }
       // Control ESP32 RGB Strip channels (R: 23, G: 25, B: 26)
-      if (Get.isRegistered<Esp32Service>()) {
+      else if (Get.isRegistered<Esp32Service>()) {
         final esp = Get.find<Esp32Service>();
         final pin = device.pin ?? 23;
         if (pin == 23) {

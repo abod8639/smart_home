@@ -46,6 +46,10 @@ class DeviceEntity extends Equatable {
   // Presentation style style
   final bool showAsDot;
 
+  // Matter fields
+  final int? matterNodeId;
+  final int? matterEndpointId;
+
   // ESP32 GPIO pin mapping
   final int? pin;
 
@@ -83,6 +87,8 @@ class DeviceEntity extends Equatable {
     this.rgbG,
     this.rgbB,
     this.showAsDot = false,
+    this.matterNodeId,
+    this.matterEndpointId,
     this.pin,
     this.irPower,
     this.irTempUp,
@@ -118,6 +124,8 @@ class DeviceEntity extends Equatable {
     int? rgbG,
     int? rgbB,
     bool? showAsDot,
+    Object? matterNodeId = const Object(),
+    Object? matterEndpointId = const Object(),
     Object? pin = const Object(),
     Object? irPower = const Object(),
     Object? irTempUp = const Object(),
@@ -152,6 +160,8 @@ class DeviceEntity extends Equatable {
       rgbG: rgbG ?? this.rgbG,
       rgbB: rgbB ?? this.rgbB,
       showAsDot: showAsDot ?? this.showAsDot,
+      matterNodeId: matterNodeId == const Object() ? this.matterNodeId : (matterNodeId as int?),
+      matterEndpointId: matterEndpointId == const Object() ? this.matterEndpointId : (matterEndpointId as int?),
       pin: pin == const Object() ? this.pin : (pin as int?),
       irPower: irPower == const Object() ? this.irPower : (irPower as String?),
       irTempUp: irTempUp == const Object() ? this.irTempUp : (irTempUp as String?),
@@ -189,6 +199,8 @@ class DeviceEntity extends Equatable {
         rgbG,
         rgbB,
         showAsDot,
+        matterNodeId,
+        matterEndpointId,
         pin,
         irPower,
         irTempUp,

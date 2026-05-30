@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:smart_home/core/services/matter_service.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
 class MatterCommissioningDialog extends StatefulWidget {
@@ -53,9 +54,27 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
       _pairingStepIndex = 0;
     });
 
-    // Simulate pairing steps
+    // Start Real Matter Commissioning
+    int nodeId = 1; // Default fallback
+    if (Get.isRegistered<MatterService>()) {
+      final response = await Get.find<MatterService>().commissionDevice();
+      if (!response.isSuccess) {
+        if (!mounted) return;
+        Get.snackbar(
+          'Commissioning Failed',
+          response.errorMessage ?? 'Failed to add Matter device',
+          backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
+          colorText: Colors.white,
+        );
+        setState(() => _currentStep = 0);
+        return;
+      }
+      nodeId = response.data ?? 1;
+    }
+
+    // Fast-forward UI steps for feedback
     for (int i = 0; i < _pairingSteps.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 1200));
+      await Future.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
       setState(() {
         _pairingStepIndex = i + 1;
@@ -83,6 +102,8 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
           positionY: 0.5,
           markerWidth: 100,
           markerHeight: 60,
+          matterNodeId: nodeId,
+          matterEndpointId: 1,
         );
         break;
       case DeviceType.airConditioner:
@@ -98,6 +119,8 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
           positionY: 0.5,
           markerWidth: 100,
           markerHeight: 60,
+          matterNodeId: nodeId,
+          matterEndpointId: 1,
         );
         break;
       case DeviceType.lamp:
@@ -111,6 +134,8 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
           positionY: 0.5,
           markerWidth: 100,
           markerHeight: 60,
+          matterNodeId: nodeId,
+          matterEndpointId: 1,
         );
         break;
       case DeviceType.vacuum:
@@ -128,6 +153,8 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
           positionY: 0.5,
           markerWidth: 100,
           markerHeight: 60,
+          matterNodeId: nodeId,
+          matterEndpointId: 1,
         );
         break;
       case DeviceType.door:
@@ -141,6 +168,8 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
           positionY: 0.5,
           markerWidth: 100,
           markerHeight: 60,
+          matterNodeId: nodeId,
+          matterEndpointId: 1,
         );
         break;
     }

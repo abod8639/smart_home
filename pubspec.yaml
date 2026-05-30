@@ -25,7 +25,9 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   google_sign_in: ^7.2.0
-
+  flutter_matter:
+    git:
+      url: https://github.com/abod8639/flutter_matter.git
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -58,3 +60,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+dependency_overrides:
+  flutter_matter:
+    path: /home/dexter/flutter_library/flutter_matter
