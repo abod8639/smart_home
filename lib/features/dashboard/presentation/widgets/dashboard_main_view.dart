@@ -118,58 +118,60 @@ class DashboardMainView extends GetView<DashboardController> {
 
         // Desktop / Wide Layout (width >= 950): 2-Column Layout
         return Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Expanded(
-                    child: RoomPreviewWidget(),
-                  ),
-                  SizedBox(width: gap),
-          
-                  // Right Column: Live Weather + Rooms List
-                  SizedBox(
-                    width: 310,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const WeatherUpdateWidget(),
-                        SizedBox(height: gap),
-                        Text(
-                          'Rooms',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        SizedBox(height: gap ),
-                        const RoomsListWidget(),
-                        // SizedBox(height: gap * 0.5),
-                        // SizedBox(height: gap),
-                      ],
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Expanded(
+                      child: RoomPreviewWidget(),
                     ),
-                  ),
-                ],
-              ),
-                        // SizedBox(height: gap * 0.5),
-              SizedBox(height: gap-10),
-              Text(
-                'Devices',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                    SizedBox(width: gap),
+            
+                    // Right Column: Live Weather + Rooms List
+                    SizedBox(
+                      width: 310,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const WeatherUpdateWidget(),
+                          SizedBox(height: gap),
+                          Text(
+                            'Rooms',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          SizedBox(height: gap ),
+                          const RoomsListWidget(),
+                          // SizedBox(height: gap * 0.5),
+                          // SizedBox(height: gap),
+                        ],
+                      ),
                     ),
-              ),
-              SizedBox(height: gap-10),
-
-              SizedBox(height: deviceHeight-65, child: buildDeviceCards()),
-              // SizedBox(height: gap * 2),
-            ],
+                  ],
+                ),
+                          // SizedBox(height: gap * 0.5),
+                SizedBox(height: gap-10),
+                Text(
+                  'Devices',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                SizedBox(height: gap-10),
+            
+                SizedBox(height: deviceHeight-65, child: buildDeviceCards()),
+                // SizedBox(height: gap * 2),
+              ],
+            ),
           ),
         );
       },
