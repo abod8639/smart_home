@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:smart_home/core/services/esp32_service.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
