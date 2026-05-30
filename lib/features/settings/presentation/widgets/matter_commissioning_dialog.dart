@@ -19,7 +19,7 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
   String _deviceName = '';
   DeviceType _selectedType = DeviceType.rgb;
   final _nameController = TextEditingController();
-  final _codeController = TextEditingController(text: '1234-567-8901');
+  final _codeController = TextEditingController(text: '2020-2021');
 
   final List<String> _pairingSteps = [
     'Scanning for nearby Matter devices over Bluetooth...',
@@ -57,7 +57,11 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
     // Start Real Matter Commissioning
     int nodeId = 1; // Default fallback
     if (Get.isRegistered<MatterService>()) {
-      final response = await Get.find<MatterService>().commissionDevice();
+      final pinCodeStr = _codeController.text.replaceAll('-', '').trim();
+      final setupPinCode = int.tryParse(pinCodeStr);
+      final response = await Get.find<MatterService>().commissionDevice(
+        setupPinCode: setupPinCode,
+      );
       if (!response.isSuccess) {
         if (!mounted) return;
         Get.snackbar(
@@ -103,7 +107,7 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
           markerWidth: 100,
           markerHeight: 60,
           matterNodeId: nodeId,
-          matterEndpointId: 1,
+          matterEndpointId: 6, // Endpoint 6: RGB LED
         );
         break;
       case DeviceType.airConditioner:
@@ -120,7 +124,7 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
           markerWidth: 100,
           markerHeight: 60,
           matterNodeId: nodeId,
-          matterEndpointId: 1,
+          matterEndpointId: 3, // Endpoint 3: AC Relay
         );
         break;
       case DeviceType.lamp:
@@ -135,7 +139,7 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
           markerWidth: 100,
           markerHeight: 60,
           matterNodeId: nodeId,
-          matterEndpointId: 1,
+          matterEndpointId: 1, // Endpoint 1: Relay 1 (Main Lamp)
         );
         break;
       case DeviceType.vacuum:
@@ -154,7 +158,7 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
           markerWidth: 100,
           markerHeight: 60,
           matterNodeId: nodeId,
-          matterEndpointId: 1,
+          matterEndpointId: 4, // Endpoint 4: Relay 4 (Robot Vacuum)
         );
         break;
       case DeviceType.door:
@@ -169,7 +173,7 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
           markerWidth: 100,
           markerHeight: 60,
           matterNodeId: nodeId,
-          matterEndpointId: 1,
+          matterEndpointId: 2, // Endpoint 2: Relay 2 (Door Lock)
         );
         break;
     }
