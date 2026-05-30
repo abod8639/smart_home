@@ -165,9 +165,11 @@ class CardDeviceMarker extends StatelessWidget {
                             style: TextStyle(
                               shadows: const [
                                 BoxShadow(
+                                  blurStyle: BlurStyle.outer,
                                   color: Colors.black,
                                   blurRadius: 10,
                                   spreadRadius: 10,
+                                
                                 )
                               ],
                               color: isOn || (isDoor && !isLocked) ? activeColor : Colors.white70,

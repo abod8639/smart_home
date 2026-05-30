@@ -16,9 +16,9 @@ class DoorCard extends StatelessWidget {
     return SizedBox(
       width: 280,
       child: GlassContainer(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(15),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Title and badge
             Row(
@@ -52,14 +52,14 @@ class DoorCard extends StatelessWidget {
               ],
             ),
             
-            const Spacer(),
+            // const Spacer(),
             
             // Lock State Visualizer (Premium Custom Paint or Stack)
             Center(
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                width: 90,
-                height: 90,
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isLocked 
@@ -90,13 +90,15 @@ class DoorCard extends StatelessWidget {
             ),
             
             const Spacer(),
+            const Spacer(),
+            const Spacer(),
             
             // Slider or Toggle Button
             GestureDetector(
               onTap: onToggle,
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: 3),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: isLocked

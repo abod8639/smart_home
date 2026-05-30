@@ -177,7 +177,7 @@ class DashboardMainView extends GetView<DashboardController> {
               ),
               SizedBox(height: gap-10),
           
-              SizedBox(height: deviceHeight-65, child: buildDeviceCards()),
+              SizedBox(height: deviceHeight-60, child: buildDeviceCards()),
               // SizedBox(height: gap * 2),
             ],
           ),
