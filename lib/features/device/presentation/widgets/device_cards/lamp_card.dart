@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
@@ -221,64 +222,70 @@ class LampCard extends StatelessWidget {
             ),
             
             // Bottom Area: Brightness Slider Controls
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              padding: isMobile
-                  ? const EdgeInsets.symmetric(horizontal: 8, vertical: 6)
-                  : const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: isDeviceOn 
-                    ? Colors.black.withValues(alpha: 0.4) 
-                    : Colors.black.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: isDeviceOn 
-                      ? Colors.white.withValues(alpha: 0.05) 
-                      : Colors.transparent,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.lightbulb_outline, 
-                    color: isDeviceOn ? Colors.amber.shade100 : AppTheme.textGrey, 
-                    size: 20,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  padding: isMobile
+                      ? const EdgeInsets.symmetric(horizontal: 8, vertical: 6)
+                      : const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isDeviceOn 
+                        ? Colors.white.withValues(alpha: 0.05) 
+                        : Colors.white.withValues(alpha: 0.04),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: isDeviceOn 
+                          ? Colors.white.withValues(alpha: 0.05) 
+                          : Colors.white.withValues(alpha: 0.04),
+                    ),
                   ),
-                  Expanded(
-                    child: SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: isDeviceOn ? Colors.white : AppTheme.textGrey,
-                        inactiveTrackColor: Colors.white.withValues(
-                          alpha: isDeviceOn ? 0.2 : 0.05,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.lightbulb_outline, 
+                        color: isDeviceOn ? Colors.amber.shade100 : AppTheme.textGrey, 
+                        size: 20,
+                      ),
+                      Expanded(
+                        child: SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            activeTrackColor: isDeviceOn ? Colors.white : AppTheme.textGrey,
+                            inactiveTrackColor: Colors.white.withValues(
+                              alpha: isDeviceOn ? 0.2 : 0.05,
+                            ),
+                            thumbColor: isDeviceOn ? Colors.white : AppTheme.textGrey,
+                            trackHeight: 3,
+                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+                          ),
+                          child: Slider(
+                            value: brightnessVal.toDouble(),
+                            min: 0,
+                            max: 100,
+                            onChanged: (val) {
+                              controller.updateDeviceBrightness(device.id, val.round());
+                            },
+                          ),
                         ),
-                        thumbColor: isDeviceOn ? Colors.white : AppTheme.textGrey,
-                        trackHeight: 3,
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                        overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
                       ),
-                      child: Slider(
-                        value: brightnessVal.toDouble(),
-                        min: 0,
-                        max: 100,
-                        onChanged: (val) {
-                          controller.updateDeviceBrightness(device.id, val.round());
-                        },
+                      SizedBox(
+                        width: 32,
+                        child: Text(
+                          '$brightnessVal%', 
+                          style: TextStyle(
+                            color: isDeviceOn ? Colors.white : AppTheme.textGrey, 
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.end,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                  SizedBox(
-                    width: 32,
-                    child: Text(
-                      '$brightnessVal%', 
-                      style: TextStyle(
-                        color: isDeviceOn ? Colors.white : AppTheme.textGrey, 
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.end,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ],

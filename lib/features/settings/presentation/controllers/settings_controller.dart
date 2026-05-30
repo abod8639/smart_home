@@ -7,11 +7,11 @@ class SettingsController extends GetxController {
 
   // Preferences settings
   var isCelsius = true.obs;
-  var selectedVoiceAssistant = 'Alexa'.obs;
+  var selectedVoiceAssistant = 'Google Assistant'.obs;
   var notificationsEnabled = true.obs;
 
   // Hub Connection & System settings
-  var hubConnectionMode = 'Zigbee'.obs;
+  var hubConnectionMode = 'Wi-Fi'.obs;
   var autoBackups = true.obs;
   var lockTimeout = 5.0.obs; // in minutes
   var ipAddress = '192.168.1.2'.obs;
@@ -23,8 +23,8 @@ class SettingsController extends GetxController {
   var lastSyncTime = 'Never'.obs;
 
   // Available options
-  final voiceAssistants = ['Alexa', 'Google Assistant', 'Siri', 'None'];
-  final connectionModes = ['Zigbee', 'Wi-Fi', 'Bluetooth'];
+  final voiceAssistants = [ 'Google Assistant','Alexa', 'Siri', 'None'];
+  final connectionModes = [ 'Wi-Fi','Zigbee', 'Bluetooth'];
 
   void updateUserName(String name) {
     if (name.isNotEmpty) {

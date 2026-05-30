@@ -30,7 +30,7 @@ class Esp32Service extends GetxService {
   String get baseUrl => 'http://${_settings.ipAddress.value}';
 
   @override
-  void onInit() {
+  void onInit() { 
     super.onInit();
     
     // Configure Dio with appropriate timeouts for local hardware connections
@@ -224,4 +224,5 @@ class Esp32Service extends GetxService {
         return 'Hardware network error: ${error.message}';
     }
   }
+  
 }
