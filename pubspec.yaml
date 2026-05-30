@@ -27,8 +27,7 @@ dependencies:
   google_sign_in: ^7.2.0
   image_picker: ^1.1.2
   flutter_matter:
-    git:
-      url: https://github.com/abod8639/flutter_matter.git
+    path: /home/dexter/flutter_library/flutter_matter
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -62,6 +61,6 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
-dependency_overrides:
-  flutter_matter:
-    path: /home/dexter/flutter_library/flutter_matter
+# dependency_overrides:
+#   flutter_matter:
+#     path: /home/dexter/flutter_library/flutter_matter
