@@ -19,11 +19,12 @@ class RoomsListWidget extends GetView<DashboardController> {
       return _buildMobileHorizontalList(context);
     }
 
-    final cardWidth = Responsive.isDesktop(context) ? 320.0 : null;
+    final cardWidth = Responsive.isDesktop(context) ? double.infinity : null;
+    final cardHeight = Responsive.isDesktop(context) ? double.infinity : 415.0;
 
     return ShadowContainer(
       width: cardWidth,
-      height: 415,
+      height: cardHeight,
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

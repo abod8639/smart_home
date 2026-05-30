@@ -117,13 +117,19 @@ class DashboardMainView extends GetView<DashboardController> {
         }
 
         // Desktop / Wide Layout (width >= 950): 2-Column Layout
-        return Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        final previewWidth = constraints.maxWidth - 310 - gap;
+        final previewHeight = previewWidth * 9 / 16;
+        // Clamp height to a minimum of 400.0 to ensure room list has sufficient space
+        final rowHeight = previewHeight < 400.0 ? 400.0 : previewHeight;
+
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: rowHeight,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const Expanded(
                       child: RoomPreviewWidget(),
@@ -132,7 +138,7 @@ class DashboardMainView extends GetView<DashboardController> {
             
                     // Right Column: Live Weather + Rooms List
                     SizedBox(
-                      width: 310,
+                      width:  gap*15,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -149,7 +155,9 @@ class DashboardMainView extends GetView<DashboardController> {
                                 ),
                           ),
                           SizedBox(height: gap ),
-                          const RoomsListWidget(),
+                          const Expanded(
+                            child: RoomsListWidget(),
+                          ),
                           // SizedBox(height: gap * 0.5),
                           // SizedBox(height: gap),
                         ],
@@ -157,21 +165,21 @@ class DashboardMainView extends GetView<DashboardController> {
                     ),
                   ],
                 ),
-                          // SizedBox(height: gap * 0.5),
-                SizedBox(height: gap-10),
-                Text(
-                  'Devices',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                SizedBox(height: gap-10),
-            
-                SizedBox(height: deviceHeight-65, child: buildDeviceCards()),
-                // SizedBox(height: gap * 2),
-              ],
-            ),
+              ),
+                        // SizedBox(height: gap * 0.5),
+              SizedBox(height: gap-10),
+              Text(
+                'Devices',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              SizedBox(height: gap-10),
+          
+              SizedBox(height: deviceHeight-65, child: buildDeviceCards()),
+              // SizedBox(height: gap * 2),
+            ],
           ),
         );
       },

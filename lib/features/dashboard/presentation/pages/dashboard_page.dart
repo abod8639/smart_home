@@ -12,27 +12,18 @@ class DashboardPage extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
-    final padding = Responsive.pagePadding(context);
     final gap = Responsive.contentGap(context);
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            padding,
-            padding,
-            padding,
-            Responsive.isMobile(context) ? 0 : padding,
-          ),
-          child: Row(
-            children: [
-              if (!Responsive.isMobile(context)) ...[
-                const SidebarWidget(),
-                SizedBox(width: gap),
-              ],
-              Expanded(child: _buildMainContent()),
+        child: Row(
+          children: [
+            if (!Responsive.isMobile(context)) ...[
+              const SidebarWidget(),
+              SizedBox(width: gap),
             ],
-          ),
+            Expanded(child: _buildMainContent()),
+          ],
         ),
       ),
       bottomNavigationBar: Responsive.isMobile(context) ? const MobileBottomNav() : null,
