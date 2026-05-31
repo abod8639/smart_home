@@ -25,9 +25,43 @@ class HubConfigCard extends GetView<SettingsController> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Icon(
-                Icons.hub_outlined,
-                color: AppTheme.accentCyan.withValues(alpha: 0.8),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Obx(() {
+                    if (controller.isCheckingHub.value) {
+                      return const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      );
+                    }
+                    final connected = controller.isHubReachable.value;
+                    return Row(
+                      children: [
+                        Icon(
+                          Icons.circle,
+                          size: 10,
+                          color: connected ? Colors.greenAccent : Colors.redAccent,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          connected ? 'Online' : 'Offline',
+                          style: TextStyle(
+                            color: connected ? Colors.greenAccent : Colors.redAccent,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                  const SizedBox(width: 12),
+                  Icon(
+                    Icons.hub_outlined,
+                    color: AppTheme.accentCyan.withValues(alpha: 0.8),
+                  ),
+                ],
               ),
             ],
           ),
@@ -213,9 +247,9 @@ class HubConfigCard extends GetView<SettingsController> {
               child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
             ),
             TextButton(
-              onPressed: () {
-                controller.updateIpAddress(textController.text);
-                Navigator.pop(context);
+              onPressed: () async {
+                await controller.updateIpAddress(textController.text.trim());
+                if (context.mounted) Navigator.pop(context);
               },
               child: const Text('Save', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
             ),
