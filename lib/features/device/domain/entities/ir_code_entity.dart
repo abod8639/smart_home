@@ -119,6 +119,21 @@ class IrCodeEntity {
       protocol == IrProtocol.pulseDistance ||
       protocol == IrProtocol.pulseWidth;
 
+  /// True when the code has the minimum fields required for storage/send.
+  bool get isValid => value.trim().isNotEmpty && bits > 0;
+
+  /// Verifies JSON encode/decode preserves the ESP32 send payload.
+  bool verifyRoundtrip() {
+    final restored = IrCodeEntity.fromJson(toJson());
+    final original = toEsp32Payload();
+    final roundtripped = restored.toEsp32Payload();
+    if (original.length != roundtripped.length) return false;
+    for (final entry in original.entries) {
+      if (roundtripped[entry.key] != entry.value) return false;
+    }
+    return true;
+  }
+
   @override
   String toString() => 'IrCodeEntity(protocol: $protocol, bits: $bits)';
 
