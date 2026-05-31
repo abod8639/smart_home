@@ -38,6 +38,9 @@ class DashboardController extends GetxController {
   /// Tracks in-flight IR sends per "deviceId::fieldKey" for UI loading states.
   var sendingIrKeys = <String>{}.obs;
 
+  /// Mutex flag — only one IR HTTP request at a time to prevent ESP32 overlap.
+  bool _irBusy = false;
+
   final Dio _dio = Dio();
   Timer? _acTimer;
   Timer? _espTimer;
@@ -394,16 +397,18 @@ class DashboardController extends GetxController {
     sendIrCommand(irCode);
   }
 
-  /// Sends the same IR code [count] times with a short gap (for temp up/down).
+  /// Sends the same IR code [count] times sequentially (for temp up/down steps).
+  /// Uses a shorter inter-signal gap of 220 ms which is safe for most remotes.
   Future<void> _sendIrRepeated(String jsonCodeString, int count) async {
     for (var i = 0; i < count; i++) {
       final ok = await sendIrCommand(
         jsonCodeString,
-        showFeedback: i == count - 1,
+        showFeedback: false,   // suppress per-step snackbars
+        allowRetry: false,     // no retry in repeated mode — just skip
       );
       if (!ok) break;
       if (i < count - 1) {
-        await Future.delayed(const Duration(milliseconds: 300));
+        await Future.delayed(const Duration(milliseconds: 220));
       }
     }
   }
@@ -722,12 +727,51 @@ class DashboardController extends GetxController {
     }
   }
 
+  /// Sends a stored IR code to the ESP32.
+  ///
+  /// - [trackingKey]: ties this send to a UI loading indicator.
+  /// - [showFeedback]: whether to show snackbars on success/failure.
+  /// - [allowRetry]: if true, automatically retries once on failure (default true).
   Future<bool> sendIrCommand(
     String jsonCodeString, {
     String? trackingKey,
     bool showFeedback = true,
+    bool allowRetry = true,
   }) async {
-    if (!await _ensureHubReachable(actionLabel: 'إرسال الإشارة')) {
+    // ── Decode early so we never send garbage to the ESP32 ────────────────
+    final IrCodeEntity irCode;
+    try {
+      irCode = IrCodeEntity.fromJson(jsonCodeString);
+    } catch (_) {
+      if (showFeedback) {
+        _showIrSnackbar(
+          title: 'Invalid Code',
+          message: 'Stored IR code is corrupted or unreadable.',
+          isError: true,
+        );
+      }
+      return false;
+    }
+
+    if (!irCode.isValid) {
+      if (showFeedback) {
+        _showIrSnackbar(
+          title: 'Invalid Code',
+          message: 'IR code is missing protocol or bit data.',
+          isError: true,
+        );
+      }
+      return false;
+    }
+
+    // ── Wait if another IR send is already in progress (max 2 s) ─────────
+    int waited = 0;
+    while (_irBusy && waited < 2000) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      waited += 50;
+    }
+
+    if (!await _ensureHubReachable(actionLabel: 'IR Send')) {
       return false;
     }
 
@@ -736,59 +780,81 @@ class DashboardController extends GetxController {
       sendingIrKeys.refresh();
     }
 
+    _irBusy = true;
     try {
-      final IrCodeEntity irCode = IrCodeEntity.fromJson(jsonCodeString);
-      if (!irCode.isValid) {
-        if (showFeedback) {
-          Get.snackbar(
-            'خطأ / Error',
-            'الكود المحفوظ تالف أو غير مكتمل.',
-            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-            colorText: Colors.white,
-          );
-        }
-        return false;
+      EspResponse<bool> response = await Get.find<Esp32Service>().sendIrCode(irCode);
+
+      // ── Single automatic retry on transient failure ───────────────────
+      if (!response.isSuccess && allowRetry) {
+        debugPrint('[IR] First attempt failed — retrying after 150 ms...');
+        await Future.delayed(const Duration(milliseconds: 150));
+        response = await Get.find<Esp32Service>().sendIrCode(irCode);
       }
 
-      final response = await Get.find<Esp32Service>().sendIrCode(irCode);
       if (response.isSuccess) {
         if (showFeedback) {
-          Get.snackbar(
-            'تم الإرسال / Sent',
-            'تم إرسال إشارة الريموت بنجاح.',
-            backgroundColor: const Color(0xFF4C86FF).withValues(alpha: 0.85),
-            colorText: Colors.white,
+          _showIrSnackbar(
+            title: 'Signal Sent ✓',
+            message: '${irCode.protocol.name.toUpperCase()} · ${irCode.bits} bits',
+            isError: false,
           );
         }
         return true;
       }
 
       if (showFeedback) {
-        Get.snackbar(
-          'خطأ / Error',
-          response.errorMessage ?? 'فشل إرسال إشارة IR.',
-          backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-          colorText: Colors.white,
+        _showIrSnackbar(
+          title: 'Send Failed',
+          message: response.errorMessage ?? 'ESP32 rejected the IR payload.',
+          isError: true,
         );
       }
+      debugPrint('[IR] Send failed: ${response.errorMessage}');
       return false;
     } catch (e) {
       if (showFeedback) {
-        Get.snackbar(
-           'Error',
-          'فشل إرسال IR: $e',
-          backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-          colorText: Colors.white,
+        _showIrSnackbar(
+          title: 'Send Error',
+          message: e.toString(),
+          isError: true,
         );
       }
-      debugPrint('Error sending IR command: $e');
+      debugPrint('[IR] Exception during send: $e');
       return false;
     } finally {
+      _irBusy = false;
       if (trackingKey != null) {
         sendingIrKeys.remove(trackingKey);
         sendingIrKeys.refresh();
       }
     }
+  }
+
+  /// Shows a compact IR-themed snackbar with colour-coded result.
+  void _showIrSnackbar({
+    required String title,
+    required String message,
+    required bool isError,
+  }) {
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: isError
+          ? Colors.redAccent.withValues(alpha: 0.90)
+          : const Color(0xFF1E3A5F),
+      colorText: Colors.white,
+      icon: Icon(
+        isError ? Icons.wifi_tethering_error_rounded : Icons.wifi_tethering_rounded,
+        color: isError ? Colors.white : Colors.cyanAccent,
+        size: 22,
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      borderRadius: 14,
+      duration: Duration(seconds: isError ? 3 : 2),
+      isDismissible: true,
+      dismissDirection: DismissDirection.horizontal,
+    );
   }
 
   void addDevice(DeviceEntity device) {
