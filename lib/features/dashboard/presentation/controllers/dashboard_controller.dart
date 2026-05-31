@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,9 +7,11 @@ import 'package:smart_home/core/services/esp32_service.dart';
 import 'package:smart_home/core/services/matter_service.dart';
 import 'package:smart_home/features/device/data/datasources/device_local_datasource.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
+import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 import 'package:smart_home/features/room/data/datasources/room_local_datasource.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
+import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 
 class DashboardController extends GetxController {
   // Observables
@@ -33,6 +34,9 @@ class DashboardController extends GetxController {
   var isWeatherLoading = true.obs;
   var isDay = 1.obs; // 1 = Day, 0 = Night
   var weatherCode = 0.obs;
+
+  /// Tracks in-flight IR sends per "deviceId::fieldKey" for UI loading states.
+  var sendingIrKeys = <String>{}.obs;
 
   final Dio _dio = Dio();
   Timer? _acTimer;
@@ -326,30 +330,29 @@ class DashboardController extends GetxController {
     _persistRooms();
   }
 
-  void updateAcTemperature(String id, int temp) {
+  void updateAcTemperature(String id, int temp) async {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
       final oldTemp = device.temperature ?? 24;
       final newTemp = temp.clamp(16, 30);
-      
+      final delta = newTemp - oldTemp;
+
       devices[index] = device.copyWith(temperature: newTemp);
       _persistDevices();
 
-      // Control ESP32 AC Target Temperature
-      if (Get.isRegistered<Esp32Service>()) {
-        if (newTemp > oldTemp && device.irTempUp != null) {
-          sendIrCommand(device.irTempUp!);
-        } else if (newTemp < oldTemp && device.irTempDown != null) {
-          sendIrCommand(device.irTempDown!);
-        } else {
-          // Fallback to default AC Target Temperature via raw endpoint /control/ac
-          Get.find<Esp32Service>().sendRawCommand(
-            'control/ac',
-            method: 'POST',
-            data: {'target_temp': newTemp},
-          );
-        }
+      if (delta == 0 || !Get.isRegistered<Esp32Service>()) return;
+
+      if (delta > 0 && device.irTempUp != null) {
+        await _sendIrRepeated(device.irTempUp!, delta.abs());
+      } else if (delta < 0 && device.irTempDown != null) {
+        await _sendIrRepeated(device.irTempDown!, delta.abs());
+      } else {
+        Get.find<Esp32Service>().sendRawCommand(
+          'control/ac',
+          method: 'POST',
+          data: {'target_temp': newTemp},
+        );
       }
     }
   }
@@ -389,6 +392,99 @@ class DashboardController extends GetxController {
 
     // Send IR signal
     sendIrCommand(irCode);
+  }
+
+  /// Sends the same IR code [count] times with a short gap (for temp up/down).
+  Future<void> _sendIrRepeated(String jsonCodeString, int count) async {
+    for (var i = 0; i < count; i++) {
+      final ok = await sendIrCommand(
+        jsonCodeString,
+        showFeedback: i == count - 1,
+      );
+      if (!ok) break;
+      if (i < count - 1) {
+        await Future.delayed(const Duration(milliseconds: 300));
+      }
+    }
+  }
+
+  String irTrackingKey(String deviceId, String fieldKey) => '$deviceId::$fieldKey';
+
+  Future<bool> _ensureHubReachable({required String actionLabel}) async {
+    if (!Get.isRegistered<Esp32Service>()) {
+      Get.snackbar(
+        'خطأ / Error',
+        'خدمة ESP32 غير مسجلة.',
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+        colorText: Colors.white,
+      );
+      return false;
+    }
+
+    if (Get.isRegistered<SettingsController>()) {
+      await Get.find<SettingsController>().checkHubConnection();
+      if (!Get.find<SettingsController>().isHubReachable.value) {
+        Get.snackbar(
+          'لا اتصال / No Connection',
+          'تعذر الوصول إلى ESP32. تحقق من IP في الإعدادات قبل $actionLabel.',
+          backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+          colorText: Colors.white,
+        );
+        return false;
+      }
+      return true;
+    }
+
+    final ping = await Get.find<Esp32Service>().pingHub();
+    if (!ping.isSuccess) {
+      Get.snackbar(
+        'لا اتصال / No Connection',
+        ping.errorMessage ?? 'ESP32 غير متصل.',
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+        colorText: Colors.white,
+      );
+      return false;
+    }
+    return true;
+  }
+
+  DeviceEntity? _applyIrField(DeviceEntity device, String fieldKey, String? jsonCode) {
+    switch (fieldKey) {
+      case 'irPower':
+        return device.copyWith(irPower: jsonCode);
+      case 'irTempUp':
+        return device.copyWith(irTempUp: jsonCode);
+      case 'irTempDown':
+        return device.copyWith(irTempDown: jsonCode);
+      case 'irAuto':
+        return device.copyWith(irAuto: jsonCode);
+      case 'irCool':
+        return device.copyWith(irCool: jsonCode);
+      case 'irHeat':
+        return device.copyWith(irHeat: jsonCode);
+      case 'irEco':
+        return device.copyWith(irEco: jsonCode);
+      default:
+        return null;
+    }
+  }
+
+  Future<void> clearIrCode(String deviceId, String fieldKey) async {
+    final index = devices.indexWhere((d) => d.id == deviceId);
+    if (index == -1) return;
+
+    final updated = _applyIrField(devices[index], fieldKey, null);
+    if (updated == null) return;
+
+    devices[index] = updated;
+    _persistDevices();
+
+    Get.snackbar(
+      'تم الحذف / Deleted',
+      'تم حذف إشارة الريموت المحفوظة.',
+      backgroundColor: const Color(0xFF4C86FF).withValues(alpha: 0.85),
+      colorText: Colors.white,
+    );
   }
 
   /// Legacy convenience — kept for backward compat.
@@ -469,114 +565,153 @@ class DashboardController extends GetxController {
   }
 
   Future<bool> learnAndSaveIrCode(String deviceId, String fieldKey) async {
-    if (!Get.isRegistered<Esp32Service>()) {
-      Get.snackbar(
-        'خطأ / Error',
-        'خدمة ESP32 غير مسجلة. تأكد من إعدادات الشبكة.',
-        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-        colorText: Colors.white,
-      );
+    if (!await _ensureHubReachable(actionLabel: 'نسخ الإشارة')) {
       return false;
     }
 
-    // Show learning overlay dialog
+    // Show animated countdown learning dialog
+    int countdown = 10;
     Get.dialog(
-      AlertDialog(
-        backgroundColor: const Color(0xFF1E1E2E), // AppTheme.cardBackground / dark background
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-        ),
-        title: const Text(
-          'IR Learning / نسخ إشارة الريموت',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircularProgressIndicator(color: Color(0xFF4C86FF)), // AppTheme.primaryBlue
-            SizedBox(height: 20),
-            Text(
-              'قم بتوجيه ريموت التكييف نحو مستشعر الـ ESP32 واضغط على الزر المطلوب...',
-              style: TextStyle(color: Colors.white70),
-              textAlign: TextAlign.center,
+      StatefulBuilder(
+        builder: (context, setDialogState) {
+          // Tick every second via Future.delayed chain
+          void tick() {
+            Future.delayed(const Duration(seconds: 1), () {
+              if (Get.isDialogOpen ?? false) {
+                setDialogState(() => countdown--);
+                if (countdown > 0) tick();
+              }
+            });
+          }
+          tick();
+
+          return AlertDialog(
+            backgroundColor: const Color(0xFF1A1B2E),
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+              side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
             ),
-            SizedBox(height: 8),
-            Text(
-              'سيتم إغلاق النافذة تلقائياً بعد 10 ثوانٍ في حال عدم تلقي إشارة.',
-              style: TextStyle(color: Colors.grey, fontSize: 12),
-              textAlign: TextAlign.center,
+            contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Animated circular countdown
+                SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        value: countdown / 10.0,
+                        strokeWidth: 4,
+                        color: const Color(0xFF4C86FF),
+                        backgroundColor: Colors.white10,
+                      ),
+                      Text(
+                        '$countdown',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.settings_remote_rounded,
+                        color: Color(0xFF4C86FF), size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'جاري الاستماع للريموت',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Point the remote at the ESP32 sensor and press the desired button',
+                  style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.5),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'It will close automatically after 10 seconds if no signal is received',
+                  style: TextStyle(color: Colors.white38, fontSize: 11),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
       barrierDismissible: false,
     );
 
     try {
       final response = await Get.find<Esp32Service>().learnIrCode();
-      Get.back(); // Close dialog
+      if (Get.isDialogOpen ?? false) Get.back();
 
       if (response.isSuccess && response.data != null) {
         final data = response.data!;
-        final protocol = data['protocol'] as String?;
-        final value = data['value'] as String?;
-        final bits = data['bits'] as int?;
 
-        if (protocol != null && value != null && bits != null) {
-          final jsonCode = jsonEncode({
-            'protocol': protocol,
-            'value': value,
-            'bits': bits,
-          });
+        if (!data.isValid) {
+          Get.snackbar(
+            'Error',
+            'الإشارة المستلمة غير صالحة (قيمة أو bits فارغة).',
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+            colorText: Colors.white,
+          );
+          return false;
+        }
 
-          // Update the device field based on key
-          final index = devices.indexWhere((d) => d.id == deviceId);
-          if (index != -1) {
-            final device = devices[index];
-            DeviceEntity updated;
-            if (fieldKey == 'irPower') {
-              updated = device.copyWith(irPower: jsonCode);
-            } else if (fieldKey == 'irTempUp') {
-              updated = device.copyWith(irTempUp: jsonCode);
-            } else if (fieldKey == 'irTempDown') {
-              updated = device.copyWith(irTempDown: jsonCode);
-            } else if (fieldKey == 'irAuto') {
-              updated = device.copyWith(irAuto: jsonCode);
-            } else if (fieldKey == 'irCool') {
-              updated = device.copyWith(irCool: jsonCode);
-            } else if (fieldKey == 'irHeat') {
-              updated = device.copyWith(irHeat: jsonCode);
-            } else if (fieldKey == 'irEco') {
-              updated = device.copyWith(irEco: jsonCode);
-            } else {
-              return false;
-            }
+        if (!data.verifyRoundtrip()) {
+          Get.snackbar(
+            'Error',
+            'فشل التحقق من سلامة بيانات IR قبل الحفظ.',
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+            colorText: Colors.white,
+          );
+          return false;
+        }
 
-            devices[index] = updated;
-            _persistDevices();
+        final jsonCode = data.toJson();
+        final index = devices.indexWhere((d) => d.id == deviceId);
+        if (index != -1) {
+          final updated = _applyIrField(devices[index], fieldKey, jsonCode);
+          if (updated == null) return false;
 
-            Get.snackbar(
-              'نجاح / Success',
-              'تم نسخ زر الريموت وحفظه كـ $protocol ($value)',
-              backgroundColor: const Color(0xFF4C86FF).withValues(alpha: 0.85),
-              colorText: Colors.white,
-            );
-            return true;
-          }
+          devices[index] = updated;
+          _persistDevices();
+
+          Get.snackbar(
+            ' Success',
+            'تم نسخ زر الريموت وحفظه كـ ${data.protocol.name} (${data.bits} bits)',
+            backgroundColor: const Color(0xFF4C86FF).withValues(alpha: 0.85),
+            colorText: Colors.white,
+          );
+          return true;
         }
       }
 
       Get.snackbar(
-        'خطأ / Error',
+        'Error',
         response.errorMessage ?? 'لم يتم تلقي أي إشارة IR من الريموت.',
         backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
       return false;
     } catch (e) {
-      Get.back(); // Ensure dialog is closed
+      if (Get.isDialogOpen ?? false) Get.back();
       Get.snackbar(
         'خطأ / Error',
         'فشل عملية النسخ: $e',
@@ -587,13 +722,72 @@ class DashboardController extends GetxController {
     }
   }
 
-  Future<void> sendIrCommand(String jsonCodeString) async {
-    if (!Get.isRegistered<Esp32Service>()) return;
+  Future<bool> sendIrCommand(
+    String jsonCodeString, {
+    String? trackingKey,
+    bool showFeedback = true,
+  }) async {
+    if (!await _ensureHubReachable(actionLabel: 'إرسال الإشارة')) {
+      return false;
+    }
+
+    if (trackingKey != null) {
+      sendingIrKeys.add(trackingKey);
+      sendingIrKeys.refresh();
+    }
+
     try {
-      final Map<String, dynamic> data = jsonDecode(jsonCodeString);
-      await Get.find<Esp32Service>().sendIrCode(data);
+      final IrCodeEntity irCode = IrCodeEntity.fromJson(jsonCodeString);
+      if (!irCode.isValid) {
+        if (showFeedback) {
+          Get.snackbar(
+            'خطأ / Error',
+            'الكود المحفوظ تالف أو غير مكتمل.',
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+            colorText: Colors.white,
+          );
+        }
+        return false;
+      }
+
+      final response = await Get.find<Esp32Service>().sendIrCode(irCode);
+      if (response.isSuccess) {
+        if (showFeedback) {
+          Get.snackbar(
+            'تم الإرسال / Sent',
+            'تم إرسال إشارة الريموت بنجاح.',
+            backgroundColor: const Color(0xFF4C86FF).withValues(alpha: 0.85),
+            colorText: Colors.white,
+          );
+        }
+        return true;
+      }
+
+      if (showFeedback) {
+        Get.snackbar(
+          'خطأ / Error',
+          response.errorMessage ?? 'فشل إرسال إشارة IR.',
+          backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+          colorText: Colors.white,
+        );
+      }
+      return false;
     } catch (e) {
+      if (showFeedback) {
+        Get.snackbar(
+           'Error',
+          'فشل إرسال IR: $e',
+          backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+          colorText: Colors.white,
+        );
+      }
       debugPrint('Error sending IR command: $e');
+      return false;
+    } finally {
+      if (trackingKey != null) {
+        sendingIrKeys.remove(trackingKey);
+        sendingIrKeys.refresh();
+      }
     }
   }
 
