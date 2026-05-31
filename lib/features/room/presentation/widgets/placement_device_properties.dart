@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
+import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
 import 'package:smart_home/features/room/presentation/widgets/placement_device_dialogs.dart';
 
@@ -344,90 +344,344 @@ class PlacementDeviceProperties extends StatelessWidget {
     required String? savedValue,
     required String fieldKey,
   }) {
-    final hasCode = savedValue != null;
-    String infoText = 'Not Set / لم يتم النسخ';
-    if (hasCode) {
+    IrCodeEntity? code;
+    if (savedValue != null) {
       try {
-        final Map<String, dynamic> data = jsonDecode(savedValue);
-        infoText = '${data['protocol']} - ${data['value']}';
-        debugPrint(infoText);
-      } catch (_) {
-        infoText = 'Recorded / تم الحفظ';
-      }
+        code = IrCodeEntity.fromJson(savedValue);
+      } catch (_) {}
     }
+    final hasCode = code != null;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        color: hasCode
+            ? Colors.green.withValues(alpha: 0.05)
+            : Colors.white.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: hasCode
+              ? Colors.green.withValues(alpha: 0.2)
+              : Colors.white.withValues(alpha: 0.06),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Title row ─────────────────────────────────────────
           Row(
             children: [
-              Icon(
-                hasCode ? Icons.check_circle_outline : Icons.help_outline,
-                color: hasCode ? Colors.greenAccent : AppTheme.textGrey,
-                size: 16,
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: hasCode
+                      ? Colors.green.withValues(alpha: 0.15)
+                      : Colors.white.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  hasCode ? Icons.check_rounded : Icons.radio_button_unchecked,
+                  color: hasCode ? Colors.greenAccent : Colors.white30,
+                  size: 16,
+                ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   label,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: hasCode ? Colors.white : Colors.white60,
                     fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            infoText,
-            style: TextStyle(
-              color: hasCode ? Colors.cyanAccent : Colors.white30,
-              fontSize: 11,
-              fontFamily: hasCode ? 'monospace' : null,
+
+          // ── Stored code info ──────────────────────────────────
+          if (hasCode) ...[
+            const SizedBox(height: 10),
+            _IrCodeInfoChips(code: code),
+          ] else ...[
+            const SizedBox(height: 8),
+            const Text(
+              'لم يتم نسخ هذا الزر بعد',
+              style: TextStyle(color: Colors.white30, fontSize: 11),
             ),
-          ),
-          const SizedBox(height: 10),
+          ],
+
+          const SizedBox(height: 12),
+
+          // ── Action buttons ────────────────────────────────────
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              if (hasCode) ...[
-                TextButton.icon(
-                  onPressed: () => dashboardController.sendIrCommand(savedValue),
-                  icon: const Icon(Icons.play_arrow, size: 16),
-                  label: const Text('Test / تجربة', style: TextStyle(fontSize: 12)),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.greenAccent,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-              ElevatedButton.icon(
-                onPressed: () => dashboardController.learnAndSaveIrCode(device.id, fieldKey),
-                icon: const Icon(Icons.settings_remote, size: 16),
-                label: Text(hasCode ? 'Re-record / إعادة نسخ' : 'Record / نسخ', style: const TextStyle(fontSize: 12)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue.withValues(alpha: 0.2),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              // Record / Re-record button
+              Expanded(
+                child: _IrLearnButton(
+                  hasCode: hasCode,
+                  onTap: () => dashboardController.learnAndSaveIrCode(
+                    device.id,
+                    fieldKey,
                   ),
                 ),
               ),
+              if (hasCode) ...[
+                const SizedBox(width: 8),
+                // Send button
+                Obx(() {
+                  final trackingKey =
+                      dashboardController.irTrackingKey(device.id, fieldKey);
+                  final isSending =
+                      dashboardController.sendingIrKeys.contains(trackingKey);
+                  return _IrSendButton(
+                    isSending: isSending,
+                    onTap: isSending
+                        ? null
+                        : () => dashboardController.sendIrCommand(
+                              savedValue!,
+                              trackingKey: trackingKey,
+                            ),
+                  );
+                }),
+                const SizedBox(width: 6),
+                // Delete button
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: IconButton.outlined(
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.delete_outline,
+                        size: 16, color: Colors.redAccent),
+                    style: IconButton.styleFrom(
+                      side: const BorderSide(color: Colors.redAccent, width: 0.8),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                    ),
+                    tooltip: 'حذف / Delete',
+                    onPressed: () => dashboardController.clearIrCode(
+                      device.id,
+                      fieldKey,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── Sub-widgets ────────────────────────────────────────────────────────────────
+
+/// Displays protocol/bits/address chips for a stored IR code
+class _IrCodeInfoChips extends StatelessWidget {
+  final IrCodeEntity code;
+  const _IrCodeInfoChips({required this.code});
+
+  @override
+  Widget build(BuildContext context) {
+    final chips = <_ChipData>[
+      _ChipData(
+        label: code.protocol.name.toUpperCase(),
+        color: _protocolColor(code.protocol),
+        icon: Icons.wifi_tethering_rounded,
+      ),
+      _ChipData(
+        label: '${code.bits} bits',
+        color: Colors.blueAccent,
+        icon: Icons.memory_rounded,
+      ),
+      if (code.address != null)
+        _ChipData(
+          label: 'Addr: 0x${code.address!.toRadixString(16).toUpperCase()}',
+          color: Colors.purpleAccent,
+          icon: Icons.tag,
+        ),
+      if (code.command != null)
+        _ChipData(
+          label: 'Cmd: 0x${code.command!.toRadixString(16).toUpperCase()}',
+          color: Colors.orangeAccent,
+          icon: Icons.code_rounded,
+        ),
+      if (code.headerMark != null)
+        _ChipData(
+          label: 'H: ${code.headerMark}/${code.headerSpace} µs',
+          color: Colors.tealAccent,
+          icon: Icons.timeline,
+        ),
+    ];
+
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: chips.map((c) => _buildChip(c)).toList(),
+    );
+  }
+
+  Widget _buildChip(_ChipData data) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: data.color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: data.color.withValues(alpha: 0.3), width: 0.7),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(data.icon, size: 10, color: data.color),
+          const SizedBox(width: 4),
+          Text(
+            data.label,
+            style: TextStyle(
+              color: data.color,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Color _protocolColor(IrProtocol p) {
+    switch (p) {
+      case IrProtocol.pulseDistance:
+      case IrProtocol.pulseWidth:
+        return Colors.cyanAccent;
+      case IrProtocol.samsung:
+        return Colors.blueAccent;
+      case IrProtocol.nec:
+        return Colors.greenAccent;
+      case IrProtocol.sony:
+        return Colors.yellowAccent;
+      case IrProtocol.lg:
+        return Colors.pinkAccent;
+      case IrProtocol.raw:
+        return Colors.deepOrangeAccent;
+      default:
+        return Colors.white54;
+    }
+  }
+}
+
+class _ChipData {
+  final String label;
+  final Color color;
+  final IconData icon;
+  const _ChipData({required this.label, required this.color, required this.icon});
+}
+
+/// Learn/Record button with animated state
+class _IrLearnButton extends StatelessWidget {
+  final bool hasCode;
+  final VoidCallback onTap;
+  const _IrLearnButton({required this.hasCode, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 36,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: hasCode
+                ? [Colors.white.withValues(alpha: 0.07), Colors.white.withValues(alpha: 0.04)]
+                : [
+                    const Color(0xFF4C86FF).withValues(alpha: 0.3),
+                    const Color(0xFF4C86FF).withValues(alpha: 0.15),
+                  ],
+          ),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: hasCode
+                ? Colors.white.withValues(alpha: 0.1)
+                : const Color(0xFF4C86FF).withValues(alpha: 0.5),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              hasCode ? Icons.replay_rounded : Icons.settings_remote_rounded,
+              size: 15,
+              color: hasCode ? Colors.white54 : const Color(0xFF4C86FF),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              hasCode ? 'إعادة النسخ' : 'نسخ الزر',
+              style: TextStyle(
+                color: hasCode ? Colors.white54 : Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Send button with loading indicator
+class _IrSendButton extends StatelessWidget {
+  final bool isSending;
+  final VoidCallback? onTap;
+  const _IrSendButton({required this.isSending, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: Colors.green.withValues(alpha: isSending ? 0.05 : 0.12),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: Colors.greenAccent.withValues(alpha: isSending ? 0.2 : 0.4),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: isSending
+              ? [
+                  const SizedBox(
+                    width: 13,
+                    height: 13,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.8,
+                      color: Colors.greenAccent,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  const Text(
+                    'إرسال...',
+                    style: TextStyle(
+                        color: Colors.greenAccent,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600),
+                  ),
+                ]
+              : [
+                  const Icon(Icons.send_rounded, size: 14, color: Colors.greenAccent),
+                  const SizedBox(width: 6),
+                  const Text(
+                    'إرسال',
+                    style: TextStyle(
+                        color: Colors.greenAccent,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
+        ),
       ),
     );
   }
