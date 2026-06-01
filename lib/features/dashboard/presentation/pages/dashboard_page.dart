@@ -17,6 +17,7 @@ class DashboardPage extends GetView<DashboardController> {
     return Scaffold(
       body: SafeArea(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (!Responsive.isMobile(context)) ...[
               const SidebarWidget(),
