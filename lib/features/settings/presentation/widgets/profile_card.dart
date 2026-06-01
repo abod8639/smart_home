@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 
 class ProfileCard extends GetView<SettingsController> {
@@ -9,15 +10,19 @@ class ProfileCard extends GetView<SettingsController> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+    final avatarSize = isMobile ? 56.0 : 72.0;
+
     return GlassContainer(
+      padding: EdgeInsets.all(isMobile ? 12 : 16),
       child: Row(
         children: [
           Stack(
             alignment: Alignment.bottomRight,
             children: [
               Container(
-                width: 72,
-                height: 72,
+                width: avatarSize,
+                height: avatarSize,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(
@@ -27,8 +32,8 @@ class ProfileCard extends GetView<SettingsController> {
                 ),
               ),
               Container(
-                width: 18,
-                height: 18,
+                width: isMobile ? 14 : 18,
+                height: isMobile ? 14 : 18,
                 decoration: BoxDecoration(
                   color: Colors.greenAccent,
                   shape: BoxShape.circle,
@@ -40,25 +45,25 @@ class ProfileCard extends GetView<SettingsController> {
               ),
             ],
           ),
-          const SizedBox(width: 20),
+          SizedBox(width: isMobile ? 12 : 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Obx(() => Text(
                       controller.userName.value,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: isMobile ? 16 : 20,
                         fontWeight: FontWeight.bold,
                       ),
                     )),
                 const SizedBox(height: 4),
                 Obx(() => Text(
                       controller.userRole.value,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppTheme.textGrey,
-                        fontSize: 12,
+                        fontSize: isMobile ? 11 : 12,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 0.5,
                       ),
