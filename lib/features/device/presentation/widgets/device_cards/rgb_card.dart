@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
@@ -22,10 +23,14 @@ class RgbCard extends StatelessWidget {
     final currentColor = Color.fromRGBO(r, g, b, 1.0);
     final isOn = device.isOn;
 
+    final isMobile = Responsive.isMobile(context);
+    final double cardWidth = isMobile ? 240.0 : 260.0;
+    final double padding = isMobile ? 10.0 : 14.0;
+
     return SizedBox(
-      width: 280,
+      width: cardWidth,
       child: GlassContainer(
-        padding: const EdgeInsets.all(10),
+        padding: EdgeInsets.all(padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -41,58 +46,66 @@ class RgbCard extends StatelessWidget {
                         device.name,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
+                              fontSize: isMobile ? 14 : 16,
                               letterSpacing: 0.5,
                             ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         isOn
                             ? 'rgb($r, $g, $b)'
                             : 'Off',
                         style: TextStyle(
                           color: isOn ? currentColor : AppTheme.textGrey,
-                          fontSize: 11,
+                          fontSize: isMobile ? 10 : 11,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
                   ),
                 ),
-             GlassSwitch(onToggle: onToggle, isDeviceOn: isOn)
+                const SizedBox(width: 8),
+                GlassSwitch(onToggle: onToggle, isDeviceOn: isOn, scale: isMobile ? 0.85 : 1.0)
               ],
             ),
 
             // ── Color Preview Orb ───────────────────────────────────────────────
             Expanded(
               child: Center(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isOn ? currentColor : Colors.white10,
-                    boxShadow: isOn
-                        ? [
-                            BoxShadow(
-                              color: currentColor.withValues(alpha: 0.6),
-                              blurRadius: 30,
-                              spreadRadius: 6,
-                            ),
-                            BoxShadow(
-                              color: currentColor.withValues(alpha: 0.3),
-                              blurRadius: 60,
-                              spreadRadius: 12,
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Icon(
-                    Icons.wb_incandescent_rounded,
-                    color: isOn ? Colors.white.withValues(alpha: 0.9) : AppTheme.textGrey,
-                    size: 36,
-                  ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final orbSize = (constraints.maxHeight * 0.85).clamp(44.0, 76.0);
+                    final iconSize = orbSize * 0.45;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      width: orbSize,
+                      height: orbSize,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isOn ? currentColor : Colors.white10,
+                        boxShadow: isOn
+                            ? [
+                                BoxShadow(
+                                  color: currentColor.withValues(alpha: 0.6),
+                                  blurRadius: orbSize * 0.35,
+                                  spreadRadius: orbSize * 0.08,
+                                ),
+                                BoxShadow(
+                                  color: currentColor.withValues(alpha: 0.3),
+                                  blurRadius: orbSize * 0.75,
+                                  spreadRadius: orbSize * 0.15,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Icon(
+                        Icons.wb_incandescent_rounded,
+                        color: isOn ? Colors.white.withValues(alpha: 0.9) : AppTheme.textGrey,
+                        size: iconSize,
+                      ),
+                    );
+                  }
                 ),
               ),
             ),
@@ -112,7 +125,7 @@ class RgbCard extends StatelessWidget {
                               device.id, val.round(), g, b)
                         : null,
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: isMobile ? 3 : 5),
                   _RgbSliderRow(
                     label: 'G',
                     value: g.toDouble(),
@@ -122,7 +135,7 @@ class RgbCard extends StatelessWidget {
                               device.id, r, val.round(), b)
                         : null,
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: isMobile ? 3 : 5),
                   _RgbSliderRow(
                     label: 'B',
                     value: b.toDouble(),
@@ -159,6 +172,10 @@ class _RgbSliderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+    final double labelFontSize = isMobile ? 10.0 : 11.0;
+    final double valueFontSize = isMobile ? 9.0 : 10.0;
+
     return Row(
       children: [
         SizedBox(
@@ -167,7 +184,7 @@ class _RgbSliderRow extends StatelessWidget {
             label,
             style: TextStyle(
               color: color,
-              fontSize: 11,
+              fontSize: labelFontSize,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -179,9 +196,9 @@ class _RgbSliderRow extends StatelessWidget {
               activeTrackColor: color,
               inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
               thumbColor: color,
-              trackHeight: 3,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+              trackHeight: isMobile ? 2 : 3,
+              thumbShape: RoundSliderThumbShape(enabledThumbRadius: isMobile ? 4 : 6),
+              overlayShape: RoundSliderOverlayShape(overlayRadius: isMobile ? 8 : 12),
             ),
             child: Slider(
               value: value,
@@ -195,9 +212,9 @@ class _RgbSliderRow extends StatelessWidget {
           width: 28,
           child: Text(
             value.round().toString(),
-            style: const TextStyle(
+            style: TextStyle(
               color: AppTheme.textGrey,
-              fontSize: 10,
+              fontSize: valueFontSize,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.end,
