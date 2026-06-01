@@ -42,7 +42,7 @@ class LampCard extends StatelessWidget {
     final double glowSize = isDeviceOn ? (60.0 + (brightnessVal / 100.0 * 60.0)) : 0.0;
 
     final isMobile = Responsive.isMobile(context);
-    final double cardWidth = isMobile ? 210.0 : 230.0;
+    final double cardWidth = isMobile ? 210.0 : 240.0;
     final double innerPadding = isMobile ? 10.0 : 14.0;
 
     return SizedBox(
@@ -64,6 +64,7 @@ class LampCard extends StatelessWidget {
                         device.name, 
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
+                          fontSize: isMobile ? 14 : 16,
                           letterSpacing: 0.5,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -104,8 +105,8 @@ class LampCard extends StatelessWidget {
                       if (isDeviceOn)
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
-                          width: Responsive.isMobile(context) ? glowSize -10  : glowSize,
-                          height: Responsive.isMobile(context) ? glowSize -10: glowSize,
+                          width: isMobile ? glowSize - 10 : glowSize,
+                          height: isMobile ? glowSize - 10 : glowSize,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
@@ -257,9 +258,9 @@ class LampCard extends StatelessWidget {
                               alpha: isDeviceOn ? 0.2 : 0.05,
                             ),
                             thumbColor: isDeviceOn ? Colors.white : AppTheme.textGrey,
-                            trackHeight: 3,
-                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+                            trackHeight: isMobile ? 2 : 3,
+                            thumbShape: RoundSliderThumbShape(enabledThumbRadius: isMobile ? 4 : 6),
+                            overlayShape: RoundSliderOverlayShape(overlayRadius: isMobile ? 8 : 12),
                           ),
                           child: Slider(
                             value: brightnessVal.toDouble(),
