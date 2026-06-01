@@ -78,7 +78,7 @@ class RoomsListWidget extends GetView<DashboardController> {
                 if (index == roomsList.length) {
                   return GestureDetector(
                     onTap: () => RoomManagementDialogs.showAddRoomDialog(context),
-                    child: _buildMobileAddRoomCard(),
+                    child: _buildMobileAddRoomCard(context),
                   );
                 }
                 final room = roomsList[index];
@@ -93,13 +93,14 @@ class RoomsListWidget extends GetView<DashboardController> {
 
   Widget _buildMobileRoomCard(BuildContext context, RoomEntity room) {
     final isActive = room.isActive;
-    final double cardWidth = isCompact ? 135.0 : 150.0;
-    final double cardHeight = isCompact ? 100.0 : 120.0;
-    final double cardPadding = isCompact ? 12.0 : 16.0;
-    final double iconSize = isCompact ? 16.0 : 20.0;
-    final double iconPadding = isCompact ? 6.0 : 8.0;
-    final double titleFontSize = isCompact ? 13.0 : 15.0;
-    final double subtitleFontSize = isCompact ? 10.0 : 11.0;
+    final isMobile = Responsive.isMobile(context);
+    final double cardWidth = isMobile ? (isCompact ? 125.0 : 140.0) : (isCompact ? 135.0 : 150.0);
+    final double cardHeight = isMobile ? (isCompact ? 95.0 : 110.0) : (isCompact ? 105.0 : 120.0);
+    final double cardPadding = isMobile ? (isCompact ? 10.0 : 12.0) : (isCompact ? 12.0 : 16.0);
+    final double iconSize = isMobile ? (isCompact ? 14.0 : 16.0) : (isCompact ? 16.0 : 20.0);
+    final double iconPadding = isMobile ? (isCompact ? 4.0 : 6.0) : (isCompact ? 6.0 : 8.0);
+    final double titleFontSize = isMobile ? (isCompact ? 12.0 : 13.0) : (isCompact ? 13.0 : 15.0);
+    final double subtitleFontSize = isMobile ? (isCompact ? 9.0 : 10.0) : (isCompact ? 10.0 : 11.0);
 
     return GestureDetector(
       onTap: () => controller.selectRoom(room.id),
@@ -188,11 +189,12 @@ class RoomsListWidget extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildMobileAddRoomCard() {
-    final double cardWidth = isCompact ? 135.0 : 150.0;
-    final double cardHeight = isCompact ? 100.0 : 120.0;
-    final double iconSize = isCompact ? 22.0 : 26.0;
-    final double fontSize = isCompact ? 11.0 : 13.0;
+  Widget _buildMobileAddRoomCard(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+    final double cardWidth = isMobile ? (isCompact ? 125.0 : 140.0) : (isCompact ? 135.0 : 150.0);
+    final double cardHeight = isMobile ? (isCompact ? 95.0 : 110.0) : (isCompact ? 105.0 : 120.0);
+    final double iconSize = isMobile ? (isCompact ? 18.0 : 22.0) : (isCompact ? 22.0 : 26.0);
+    final double fontSize = isMobile ? (isCompact ? 10.0 : 11.0) : (isCompact ? 11.0 : 13.0);
 
     return Container(
       width: cardWidth,
