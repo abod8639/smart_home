@@ -16,6 +16,12 @@ The application is designed for homeowners and developers who have built or are 
 
 ---
 
+## DEMO
+
+![demo](assets/image1.png)
+![demo](assets/image2.png)
+![demo](assets/image3.png)
+
 ## How It Works
 
 ### Hardware Communication Layer
