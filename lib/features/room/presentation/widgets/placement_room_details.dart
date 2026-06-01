@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
@@ -19,6 +20,8 @@ class PlacementRoomDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final activeRoom = dashboardController.activeRoom;
+    final isMobile = Responsive.isMobile(context);
+    final gap = Responsive.contentGap(context);
 
     if (activeRoom == null) {
       return const Center(
@@ -35,7 +38,6 @@ class PlacementRoomDetails extends StatelessWidget {
             (d.roomId == null && activeRoom.id == '3'))
         .toList();
 
-   
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -46,16 +48,17 @@ class PlacementRoomDetails extends StatelessWidget {
             Expanded(
               child: Text(
                 activeRoom.name,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: isMobile ? 18.0 : 22.0,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: gap * 0.75),
 
         // Scrollable content area
         Expanded(
@@ -65,35 +68,42 @@ class PlacementRoomDetails extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 buildPropertyRow('Total Devices', '${roomDevices.length} device(s)'),
-                const SizedBox(height: 12),
-                SizedBox(height: 180, child: buildDeviceCards()),
-                const SizedBox(height: 16),
+                SizedBox(height: gap),
+                SizedBox(
+                  height: isMobile ? 165.0 : 200.0,
+                  child: buildDeviceCards(),
+                ),
+                SizedBox(height: gap),
                 buildPropertyRow('Temperature', dashboardController.temperature.value),
-                const SizedBox(height: 16),
+                SizedBox(height: gap),
                 buildPropertyRow('Humidity', dashboardController.humidity.value),
-                const SizedBox(height: 16),
+                SizedBox(height: gap),
                 buildPropertyRow('Airflow', dashboardController.airflow.value),
-                const SizedBox(height: 16),
+                SizedBox(height: gap),
                 buildPropertyRow('Power Usage', dashboardController.powerUsage.value),
               ],
             ),
           ),
         ),
 
-        const SizedBox(height: 12),
+        SizedBox(height: gap),
 
         // Add device button
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            icon: const Icon(Icons.add_rounded, color: Colors.white),
-            label: const Text(
+            icon: Icon(Icons.add_rounded, color: Colors.white, size: isMobile ? 18 : 22),
+            label: Text(
               'Add Device to Room',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: isMobile ? 13.0 : 15.0,
+              ),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryBlue,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: isMobile ? 12 : 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
