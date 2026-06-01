@@ -16,18 +16,22 @@ class SettingsView extends GetView<SettingsController> {
   Widget build(BuildContext context) {
     final gap = Responsive.contentGap(context);
     final isCompact = Responsive.isMobile(context);
+    final padding = Responsive.pagePadding(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildHeader(context, isCompact),
-        SizedBox(height: gap),
-        Expanded(
-          child: isCompact
-              ? _buildMobileLayout(gap)
-              : _buildWideLayout(context, gap),
-        ),
-      ],
+    return Padding(
+      padding: EdgeInsets.all(padding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(context, isCompact),
+          SizedBox(height: gap),
+          Expanded(
+            child: isCompact
+                ? _buildMobileLayout(gap)
+                : _buildWideLayout(context, gap),
+          ),
+        ],
+      ),
     );
   }
 
