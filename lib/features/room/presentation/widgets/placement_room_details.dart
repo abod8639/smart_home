@@ -70,7 +70,7 @@ class PlacementRoomDetails extends StatelessWidget {
                 buildPropertyRow('Total Devices', '${roomDevices.length} device(s)'),
                 SizedBox(height: gap),
                 SizedBox(
-                  height: isMobile ? 165.0 : 200.0,
+                  height: Responsive.deviceCardsHeight(context) - 40,
                   child: buildDeviceCards(),
                 ),
                 SizedBox(height: gap),
