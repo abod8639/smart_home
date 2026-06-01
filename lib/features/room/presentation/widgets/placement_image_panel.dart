@@ -44,7 +44,7 @@ class PlacementImagePanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: Responsive.isMobile(context) ? 105 : 125,
+            height: Responsive.isMobile(context) ? 90 : 100,
             child: const RoomsListWidget(isCompact: true),
           ),
 
