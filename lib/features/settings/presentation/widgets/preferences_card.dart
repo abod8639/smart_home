@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/settings/presentation/widgets/settings_row.dart';
 
@@ -10,8 +11,10 @@ class PreferencesCard extends GetView<SettingsController> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+
     return GlassContainer(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isMobile ? 16 : 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -34,6 +37,7 @@ class PreferencesCard extends GetView<SettingsController> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _buildToggleOption(
+                      context: context,
                       label: '°C',
                       isActive: controller.isCelsius.value,
                       onTap: () {
@@ -41,6 +45,7 @@ class PreferencesCard extends GetView<SettingsController> {
                       },
                     ),
                     _buildToggleOption(
+                      context: context,
                       label: '°F',
                       isActive: !controller.isCelsius.value,
                       onTap: () {
@@ -58,7 +63,7 @@ class PreferencesCard extends GetView<SettingsController> {
             title: 'Voice Assistant',
             subtitle: 'Default hub controller assistant',
             trailing: Obx(() => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: EdgeInsets.symmetric(horizontal: isMobile ? 8 : 12),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(16),
@@ -71,9 +76,9 @@ class PreferencesCard extends GetView<SettingsController> {
                       value: controller.selectedVoiceAssistant.value,
                       dropdownColor: AppTheme.cardBackground,
                       icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white70),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 13,
+                        fontSize: isMobile ? 12 : 13,
                         fontWeight: FontWeight.bold,
                       ),
                       onChanged: (val) {
@@ -114,14 +119,19 @@ class PreferencesCard extends GetView<SettingsController> {
 
   // Segmented selection toggle button
   Widget _buildToggleOption({
+    required BuildContext context,
     required String label,
     required bool isActive,
     required VoidCallback onTap,
   }) {
+    final isMobile = Responsive.isMobile(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 10 : 14,
+          vertical: isMobile ? 6 : 8,
+        ),
         decoration: BoxDecoration(
           color: isActive ? Colors.white : Colors.black.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12),
