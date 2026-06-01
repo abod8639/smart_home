@@ -94,13 +94,21 @@ class RoomsListWidget extends GetView<DashboardController> {
 
   Widget _buildMobileRoomCard(BuildContext context, RoomEntity room) {
     final isActive = room.isActive;
+    final double cardWidth = isCompact ? 135.0 : 150.0;
+    final double cardHeight = isCompact ? 100.0 : 120.0;
+    final double cardPadding = isCompact ? 12.0 : 16.0;
+    final double iconSize = isCompact ? 16.0 : 20.0;
+    final double iconPadding = isCompact ? 6.0 : 8.0;
+    final double titleFontSize = isCompact ? 13.0 : 15.0;
+    final double subtitleFontSize = isCompact ? 10.0 : 11.0;
+
     return GestureDetector(
       onTap: () => controller.selectRoom(room.id),
       onLongPress: () => _showRoomOptions(context, room),
       child: Container(
-        height: 120,
-        width: 150,
-        padding: const EdgeInsets.all(16),
+        height: cardHeight,
+        width: cardWidth,
+        padding: EdgeInsets.all(cardPadding),
         decoration: BoxDecoration(
           gradient: isActive
               ? const LinearGradient(
@@ -132,7 +140,7 @@ class RoomsListWidget extends GetView<DashboardController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(iconPadding),
                   decoration: BoxDecoration(
                     color: isActive
                         ? Colors.white.withValues(alpha: 0.15)
@@ -142,13 +150,13 @@ class RoomsListWidget extends GetView<DashboardController> {
                   child: Icon(
                     _getRoomIcon(room.name),
                     color: isActive ? Colors.white : AppTheme.textGrey,
-                    size: 20,
+                    size: iconSize,
                   ),
                 ),
                 Icon(
                   Icons.chevron_right,
                   color: isActive ? Colors.white70 : Colors.transparent,
-                  size: 16,
+                  size: isCompact ? 14 : 16,
                 ),
               ],
             ),
@@ -160,7 +168,7 @@ class RoomsListWidget extends GetView<DashboardController> {
                   style: TextStyle(
                     color: isActive ? Colors.white : AppTheme.textWhite,
                     fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                    fontSize: titleFontSize,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -170,7 +178,7 @@ class RoomsListWidget extends GetView<DashboardController> {
                   '${controller.devices.where((d) => d.roomId == room.id || (d.roomId == null && room.id == "3")).length} devices',
                   style: TextStyle(
                     color: isActive ? Colors.white70 : AppTheme.textGrey,
-                    fontSize: 11,
+                    fontSize: subtitleFontSize,
                   ),
                 ),
               ],
@@ -182,8 +190,14 @@ class RoomsListWidget extends GetView<DashboardController> {
   }
 
   Widget _buildMobileAddRoomCard() {
+    final double cardWidth = isCompact ? 135.0 : 150.0;
+    final double cardHeight = isCompact ? 100.0 : 120.0;
+    final double iconSize = isCompact ? 22.0 : 26.0;
+    final double fontSize = isCompact ? 11.0 : 13.0;
+
     return Container(
-      width: 150,
+      width: cardWidth,
+      height: cardHeight,
       decoration: BoxDecoration(
         color: AppTheme.cardBackground.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
@@ -200,15 +214,15 @@ class RoomsListWidget extends GetView<DashboardController> {
             Icon(
               Icons.add_circle_outline_rounded,
               color: AppTheme.primaryBlue,
-              size: 26,
+              size: iconSize,
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Add Room',
               style: TextStyle(
                 color: AppTheme.primaryBlue,
                 fontWeight: FontWeight.bold,
-                fontSize: 13,
+                fontSize: fontSize,
               ),
             ),
           ],
