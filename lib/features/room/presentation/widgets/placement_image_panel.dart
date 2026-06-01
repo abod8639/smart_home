@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
@@ -42,8 +43,10 @@ class PlacementImagePanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Room selector
-          const SizedBox(height: 110, child: RoomsListWidget(isCompact: true)),
+          SizedBox(
+            height: Responsive.isMobile(context) ? 105 : 125,
+            child: const RoomsListWidget(isCompact: true),
+          ),
 
           const SizedBox(height: 5),
 
