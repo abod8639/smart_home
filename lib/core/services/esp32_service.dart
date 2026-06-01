@@ -218,6 +218,9 @@ class Esp32Service extends GetxService {
       case DioExceptionType.sendTimeout:
         return 'Upload request timeout while contacting ESP32.';
       case DioExceptionType.badResponse:
+        if (error.response?.statusCode == 408) {
+          return 'No IR signal detected within the time limit. Please try again.';
+        }
         return 'ESP32 returned error status: ${error.response?.statusCode}';
       case DioExceptionType.connectionError:
         return 'Host unreachable. Ensure the ESP32 is powered on and connected to the same local Wi-Fi.';
