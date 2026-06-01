@@ -38,7 +38,7 @@ class PlacementDeviceIrControls extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         const Text(
-          'يمكنك نسخ وحفظ أزرار ريموت التكييف للتحكم به مباشرة عبر مستشعر الـ ESP32.',
+          'You can copy and save the air conditioner remote buttons to control it directly through the ESP32 sensor.',
           style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
         ),
         const SizedBox(height: 16),
@@ -165,7 +165,7 @@ class PlacementDeviceIrControls extends StatelessWidget {
           ] else ...[
             SizedBox(height: rowGap - 2),
             const Text(
-              'لم يتم نسخ هذا الزر بعد',
+              'Not yet recorded',
               style: TextStyle(color: Colors.white30, fontSize: 11),
             ),
           ],
@@ -217,7 +217,7 @@ class PlacementDeviceIrControls extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
                     ),
-                    tooltip: 'حذف / Delete',
+                    tooltip: 'Delete',
                     onPressed: () => dashboardController.clearIrCode(
                       device.id,
                       fieldKey,
