@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/settings/presentation/widgets/settings_row.dart';
 import 'package:smart_home/features/settings/presentation/widgets/matter_commissioning_dialog.dart';
@@ -11,8 +12,10 @@ class GoogleHomeCard extends GetView<SettingsController> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+
     return GlassContainer(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isMobile ? 16 : 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -20,24 +23,30 @@ class GoogleHomeCard extends GetView<SettingsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
-                children: [
-                  Icon(
-                    Icons.home_outlined,
-                    color: AppTheme.accentCyan,
-                    size: 24,
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    'Google Home Services',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.home_outlined,
+                      color: AppTheme.accentCyan,
+                      size: 24,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Google Home Services',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isMobile ? 16 : 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               // Simulated Google dots
               Row(
                 children: [
@@ -81,7 +90,7 @@ class GoogleHomeCard extends GetView<SettingsController> {
                             ? Colors.white.withValues(alpha: 0.1)
                             : AppTheme.primaryBlue.withValues(alpha: 0.2),
                         foregroundColor: isLinked ? Colors.white : AppTheme.accentCyan,
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: EdgeInsets.symmetric(horizontal: isMobile ? 10 : 14, vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
@@ -151,7 +160,7 @@ class GoogleHomeCard extends GetView<SettingsController> {
                         ? AppTheme.accentCyan.withValues(alpha: 0.15)
                         : Colors.white.withValues(alpha: 0.05),
                     foregroundColor: isLinked ? AppTheme.accentCyan : Colors.white24,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: EdgeInsets.symmetric(horizontal: isMobile ? 10 : 14, vertical: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
