@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
@@ -22,6 +23,9 @@ class PlacementDeviceProperties extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+    final gap = Responsive.contentGap(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -32,10 +36,11 @@ class PlacementDeviceProperties extends StatelessWidget {
             Expanded(
               child: Text(
                 'Device Properties',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: isMobile ? 18.0 : 22.0,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -43,8 +48,8 @@ class PlacementDeviceProperties extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined,
-                      color: AppTheme.primaryBlue, size: 20),
+                  icon: Icon(Icons.edit_outlined,
+                      color: AppTheme.primaryBlue, size: isMobile ? 18 : 20),
                   onPressed: () => PlacementDeviceDialogs.showEditDevice(
                     context,
                     device,
@@ -53,8 +58,8 @@ class PlacementDeviceProperties extends StatelessWidget {
                   tooltip: 'Edit Device',
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline,
-                      color: Colors.redAccent, size: 20),
+                  icon: Icon(Icons.delete_outline,
+                      color: Colors.redAccent, size: isMobile ? 18 : 20),
                   onPressed: () => PlacementDeviceDialogs.showDeleteConfirmation(
                     context,
                     device,
@@ -67,7 +72,7 @@ class PlacementDeviceProperties extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: gap),
 
         // Scrollable Properties List
         Expanded(
@@ -351,17 +356,19 @@ class PlacementDeviceProperties extends StatelessWidget {
       } catch (_) {}
     }
     final hasCode = code != null;
+    final isMobile = Responsive.isMobile(context);
+    final double padding = isMobile ? 10.0 : 14.0;
+    final double titleFontSize = isMobile ? 12.0 : 13.0;
+    final double rowGap = isMobile ? 6.0 : 10.0;
+    final double iconBtnSize = isMobile ? 32.0 : 36.0;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
-        color: hasCode
-            ? Colors.green.withValues(alpha: 0.05)
-            : Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: hasCode
-              ? Colors.green.withValues(alpha: 0.2)
+              ? Colors.blueAccent.withValues(alpha: 0.2)
               : Colors.white.withValues(alpha: 0.06),
         ),
       ),
@@ -372,27 +379,27 @@ class PlacementDeviceProperties extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 28,
-                height: 28,
+                width: isMobile ? 24 : 28,
+                height: isMobile ? 24 : 28,
                 decoration: BoxDecoration(
                   color: hasCode
-                      ? Colors.green.withValues(alpha: 0.15)
+                      ? Colors.green.withValues(alpha: 0.05)
                       : Colors.white.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   hasCode ? Icons.check_rounded : Icons.radio_button_unchecked,
                   color: hasCode ? Colors.greenAccent : Colors.white30,
-                  size: 16,
+                  size: isMobile ? 14 : 16,
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: rowGap),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(
                     color: hasCode ? Colors.white : Colors.white60,
-                    fontSize: 13,
+                    fontSize: titleFontSize,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -402,17 +409,17 @@ class PlacementDeviceProperties extends StatelessWidget {
 
           // ── Stored code info ──────────────────────────────────
           if (hasCode) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: rowGap),
             _IrCodeInfoChips(code: code),
           ] else ...[
-            const SizedBox(height: 8),
+            SizedBox(height: rowGap - 2),
             const Text(
               'لم يتم نسخ هذا الزر بعد',
               style: TextStyle(color: Colors.white30, fontSize: 11),
             ),
           ],
 
-          const SizedBox(height: 12),
+          SizedBox(height: rowGap + 2),
 
           // ── Action buttons ────────────────────────────────────
           Row(
@@ -428,7 +435,7 @@ class PlacementDeviceProperties extends StatelessWidget {
                 ),
               ),
               if (hasCode) ...[
-                const SizedBox(width: 8),
+                SizedBox(width: rowGap),
                 // Send button
                 Obx(() {
                   final trackingKey =
@@ -445,15 +452,15 @@ class PlacementDeviceProperties extends StatelessWidget {
                             ),
                   );
                 }),
-                const SizedBox(width: 6),
+                SizedBox(width: rowGap - 2),
                 // Delete button
                 SizedBox(
-                  width: 36,
-                  height: 36,
+                  width: iconBtnSize,
+                  height: iconBtnSize,
                   child: IconButton.outlined(
                     padding: EdgeInsets.zero,
-                    icon: const Icon(Icons.delete_outline,
-                        size: 16, color: Colors.redAccent),
+                    icon: Icon(Icons.delete_outline,
+                        size: isMobile ? 14 : 16, color: Colors.redAccent),
                     style: IconButton.styleFrom(
                       side: const BorderSide(color: Colors.redAccent, width: 0.8),
                       shape: RoundedRectangleBorder(
@@ -526,7 +533,7 @@ class _IrCodeInfoChips extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: data.color.withValues(alpha: 0.12),
+        // color: data.color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: data.color.withValues(alpha: 0.3), width: 0.7),
       ),
@@ -585,10 +592,15 @@ class _IrLearnButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+    final double btnHeight = isMobile ? 32.0 : 36.0;
+    final double fontSize = isMobile ? 11.0 : 12.0;
+    final double iconSize = isMobile ? 13.0 : 15.0;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 36,
+        height: btnHeight,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: hasCode
@@ -610,15 +622,15 @@ class _IrLearnButton extends StatelessWidget {
           children: [
             Icon(
               hasCode ? Icons.replay_rounded : Icons.settings_remote_rounded,
-              size: 15,
+              size: iconSize,
               color: hasCode ? Colors.white54 : const Color(0xFF4C86FF),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 4),
             Text(
               hasCode ? 'إعادة النسخ' : 'نسخ الزر',
               style: TextStyle(
                 color: hasCode ? Colors.white54 : Colors.white,
-                fontSize: 12,
+                fontSize: fontSize,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -637,11 +649,17 @@ class _IrSendButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+    final double btnHeight = isMobile ? 32.0 : 36.0;
+    final double padding = isMobile ? 10.0 : 14.0;
+    final double fontSize = isMobile ? 11.0 : 12.0;
+    final double iconSize = isMobile ? 13.0 : 14.0;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 36,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
+        height: btnHeight,
+        padding: EdgeInsets.symmetric(horizontal: padding),
         decoration: BoxDecoration(
           color: Colors.green.withValues(alpha: isSending ? 0.05 : 0.12),
           borderRadius: BorderRadius.circular(10),
@@ -653,31 +671,31 @@ class _IrSendButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: isSending
               ? [
-                  const SizedBox(
-                    width: 13,
-                    height: 13,
+                  SizedBox(
+                    width: isMobile ? 11 : 13,
+                    height: isMobile ? 11 : 13,
                     child: CircularProgressIndicator(
                       strokeWidth: 1.8,
                       color: Colors.greenAccent,
                     ),
                   ),
                   const SizedBox(width: 6),
-                  const Text(
+                  Text(
                     'إرسال...',
                     style: TextStyle(
                         color: Colors.greenAccent,
-                        fontSize: 12,
+                        fontSize: fontSize,
                         fontWeight: FontWeight.w600),
                   ),
                 ]
               : [
-                  const Icon(Icons.send_rounded, size: 14, color: Colors.greenAccent),
+                  Icon(Icons.send_rounded, size: iconSize, color: Colors.greenAccent),
                   const SizedBox(width: 6),
-                  const Text(
+                  Text(
                     'إرسال',
                     style: TextStyle(
                         color: Colors.greenAccent,
-                        fontSize: 12,
+                        fontSize: fontSize,
                         fontWeight: FontWeight.w600),
                   ),
                 ],
