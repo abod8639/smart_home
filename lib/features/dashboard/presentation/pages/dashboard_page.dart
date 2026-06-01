@@ -12,7 +12,7 @@ class DashboardPage extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
-    final gap = Responsive.contentGap(context);
+    // final gap = Responsive.contentGap(context);
 
     return Scaffold(
       body: SafeArea(
@@ -20,7 +20,7 @@ class DashboardPage extends GetView<DashboardController> {
           children: [
             if (!Responsive.isMobile(context)) ...[
               const SidebarWidget(),
-              SizedBox(width: gap),
+              // SizedBox(width: gap),
             ],
             Expanded(child: _buildMainContent()),
           ],
