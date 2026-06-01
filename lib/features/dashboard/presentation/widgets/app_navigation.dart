@@ -56,34 +56,20 @@ class MobileBottomNav extends GetView<DashboardController> {
                 ],
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ListView.separated(
-                    
-                    scrollDirection: Axis.horizontal,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                    itemCount: kAppNavItems.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 30),
-                    itemBuilder: (context, i) {
-                      final item = kAppNavItems[i];
-                      return Center(
-                        child: Obx(() {
-                          final isActive =
-                              controller.currentNavigationIndex.value == item.index;
-                          return AppNavigationButton(
-                            icon: item.icon,
-                            isActive: isActive,
-                            onTap: () => controller.changeTab(item.index),
-                            iconSize: 24,
-                            padding: const EdgeInsets.all(10),
-                          );
-                        }),
-                      );
-                    },
-                  ),
-                ],
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: kAppNavItems.map((item) {
+                  return Obx(() {
+                    final isActive =
+                        controller.currentNavigationIndex.value == item.index;
+                    return AppNavigationButton(
+                      icon: item.icon,
+                      isActive: isActive,
+                      onTap: () => controller.changeTab(item.index),
+                      iconSize: 24,
+                      padding: const EdgeInsets.all(10),
+                    );
+                  });
+                }).toList(),
               ),
             ),
           ),
