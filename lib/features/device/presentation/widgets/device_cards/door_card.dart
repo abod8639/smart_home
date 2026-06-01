@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
@@ -12,11 +13,16 @@ class DoorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLocked = device.isLocked ?? true;
+    final isMobile = Responsive.isMobile(context);
+    final double cardWidth = isMobile ? 220.0 : 250.0;
+    final double padding = isMobile ? 12.0 : 18.0;
+    final double orbSize = isMobile ? 50.0 : 64.0;
+    final double iconSize = isMobile ? 30.0 : 38.0;
 
     return SizedBox(
-      width: 280,
+      width: cardWidth,
       child: GlassContainer(
-        padding: const EdgeInsets.all(15),
+        padding: EdgeInsets.all(padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -32,14 +38,15 @@ class DoorCard extends StatelessWidget {
                         device.name,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
+                              fontSize: isMobile ? 14 : 16,
                             ),
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (device.linkedDevicesCount != null && device.linkedDevicesCount! > 0) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         Text(
                           '${device.linkedDevicesCount} Devices Connected',
-                          style: const TextStyle(color: AppTheme.textGrey, fontSize: 11),
+                          style: const TextStyle(color: AppTheme.textGrey, fontSize: 10),
                         ),
                       ],
                     ],
@@ -48,18 +55,19 @@ class DoorCard extends StatelessWidget {
                 Icon(
                   isLocked ? Icons.lock : Icons.lock_open,
                   color: isLocked ? Colors.redAccent : Colors.greenAccent,
+                  size: isMobile ? 18 : 22,
                 ),
               ],
             ),
             
-            // const Spacer(),
+            const Spacer(),
             
-            // Lock State Visualizer (Premium Custom Paint or Stack)
+            // Lock State Visualizer
             Center(
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                width: 60,
-                height: 60,
+                width: orbSize,
+                height: orbSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isLocked 
@@ -74,23 +82,21 @@ class DoorCard extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: isLocked 
-                          ? Colors.redAccent.withValues(alpha: 0.2) 
-                          : Colors.greenAccent.withValues(alpha: 0.2),
-                      blurRadius: 15,
-                      spreadRadius: 2,
+                          ? Colors.redAccent.withValues(alpha: 0.15) 
+                          : Colors.greenAccent.withValues(alpha: 0.15),
+                      blurRadius: 12,
+                      spreadRadius: 1,
                     )
                   ],
                 ),
                 child: Icon(
                   isLocked ? Icons.security : Icons.vpn_key,
                   color: isLocked ? Colors.redAccent : Colors.greenAccent,
-                  size: 40,
+                  size: iconSize,
                 ),
               ),
             ),
             
-            const Spacer(),
-            const Spacer(),
             const Spacer(),
             
             // Slider or Toggle Button
@@ -98,7 +104,7 @@ class DoorCard extends StatelessWidget {
               onTap: onToggle,
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 3),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: isLocked
@@ -107,23 +113,23 @@ class DoorCard extends StatelessWidget {
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: (isLocked ? Colors.redAccent : Colors.greenAccent).withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
+                      color: (isLocked ? Colors.redAccent : Colors.greenAccent).withValues(alpha: 0.25),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
                     )
                   ],
                 ),
                 child: Center(
                   child: Text(
                     isLocked ? 'TAP TO UNLOCK' : 'TAP TO LOCK',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.w900,
-                      fontSize: 12,
-                      letterSpacing: 1,
+                      fontSize: isMobile ? 10 : 11,
+                      letterSpacing: 0.8,
                     ),
                   ),
                 ),
