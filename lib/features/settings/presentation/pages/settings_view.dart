@@ -26,9 +26,11 @@ class SettingsView extends GetView<SettingsController> {
           _buildHeader(context, isCompact),
           SizedBox(height: gap),
           Expanded(
-            child: isCompact
+            child: 
+            Responsive.isTablet(context) || Responsive.isMobile(context)
                 ? _buildMobileLayout(gap)
-                : _buildWideLayout(context, gap),
+                :
+                 _buildWideLayout(context, gap),
           ),
         ],
       ),
