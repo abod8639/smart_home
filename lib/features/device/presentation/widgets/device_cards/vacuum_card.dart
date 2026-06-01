@@ -3,6 +3,7 @@ import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
+import 'package:smart_home/features/device/presentation/widgets/device_cards/glass_switch.dart';
 
 class VacuumCard extends StatelessWidget {
   final DeviceEntity device;
@@ -49,13 +50,10 @@ class VacuumCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Switch(
-                  value: device.isOn,
-                  onChanged: (_) => onToggle(),
-                  activeThumbColor: AppTheme.primaryBlue,
-                  activeTrackColor: AppTheme.primaryBlue.withValues(alpha: 0.3),
-                  inactiveThumbColor: AppTheme.textGrey,
-                  inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
+                GlassSwitch(
+                  onToggle: onToggle,
+                  isDeviceOn: device.isOn,
+                  scale: isMobile ? 0.85 : 1.0,
                 ),
               ],
             ),
