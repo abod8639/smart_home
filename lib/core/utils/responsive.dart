@@ -41,8 +41,8 @@ class Responsive {
   static double deviceCardsHeight(BuildContext context) {
     return switch (screenTypeOf(context)) {
       ScreenType.mobile => 220,
-      ScreenType.tablet => 230,
-      ScreenType.desktop => 240,
+      ScreenType.tablet => 220,
+      ScreenType.desktop => 220,
     };
   }
 
