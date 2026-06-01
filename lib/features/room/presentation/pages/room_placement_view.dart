@@ -66,7 +66,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               Expanded(
                 flex: 2,
                 child: GlassContainer(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(Responsive.isMobile(context) ? 12 : 16),
                   child: Obx(
                     () => _buildSidePanel(context, dashboardController),
                   ),
@@ -84,11 +84,13 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     DashboardController dashboardController,
     GlobalKey imageKey,
   ) {
+    final isTablet = Responsive.isTablet(context);
+    final sidePanelWidth = isTablet ? 320.0 : 385.0;
+
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          flex: Responsive.isTablet(context) ? 2 : 3,
           child: PlacementImagePanel(
             dashboardController: dashboardController,
             placementController: controller,
@@ -96,10 +98,10 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
           ),
         ),
         SizedBox(width: Responsive.contentGap(context)),
-        Expanded(
-          flex: 1,
+        SizedBox(
+          width: sidePanelWidth,
           child: GlassContainer(
-            padding: EdgeInsets.all(Responsive.isTablet(context) ? 16 : 24),
+            padding: EdgeInsets.all(isTablet ? 16 : 24),
             child: Obx(
               () => _buildSidePanel(context, dashboardController),
             ),
