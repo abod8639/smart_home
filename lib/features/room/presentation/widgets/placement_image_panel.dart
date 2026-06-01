@@ -38,17 +38,22 @@ class PlacementImagePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
     return GlassContainer(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: Responsive.isMobile(context) ? 90 : 100,
-            child: const RoomsListWidget(isCompact: true),
-          ),
-
-          const SizedBox(height: 5),
+      padding: EdgeInsets.all(isMobile ? 12 : 16),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final showRoomsList = constraints.maxHeight > 180.0;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (showRoomsList) ...[
+                SizedBox(
+                  height: isMobile ? 85 : 100,
+                  child: const RoomsListWidget(isCompact: true),
+                ),
+                const SizedBox(height: 6),
+              ],
 
           // Floor-plan image + marker overlay
           Expanded(
@@ -150,12 +155,14 @@ class PlacementImagePanel extends StatelessWidget {
                         ),
                       ),
                     ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
