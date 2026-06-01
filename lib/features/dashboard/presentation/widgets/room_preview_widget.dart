@@ -59,25 +59,24 @@ class RoomPreviewWidget extends GetView<DashboardController> {
                 ),
                 
                 // Top Bar
-                if (!Responsive.isMobile(context))
-                  Padding(
-                    padding: const EdgeInsets.all(14.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        // Environment Stats
-                        Row(
-                          children: [
-                            _buildStatChip(Icons.water_drop_outlined, controller.humidity.value),
-                            const SizedBox(width: 12),
-                            _buildStatChip(Icons.air_outlined, controller.airflow.value),
-                            const SizedBox(width: 12),
-                            _buildStatChip(Icons.thermostat_outlined, controller.temperature.value),
-                          ],
-                        ),
-                      ],
-                    ),
+                Padding(
+                  padding: EdgeInsets.all(Responsive.isMobile(context) ? 8.0 : 14.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // Environment Stats
+                      Row(
+                        children: [
+                          _buildStatChip(Icons.water_drop_outlined, controller.humidity.value, Responsive.isMobile(context)),
+                          SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
+                          _buildStatChip(Icons.air_outlined, controller.airflow.value, Responsive.isMobile(context)),
+                          SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
+                          _buildStatChip(Icons.thermostat_outlined, controller.temperature.value, Responsive.isMobile(context)),
+                        ],
+                      ),
+                    ],
                   ),
+                ),
 
                 // Dynamic Device Markers (Simulated AR Overlay)
                 Positioned.fill(
@@ -162,16 +161,25 @@ class RoomPreviewWidget extends GetView<DashboardController> {
     }
   }
 
-  Widget _buildStatChip(IconData icon, String value) {
+  Widget _buildStatChip(IconData icon, String value, bool isMobile) {
     return GlassContainer(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 8 : 16, 
+        vertical: isMobile ? 4 : 8,
+      ),
       borderRadius: BorderRadius.circular(20),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: Colors.white70, size: 16),
-          const SizedBox(width: 6),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 12)),
+          Icon(icon, color: Colors.white70, size: isMobile ? 12 : 16),
+          SizedBox(width: isMobile ? 4 : 6),
+          Text(
+            value, 
+            style: TextStyle(
+              color: Colors.white, 
+              fontSize: isMobile ? 10 : 12,
+            ),
+          ),
         ],
       ),
     );
