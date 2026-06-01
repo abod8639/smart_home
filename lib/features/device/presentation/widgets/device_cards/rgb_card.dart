@@ -25,7 +25,7 @@ class RgbCard extends StatelessWidget {
     return SizedBox(
       width: 280,
       child: GlassContainer(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
