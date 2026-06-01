@@ -29,7 +29,7 @@ class PlacementDeviceIrControls extends StatelessWidget {
         const Divider(color: Colors.white10),
         const SizedBox(height: 12),
         const Text(
-          'IR Remote Codes / أزرار ريموت الأشعة تحت الحمراء',
+          'IR Remote Codes',
           style: TextStyle(
             color: Colors.white,
             fontSize: 14,
@@ -44,49 +44,49 @@ class PlacementDeviceIrControls extends StatelessWidget {
         const SizedBox(height: 16),
         _buildIrRecordRow(
           context,
-          label: 'رفع درجة الحرارة (Temp Up)',
+          label: 'Temp Up',
           savedValue: device.irTempUp,
           fieldKey: 'irTempUp',
         ),
         const SizedBox(height: 10),
         _buildIrRecordRow(
           context,
-          label: 'خفض درجة الحرارة (Temp Down)',
+          label: 'Temp Down',
           savedValue: device.irTempDown,
           fieldKey: 'irTempDown',
         ),
         const SizedBox(height: 10),
         _buildIrRecordRow(
           context,
-          label: 'التشغيل والإيقاف (Power)',
+          label: 'Power',
           savedValue: device.irPower,
           fieldKey: 'irPower',
         ),
         const SizedBox(height: 10),
         _buildIrRecordRow(
           context,
-          label: 'الوضع التلقائي (Auto Mode)',
+          label: 'Auto Mode',
           savedValue: device.irAuto,
           fieldKey: 'irAuto',
         ),
         const SizedBox(height: 10),
         _buildIrRecordRow(
           context,
-          label: 'وضع التبريد (Cool Mode)',
+          label: 'Cool Mode',
           savedValue: device.irCool,
           fieldKey: 'irCool',
         ),
         const SizedBox(height: 10),
         _buildIrRecordRow(
           context,
-          label: 'وضع التدفئة (Heat Mode)',
+          label: 'Heat Mode',
           savedValue: device.irHeat,
           fieldKey: 'irHeat',
         ),
         const SizedBox(height: 10),
         _buildIrRecordRow(
           context,
-          label: 'الوضع الاقتصادي (Eco Mode)',
+          label: 'Eco Mode',
           savedValue: device.irEco,
           fieldKey: 'irEco',
         ),
@@ -378,7 +378,7 @@ class _IrLearnButton extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             Text(
-              hasCode ? 'إعادة النسخ' : 'نسخ الزر',
+              hasCode ? 'Re-Record' : 'Record',
               style: TextStyle(
                 color: hasCode ? Colors.white54 : Colors.white,
                 fontSize: fontSize,
@@ -432,7 +432,7 @@ class _IrSendButton extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'إرسال...',
+                    'Sending...',
                     style: TextStyle(
                         color: Colors.greenAccent,
                         fontSize: fontSize,
@@ -443,7 +443,7 @@ class _IrSendButton extends StatelessWidget {
                   Icon(Icons.send_rounded, size: iconSize, color: Colors.greenAccent),
                   const SizedBox(width: 6),
                   Text(
-                    'إرسال',
+                    'Send',
                     style: TextStyle(
                         color: Colors.greenAccent,
                         fontSize: fontSize,
