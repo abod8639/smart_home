@@ -159,9 +159,9 @@ class IrCodeEntity {
   }
 
   static IrProtocol _protocolFromString(String s) {
-    switch (s.toUpperCase()) {
-      case 'PULSE_DISTANCE': return IrProtocol.pulseDistance;
-      case 'PULSE_WIDTH':    return IrProtocol.pulseWidth;
+    switch (s.toUpperCase().replaceAll('_', '')) {
+      case 'PULSEDISTANCE': return IrProtocol.pulseDistance;
+      case 'PULSEWIDTH':    return IrProtocol.pulseWidth;
       case 'NEC':            return IrProtocol.nec;
       case 'SAMSUNG':        return IrProtocol.samsung;
       case 'SONY':           return IrProtocol.sony;
