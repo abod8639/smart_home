@@ -26,13 +26,13 @@ class AcCard extends StatelessWidget {
     final sw = MediaQuery.sizeOf(context).width;
     final double cardWidth;
     if (Responsive.isMobile(context)) {
-      cardWidth = (sw * 0.82).clamp(240.0, 340.0);
+      cardWidth = (sw * 0.82).clamp(240.0, 320.0);
     } else if (Responsive.isTablet(context)) {
-      cardWidth = 340;
+      cardWidth = 320.0;
     } else {
-      cardWidth = 380;
+      cardWidth = 340.0;
     }
-    final scale = (cardWidth / 380).clamp(0.72, 1.0);
+    final scale = (cardWidth / 340.0).clamp(0.7, 1.0);
     return _AcCardMetrics(cardWidth: cardWidth, scale: scale);
   }
 
@@ -40,14 +40,14 @@ class AcCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDeviceOn = device.isOn;
     final m = _metrics(context);
-    final titleSize = (20 * m.scale).clamp(15.0, 20.0);
+    final titleSize = (20 * m.scale).clamp(14.0, 18.0);
 
     return SizedBox(
-      width: m.cardWidth-20,
+      width: m.cardWidth,
       child: GlassContainer(
         padding: EdgeInsets.symmetric(
-          horizontal: (20 * m.scale).clamp(12.0, 20.0),
-          vertical: (1 * m.scale).clamp(6.0, 10.0),
+          horizontal: (20 * m.scale).clamp(10.0, 18.0),
+          vertical: (1 * m.scale).clamp(5.0, 9.0),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
