@@ -64,7 +64,7 @@ class PlacementRoomDetails extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 buildPropertyRow('Total Devices', '${roomDevices.length} device(s)'),
