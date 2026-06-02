@@ -30,9 +30,7 @@ class VacuumDeviceEntity extends DeviceEntity {
     this.cleaningTime,
     this.filterStatus,
     this.nextCleaning,
-  }) : super.internal(
-          type: DeviceType.vacuum,
-        );
+  }) : super.internal(type: DeviceType.vacuum);
 
   @override
   List<Object?> get props => [
