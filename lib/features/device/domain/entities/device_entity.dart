@@ -1,34 +1,29 @@
 import 'package:equatable/equatable.dart';
 
+// Imports of subclasses for factory constructor
+import 'ac_ir_codes.dart';
+import 'vacuum_device_entity.dart';
+import 'ac_device_entity.dart';
+import 'lamp_device_entity.dart';
+import 'rgb_lamp_device_entity.dart';
+import 'door_device_entity.dart';
+
+// Exports of subclasses for backwards compatibility
+export 'ac_ir_codes.dart';
+export 'vacuum_device_entity.dart';
+export 'ac_device_entity.dart';
+export 'lamp_device_entity.dart';
+export 'rgb_lamp_device_entity.dart';
+export 'door_device_entity.dart';
+
 enum DeviceType { vacuum, airConditioner, lamp, door, rgb }
 
-class DeviceEntity extends Equatable {
+abstract class DeviceEntity extends Equatable {
   final String id;
   final String name;
   final DeviceType type;
   final bool isOn;
   final String? roomId;
-  
-  // Vacuum specifics
-  final int? batteryLevel;
-  final int? areaCleaned;
-  final int? cleaningTime;
-  final int? filterStatus;
-  final String? nextCleaning;
-
-  // AC specifics
-  final int? temperature;
-  final String? mode;
-  final int? coolingTime;
-
-  // Lamp specifics
-  final int? brightness;
-
-  // Door specifics
-  final bool? isLocked;
-
-  // Linked devices count
-  final int? linkedDevicesCount;
 
   // Placement coordinates (normalized 0.0 to 1.0)
   final double? positionX;
@@ -38,12 +33,7 @@ class DeviceEntity extends Equatable {
   final double? markerWidth;
   final double? markerHeight;
 
-  // RGB specifics (0–255 per channel)
-  final int? rgbR;
-  final int? rgbG;
-  final int? rgbB;
-
-  // Presentation style style
+  // Presentation style
   final bool showAsDot;
 
   // Matter fields
@@ -53,85 +43,28 @@ class DeviceEntity extends Equatable {
   // ESP32 GPIO pin mapping
   final int? pin;
 
-  // IR remote codes for AC (stored as JSON string containing protocol, value, bits)
-  final String? irPower;
-  final String? irTempUp;
-  final String? irTempDown;
-  final String? irAuto;
-  final String? irCool;
-  final String? irHeat;
-  final String? irEco;
-  final String? irDry;
-  final String? irFanQuiet;
-  final String? irFanLow;
-  final String? irFanMed;
-  final String? irFanHigh;
-  final String? irFanAuto;
-  final String? irSwingV;
-  final String? irSwingH;
-  final String? irPlasmacluster;
-  final String? irSuperJet;
-  final String? irCoanda;
-  final String? irMyArea;
-  final String? irDisplay;
-  final String? irClean;
-
-  const DeviceEntity({
+  const DeviceEntity.internal({
     required this.id,
     required this.name,
     required this.type,
     this.isOn = false,
     this.roomId,
-    this.batteryLevel,
-    this.areaCleaned,
-    this.cleaningTime,
-    this.filterStatus,
-    this.nextCleaning,
-    this.temperature,
-    this.mode,
-    this.coolingTime,
-    this.brightness,
-    this.isLocked,
-    this.linkedDevicesCount,
     this.positionX,
     this.positionY,
     this.markerWidth,
     this.markerHeight,
-    this.rgbR,
-    this.rgbG,
-    this.rgbB,
     this.showAsDot = false,
     this.matterNodeId,
     this.matterEndpointId,
     this.pin,
-    this.irPower,
-    this.irTempUp,
-    this.irTempDown,
-    this.irAuto,
-    this.irCool,
-    this.irHeat,
-    this.irEco,
-    this.irDry,
-    this.irFanQuiet,
-    this.irFanLow,
-    this.irFanMed,
-    this.irFanHigh,
-    this.irFanAuto,
-    this.irSwingV,
-    this.irSwingH,
-    this.irPlasmacluster,
-    this.irSuperJet,
-    this.irCoanda,
-    this.irMyArea,
-    this.irDisplay,
-    this.irClean,
   });
 
-  DeviceEntity copyWith({
-    String? id,
-    String? name,
-    DeviceType? type,
-    bool? isOn,
+  // Factory constructor for backwards compatibility
+  factory DeviceEntity({
+    required String id,
+    required String name,
+    required DeviceType type,
+    bool isOn = false,
     String? roomId,
     int? batteryLevel,
     int? areaCleaned,
@@ -151,10 +84,218 @@ class DeviceEntity extends Equatable {
     int? rgbR,
     int? rgbG,
     int? rgbB,
+    bool showAsDot = false,
+    int? matterNodeId,
+    int? matterEndpointId,
+    int? pin,
+    String? irPower,
+    String? irTempUp,
+    String? irTempDown,
+    String? irAuto,
+    String? irCool,
+    String? irHeat,
+    String? irEco,
+    String? irDry,
+    String? irFanQuiet,
+    String? irFanLow,
+    String? irFanMed,
+    String? irFanHigh,
+    String? irFanAuto,
+    String? irSwingV,
+    String? irSwingH,
+    String? irPlasmacluster,
+    String? irSuperJet,
+    String? irCoanda,
+    String? irMyArea,
+    String? irDisplay,
+    String? irClean,
+  }) {
+    switch (type) {
+      case DeviceType.vacuum:
+        return VacuumDeviceEntity(
+          id: id,
+          name: name,
+          isOn: isOn,
+          roomId: roomId,
+          positionX: positionX,
+          positionY: positionY,
+          markerWidth: markerWidth,
+          markerHeight: markerHeight,
+          showAsDot: showAsDot,
+          matterNodeId: matterNodeId,
+          matterEndpointId: matterEndpointId,
+          pin: pin,
+          batteryLevel: batteryLevel,
+          areaCleaned: areaCleaned,
+          cleaningTime: cleaningTime,
+          filterStatus: filterStatus,
+          nextCleaning: nextCleaning,
+        );
+      case DeviceType.airConditioner:
+        return AcDeviceEntity(
+          id: id,
+          name: name,
+          isOn: isOn,
+          roomId: roomId,
+          positionX: positionX,
+          positionY: positionY,
+          markerWidth: markerWidth,
+          markerHeight: markerHeight,
+          showAsDot: showAsDot,
+          matterNodeId: matterNodeId,
+          matterEndpointId: matterEndpointId,
+          pin: pin,
+          temperature: temperature,
+          mode: mode,
+          coolingTime: coolingTime,
+          acIrCodes: AcIrCodes(
+            irPower: irPower,
+            irTempUp: irTempUp,
+            irTempDown: irTempDown,
+            irAuto: irAuto,
+            irCool: irCool,
+            irHeat: irHeat,
+            irEco: irEco,
+            irDry: irDry,
+            irFanQuiet: irFanQuiet,
+            irFanLow: irFanLow,
+            irFanMed: irFanMed,
+            irFanHigh: irFanHigh,
+            irFanAuto: irFanAuto,
+            irSwingV: irSwingV,
+            irSwingH: irSwingH,
+            irPlasmacluster: irPlasmacluster,
+            irSuperJet: irSuperJet,
+            irCoanda: irCoanda,
+            irMyArea: irMyArea,
+            irDisplay: irDisplay,
+            irClean: irClean,
+          ),
+        );
+      case DeviceType.lamp:
+        return LampDeviceEntity(
+          id: id,
+          name: name,
+          isOn: isOn,
+          roomId: roomId,
+          positionX: positionX,
+          positionY: positionY,
+          markerWidth: markerWidth,
+          markerHeight: markerHeight,
+          showAsDot: showAsDot,
+          matterNodeId: matterNodeId,
+          matterEndpointId: matterEndpointId,
+          pin: pin,
+          brightness: brightness,
+        );
+      case DeviceType.rgb:
+        return RgbLampDeviceEntity(
+          id: id,
+          name: name,
+          isOn: isOn,
+          roomId: roomId,
+          positionX: positionX,
+          positionY: positionY,
+          markerWidth: markerWidth,
+          markerHeight: markerHeight,
+          showAsDot: showAsDot,
+          matterNodeId: matterNodeId,
+          matterEndpointId: matterEndpointId,
+          pin: pin,
+          brightness: brightness,
+          rgbR: rgbR,
+          rgbG: rgbG,
+          rgbB: rgbB,
+        );
+      case DeviceType.door:
+        return DoorDeviceEntity(
+          id: id,
+          name: name,
+          isOn: isOn,
+          roomId: roomId,
+          positionX: positionX,
+          positionY: positionY,
+          markerWidth: markerWidth,
+          markerHeight: markerHeight,
+          showAsDot: showAsDot,
+          matterNodeId: matterNodeId,
+          matterEndpointId: matterEndpointId,
+          pin: pin,
+          isLocked: isLocked,
+          linkedDevicesCount: linkedDevicesCount,
+        );
+    }
+  }
+
+  // Backwards compatible getters for subclass properties
+  int? get batteryLevel => null;
+  int? get areaCleaned => null;
+  int? get cleaningTime => null;
+  int? get filterStatus => null;
+  String? get nextCleaning => null;
+  int? get temperature => null;
+  String? get mode => null;
+  int? get coolingTime => null;
+  int? get brightness => null;
+  bool? get isLocked => null;
+  int? get linkedDevicesCount => null;
+  int? get rgbR => null;
+  int? get rgbG => null;
+  int? get rgbB => null;
+
+  // IR Code legacy getters
+  String? get irPower => null;
+  String? get irTempUp => null;
+  String? get irTempDown => null;
+  String? get irAuto => null;
+  String? get irCool => null;
+  String? get irHeat => null;
+  String? get irEco => null;
+  String? get irDry => null;
+  String? get irFanQuiet => null;
+  String? get irFanLow => null;
+  String? get irFanMed => null;
+  String? get irFanHigh => null;
+  String? get irFanAuto => null;
+  String? get irSwingV => null;
+  String? get irSwingH => null;
+  String? get irPlasmacluster => null;
+  String? get irSuperJet => null;
+  String? get irCoanda => null;
+  String? get irMyArea => null;
+  String? get irDisplay => null;
+  String? get irClean => null;
+
+  DeviceEntity copyWith({
+    String? id,
+    String? name,
+    DeviceType? type,
+    bool? isOn,
+    String? roomId,
+    double? positionX,
+    double? positionY,
+    double? markerWidth,
+    double? markerHeight,
     bool? showAsDot,
     Object? matterNodeId = const Object(),
     Object? matterEndpointId = const Object(),
     Object? pin = const Object(),
+    // Subclass specific
+    int? batteryLevel,
+    int? areaCleaned,
+    int? cleaningTime,
+    int? filterStatus,
+    String? nextCleaning,
+    int? temperature,
+    String? mode,
+    int? coolingTime,
+    int? brightness,
+    bool? isLocked,
+    int? linkedDevicesCount,
+    int? rgbR,
+    int? rgbG,
+    int? rgbB,
+    // IR codes
     Object? irPower = const Object(),
     Object? irTempUp = const Object(),
     Object? irTempDown = const Object(),
@@ -183,6 +324,14 @@ class DeviceEntity extends Equatable {
       type: type ?? this.type,
       isOn: isOn ?? this.isOn,
       roomId: roomId ?? this.roomId,
+      positionX: positionX ?? this.positionX,
+      positionY: positionY ?? this.positionY,
+      markerWidth: markerWidth ?? this.markerWidth,
+      markerHeight: markerHeight ?? this.markerHeight,
+      showAsDot: showAsDot ?? this.showAsDot,
+      matterNodeId: matterNodeId == const Object() ? this.matterNodeId : (matterNodeId as int?),
+      matterEndpointId: matterEndpointId == const Object() ? this.matterEndpointId : (matterEndpointId as int?),
+      pin: pin == const Object() ? this.pin : (pin as int?),
       batteryLevel: batteryLevel ?? this.batteryLevel,
       areaCleaned: areaCleaned ?? this.areaCleaned,
       cleaningTime: cleaningTime ?? this.cleaningTime,
@@ -194,17 +343,9 @@ class DeviceEntity extends Equatable {
       brightness: brightness ?? this.brightness,
       isLocked: isLocked ?? this.isLocked,
       linkedDevicesCount: linkedDevicesCount ?? this.linkedDevicesCount,
-      positionX: positionX ?? this.positionX,
-      positionY: positionY ?? this.positionY,
-      markerWidth: markerWidth ?? this.markerWidth,
-      markerHeight: markerHeight ?? this.markerHeight,
       rgbR: rgbR ?? this.rgbR,
       rgbG: rgbG ?? this.rgbG,
       rgbB: rgbB ?? this.rgbB,
-      showAsDot: showAsDot ?? this.showAsDot,
-      matterNodeId: matterNodeId == const Object() ? this.matterNodeId : (matterNodeId as int?),
-      matterEndpointId: matterEndpointId == const Object() ? this.matterEndpointId : (matterEndpointId as int?),
-      pin: pin == const Object() ? this.pin : (pin as int?),
       irPower: irPower == const Object() ? this.irPower : (irPower as String?),
       irTempUp: irTempUp == const Object() ? this.irTempUp : (irTempUp as String?),
       irTempDown: irTempDown == const Object() ? this.irTempDown : (irTempDown as String?),
@@ -236,48 +377,13 @@ class DeviceEntity extends Equatable {
         type,
         isOn,
         roomId,
-        batteryLevel,
-        areaCleaned,
-        cleaningTime,
-        filterStatus,
-        nextCleaning,
-        temperature,
-        mode,
-        coolingTime,
-        brightness,
-        isLocked,
-        linkedDevicesCount,
         positionX,
         positionY,
         markerWidth,
         markerHeight,
-        rgbR,
-        rgbG,
-        rgbB,
         showAsDot,
         matterNodeId,
         matterEndpointId,
         pin,
-        irPower,
-        irTempUp,
-        irTempDown,
-        irAuto,
-        irCool,
-        irHeat,
-        irEco,
-        irDry,
-        irFanQuiet,
-        irFanLow,
-        irFanMed,
-        irFanHigh,
-        irFanAuto,
-        irSwingV,
-        irSwingH,
-        irPlasmacluster,
-        irSuperJet,
-        irCoanda,
-        irMyArea,
-        irDisplay,
-        irClean,
       ];
 }
