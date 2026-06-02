@@ -18,9 +18,7 @@ class LampDeviceEntity extends DeviceEntity {
     super.matterEndpointId,
     super.pin,
     this.brightness,
-  }) : super.internal(
-          type: DeviceType.lamp,
-        );
+  }) : super.internal(type: DeviceType.lamp);
 
   @override
   List<Object?> get props => [
