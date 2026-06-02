@@ -40,6 +40,20 @@ class DeviceLocalDatasource {
         'irCool': d.irCool,
         'irHeat': d.irHeat,
         'irEco': d.irEco,
+        'irDry': d.irDry,
+        'irFanQuiet': d.irFanQuiet,
+        'irFanLow': d.irFanLow,
+        'irFanMed': d.irFanMed,
+        'irFanHigh': d.irFanHigh,
+        'irFanAuto': d.irFanAuto,
+        'irSwingV': d.irSwingV,
+        'irSwingH': d.irSwingH,
+        'irPlasmacluster': d.irPlasmacluster,
+        'irSuperJet': d.irSuperJet,
+        'irCoanda': d.irCoanda,
+        'irMyArea': d.irMyArea,
+        'irDisplay': d.irDisplay,
+        'irClean': d.irClean,
       };
 
   static DeviceEntity _fromMap(Map map) {
@@ -82,6 +96,20 @@ class DeviceLocalDatasource {
       irCool: map['irCool'] as String?,
       irHeat: map['irHeat'] as String?,
       irEco: map['irEco'] as String?,
+      irDry: map['irDry'] as String?,
+      irFanQuiet: map['irFanQuiet'] as String?,
+      irFanLow: map['irFanLow'] as String?,
+      irFanMed: map['irFanMed'] as String?,
+      irFanHigh: map['irFanHigh'] as String?,
+      irFanAuto: map['irFanAuto'] as String?,
+      irSwingV: map['irSwingV'] as String?,
+      irSwingH: map['irSwingH'] as String?,
+      irPlasmacluster: map['irPlasmacluster'] as String?,
+      irSuperJet: map['irSuperJet'] as String?,
+      irCoanda: map['irCoanda'] as String?,
+      irMyArea: map['irMyArea'] as String?,
+      irDisplay: map['irDisplay'] as String?,
+      irClean: map['irClean'] as String?,
     );
   }
 
