@@ -247,6 +247,48 @@ class DashboardController extends GetxController {
   }
 
 
+  void closeAllDevicesInRoom(String roomId) {
+    bool changed = false;
+    for (int i = 0; i < devices.length; i++) {
+      final device = devices[i];
+      if (device.roomId == roomId && device.isOn) {
+        devices[i] = device.copyWith(isOn: false);
+        changed = true;
+
+        // Matter Devices
+        if (device.matterNodeId != null && Get.isRegistered<MatterService>()) {
+          Get.find<MatterService>().toggleDevice(
+            device.matterNodeId!,
+            device.matterEndpointId ?? 1,
+            false,
+          );
+        }
+        // Trigger ESP32 if the device matches our GPIO mappings
+        else if (Get.isRegistered<Esp32Service>()) {
+          if (device.type == DeviceType.lamp) {
+            final pin = device.pin ?? 2;
+            Get.find<Esp32Service>().setDigitalOutput(pin, false);
+          } else if (device.type == DeviceType.airConditioner) {
+            if (device.irPower != null) {
+              sendIrCommand(device.irPower!);
+            } else if (device.pin != null) {
+              Get.find<Esp32Service>().setDigitalOutput(device.pin!, false);
+            } else {
+              Get.find<Esp32Service>().sendRawCommand(
+                'control/ac',
+                method: 'POST',
+                data: {'isOn': false},
+              );
+            }
+          }
+        }
+      }
+    }
+    if (changed) {
+      _persistDevices();
+    }
+  }
+
   void toggleDevice(String id) {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
