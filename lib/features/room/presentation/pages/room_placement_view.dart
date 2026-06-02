@@ -30,7 +30,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
       ),
       body: Padding(
         padding: EdgeInsets.all(Responsive.pagePadding(context)),
-        child: Responsive.isMobile(context)
+        child: Responsive.isMobile(context) || Responsive.isTablet(context)
             ? _buildMobileLayout(context, dashboardController, imageKey)
             : _buildWideLayout(context, dashboardController, imageKey),
       ),
@@ -46,34 +46,29 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
   ) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double maxHeight = constraints.maxHeight.isInfinite
-            ? MediaQuery.of(context).size.height - 120
-            : constraints.maxHeight;
+        final screenWidth = MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height);
+        final double imagePanelHeight = (screenWidth * 452).clamp(300, 552) ;
 
-        return SizedBox(
-          height: maxHeight,
-          child: Column(
-            children: [
-              Expanded(
-                flex: 3,
-                child: PlacementImagePanel(
-                  dashboardController: dashboardController,
-                  placementController: controller,
-                  imageKey: imageKey,
+        return Column(
+          children: [
+            SizedBox(
+              height: imagePanelHeight,
+              child: PlacementImagePanel(
+                dashboardController: dashboardController,
+                placementController: controller,
+                imageKey: imageKey,
+              ),
+            ),
+            SizedBox(height: Responsive.contentGap(context)),
+            Expanded(
+              child: GlassContainer(
+                padding: EdgeInsets.all(Responsive.isMobile(context) ? 12 : 16),
+                child: Obx(
+                  () => _buildSidePanel(context, dashboardController),
                 ),
               ),
-              SizedBox(height: Responsive.contentGap(context)),
-              Expanded(
-                flex: 2,
-                child: GlassContainer(
-                  padding: EdgeInsets.all(Responsive.isMobile(context) ? 12 : 16),
-                  child: Obx(
-                    () => _buildSidePanel(context, dashboardController),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
