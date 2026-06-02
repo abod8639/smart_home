@@ -24,7 +24,7 @@ class DashboardMainView extends GetView<DashboardController> {
     return LayoutBuilder(
       builder: (context, constraints) {
         // mobile view with better spacing
-        if (Responsive.isMobile(context)) {
+        if (Responsive.isMobile(context)||Responsive.isTablet(context)) {
           // Mobile Layout: One single vertical scrollable Column to avoid layout issues
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -66,62 +66,62 @@ class DashboardMainView extends GetView<DashboardController> {
         }
 
         // tablet view with spacing
-        if (Responsive.isTablet(context)) {
-          // Tablet / Medium Layout: Scrollable Column with side-by-side preview and weather
-          return SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.all(padding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Top section: Room Preview & Weather side-by-side
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Expanded(flex: 5, child: RoomPreviewWidget()),
-                      SizedBox(width: gap),
-                      const SizedBox(
-                        width: 280,
-                        child: WeatherUpdateWidget(),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: gap),
+        // if (Responsive.isTablet(context)) {
+        //   // Tablet / Medium Layout: Scrollable Column with side-by-side preview and weather
+        //   return SingleChildScrollView(
+        //     physics: const BouncingScrollPhysics(),
+        //     child: Padding(
+        //       padding: EdgeInsets.all(padding),
+        //       child: Column(
+        //         crossAxisAlignment: CrossAxisAlignment.stretch,
+        //         children: [
+        //           // Top section: Room Preview & Weather side-by-side
+        //           Row(
+        //             crossAxisAlignment: CrossAxisAlignment.start,
+        //             children: [
+        //               const Expanded(flex: 5, child: RoomPreviewWidget()),
+        //               SizedBox(width: gap),
+        //               // const SizedBox(
+        //               //   width: 280,
+        //               //   child: WeatherUpdateWidget(),
+        //               // ),
+        //             ],
+        //           ),
+        //           SizedBox(height: gap),
 
-                  // Rooms section
-                  Text(
-                    'Rooms',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  SizedBox(height: gap * 0.5),
-                  const SizedBox(
-                    height: 130, // Fits the horizontal room card height
-                    child: RoomsListWidget(isCompact: true),
-                  ),
-                  SizedBox(height: gap),
+        //           // Rooms section
+        //           Text(
+        //             'Rooms',
+        //             style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        //               color: Colors.white,
+        //               fontWeight: FontWeight.bold,
+        //               fontSize: 18,
+        //             ),
+        //           ),
+        //           SizedBox(height: gap * 0.5),
+        //           const SizedBox(
+        //             height: 130, // Fits the horizontal room card height
+        //             child: RoomsListWidget(isCompact: true),
+        //           ),
+        //           SizedBox(height: gap),
 
-                  // Devices section
-                  Text(
-                    'Devices',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  SizedBox(height: gap * 0.5),
-                  SizedBox(height: deviceHeight, child: buildDeviceCards()),
-                  SizedBox(height: gap * 2),
-                ],
-              ),
-            ),
-          );
-        }
+        //           // Devices section
+        //           Text(
+        //             'Devices',
+        //             style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        //               color: Colors.white,
+        //               fontWeight: FontWeight.bold,
+        //               fontSize: 18,
+        //             ),
+        //           ),
+        //           SizedBox(height: gap * 0.5),
+        //           SizedBox(height: deviceHeight, child: buildDeviceCards()),
+        //           SizedBox(height: gap * 2),
+        //         ],
+        //       ),
+            // ),
+          // );
+        // }
 
         // Desktop / Wide Layout (width >= 950): 2-Column Layout
         final previewWidth = constraints.maxWidth - 320 - gap - (padding * 2);
