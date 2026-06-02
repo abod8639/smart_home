@@ -4,7 +4,7 @@ import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 void main() {
   group('DeviceEntity and Serialization Tests', () {
     test('DeviceEntity has showAsDot defaulting to false', () {
-      const device = DeviceEntity(
+      final device = DeviceEntity(
         id: 'test_id',
         name: 'Test Lamp',
         type: DeviceType.lamp,
@@ -14,7 +14,7 @@ void main() {
     });
 
     test('DeviceEntity copyWith correctly modifies showAsDot', () {
-      const device = DeviceEntity(
+      final device = DeviceEntity(
         id: 'test_id',
         name: 'Test Lamp',
         type: DeviceType.lamp,
