@@ -1,5 +1,4 @@
 import 'device_entity.dart';
-import 'ac_ir_codes.dart';
 
 class AcDeviceEntity extends DeviceEntity {
   @override
