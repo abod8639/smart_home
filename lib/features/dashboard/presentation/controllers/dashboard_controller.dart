@@ -374,6 +374,7 @@ class DashboardController extends GetxController {
       'Cool mode' => device.irCool,
       'Heat mode' => device.irHeat,
       'Eco mode'  => device.irEco,
+      'Dry mode'  => device.irDry,
       _           => null,
     };
 
@@ -469,6 +470,34 @@ class DashboardController extends GetxController {
         return device.copyWith(irHeat: jsonCode);
       case 'irEco':
         return device.copyWith(irEco: jsonCode);
+      case 'irDry':
+        return device.copyWith(irDry: jsonCode);
+      case 'irFanQuiet':
+        return device.copyWith(irFanQuiet: jsonCode);
+      case 'irFanLow':
+        return device.copyWith(irFanLow: jsonCode);
+      case 'irFanMed':
+        return device.copyWith(irFanMed: jsonCode);
+      case 'irFanHigh':
+        return device.copyWith(irFanHigh: jsonCode);
+      case 'irFanAuto':
+        return device.copyWith(irFanAuto: jsonCode);
+      case 'irSwingV':
+        return device.copyWith(irSwingV: jsonCode);
+      case 'irSwingH':
+        return device.copyWith(irSwingH: jsonCode);
+      case 'irPlasmacluster':
+        return device.copyWith(irPlasmacluster: jsonCode);
+      case 'irSuperJet':
+        return device.copyWith(irSuperJet: jsonCode);
+      case 'irCoanda':
+        return device.copyWith(irCoanda: jsonCode);
+      case 'irMyArea':
+        return device.copyWith(irMyArea: jsonCode);
+      case 'irDisplay':
+        return device.copyWith(irDisplay: jsonCode);
+      case 'irClean':
+        return device.copyWith(irClean: jsonCode);
       default:
         return null;
     }
