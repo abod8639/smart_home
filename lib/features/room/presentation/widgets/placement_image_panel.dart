@@ -44,6 +44,110 @@ class PlacementImagePanel extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final showRoomsList = constraints.maxHeight > 180.0;
+          
+          final imageWidget = Center(
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Stack(
+                  key: imageKey,
+                  children: [
+                    // Background image (reactive to selected room)
+                    Positioned.fill(
+                      child: Obx(() {
+                        final room = dashboardController.activeRoom;
+                        if (room != null && room.imagePath != null && room.imagePath!.isNotEmpty) {
+                          final file = File(room.imagePath!);
+                          if (file.existsSync()) {
+                            return Image.file(file, fit: BoxFit.cover);
+                          }
+                        }
+                        final bgImage = _backgroundImage(room?.name);
+                        return Image.asset(bgImage, fit: BoxFit.cover);
+                      }),
+                    ),
+
+                    // Dark overlay
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.2),
+                      ),
+                    ),
+
+                    // Device markers
+                    Positioned.fill(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Obx(() {
+                            final activeRoomId =
+                                dashboardController.activeRoom?.id ?? '3';
+                            final validDevices = dashboardController.devices
+                                .where((d) =>
+                                    d.positionX != null && d.positionY != null)
+                                .where((d) =>
+                                    d.roomId == activeRoomId ||
+                                    (d.roomId == null && activeRoomId == '3'))
+                                .toList();
+
+                            return Stack(
+                              children: validDevices.map((device) {
+                                final posX =
+                                    device.positionX! * constraints.maxWidth;
+                                final posY =
+                                    device.positionY! * constraints.maxHeight;
+
+                                final showAsDot = device.showAsDot;
+                                final double mW;
+                                final double mH;
+
+                                if (showAsDot) {
+                                  mW = 32.0;
+                                  mH = 32.0;
+                                } else {
+                                  final rawW = device.markerWidth ?? 0.18;
+                                  final rawH = device.markerHeight ?? 0.15;
+                                  final normW = rawW > 1.0
+                                      ? (rawW / 600.0).clamp(0.05, 0.8)
+                                      : rawW;
+                                  final normH = rawH > 1.0
+                                      ? (rawH / 400.0).clamp(0.05, 0.8)
+                                      : rawH;
+
+                                  mW = normW * constraints.maxWidth;
+                                  mH = normH * constraints.maxHeight;
+                                }
+
+                                final isSelected =
+                                    placementController.selectedDeviceId.value ==
+                                    device.id;
+
+                                return Positioned(
+                                  left: posX - mW / 2,
+                                  top: posY - mH / 2,
+                                  child: PlacementDeviceMarker(
+                                    key: ValueKey('${device.id}_${device.showAsDot}'),
+                                    device: device,
+                                    isSelected: isSelected,
+                                    dashboardController: dashboardController,
+                                    placementController: placementController,
+                                    imageKey: imageKey,
+                                    parentWidth: constraints.maxWidth,
+                                    parentHeight: constraints.maxHeight,
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -54,112 +158,7 @@ class PlacementImagePanel extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
               ],
-
-          // Floor-plan image + marker overlay
-          Expanded(
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Stack(
-                    key: imageKey,
-                    children: [
-                      // Background image (reactive to selected room)
-                      Positioned.fill(
-                        child: Obx(() {
-                          final room = dashboardController.activeRoom;
-                          if (room != null && room.imagePath != null && room.imagePath!.isNotEmpty) {
-                            final file = File(room.imagePath!);
-                            if (file.existsSync()) {
-                              return Image.file(file, fit: BoxFit.cover);
-                            }
-                          }
-                          final bgImage = _backgroundImage(room?.name);
-                          return Image.asset(bgImage, fit: BoxFit.cover);
-                        }),
-                      ),
-
-                      // Dark overlay
-                      Positioned.fill(
-                        child: Container(
-                          color: Colors.black.withValues(alpha: 0.2),
-                        ),
-                      ),
-
-                      // Device markers
-                      Positioned.fill(
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            return Obx(() {
-                              final activeRoomId =
-                                  dashboardController.activeRoom?.id ?? '3';
-                              final validDevices = dashboardController.devices
-                                  .where((d) =>
-                                      d.positionX != null && d.positionY != null)
-                                  .where((d) =>
-                                      d.roomId == activeRoomId ||
-                                      (d.roomId == null && activeRoomId == '3'))
-                                  .toList();
-
-                              return Stack(
-                                children: validDevices.map((device) {
-                                  final posX =
-                                      device.positionX! * constraints.maxWidth;
-                                  final posY =
-                                      device.positionY! * constraints.maxHeight;
-
-                                  final showAsDot = device.showAsDot;
-                                  final double mW;
-                                  final double mH;
-
-                                  if (showAsDot) {
-                                    mW = 32.0;
-                                    mH = 32.0;
-                                  } else {
-                                    final rawW = device.markerWidth ?? 0.18;
-                                    final rawH = device.markerHeight ?? 0.15;
-                                    final normW = rawW > 1.0
-                                        ? (rawW / 600.0).clamp(0.05, 0.8)
-                                        : rawW;
-                                    final normH = rawH > 1.0
-                                        ? (rawH / 400.0).clamp(0.05, 0.8)
-                                        : rawH;
-
-                                    mW = normW * constraints.maxWidth;
-                                    mH = normH * constraints.maxHeight;
-                                  }
-
-                                  final isSelected =
-                                      placementController.selectedDeviceId.value ==
-                                      device.id;
-
-                                  return Positioned(
-                                    left: posX - mW / 2,
-                                    top: posY - mH / 2,
-                                    child: PlacementDeviceMarker(
-                                      key: ValueKey('${device.id}_${device.showAsDot}'),
-                                      device: device,
-                                      isSelected: isSelected,
-                                      dashboardController: dashboardController,
-                                      placementController: placementController,
-                                      imageKey: imageKey,
-                                      parentWidth: constraints.maxWidth,
-                                      parentHeight: constraints.maxHeight,
-                                    ),
-                                  );
-                                }).toList(),
-                              );
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              Expanded(child: imageWidget),
             ],
           );
         },
