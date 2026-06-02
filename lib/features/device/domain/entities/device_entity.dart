@@ -61,6 +61,20 @@ class DeviceEntity extends Equatable {
   final String? irCool;
   final String? irHeat;
   final String? irEco;
+  final String? irDry;
+  final String? irFanQuiet;
+  final String? irFanLow;
+  final String? irFanMed;
+  final String? irFanHigh;
+  final String? irFanAuto;
+  final String? irSwingV;
+  final String? irSwingH;
+  final String? irPlasmacluster;
+  final String? irSuperJet;
+  final String? irCoanda;
+  final String? irMyArea;
+  final String? irDisplay;
+  final String? irClean;
 
   const DeviceEntity({
     required this.id,
@@ -97,6 +111,20 @@ class DeviceEntity extends Equatable {
     this.irCool,
     this.irHeat,
     this.irEco,
+    this.irDry,
+    this.irFanQuiet,
+    this.irFanLow,
+    this.irFanMed,
+    this.irFanHigh,
+    this.irFanAuto,
+    this.irSwingV,
+    this.irSwingH,
+    this.irPlasmacluster,
+    this.irSuperJet,
+    this.irCoanda,
+    this.irMyArea,
+    this.irDisplay,
+    this.irClean,
   });
 
   DeviceEntity copyWith({
@@ -134,6 +162,20 @@ class DeviceEntity extends Equatable {
     Object? irCool = const Object(),
     Object? irHeat = const Object(),
     Object? irEco = const Object(),
+    Object? irDry = const Object(),
+    Object? irFanQuiet = const Object(),
+    Object? irFanLow = const Object(),
+    Object? irFanMed = const Object(),
+    Object? irFanHigh = const Object(),
+    Object? irFanAuto = const Object(),
+    Object? irSwingV = const Object(),
+    Object? irSwingH = const Object(),
+    Object? irPlasmacluster = const Object(),
+    Object? irSuperJet = const Object(),
+    Object? irCoanda = const Object(),
+    Object? irMyArea = const Object(),
+    Object? irDisplay = const Object(),
+    Object? irClean = const Object(),
   }) {
     return DeviceEntity(
       id: id ?? this.id,
@@ -170,6 +212,20 @@ class DeviceEntity extends Equatable {
       irCool: irCool == const Object() ? this.irCool : (irCool as String?),
       irHeat: irHeat == const Object() ? this.irHeat : (irHeat as String?),
       irEco: irEco == const Object() ? this.irEco : (irEco as String?),
+      irDry: irDry == const Object() ? this.irDry : (irDry as String?),
+      irFanQuiet: irFanQuiet == const Object() ? this.irFanQuiet : (irFanQuiet as String?),
+      irFanLow: irFanLow == const Object() ? this.irFanLow : (irFanLow as String?),
+      irFanMed: irFanMed == const Object() ? this.irFanMed : (irFanMed as String?),
+      irFanHigh: irFanHigh == const Object() ? this.irFanHigh : (irFanHigh as String?),
+      irFanAuto: irFanAuto == const Object() ? this.irFanAuto : (irFanAuto as String?),
+      irSwingV: irSwingV == const Object() ? this.irSwingV : (irSwingV as String?),
+      irSwingH: irSwingH == const Object() ? this.irSwingH : (irSwingH as String?),
+      irPlasmacluster: irPlasmacluster == const Object() ? this.irPlasmacluster : (irPlasmacluster as String?),
+      irSuperJet: irSuperJet == const Object() ? this.irSuperJet : (irSuperJet as String?),
+      irCoanda: irCoanda == const Object() ? this.irCoanda : (irCoanda as String?),
+      irMyArea: irMyArea == const Object() ? this.irMyArea : (irMyArea as String?),
+      irDisplay: irDisplay == const Object() ? this.irDisplay : (irDisplay as String?),
+      irClean: irClean == const Object() ? this.irClean : (irClean as String?),
     );
   }
 
@@ -209,5 +265,19 @@ class DeviceEntity extends Equatable {
         irCool,
         irHeat,
         irEco,
+        irDry,
+        irFanQuiet,
+        irFanLow,
+        irFanMed,
+        irFanHigh,
+        irFanAuto,
+        irSwingV,
+        irSwingH,
+        irPlasmacluster,
+        irSuperJet,
+        irCoanda,
+        irMyArea,
+        irDisplay,
+        irClean,
       ];
 }
