@@ -245,30 +245,32 @@ class _IrCodeInfoChips extends StatelessWidget {
     final chips = <_ChipData>[
       _ChipData(
         label: code.protocol.name.toUpperCase(),
-        color: _protocolColor(code.protocol),
+        // color:
+        // AppTheme.primaryBlue,
+        // _protocolColor(code.protocol),
         icon: Icons.wifi_tethering_rounded,
       ),
       _ChipData(
         label: '${code.bits} bits',
-        color: Colors.blueAccent,
+        // color: Colors.blueAccent,
         icon: Icons.memory_rounded,
       ),
       if (code.address != null)
         _ChipData(
           label: 'Addr: 0x${code.address!.toRadixString(16).toUpperCase()}',
-          color: Colors.purpleAccent,
+          // color: Colors.purpleAccent,
           icon: Icons.tag,
         ),
       if (code.command != null)
         _ChipData(
           label: 'Cmd: 0x${code.command!.toRadixString(16).toUpperCase()}',
-          color: Colors.orangeAccent,
+          // color: Colors.orangeAccent,
           icon: Icons.code_rounded,
         ),
       if (code.headerMark != null)
         _ChipData(
           label: 'H: ${code.headerMark}/${code.headerSpace} µs',
-          color: Colors.tealAccent,
+          // color: Colors.tealAccent,
           icon: Icons.timeline,
         ),
     ];
@@ -284,7 +286,6 @@ class _IrCodeInfoChips extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        // color: data.color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: data.color.withValues(alpha: 0.3), width: 0.7),
       ),
@@ -307,32 +308,35 @@ class _IrCodeInfoChips extends StatelessWidget {
     );
   }
 
-  static Color _protocolColor(IrProtocol p) {
-    switch (p) {
-      case IrProtocol.pulseDistance:
-      case IrProtocol.pulseWidth:
-        return Colors.cyanAccent;
-      case IrProtocol.samsung:
-        return Colors.blueAccent;
-      case IrProtocol.nec:
-        return Colors.greenAccent;
-      case IrProtocol.sony:
-        return Colors.yellowAccent;
-      case IrProtocol.lg:
-        return Colors.pinkAccent;
-      case IrProtocol.raw:
-        return Colors.deepOrangeAccent;
-      default:
-        return Colors.white54;
-    }
-  }
+  // static Color _protocolColor(IrProtocol p) {
+  //   switch (p) {
+  //     case IrProtocol.pulseDistance:
+  //     case IrProtocol.pulseWidth:
+  //       return Colors.cyanAccent;
+  //     case IrProtocol.samsung:
+  //       return Colors.blueAccent;
+  //     case IrProtocol.nec:
+  //       return Colors.greenAccent;
+  //     case IrProtocol.sony:
+  //       return Colors.yellowAccent;
+  //     case IrProtocol.lg:
+  //       return Colors.pinkAccent;
+  //     case IrProtocol.raw:
+  //       return Colors.deepOrangeAccent;
+  //     default:
+  //       return Colors.white54;
+  //   }
+  // }
 }
 
 class _ChipData {
   final String label;
   final Color color;
   final IconData icon;
-  const _ChipData({required this.label, required this.color, required this.icon});
+  const _ChipData({
+    required this.label,
+    required this.icon,
+  }) : color = AppTheme.primaryBlue;
 }
 
 /// Learn/Record button with animated state
