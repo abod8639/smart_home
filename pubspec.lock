@@ -400,7 +400,7 @@ packages:
     source: hosted
     version: "1.0.0"
   jni_flutter:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: jni_flutter
       sha256: "8b59e590786050b1cd866677dddaf76b1ade5e7bc751abe04b86e84d379d3ba6"
