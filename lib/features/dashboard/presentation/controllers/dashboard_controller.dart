@@ -115,7 +115,7 @@ class DashboardController extends GetxController {
   /// Seeds the initial mock devices on the very first launch.
   void _loadMockData() {
     devices.value = [
-      const DeviceEntity(
+      DeviceEntity(
         id: 'door1',
         name: 'Smart Door',
         type: DeviceType.door,
@@ -124,7 +124,7 @@ class DashboardController extends GetxController {
         positionY: 0.55,
         roomId: '3',
       ),
-      const DeviceEntity(
+      DeviceEntity(
         id: 'vac1',
         name: 'Robot vacuum cleaner',
         type: DeviceType.vacuum,
@@ -138,7 +138,7 @@ class DashboardController extends GetxController {
         positionY: 0.75,
         roomId: '3',
       ),
-      const DeviceEntity(
+      DeviceEntity(
         id: 'ac1',
         name: 'Dining Area AC',
         type: DeviceType.airConditioner,
@@ -150,7 +150,7 @@ class DashboardController extends GetxController {
         positionY: 0.35,
         roomId: '3',
       ),
-      const DeviceEntity(
+      DeviceEntity(
         id: 'ac2',
         name: 'TV Area AC',
         type: DeviceType.airConditioner,
@@ -162,7 +162,7 @@ class DashboardController extends GetxController {
         positionY: 0.32,
         roomId: '3',
       ),
-      const DeviceEntity(
+      DeviceEntity(
         id: 'lamp1',
         name: 'Smart Lamp',
         type: DeviceType.lamp,
@@ -172,7 +172,7 @@ class DashboardController extends GetxController {
         positionY: 0.18,
         roomId: '3',
       ),
-      const DeviceEntity(
+      DeviceEntity(
         id: 'rgb1',
         name: 'RGB Strip',
         type: DeviceType.rgb,
@@ -186,7 +186,7 @@ class DashboardController extends GetxController {
         roomId: '3',
       ),
       // Bedroom (ID '1')
-      const DeviceEntity(
+      DeviceEntity(
         id: 'ac_bed',
         name: 'Bedroom AC',
         type: DeviceType.airConditioner,
@@ -198,7 +198,7 @@ class DashboardController extends GetxController {
         positionY: 0.3,
         roomId: '1',
       ),
-      const DeviceEntity(
+      DeviceEntity(
         id: 'lamp_bed',
         name: 'Bedside Lamp',
         type: DeviceType.lamp,
@@ -209,7 +209,7 @@ class DashboardController extends GetxController {
         roomId: '1',
       ),
       // Kitchen (ID '2')
-      const DeviceEntity(
+      DeviceEntity(
         id: 'rgb_kitchen',
         name: 'Kitchen LED Strip',
         type: DeviceType.rgb,
@@ -222,7 +222,7 @@ class DashboardController extends GetxController {
         positionY: 0.25,
         roomId: '2',
       ),
-      const DeviceEntity(
+      DeviceEntity(
         id: 'vac_kitchen',
         name: 'Kitchen Vacuum',
         type: DeviceType.vacuum,
@@ -233,7 +233,7 @@ class DashboardController extends GetxController {
         roomId: '2',
       ),
       // Bathroom (ID '4')
-      const DeviceEntity(
+      DeviceEntity(
         id: 'lamp_bath',
         name: 'Mirror Light',
         type: DeviceType.lamp,
