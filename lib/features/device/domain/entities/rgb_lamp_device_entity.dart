@@ -27,9 +27,7 @@ class RgbLampDeviceEntity extends DeviceEntity {
     this.rgbR,
     this.rgbG,
     this.rgbB,
-  }) : super.internal(
-          type: DeviceType.rgb,
-        );
+  }) : super.internal(type: DeviceType.rgb);
 
   @override
   List<Object?> get props => [
