@@ -9,7 +9,6 @@ import 'package:smart_home/features/dashboard/presentation/controllers/dashboard
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/widgets/ac_visualizer.dart';
 import 'package:smart_home/features/room/presentation/widgets/placement_device_ir_controls.dart';
-import 'package:smart_home/core/utils/responsive.dart';
 
 class RemotePage extends StatefulWidget {
   final DeviceEntity device;
@@ -56,8 +55,8 @@ class _RemotePageState extends State<RemotePage> {
       }
       _cancelSleepTimer();
       Get.snackbar(
-        'Sleep Timer / مؤقت النوم',
-        'تم إيقاف تشغيل مكيف الهواء تلقائياً.',
+        'Sleep Timer',
+        'Turned off the AC automatically.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
@@ -127,7 +126,7 @@ class _RemotePageState extends State<RemotePage> {
               ),
             ),
             const Text(
-              'Sleep Timer / مؤقت النوم',
+              'Sleep Timer',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -140,11 +139,11 @@ class _RemotePageState extends State<RemotePage> {
               style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
             ),
             const SizedBox(height: 20),
-            _buildTimerOption(context, 'Turn Off Timer / إيقاف المؤقت', const Duration(seconds: 0)),
-            _buildTimerOption(context, '30 Minutes / ٣٠ دقيقة', const Duration(minutes: 30)),
-            _buildTimerOption(context, '1 Hour / ساعة واحدة', const Duration(hours: 1)),
-            _buildTimerOption(context, '2 Hours / ساعتين', const Duration(hours: 2)),
-            _buildTimerOption(context, '4 Hours / ٤ ساعات', const Duration(hours: 4)),
+            _buildTimerOption(context, 'Turn Off Timer', const Duration(seconds: 0)),
+            _buildTimerOption(context, '30 Minutes', const Duration(minutes: 30)),
+            _buildTimerOption(context, '1 Hour', const Duration(hours: 1)),
+            _buildTimerOption(context, '2 Hours', const Duration(hours: 2)),
+            _buildTimerOption(context, '4 Hours', const Duration(hours: 4)),
           ],
         ),
       ),
@@ -366,15 +365,15 @@ class _RemotePageState extends State<RemotePage> {
                     const SizedBox(height: 16),
 
                     // 5. Fan Speed Controls
-                    _buildFanSpeedCard(),
+                    _buildFanSpeedCard(device, controller),
                     const SizedBox(height: 16),
 
                     // 6. Air Swing Toggles
-                    _buildSwingCard(),
+                    _buildSwingCard(device, controller),
                     const SizedBox(height: 16),
 
                     // Extra: Advanced Features (Sharp remote specifically)
-                    _buildAdvancedFeaturesCard(),
+                    _buildAdvancedFeaturesCard(device, controller),
                     const SizedBox(height: 16),
 
                     // 7. IR Remote Custom Buttons Learning
@@ -475,7 +474,7 @@ class _RemotePageState extends State<RemotePage> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    isDeviceOn ? 'ON / تشغيل' : 'OFF / إيقاف',
+                    isDeviceOn ? 'ON' : 'OFF',
                     style: TextStyle(
                       color: isDeviceOn ? const Color(0xFFEF4444) : Colors.white,
                       fontWeight: FontWeight.bold,
@@ -525,7 +524,7 @@ class _RemotePageState extends State<RemotePage> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    _timeLeft != null ? _formatDuration(_timeLeft!) : 'Sleep Timer / مؤقت',
+                    _timeLeft != null ? _formatDuration(_timeLeft!) : 'Sleep Timer',
                     style: TextStyle(
                       color: _timeLeft != null ? AppTheme.primaryBlue : Colors.white,
                       fontWeight: FontWeight.bold,
@@ -576,7 +575,7 @@ class _RemotePageState extends State<RemotePage> {
               Icon(Icons.tune_rounded, color: AppTheme.primaryBlue, size: 18),
               SizedBox(width: 8),
               Text(
-                'AC Mode / وضع التشغيل',
+                'AC Mode',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -651,7 +650,7 @@ class _RemotePageState extends State<RemotePage> {
     );
   }
 
-  Widget _buildFanSpeedCard() {
+  Widget _buildFanSpeedCard(DeviceEntity device, DashboardController controller) {
     final speeds = ['Quiet', 'Low', 'Medium', 'High', 'Auto'];
     return GlassContainer(
       padding: const EdgeInsets.all(16),
@@ -663,7 +662,7 @@ class _RemotePageState extends State<RemotePage> {
               Icon(Icons.wind_power_outlined, color: AppTheme.primaryBlue, size: 18),
               SizedBox(width: 8),
               Text(
-                'Fan Speed / سرعة المروحة',
+                'Fan Speed',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -689,14 +688,26 @@ class _RemotePageState extends State<RemotePage> {
                       setState(() {
                         _fanSpeed = speed;
                       });
-                      Get.snackbar(
-                        'Fan Speed / سرعة المروحة',
-                        'تم ضبط سرعة المروحة على $speed',
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: const Color(0xFF1E293B),
-                        colorText: Colors.white,
-                        duration: const Duration(seconds: 1),
-                      );
+                      final String? irCode = switch (speed) {
+                        'Quiet' => device.irFanQuiet,
+                        'Low' => device.irFanLow,
+                        'Medium' => device.irFanMed,
+                        'High' => device.irFanHigh,
+                        'Auto' => device.irFanAuto,
+                        _ => null,
+                      };
+                      if (irCode != null) {
+                        controller.sendIrCommand(irCode);
+                      } else {
+                        Get.snackbar(
+                          'Fan Speed',
+                          'Fan speed notset to $speed',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: const Color(0xFF1E293B),
+                          colorText: Colors.white,
+                          duration: const Duration(seconds: 1),
+                        );
+                      }
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
@@ -729,7 +740,7 @@ class _RemotePageState extends State<RemotePage> {
     );
   }
 
-  Widget _buildSwingCard() {
+  Widget _buildSwingCard(DeviceEntity device, DashboardController controller) {
     return GlassContainer(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -740,7 +751,7 @@ class _RemotePageState extends State<RemotePage> {
               Icon(Icons.swap_calls_rounded, color: AppTheme.primaryBlue, size: 18),
               SizedBox(width: 8),
               Text(
-                'Air Swing / اتجاه الهواء',
+                'Air Swing',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -755,12 +766,15 @@ class _RemotePageState extends State<RemotePage> {
               Expanded(
                 child: _buildSwingToggleButton(
                   icon: Icons.unfold_more_rounded,
-                  label: 'Vertical Swing / عمودي',
+                  label: 'Vertical Swing',
                   isSelected: _verticalSwing,
                   onTap: () {
                     setState(() {
                       _verticalSwing = !_verticalSwing;
                     });
+                    if (device.irSwingV != null) {
+                      controller.sendIrCommand(device.irSwingV!);
+                    }
                   },
                 ),
               ),
@@ -768,12 +782,15 @@ class _RemotePageState extends State<RemotePage> {
               Expanded(
                 child: _buildSwingToggleButton(
                   icon: Icons.swap_horiz_rounded,
-                  label: 'Horizontal Swing / أفقي',
+                  label: 'Horizontal Swing',
                   isSelected: _horizontalSwing,
                   onTap: () {
                     setState(() {
                       _horizontalSwing = !_horizontalSwing;
                     });
+                    if (device.irSwingH != null) {
+                      controller.sendIrCommand(device.irSwingH!);
+                    }
                   },
                 ),
               ),
@@ -832,7 +849,7 @@ class _RemotePageState extends State<RemotePage> {
       ),
     );
   }
-  Widget _buildAdvancedFeaturesCard() {
+  Widget _buildAdvancedFeaturesCard(DeviceEntity device, DashboardController controller) {
     return GlassContainer(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -843,7 +860,7 @@ class _RemotePageState extends State<RemotePage> {
               Icon(Icons.stars_rounded, color: AppTheme.primaryBlue, size: 18),
               SizedBox(width: 8),
               Text(
-                'Advanced Features / ميزات إضافية',
+                'Advanced Features',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -868,7 +885,8 @@ class _RemotePageState extends State<RemotePage> {
                 isSelected: _isPlasmaclusterOn,
                 onTap: () => setState(() {
                   _isPlasmaclusterOn = !_isPlasmaclusterOn;
-                  _showFeatureToast('Plasmacluster', _isPlasmaclusterOn);
+                  if (device.irPlasmacluster != null) controller.sendIrCommand(device.irPlasmacluster!);
+                  else _showFeatureToast('Plasmacluster', _isPlasmaclusterOn);
                 }),
               ),
               _buildFeatureToggle(
@@ -878,7 +896,8 @@ class _RemotePageState extends State<RemotePage> {
                 activeColor: const Color(0xFF60A5FA),
                 onTap: () => setState(() {
                   _isSuperJetOn = !_isSuperJetOn;
-                  _showFeatureToast('Super Jet', _isSuperJetOn);
+                  if (device.irSuperJet != null) controller.sendIrCommand(device.irSuperJet!);
+                  else _showFeatureToast('Super Jet', _isSuperJetOn);
                 }),
               ),
               _buildFeatureToggle(
@@ -887,7 +906,8 @@ class _RemotePageState extends State<RemotePage> {
                 isSelected: _isCoandaOn,
                 onTap: () => setState(() {
                   _isCoandaOn = !_isCoandaOn;
-                  _showFeatureToast('Coanda', _isCoandaOn);
+                  if (device.irCoanda != null) controller.sendIrCommand(device.irCoanda!);
+                  else _showFeatureToast('Coanda', _isCoandaOn);
                 }),
               ),
               _buildFeatureToggle(
@@ -896,7 +916,8 @@ class _RemotePageState extends State<RemotePage> {
                 isSelected: _isMyAreaOn,
                 onTap: () => setState(() {
                   _isMyAreaOn = !_isMyAreaOn;
-                  _showFeatureToast('My Area', _isMyAreaOn);
+                  if (device.irMyArea != null) controller.sendIrCommand(device.irMyArea!);
+                  else _showFeatureToast('My Area', _isMyAreaOn);
                 }),
               ),
               _buildFeatureToggle(
@@ -905,20 +926,25 @@ class _RemotePageState extends State<RemotePage> {
                 isSelected: _isDisplayOn,
                 onTap: () => setState(() {
                   _isDisplayOn = !_isDisplayOn;
-                  _showFeatureToast('AC Display', _isDisplayOn);
+                  if (device.irDisplay != null) controller.sendIrCommand(device.irDisplay!);
+                  else _showFeatureToast('AC Display', _isDisplayOn);
                 }),
               ),
               // Action Button (not toggle)
               GestureDetector(
                 onTap: () {
-                  Get.snackbar(
-                    'Clean / تنظيف ذاتي',
-                    'تم تفعيل وضع التنظيف الذاتي للمكيف.',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: const Color(0xFF1E293B),
-                    colorText: Colors.white,
-                    duration: const Duration(seconds: 2),
-                  );
+                  if (device.irClean != null) {
+                    controller.sendIrCommand(device.irClean!);
+                  } else {
+                    Get.snackbar(
+                      'Clean',
+                      'Clean mode not set to this AC.',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: const Color(0xFF1E293B),
+                      colorText: Colors.white,
+                      duration: const Duration(seconds: 2),
+                    );
+                  }
                 },
                 child: Container(
                   decoration: BoxDecoration(
