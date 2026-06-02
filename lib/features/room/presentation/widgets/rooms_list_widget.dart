@@ -104,7 +104,11 @@ class RoomsListWidget extends GetView<DashboardController> {
 
     return GestureDetector(
       onTap: () => controller.selectRoom(room.id),
-      onLongPress: () => RoomManagementDialogs.showRoomOptions(context, room),
+      onLongPress: () {
+        // onLongPress close all devices in room
+        controller.closeAllDevicesInRoom(room.id);
+      },
+      // RoomManagementDialogs.showRoomOptions(context, room),
       child: Container(
         height: cardHeight,
         width: cardWidth,
