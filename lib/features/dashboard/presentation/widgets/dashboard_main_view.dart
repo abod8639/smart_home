@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:smart_home/features/dashboard/presentation/pages/remote_page.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/room_preview_widget.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/weather_update_widget.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
@@ -234,23 +235,29 @@ Widget buildDeviceCards() {
 
         switch (device.type) {
           case DeviceType.airConditioner:
-            return AcCard(
-              onDecreaseTemp: () {
-                Get.find<DashboardController>().updateAcTemperature(
-                  device.id,
-                  (device.temperature ?? 24) - 1,
-                );
+            return GestureDetector(
+              onLongPress: (){
+                // go to remote page
+                Get.to(() => RemotePage(device: device));
               },
-              device: device,
-              onIncreaseTemp: () {
-                Get.find<DashboardController>().updateAcTemperature(
-                  device.id,
-                  (device.temperature ?? 24) + 1,
-                );
-              },
-              onToggle: () => controller.toggleDevice(device.id),
-              onModeChange: (mode) =>
-                  Get.find<DashboardController>().setAcMode(device.id, mode),
+              child: AcCard(
+                onDecreaseTemp: () {
+                  Get.find<DashboardController>().updateAcTemperature(
+                    device.id,
+                    (device.temperature ?? 24) - 1,
+                  );
+                },
+                device: device,
+                onIncreaseTemp: () {
+                  Get.find<DashboardController>().updateAcTemperature(
+                    device.id,
+                    (device.temperature ?? 24) + 1,
+                  );
+                },
+                onToggle: () => controller.toggleDevice(device.id),
+                onModeChange: (mode) =>
+                    Get.find<DashboardController>().setAcMode(device.id, mode),
+              ),
             );
           case DeviceType.lamp:
             return LampCard(
