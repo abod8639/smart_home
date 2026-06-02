@@ -25,6 +25,13 @@ class _RemotePageState extends State<RemotePage> {
   bool _verticalSwing = false;
   bool _horizontalSwing = false;
 
+  // Sharp Remote specific advanced toggles
+  bool _isPlasmaclusterOn = false;
+  bool _isSuperJetOn = false;
+  bool _isCoandaOn = false;
+  bool _isMyAreaOn = false;
+  bool _isDisplayOn = true;
+
   // Sleep Timer variables
   Timer? _sleepTimer;
   Timer? _countdownTimer;
@@ -86,6 +93,7 @@ class _RemotePageState extends State<RemotePage> {
       case 'Cool mode': return const Color(0xFF60A5FA); // blue
       case 'Heat mode': return const Color(0xFFFB923C); // orange
       case 'Eco mode':  return const Color(0xFF4ADE80); // green
+      case 'Dry mode':  return const Color(0xFF2DD4BF); // teal
       default:          return const Color(0xFF00E5FF); // cyan – Auto
     }
   }
@@ -365,10 +373,14 @@ class _RemotePageState extends State<RemotePage> {
                     _buildSwingCard(),
                     const SizedBox(height: 16),
 
+                    // Extra: Advanced Features (Sharp remote specifically)
+                    _buildAdvancedFeaturesCard(),
+                    const SizedBox(height: 16),
+
                     // 7. IR Remote Custom Buttons Learning
                     CollapsibleCard(
-                      title: 'IR Learning / برمجة إشارات الريموت',
-                      subtitle: 'نسخ أزرار الريموت الفعلي لتشغيله عن بعد عبر المستشعر',
+                      title: 'IR Learning',
+                      subtitle: 'IR learning via IR Sensor',
                       icon: Icons.settings_remote_rounded,
                       child: PlacementDeviceIrControls(
                         device: device,
@@ -550,6 +562,7 @@ class _RemotePageState extends State<RemotePage> {
       _AcModeData('Auto mode', Icons.autorenew_outlined, const Color(0xFF00E5FF)),
       _AcModeData('Cool mode', Icons.ac_unit_outlined, const Color(0xFF60A5FA)),
       _AcModeData('Heat mode', Icons.whatshot_outlined, const Color(0xFFFB923C)),
+      _AcModeData('Dry mode', Icons.water_drop_outlined, const Color(0xFF2DD4BF)),
       _AcModeData('Eco mode', Icons.eco_outlined, const Color(0xFF4ADE80)),
     ];
 
@@ -573,61 +586,65 @@ class _RemotePageState extends State<RemotePage> {
             ],
           ),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: modes.map((m) {
-              final isSelected = currentMode == m.label;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => controller.setAcMode(device.id, m.label),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? m.color.withOpacity(0.12)
-                          : Colors.white.withOpacity(0.04),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: Row(
+              children: modes.map((m) {
+                final isSelected = currentMode == m.label;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: GestureDetector(
+                    onTap: () => controller.setAcMode(device.id, m.label),
+                    child: AnimatedContainer(
+                      width: 72,
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
                         color: isSelected
-                            ? m.color.withOpacity(0.5)
-                            : Colors.white10,
-                        width: 1.2,
+                            ? m.color.withOpacity(0.12)
+                            : Colors.white.withOpacity(0.04),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isSelected
+                              ? m.color.withOpacity(0.5)
+                              : Colors.white10,
+                          width: 1.2,
+                        ),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: m.color.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  spreadRadius: -2,
+                                )
+                              ]
+                            : null,
                       ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: m.color.withOpacity(0.2),
-                                blurRadius: 8,
-                                spreadRadius: -2,
-                              )
-                            ]
-                          : null,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          m.icon,
-                          color: isSelected ? m.color : Colors.white60,
-                          size: 22,
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          m.label.split(' ')[0],
-                          style: TextStyle(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            m.icon,
                             color: isSelected ? m.color : Colors.white60,
-                            fontSize: 11,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            size: 22,
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 6),
+                          Text(
+                            m.label.split(' ')[0],
+                            style: TextStyle(
+                              color: isSelected ? m.color : Colors.white60,
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
         ],
       ),
@@ -813,6 +830,178 @@ class _RemotePageState extends State<RemotePage> {
           ],
         ),
       ),
+    );
+  }
+  Widget _buildAdvancedFeaturesCard() {
+    return GlassContainer(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.stars_rounded, color: AppTheme.primaryBlue, size: 18),
+              SizedBox(width: 8),
+              Text(
+                'Advanced Features / ميزات إضافية',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          GridView.count(
+            crossAxisCount: 3,
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.0,
+            children: [
+              _buildFeatureToggle(
+                icon: Icons.bubble_chart,
+                label: 'Plasmacluster',
+                isSelected: _isPlasmaclusterOn,
+                onTap: () => setState(() {
+                  _isPlasmaclusterOn = !_isPlasmaclusterOn;
+                  _showFeatureToast('Plasmacluster', _isPlasmaclusterOn);
+                }),
+              ),
+              _buildFeatureToggle(
+                icon: Icons.speed_rounded,
+                label: 'Super Jet',
+                isSelected: _isSuperJetOn,
+                activeColor: const Color(0xFF60A5FA),
+                onTap: () => setState(() {
+                  _isSuperJetOn = !_isSuperJetOn;
+                  _showFeatureToast('Super Jet', _isSuperJetOn);
+                }),
+              ),
+              _buildFeatureToggle(
+                icon: Icons.air,
+                label: 'Coanda',
+                isSelected: _isCoandaOn,
+                onTap: () => setState(() {
+                  _isCoandaOn = !_isCoandaOn;
+                  _showFeatureToast('Coanda', _isCoandaOn);
+                }),
+              ),
+              _buildFeatureToggle(
+                icon: Icons.person_pin_circle_rounded,
+                label: 'My Area',
+                isSelected: _isMyAreaOn,
+                onTap: () => setState(() {
+                  _isMyAreaOn = !_isMyAreaOn;
+                  _showFeatureToast('My Area', _isMyAreaOn);
+                }),
+              ),
+              _buildFeatureToggle(
+                icon: Icons.light_mode_outlined,
+                label: 'Display',
+                isSelected: _isDisplayOn,
+                onTap: () => setState(() {
+                  _isDisplayOn = !_isDisplayOn;
+                  _showFeatureToast('AC Display', _isDisplayOn);
+                }),
+              ),
+              // Action Button (not toggle)
+              GestureDetector(
+                onTap: () {
+                  Get.snackbar(
+                    'Clean / تنظيف ذاتي',
+                    'تم تفعيل وضع التنظيف الذاتي للمكيف.',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: const Color(0xFF1E293B),
+                    colorText: Colors.white,
+                    duration: const Duration(seconds: 2),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.04),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white10, width: 1.2),
+                  ),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.cleaning_services_rounded, color: Colors.white60, size: 22),
+                      SizedBox(height: 6),
+                      Text(
+                        'Clean',
+                        style: TextStyle(color: Colors.white60, fontSize: 11),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureToggle({
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    Color? activeColor,
+  }) {
+    final color = activeColor ?? AppTheme.primaryBlue;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withOpacity(0.12) : Colors.white.withOpacity(0.04),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? color.withOpacity(0.5) : Colors.white10,
+            width: 1.2,
+          ),
+          boxShadow: isSelected
+              ? [BoxShadow(color: color.withOpacity(0.2), blurRadius: 8, spreadRadius: -2)]
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? color : Colors.white60,
+              size: 22,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? color : Colors.white60,
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showFeatureToast(String featureName, bool isOn) {
+    final status = isOn ? 'تفعيل' : 'إيقاف';
+    Get.snackbar(
+      '$featureName / ${featureName}',
+      'تم $status خاصية $featureName',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFF1E293B),
+      colorText: Colors.white,
+      duration: const Duration(seconds: 1),
     );
   }
 }
