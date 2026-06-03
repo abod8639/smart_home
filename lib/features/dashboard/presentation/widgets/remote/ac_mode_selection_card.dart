@@ -72,19 +72,19 @@ class AcModeSelectionCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? m.color.withOpacity(0.12)
-                              : Colors.white.withOpacity(0.04),
+                              ? m.color.withValues(alpha:0.12)
+                              : Colors.white.withValues(alpha:0.04),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: isSelected
-                                ? m.color.withOpacity(0.5)
+                                ? m.color.withValues(alpha:0.5)
                                 : Colors.white10,
                             width: 1.2,
                           ),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: m.color.withOpacity(0.2),
+                                    color: m.color.withValues(alpha:0.2),
                                     blurRadius: 8,
                                     spreadRadius: -2,
                                   )
