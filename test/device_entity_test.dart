@@ -4,20 +4,18 @@ import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 void main() {
   group('DeviceEntity and Serialization Tests', () {
     test('DeviceEntity has showAsDot defaulting to false', () {
-      final device = DeviceEntity(
+      final device = LampDeviceEntity(
         id: 'test_id',
         name: 'Test Lamp',
-        type: DeviceType.lamp,
       );
 
       expect(device.showAsDot, isFalse);
     });
 
     test('DeviceEntity copyWith correctly modifies showAsDot', () {
-      final device = DeviceEntity(
+      final device = LampDeviceEntity(
         id: 'test_id',
         name: 'Test Lamp',
-        type: DeviceType.lamp,
       );
 
       final updated = device.copyWith(showAsDot: true);
