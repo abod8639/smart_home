@@ -173,10 +173,10 @@ class _RemotePageState extends State<RemotePage> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isCurrent ? AppTheme.primaryBlue.withOpacity(0.1) : Colors.white.withOpacity(0.04),
+          color: isCurrent ? AppTheme.primaryBlue.withValues(alpha:0.1) : Colors.white.withValues(alpha:0.04),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isCurrent ? AppTheme.primaryBlue.withOpacity(0.5) : Colors.white10,
+            color: isCurrent ? AppTheme.primaryBlue.withValues(alpha:0.5) : Colors.white10,
           ),
         ),
         child: Row(
@@ -227,7 +227,7 @@ class _RemotePageState extends State<RemotePage> {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
             child: Container(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha:0.1),
             ),
           ),
         ),
@@ -291,7 +291,7 @@ class _RemotePageState extends State<RemotePage> {
                                 value: temp,
                                 minValue: 16,
                                 maxValue: 30,
-                                activeColor: isDeviceOn ? currentModeColor : AppTheme.textGrey.withOpacity(0.3),
+                                activeColor: isDeviceOn ? currentModeColor : AppTheme.textGrey.withValues(alpha:0.3),
                                 onChanged: (newTemp) {
                                   if (isDeviceOn) {
                                     controller.updateAcTemperature(device.id, newTemp);
@@ -305,7 +305,7 @@ class _RemotePageState extends State<RemotePage> {
                                 Text(
                                   'Temperature',
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.4),
+                                    color: Colors.white.withValues(alpha:0.4),
                                     fontSize: 12,
                                     fontWeight: FontWeight.w400,
                                     letterSpacing: 0.8,
@@ -313,7 +313,7 @@ class _RemotePageState extends State<RemotePage> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  isDeviceOn ? '$temp°C' : '--°C',
+                                  isDeviceOn ? '$temp°C' : '°C',
                                   style: TextStyle(
                                     color: isDeviceOn ? Colors.white : AppTheme.textGrey,
                                     fontSize: 42,
@@ -325,7 +325,7 @@ class _RemotePageState extends State<RemotePage> {
                                   Text(
                                     device.mode ?? 'Auto mode',
                                     style: TextStyle(
-                                      color: currentModeColor.withOpacity(0.85),
+                                      color: currentModeColor.withValues(alpha:0.85),
                                       fontSize: 11,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -355,8 +355,8 @@ class _RemotePageState extends State<RemotePage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('16°', style: TextStyle(color: Colors.white.withOpacity(0.25), fontSize: 12)),
-                          Text('30°', style: TextStyle(color: Colors.white.withOpacity(0.25), fontSize: 12)),
+                          Text('16°', style: TextStyle(color: Colors.white.withValues(alpha:0.25), fontSize: 12)),
+                          Text('30°', style: TextStyle(color: Colors.white.withValues(alpha:0.25), fontSize: 12)),
                         ],
                       ),
                     ),
@@ -465,7 +465,7 @@ class _RemotePageState extends State<RemotePage> {
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
+        color: Colors.white.withValues(alpha:0.04),
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white10),
       ),
@@ -491,18 +491,18 @@ class _RemotePageState extends State<RemotePage> {
                 gradient: LinearGradient(
                   colors: isDeviceOn
                       ? [
-                          const Color(0xFFEF4444).withOpacity(0.18),
-                          const Color(0xFFEF4444).withOpacity(0.08),
+                          const Color(0xFFEF4444).withValues(alpha:0.18),
+                          const Color(0xFFEF4444).withValues(alpha:0.08),
                         ]
                       : [
-                          Colors.white.withOpacity(0.05),
-                          Colors.white.withOpacity(0.02),
+                          Colors.white.withValues(alpha:0.05),
+                          Colors.white.withValues(alpha:0.02),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isDeviceOn
-                      ? const Color(0xFFEF4444).withOpacity(0.5)
+                      ? const Color(0xFFEF4444).withValues(alpha:0.5)
                       : Colors.white10,
                   width: 1.2,
                 ),
@@ -541,18 +541,18 @@ class _RemotePageState extends State<RemotePage> {
                 gradient: LinearGradient(
                   colors: _timeLeft != null
                       ? [
-                          AppTheme.primaryBlue.withOpacity(0.18),
-                          AppTheme.primaryBlue.withOpacity(0.08),
+                          AppTheme.primaryBlue.withValues(alpha:0.18),
+                          AppTheme.primaryBlue.withValues(alpha: .08),
                         ]
                       : [
-                          Colors.white.withOpacity(0.05),
-                          Colors.white.withOpacity(0.02),
+                          Colors.white.withValues(alpha:0.05),
+                          Colors.white.withValues(alpha:0.02),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: _timeLeft != null
-                      ? AppTheme.primaryBlue.withOpacity(0.5)
+                      ? AppTheme.primaryBlue.withValues(alpha:0.5)
                       : Colors.white10,
                   width: 1.2,
                 ),
