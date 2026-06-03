@@ -93,10 +93,9 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
     final DeviceEntity newDevice;
     switch (_selectedType) {
       case DeviceType.rgb:
-        newDevice = DeviceEntity(
+        newDevice = RgbLampDeviceEntity(
           id: newId,
           name: _deviceName,
-          type: DeviceType.rgb,
           isOn: true,
           rgbR: 255,
           rgbG: 191,
@@ -111,10 +110,9 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
         );
         break;
       case DeviceType.airConditioner:
-        newDevice = DeviceEntity(
+        newDevice = AcDeviceEntity(
           id: newId,
           name: _deviceName,
-          type: DeviceType.airConditioner,
           isOn: false,
           temperature: 24,
           mode: 'Auto mode',
@@ -125,13 +123,13 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
           markerHeight: 60,
           matterNodeId: nodeId,
           matterEndpointId: 3, // Endpoint 3: AC Relay
+          acIrCodes: const AcIrCodes(),
         );
         break;
       case DeviceType.lamp:
-        newDevice = DeviceEntity(
+        newDevice = LampDeviceEntity(
           id: newId,
           name: _deviceName,
-          type: DeviceType.lamp,
           isOn: true,
           brightness: 80,
           positionX: 0.5,
@@ -143,10 +141,9 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
         );
         break;
       case DeviceType.vacuum:
-        newDevice = DeviceEntity(
+        newDevice = VacuumDeviceEntity(
           id: newId,
           name: _deviceName,
-          type: DeviceType.vacuum,
           isOn: false,
           batteryLevel: 100,
           areaCleaned: 0,
@@ -162,10 +159,9 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
         );
         break;
       case DeviceType.door:
-        newDevice = DeviceEntity(
+        newDevice = DoorDeviceEntity(
           id: newId,
           name: _deviceName,
-          type: DeviceType.door,
           isOn: false,
           isLocked: true,
           positionX: 0.5,
