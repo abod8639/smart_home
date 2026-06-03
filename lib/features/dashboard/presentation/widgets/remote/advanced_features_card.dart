@@ -64,9 +64,9 @@ class AdvancedFeaturesCard extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.0,
+            childAspectRatio: 1.3,
             children: [
-              _buildFeatureToggle(
+              buildFeatureToggle(
                 icon: Icons.bubble_chart,
                 label: 'Plasmacluster',
                 isSelected: isPlasmaclusterOn,
@@ -80,7 +80,7 @@ class AdvancedFeaturesCard extends StatelessWidget {
                   }
                 },
               ),
-              _buildFeatureToggle(
+              buildFeatureToggle(
                 icon: Icons.speed_rounded,
                 label: 'Super Jet',
                 isSelected: isSuperJetOn,
@@ -95,7 +95,7 @@ class AdvancedFeaturesCard extends StatelessWidget {
                   }
                 },
               ),
-              _buildFeatureToggle(
+              buildFeatureToggle(
                 icon: Icons.air,
                 label: 'Coanda',
                 isSelected: isCoandaOn,
@@ -109,7 +109,7 @@ class AdvancedFeaturesCard extends StatelessWidget {
                   }
                 },
               ),
-              _buildFeatureToggle(
+              buildFeatureToggle(
                 icon: Icons.person_pin_circle_rounded,
                 label: 'My Area',
                 isSelected: isMyAreaOn,
@@ -123,7 +123,7 @@ class AdvancedFeaturesCard extends StatelessWidget {
                   }
                 },
               ),
-              _buildFeatureToggle(
+              buildFeatureToggle(
                 icon: Icons.light_mode_outlined,
                 label: 'Display',
                 isSelected: isDisplayOn,
@@ -179,8 +179,23 @@ class AdvancedFeaturesCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureToggle({
-    required IconData icon,
+
+
+  void _showFeatureToast(String featureName, bool isOn) {
+    final status = isOn ? 'تفعيل' : 'إيقاف';
+    Get.snackbar(
+      '$featureName / ${featureName}',
+      'تم $status خاصية $featureName',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFF1E293B),
+      colorText: Colors.white,
+      duration: const Duration(seconds: 1),
+    );
+  }
+}
+
+  Widget buildFeatureToggle({
+    required IconData? icon,
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
@@ -192,10 +207,10 @@ class AdvancedFeaturesCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.12) : Colors.white.withOpacity(0.04),
+          color: isSelected ? color.withValues(alpha: .12) : Colors.white.withValues(alpha: .04),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? color.withOpacity(0.5) : Colors.white10,
+            color: isSelected ? color.withValues(alpha: .5) : Colors.white10,
             width: 1.2,
           ),
           boxShadow: isSelected
@@ -205,6 +220,7 @@ class AdvancedFeaturesCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            if (icon != null) 
             Icon(
               icon,
               color: isSelected ? color : Colors.white60,
@@ -225,16 +241,3 @@ class AdvancedFeaturesCard extends StatelessWidget {
       ),
     );
   }
-
-  void _showFeatureToast(String featureName, bool isOn) {
-    final status = isOn ? 'تفعيل' : 'إيقاف';
-    Get.snackbar(
-      '$featureName / ${featureName}',
-      'تم $status خاصية $featureName',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFF1E293B),
-      colorText: Colors.white,
-      duration: const Duration(seconds: 1),
-    );
-  }
-}
