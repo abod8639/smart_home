@@ -1,15 +1,10 @@
 import 'device_entity.dart';
 
 class VacuumDeviceEntity extends DeviceEntity {
-  @override
   final int? batteryLevel;
-  @override
   final int? areaCleaned;
-  @override
   final int? cleaningTime;
-  @override
   final int? filterStatus;
-  @override
   final String? nextCleaning;
 
   const VacuumDeviceEntity({
@@ -30,7 +25,50 @@ class VacuumDeviceEntity extends DeviceEntity {
     this.cleaningTime,
     this.filterStatus,
     this.nextCleaning,
-  }) : super.internal(type: DeviceType.vacuum);
+  }) : super(
+          type: DeviceType.vacuum,
+        );
+
+  VacuumDeviceEntity copyWith({
+    String? id,
+    String? name,
+    DeviceType? type,
+    bool? isOn,
+    String? roomId,
+    double? positionX,
+    double? positionY,
+    double? markerWidth,
+    double? markerHeight,
+    bool? showAsDot,
+    Object? matterNodeId = const Object(),
+    Object? matterEndpointId = const Object(),
+    Object? pin = const Object(),
+    int? batteryLevel,
+    int? areaCleaned,
+    int? cleaningTime,
+    int? filterStatus,
+    String? nextCleaning,
+  }) {
+    return VacuumDeviceEntity(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      isOn: isOn ?? this.isOn,
+      roomId: roomId ?? this.roomId,
+      positionX: positionX ?? this.positionX,
+      positionY: positionY ?? this.positionY,
+      markerWidth: markerWidth ?? this.markerWidth,
+      markerHeight: markerHeight ?? this.markerHeight,
+      showAsDot: showAsDot ?? this.showAsDot,
+      matterNodeId: matterNodeId == const Object() ? this.matterNodeId : (matterNodeId as int?),
+      matterEndpointId: matterEndpointId == const Object() ? this.matterEndpointId : (matterEndpointId as int?),
+      pin: pin == const Object() ? this.pin : (pin as int?),
+      batteryLevel: batteryLevel ?? this.batteryLevel,
+      areaCleaned: areaCleaned ?? this.areaCleaned,
+      cleaningTime: cleaningTime ?? this.cleaningTime,
+      filterStatus: filterStatus ?? this.filterStatus,
+      nextCleaning: nextCleaning ?? this.nextCleaning,
+    );
+  }
 
   @override
   List<Object?> get props => [
