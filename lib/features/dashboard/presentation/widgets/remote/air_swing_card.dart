@@ -231,7 +231,7 @@ class _AirSwingCardState extends State<AirSwingCard> {
   Widget _buildCustomGridButton(int index) {
     Timer? longPressTimer;
     final hasCode = _getIrCodeForIndex(index) != null;
-    final name = _customNames[index].isEmpty ? 'Btn ${index + 1}' : _customNames[index];
+    // final name = _customNames[index].isEmpty ? 'Btn ${index + 1}' : _customNames[index];
 
     return GestureDetector(
       onTapDown: (_) {
@@ -268,30 +268,7 @@ class _AirSwingCardState extends State<AirSwingCard> {
             width: 1.2,
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              hasCode ? Icons.settings_remote_rounded : Icons.add_circle_outline_rounded,
-              color: hasCode ? AppTheme.primaryBlue : Colors.white60,
-              size: 20,
-            ),
-            const SizedBox(height: 6),
-            Flexible(
-              child: Text(
-                name,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: hasCode ? AppTheme.primaryBlue : Colors.white60,
-                  fontSize: 10,
-                  fontWeight: hasCode ? FontWeight.bold : FontWeight.normal,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
+        child: null
       ),
     );
   }
