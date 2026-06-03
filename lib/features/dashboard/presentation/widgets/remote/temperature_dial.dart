@@ -120,7 +120,7 @@ class TemperaturePainter extends CustomPainter {
 
     // Background track
     final backgroundPaint = Paint()
-      ..color = Colors.white.withOpacity(0.06)
+      ..color = Colors.white.withValues(alpha:0.06)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
@@ -140,7 +140,7 @@ class TemperaturePainter extends CustomPainter {
     if (sweepAngle > 0) {
       // Glow
       final glowPaint = Paint()
-        ..color = activeColor.withOpacity(0.18)
+        ..color = activeColor.withValues(alpha:0.18)
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth + 6
         ..strokeCap = StrokeCap.round
@@ -181,7 +181,7 @@ class TemperaturePainter extends CustomPainter {
 
     // Draw thumb shadow
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.4)
+      ..color = Colors.black.withValues(alpha:0.4)
       ..style = PaintingStyle.fill
       ..imageFilter = ImageFilter.blur(sigmaX: 2, sigmaY: 2);
     canvas.drawRRect(
