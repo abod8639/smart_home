@@ -295,16 +295,77 @@ class PlacementDeviceDialogs {
                 );
                 return;
               }
-              final newDevice = DeviceEntity(
-                id: const Uuid().v4(),
-                name: name,
-                type: selectedType.value,
-                linkedDevicesCount: int.tryParse(linkedCountController.text) ?? 0,
-                positionX: 0.5,
-                positionY: 0.5,
-                showAsDot: showAsDot.value,
-                pin: selectedPin.value,
-              );
+              final linkedCount = int.tryParse(linkedCountController.text) ?? 0;
+              final id = const Uuid().v4();
+              
+              DeviceEntity newDevice;
+              switch (selectedType.value) {
+                case DeviceType.airConditioner:
+                  newDevice = AcDeviceEntity(
+                    id: id,
+                    name: name,
+                    positionX: 0.5,
+                    positionY: 0.5,
+                    showAsDot: showAsDot.value,
+                    pin: selectedPin.value,
+                    temperature: 24,
+                    mode: 'Auto mode',
+                    coolingTime: 0,
+                    acIrCodes: const AcIrCodes(),
+                  );
+                  break;
+                case DeviceType.lamp:
+                  newDevice = LampDeviceEntity(
+                    id: id,
+                    name: name,
+                    positionX: 0.5,
+                    positionY: 0.5,
+                    showAsDot: showAsDot.value,
+                    pin: selectedPin.value,
+                    brightness: 50,
+                  );
+                  break;
+                case DeviceType.rgb:
+                  newDevice = RgbLampDeviceEntity(
+                    id: id,
+                    name: name,
+                    positionX: 0.5,
+                    positionY: 0.5,
+                    showAsDot: showAsDot.value,
+                    pin: selectedPin.value,
+                    brightness: 50,
+                    rgbR: 255,
+                    rgbG: 255,
+                    rgbB: 255,
+                  );
+                  break;
+                case DeviceType.door:
+                  newDevice = DoorDeviceEntity(
+                    id: id,
+                    name: name,
+                    positionX: 0.5,
+                    positionY: 0.5,
+                    showAsDot: showAsDot.value,
+                    pin: selectedPin.value,
+                    isLocked: true,
+                    linkedDevicesCount: linkedCount,
+                  );
+                  break;
+                case DeviceType.vacuum:
+                  newDevice = VacuumDeviceEntity(
+                    id: id,
+                    name: name,
+                    positionX: 0.5,
+                    positionY: 0.5,
+                    showAsDot: showAsDot.value,
+                    pin: selectedPin.value,
+                    batteryLevel: 100,
+                    areaCleaned: 0,
+                    cleaningTime: 0,
+                    filterStatus: 100,
+                  );
+                  break;
+              }
               dashboardController.addDevice(newDevice);
               placementController.selectDevice(newDevice.id);
               Get.back();
@@ -580,13 +641,146 @@ class PlacementDeviceDialogs {
             onPressed: () {
               final name = nameController.text.trim();
               if (name.isEmpty) return;
-              final updated = device.copyWith(
-                name: name,
-                type: selectedType.value,
-                linkedDevicesCount: int.tryParse(linkedCountController.text) ?? 0,
-                showAsDot: showAsDot.value,
-                pin: selectedPin.value,
-              );
+              final linkedCount = int.tryParse(linkedCountController.text) ?? 0;
+              DeviceEntity updated;
+              
+              if (device.type == selectedType.value) {
+                // If type hasn't changed, we can safely copy the specific subclass
+                if (device is DoorDeviceEntity) {
+                  updated = device.copyWith(
+                    name: name,
+                    showAsDot: showAsDot.value,
+                    pin: selectedPin.value == null ? const Object() : selectedPin.value,
+                    linkedDevicesCount: linkedCount,
+                  );
+                } else if (device is AcDeviceEntity) {
+                  updated = device.copyWith(
+                    name: name,
+                    showAsDot: showAsDot.value,
+                    pin: selectedPin.value == null ? const Object() : selectedPin.value,
+                  );
+                } else if (device is LampDeviceEntity) {
+                  updated = device.copyWith(
+                    name: name,
+                    showAsDot: showAsDot.value,
+                    pin: selectedPin.value == null ? const Object() : selectedPin.value,
+                  );
+                } else if (device is RgbLampDeviceEntity) {
+                  updated = device.copyWith(
+                    name: name,
+                    showAsDot: showAsDot.value,
+                    pin: selectedPin.value == null ? const Object() : selectedPin.value,
+                  );
+                } else if (device is VacuumDeviceEntity) {
+                  updated = device.copyWith(
+                    name: name,
+                    showAsDot: showAsDot.value,
+                    pin: selectedPin.value == null ? const Object() : selectedPin.value,
+                  );
+                } else {
+                  updated = device; // Should not happen
+                }
+              } else {
+                // If type changed, create a new instance of the correct subclass
+                // retaining common properties like id, roomId, position.
+                switch (selectedType.value) {
+                  case DeviceType.airConditioner:
+                    updated = AcDeviceEntity(
+                      id: device.id,
+                      name: name,
+                      isOn: device.isOn,
+                      roomId: device.roomId,
+                      positionX: device.positionX,
+                      positionY: device.positionY,
+                      markerWidth: device.markerWidth,
+                      markerHeight: device.markerHeight,
+                      matterNodeId: device.matterNodeId,
+                      matterEndpointId: device.matterEndpointId,
+                      showAsDot: showAsDot.value,
+                      pin: selectedPin.value,
+                      temperature: 24,
+                      mode: 'Auto mode',
+                      coolingTime: 0,
+                      acIrCodes: const AcIrCodes(),
+                    );
+                    break;
+                  case DeviceType.lamp:
+                    updated = LampDeviceEntity(
+                      id: device.id,
+                      name: name,
+                      isOn: device.isOn,
+                      roomId: device.roomId,
+                      positionX: device.positionX,
+                      positionY: device.positionY,
+                      markerWidth: device.markerWidth,
+                      markerHeight: device.markerHeight,
+                      matterNodeId: device.matterNodeId,
+                      matterEndpointId: device.matterEndpointId,
+                      showAsDot: showAsDot.value,
+                      pin: selectedPin.value,
+                      brightness: 50,
+                    );
+                    break;
+                  case DeviceType.rgb:
+                    updated = RgbLampDeviceEntity(
+                      id: device.id,
+                      name: name,
+                      isOn: device.isOn,
+                      roomId: device.roomId,
+                      positionX: device.positionX,
+                      positionY: device.positionY,
+                      markerWidth: device.markerWidth,
+                      markerHeight: device.markerHeight,
+                      matterNodeId: device.matterNodeId,
+                      matterEndpointId: device.matterEndpointId,
+                      showAsDot: showAsDot.value,
+                      pin: selectedPin.value,
+                      brightness: 50,
+                      rgbR: 255,
+                      rgbG: 255,
+                      rgbB: 255,
+                    );
+                    break;
+                  case DeviceType.door:
+                    updated = DoorDeviceEntity(
+                      id: device.id,
+                      name: name,
+                      isOn: device.isOn,
+                      roomId: device.roomId,
+                      positionX: device.positionX,
+                      positionY: device.positionY,
+                      markerWidth: device.markerWidth,
+                      markerHeight: device.markerHeight,
+                      matterNodeId: device.matterNodeId,
+                      matterEndpointId: device.matterEndpointId,
+                      showAsDot: showAsDot.value,
+                      pin: selectedPin.value,
+                      isLocked: true,
+                      linkedDevicesCount: linkedCount,
+                    );
+                    break;
+                  case DeviceType.vacuum:
+                    updated = VacuumDeviceEntity(
+                      id: device.id,
+                      name: name,
+                      isOn: device.isOn,
+                      roomId: device.roomId,
+                      positionX: device.positionX,
+                      positionY: device.positionY,
+                      markerWidth: device.markerWidth,
+                      markerHeight: device.markerHeight,
+                      matterNodeId: device.matterNodeId,
+                      matterEndpointId: device.matterEndpointId,
+                      showAsDot: showAsDot.value,
+                      pin: selectedPin.value,
+                      batteryLevel: 100,
+                      areaCleaned: 0,
+                      cleaningTime: 0,
+                      filterStatus: 100,
+                    );
+                    break;
+                }
+              }
               dashboardController.updateDevice(updated);
               Get.back();
             },
