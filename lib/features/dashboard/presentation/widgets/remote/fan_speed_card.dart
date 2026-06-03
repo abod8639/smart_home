@@ -45,9 +45,9 @@ class FanSpeedCard extends StatelessWidget {
           Container(
             height: 40,
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha:0.2),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.04)),
+              border: Border.all(color: Colors.white.withValues(alpha:0.04)),
             ),
             child: Row(
               children: speeds.map((speed) {
@@ -82,11 +82,11 @@ class FanSpeedCard extends StatelessWidget {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppTheme.primaryBlue.withOpacity(0.15)
+                            ? AppTheme.primaryBlue.withValues(alpha:0.15)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(10),
                         border: isSelected
-                            ? Border.all(color: AppTheme.primaryBlue.withOpacity(0.4), width: 1.2)
+                            ? Border.all(color: AppTheme.primaryBlue.withValues(alpha:0.4), width: 1.2)
                             : null,
                       ),
                       child: Text(
