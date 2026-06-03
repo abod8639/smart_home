@@ -115,19 +115,17 @@ class DashboardController extends GetxController {
   /// Seeds the initial mock devices on the very first launch.
   void _loadMockData() {
     devices.value = [
-      DeviceEntity(
+      DoorDeviceEntity(
         id: 'door1',
         name: 'Smart Door',
-        type: DeviceType.door,
         isLocked: true,
         positionX: 0.8,
         positionY: 0.55,
         roomId: '3',
       ),
-      DeviceEntity(
+      VacuumDeviceEntity(
         id: 'vac1',
         name: 'Robot vacuum cleaner',
-        type: DeviceType.vacuum,
         isOn: true,
         batteryLevel: 75,
         areaCleaned: 82,
@@ -138,10 +136,9 @@ class DashboardController extends GetxController {
         positionY: 0.75,
         roomId: '3',
       ),
-      DeviceEntity(
+      AcDeviceEntity(
         id: 'ac1',
         name: 'Dining Area AC',
-        type: DeviceType.airConditioner,
         isOn: true,
         temperature: 21,
         mode: 'Auto mode',
@@ -149,11 +146,11 @@ class DashboardController extends GetxController {
         positionX: 0.25,
         positionY: 0.35,
         roomId: '3',
+        acIrCodes: AcIrCodes(),
       ),
-      DeviceEntity(
+      AcDeviceEntity(
         id: 'ac2',
         name: 'TV Area AC',
-        type: DeviceType.airConditioner,
         isOn: false,
         temperature: 24,
         mode: 'Eco mode',
@@ -161,21 +158,20 @@ class DashboardController extends GetxController {
         positionX: 0.72,
         positionY: 0.32,
         roomId: '3',
+        acIrCodes: AcIrCodes(),
       ),
-      DeviceEntity(
+      LampDeviceEntity(
         id: 'lamp1',
         name: 'Smart Lamp',
-        type: DeviceType.lamp,
         isOn: true,
         brightness: 62,
         positionX: 0.52,
         positionY: 0.18,
         roomId: '3',
       ),
-      DeviceEntity(
+      RgbLampDeviceEntity(
         id: 'rgb1',
         name: 'RGB Strip',
-        type: DeviceType.rgb,
         isOn: true,
         rgbR: 98,
         rgbG: 52,
@@ -186,10 +182,9 @@ class DashboardController extends GetxController {
         roomId: '3',
       ),
       // Bedroom (ID '1')
-      DeviceEntity(
+      AcDeviceEntity(
         id: 'ac_bed',
         name: 'Bedroom AC',
-        type: DeviceType.airConditioner,
         isOn: true,
         temperature: 22,
         mode: 'Quiet mode',
@@ -197,11 +192,11 @@ class DashboardController extends GetxController {
         positionX: 0.3,
         positionY: 0.3,
         roomId: '1',
+        acIrCodes: AcIrCodes(),
       ),
-      DeviceEntity(
+      LampDeviceEntity(
         id: 'lamp_bed',
         name: 'Bedside Lamp',
-        type: DeviceType.lamp,
         isOn: true,
         brightness: 40,
         positionX: 0.7,
@@ -209,10 +204,9 @@ class DashboardController extends GetxController {
         roomId: '1',
       ),
       // Kitchen (ID '2')
-      DeviceEntity(
+      RgbLampDeviceEntity(
         id: 'rgb_kitchen',
         name: 'Kitchen LED Strip',
-        type: DeviceType.rgb,
         isOn: true,
         rgbR: 255,
         rgbG: 180,
@@ -222,10 +216,9 @@ class DashboardController extends GetxController {
         positionY: 0.25,
         roomId: '2',
       ),
-      DeviceEntity(
+      VacuumDeviceEntity(
         id: 'vac_kitchen',
         name: 'Kitchen Vacuum',
-        type: DeviceType.vacuum,
         isOn: false,
         batteryLevel: 90,
         positionX: 0.2,
@@ -233,10 +226,9 @@ class DashboardController extends GetxController {
         roomId: '2',
       ),
       // Bathroom (ID '4')
-      DeviceEntity(
+      LampDeviceEntity(
         id: 'lamp_bath',
         name: 'Mirror Light',
-        type: DeviceType.lamp,
         isOn: true,
         brightness: 80,
         positionX: 0.5,
@@ -265,12 +257,12 @@ class DashboardController extends GetxController {
         }
         // Trigger ESP32 if the device matches our GPIO mappings
         else if (Get.isRegistered<Esp32Service>()) {
-          if (device.type == DeviceType.lamp) {
+          if (device is LampDeviceEntity) {
             final pin = device.pin ?? 2;
             Get.find<Esp32Service>().setDigitalOutput(pin, false);
-          } else if (device.type == DeviceType.airConditioner) {
-            if (device.irPower != null) {
-              sendIrCommand(device.irPower!);
+          } else if (device is AcDeviceEntity) {
+            if (device.acIrCodes.irPower != null) {
+              sendIrCommand(device.acIrCodes.irPower!);
             } else if (device.pin != null) {
               Get.find<Esp32Service>().setDigitalOutput(device.pin!, false);
             } else {
@@ -308,12 +300,12 @@ class DashboardController extends GetxController {
       }
       // Trigger ESP32 if the device matches our GPIO mappings
       else if (Get.isRegistered<Esp32Service>()) {
-        if (device.type == DeviceType.lamp) {
+        if (device is LampDeviceEntity) {
           final pin = device.pin ?? 2;
           Get.find<Esp32Service>().setDigitalOutput(pin, newIsOn);
-        } else if (device.type == DeviceType.airConditioner) {
-          if (device.irPower != null) {
-            sendIrCommand(device.irPower!);
+        } else if (device is AcDeviceEntity) {
+          if (device.acIrCodes.irPower != null) {
+            sendIrCommand(device.acIrCodes.irPower!);
           } else if (device.pin != null) {
             Get.find<Esp32Service>().setDigitalOutput(device.pin!, newIsOn);
           } else {
@@ -332,14 +324,16 @@ class DashboardController extends GetxController {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
-      final newIsLocked = !(device.isLocked ?? false);
-      devices[index] = device.copyWith(isLocked: newIsLocked);
-      _persistDevices();
+      if (device is DoorDeviceEntity) {
+        final newIsLocked = !(device.isLocked ?? false);
+        devices[index] = device.copyWith(isLocked: newIsLocked);
+        _persistDevices();
 
-      // Unlocked = Relay HIGH, Locked = Relay LOW
-      if (Get.isRegistered<Esp32Service>()) {
-        final pin = device.pin ?? 18;
-        Get.find<Esp32Service>().setDigitalOutput(pin, !newIsLocked);
+        // Unlocked = Relay HIGH, Locked = Relay LOW
+        if (Get.isRegistered<Esp32Service>()) {
+          final pin = device.pin ?? 18;
+          Get.find<Esp32Service>().setDigitalOutput(pin, !newIsLocked);
+        }
       }
     }
   }
@@ -379,25 +373,27 @@ class DashboardController extends GetxController {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
-      final oldTemp = device.temperature ?? 24;
-      final newTemp = temp.clamp(16, 30);
-      final delta = newTemp - oldTemp;
+      if (device is AcDeviceEntity) {
+        final oldTemp = device.temperature ?? 24;
+        final newTemp = temp.clamp(16, 30);
+        final delta = newTemp - oldTemp;
 
-      devices[index] = device.copyWith(temperature: newTemp);
-      _persistDevices();
+        devices[index] = device.copyWith(temperature: newTemp);
+        _persistDevices();
 
-      if (delta == 0 || !Get.isRegistered<Esp32Service>()) return;
+        if (delta == 0 || !Get.isRegistered<Esp32Service>()) return;
 
-      if (delta > 0 && device.irTempUp != null) {
-        await _sendIrRepeated(device.irTempUp!, delta.abs());
-      } else if (delta < 0 && device.irTempDown != null) {
-        await _sendIrRepeated(device.irTempDown!, delta.abs());
-      } else {
-        Get.find<Esp32Service>().sendRawCommand(
-          'control/ac',
-          method: 'POST',
-          data: {'target_temp': newTemp},
-        );
+        if (delta > 0 && device.acIrCodes.irTempUp != null) {
+          await _sendIrRepeated(device.acIrCodes.irTempUp!, delta.abs());
+        } else if (delta < 0 && device.acIrCodes.irTempDown != null) {
+          await _sendIrRepeated(device.acIrCodes.irTempDown!, delta.abs());
+        } else {
+          Get.find<Esp32Service>().sendRawCommand(
+            'control/ac',
+            method: 'POST',
+            data: {'target_temp': newTemp},
+          );
+        }
       }
     }
   }
@@ -409,14 +405,15 @@ class DashboardController extends GetxController {
     if (index == -1) return;
 
     final device = devices[index];
+    if (device is! AcDeviceEntity) return;
 
     // Resolve which stored IR code corresponds to the requested mode
     final String? irCode = switch (mode) {
-      'Auto mode' => device.irAuto,
-      'Cool mode' => device.irCool,
-      'Heat mode' => device.irHeat,
-      'Eco mode'  => device.irEco,
-      'Dry mode'  => device.irDry,
+      'Auto mode' => device.acIrCodes.irAuto,
+      'Cool mode' => device.acIrCodes.irCool,
+      'Heat mode' => device.acIrCodes.irHeat,
+      'Eco mode'  => device.acIrCodes.irEco,
+      'Dry mode'  => device.acIrCodes.irDry,
       _           => null,
     };
 
@@ -497,49 +494,51 @@ class DashboardController extends GetxController {
   }
 
   DeviceEntity? _applyIrField(DeviceEntity device, String fieldKey, String? jsonCode) {
+    if (device is! AcDeviceEntity) return null;
+    final acIrCodes = device.acIrCodes;
     switch (fieldKey) {
       case 'irPower':
-        return device.copyWith(irPower: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irPower: jsonCode));
       case 'irTempUp':
-        return device.copyWith(irTempUp: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irTempUp: jsonCode));
       case 'irTempDown':
-        return device.copyWith(irTempDown: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irTempDown: jsonCode));
       case 'irAuto':
-        return device.copyWith(irAuto: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irAuto: jsonCode));
       case 'irCool':
-        return device.copyWith(irCool: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irCool: jsonCode));
       case 'irHeat':
-        return device.copyWith(irHeat: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irHeat: jsonCode));
       case 'irEco':
-        return device.copyWith(irEco: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irEco: jsonCode));
       case 'irDry':
-        return device.copyWith(irDry: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irDry: jsonCode));
       case 'irFanQuiet':
-        return device.copyWith(irFanQuiet: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irFanQuiet: jsonCode));
       case 'irFanLow':
-        return device.copyWith(irFanLow: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irFanLow: jsonCode));
       case 'irFanMed':
-        return device.copyWith(irFanMed: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irFanMed: jsonCode));
       case 'irFanHigh':
-        return device.copyWith(irFanHigh: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irFanHigh: jsonCode));
       case 'irFanAuto':
-        return device.copyWith(irFanAuto: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irFanAuto: jsonCode));
       case 'irSwingV':
-        return device.copyWith(irSwingV: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irSwingV: jsonCode));
       case 'irSwingH':
-        return device.copyWith(irSwingH: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irSwingH: jsonCode));
       case 'irPlasmacluster':
-        return device.copyWith(irPlasmacluster: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irPlasmacluster: jsonCode));
       case 'irSuperJet':
-        return device.copyWith(irSuperJet: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irSuperJet: jsonCode));
       case 'irCoanda':
-        return device.copyWith(irCoanda: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irCoanda: jsonCode));
       case 'irMyArea':
-        return device.copyWith(irMyArea: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irMyArea: jsonCode));
       case 'irDisplay':
-        return device.copyWith(irDisplay: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irDisplay: jsonCode));
       case 'irClean':
-        return device.copyWith(irClean: jsonCode);
+        return device.copyWith(acIrCodes: acIrCodes.copyWith(irClean: jsonCode));
       default:
         return null;
     }
@@ -571,10 +570,19 @@ class DashboardController extends GetxController {
     if (index != -1) {
       final device = devices[index];
       final newIsOn = brightness > 0;
-      devices[index] = device.copyWith(
-        brightness: brightness,
-        isOn: newIsOn,
-      );
+      
+      if (device is LampDeviceEntity) {
+        devices[index] = device.copyWith(
+          brightness: brightness,
+          isOn: newIsOn,
+        );
+      } else if (device is RgbLampDeviceEntity) {
+        devices[index] = device.copyWith(
+          brightness: brightness,
+          isOn: newIsOn,
+        );
+      }
+      
       _persistDevices();
 
       // Matter Devices
@@ -597,31 +605,33 @@ class DashboardController extends GetxController {
     final index = devices.indexWhere((d) => d.id == id);
     if (index != -1) {
       final device = devices[index];
-      devices[index] = device.copyWith(rgbR: r, rgbG: g, rgbB: b);
-      _persistDevices();
+      if (device is RgbLampDeviceEntity) {
+        devices[index] = device.copyWith(rgbR: r, rgbG: g, rgbB: b);
+        _persistDevices();
 
-      // Matter Devices
-      if (device.matterNodeId != null && Get.isRegistered<MatterService>()) {
-        Get.find<MatterService>().setColor(
-          device.matterNodeId!,
-          device.matterEndpointId ?? 1,
-          r,
-          g,
-          b,
-        );
-      }
-      // Control ESP32 RGB Strip channels (R: 23, G: 25, B: 26)
-      else if (Get.isRegistered<Esp32Service>()) {
-        final esp = Get.find<Esp32Service>();
-        final pin = device.pin ?? 23;
-        if (pin == 23) {
-          esp.setAnalogOutput(23, r);
-          esp.setAnalogOutput(25, g);
-          esp.setAnalogOutput(26, b);
-        } else {
-          esp.setAnalogOutput(pin, r);
-          esp.setAnalogOutput(25, g);
-          esp.setAnalogOutput(26, b);
+        // Matter Devices
+        if (device.matterNodeId != null && Get.isRegistered<MatterService>()) {
+          Get.find<MatterService>().setColor(
+            device.matterNodeId!,
+            device.matterEndpointId ?? 1,
+            r,
+            g,
+            b,
+          );
+        }
+        // Control ESP32 RGB Strip channels (R: 23, G: 25, B: 26)
+        else if (Get.isRegistered<Esp32Service>()) {
+          final esp = Get.find<Esp32Service>();
+          final pin = device.pin ?? 23;
+          if (pin == 23) {
+            esp.setAnalogOutput(23, r);
+            esp.setAnalogOutput(25, g);
+            esp.setAnalogOutput(26, b);
+          } else {
+            esp.setAnalogOutput(pin, r);
+            esp.setAnalogOutput(25, g);
+            esp.setAnalogOutput(26, b);
+          }
         }
       }
     }
@@ -678,12 +688,12 @@ class DashboardController extends GetxController {
         }
 
         if (!data.verifyRoundtrip()) {
-          Get.snackbar(
-            'Error',
-            'فشل التحقق من سلامة بيانات IR قبل الحفظ.',
-            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-            colorText: Colors.white,
-          );
+          // Get.snackbar(
+          //   'Error',
+          //   'فشل التحقق من سلامة بيانات IR قبل الحفظ.',
+          //   backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+          //   colorText: Colors.white,
+          // );
           return false;
         }
 
@@ -696,12 +706,12 @@ class DashboardController extends GetxController {
           devices[index] = updated;
           _persistDevices();
 
-          Get.snackbar(
-            ' Success',
-            'تم نسخ زر الريموت وحفظه كـ ${data.protocol.name} (${data.bits} bits)',
-            backgroundColor: const Color(0xFF4C86FF).withValues(alpha: 0.85),
-            colorText: Colors.white,
-          );
+          // Get.snackbar(
+          //   ' Success',
+          //   'تم نسخ زر الريموت وحفظه كـ ${data.protocol.name} (${data.bits} bits)',
+          //   backgroundColor: const Color(0xFF4C86FF).withValues(alpha: 0.85),
+          //   colorText: Colors.white,
+          // );
           return true;
         }
       }
