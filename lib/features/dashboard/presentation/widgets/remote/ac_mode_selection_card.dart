@@ -40,6 +40,7 @@ class AcModeSelectionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Row(
+            
             children: [
               Icon(Icons.tune_rounded, color: AppTheme.primaryBlue, size: 18),
               SizedBox(width: 8),
@@ -54,64 +55,66 @@ class AcModeSelectionCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            child: Row(
-              children: modes.map((m) {
-                final isSelected = currentMode == m.label;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: GestureDetector(
-                    onTap: () => controller.setAcMode(device.id, m.label),
-                    child: AnimatedContainer(
-                      width: 72,
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? m.color.withOpacity(0.12)
-                            : Colors.white.withOpacity(0.04),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
+          Center(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: modes.map((m) {
+                  final isSelected = currentMode == m.label;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: GestureDetector(
+                      onTap: () => controller.setAcMode(device.id, m.label),
+                      child: AnimatedContainer(
+                        width: 72,
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
                           color: isSelected
-                              ? m.color.withOpacity(0.5)
-                              : Colors.white10,
-                          width: 1.2,
+                              ? m.color.withOpacity(0.12)
+                              : Colors.white.withOpacity(0.04),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: isSelected
+                                ? m.color.withOpacity(0.5)
+                                : Colors.white10,
+                            width: 1.2,
+                          ),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: m.color.withOpacity(0.2),
+                                    blurRadius: 8,
+                                    spreadRadius: -2,
+                                  )
+                                ]
+                              : null,
                         ),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: m.color.withOpacity(0.2),
-                                  blurRadius: 8,
-                                  spreadRadius: -2,
-                                )
-                              ]
-                            : null,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            m.icon,
-                            color: isSelected ? m.color : Colors.white60,
-                            size: 22,
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            m.label.split(' ')[0],
-                            style: TextStyle(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              m.icon,
                               color: isSelected ? m.color : Colors.white60,
-                              fontSize: 11,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              size: 22,
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 6),
+                            Text(
+                              m.label.split(' ')[0],
+                              style: TextStyle(
+                                color: isSelected ? m.color : Colors.white60,
+                                fontSize: 11,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
           ),
         ],
