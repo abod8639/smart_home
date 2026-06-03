@@ -33,18 +33,54 @@ class _AddDeviceDialogState extends State<AddDeviceDialog> {
     // Generate a random ID
     final id = '${_selectedType.name}_${Random().nextInt(10000)}';
 
-    final newDevice = DeviceEntity(
-      id: id,
-      name: name,
-      type: _selectedType,
-      isOn: false,
-      linkedDevicesCount: linkedCount,
-      // Provide some default values based on type
-      brightness: _selectedType == DeviceType.lamp ? 50 : null,
-      temperature: _selectedType == DeviceType.airConditioner ? 24 : null,
-      mode: _selectedType == DeviceType.airConditioner ? 'Auto mode' : null,
-      coolingTime: _selectedType == DeviceType.airConditioner ? 0 : null,
-    );
+    DeviceEntity newDevice;
+    switch (_selectedType) {
+      case DeviceType.airConditioner:
+        newDevice = AcDeviceEntity(
+          id: id,
+          name: name,
+          isOn: false,
+          temperature: 24,
+          mode: 'Auto mode',
+          coolingTime: 0,
+          acIrCodes: const AcIrCodes(),
+        );
+      case DeviceType.lamp:
+        newDevice = LampDeviceEntity(
+          id: id,
+          name: name,
+          isOn: false,
+          brightness: 50,
+        );
+      case DeviceType.rgb:
+        newDevice = RgbLampDeviceEntity(
+          id: id,
+          name: name,
+          isOn: false,
+          brightness: 50,
+          rgbR: 255,
+          rgbG: 255,
+          rgbB: 255,
+        );
+      case DeviceType.door:
+        newDevice = DoorDeviceEntity(
+          id: id,
+          name: name,
+          isOn: false,
+          isLocked: true,
+          linkedDevicesCount: linkedCount,
+        );
+      case DeviceType.vacuum:
+        newDevice = VacuumDeviceEntity(
+          id: id,
+          name: name,
+          isOn: false,
+          batteryLevel: 100,
+          areaCleaned: 0,
+          cleaningTime: 0,
+          filterStatus: 100,
+        );
+    }
 
     final dashboardController = Get.find<DashboardController>();
     dashboardController.addDevice(newDevice);
