@@ -155,7 +155,7 @@ class AdvancedFeaturesCard extends StatelessWidget {
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.04),
+                    color: Colors.white.withValues(alpha:0.04),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white10, width: 1.2),
                   ),
@@ -214,7 +214,7 @@ class AdvancedFeaturesCard extends StatelessWidget {
             width: 1.2,
           ),
           boxShadow: isSelected
-              ? [BoxShadow(color: color.withOpacity(0.2), blurRadius: 8, spreadRadius: -2)]
+              ? [BoxShadow(color: color.withValues(alpha:0.2), blurRadius: 8, spreadRadius: -2)]
               : null,
         ),
         child: Column(
