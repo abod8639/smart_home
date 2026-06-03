@@ -1,13 +1,9 @@
 import 'device_entity.dart';
 
 class RgbLampDeviceEntity extends DeviceEntity {
-  @override
   final int? brightness;
-  @override
   final int? rgbR;
-  @override
   final int? rgbG;
-  @override
   final int? rgbB;
 
   const RgbLampDeviceEntity({
@@ -27,7 +23,48 @@ class RgbLampDeviceEntity extends DeviceEntity {
     this.rgbR,
     this.rgbG,
     this.rgbB,
-  }) : super.internal(type: DeviceType.rgb);
+  }) : super(
+          type: DeviceType.rgb,
+        );
+
+  RgbLampDeviceEntity copyWith({
+    String? id,
+    String? name,
+    DeviceType? type,
+    bool? isOn,
+    String? roomId,
+    double? positionX,
+    double? positionY,
+    double? markerWidth,
+    double? markerHeight,
+    bool? showAsDot,
+    Object? matterNodeId = const Object(),
+    Object? matterEndpointId = const Object(),
+    Object? pin = const Object(),
+    int? brightness,
+    int? rgbR,
+    int? rgbG,
+    int? rgbB,
+  }) {
+    return RgbLampDeviceEntity(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      isOn: isOn ?? this.isOn,
+      roomId: roomId ?? this.roomId,
+      positionX: positionX ?? this.positionX,
+      positionY: positionY ?? this.positionY,
+      markerWidth: markerWidth ?? this.markerWidth,
+      markerHeight: markerHeight ?? this.markerHeight,
+      showAsDot: showAsDot ?? this.showAsDot,
+      matterNodeId: matterNodeId == const Object() ? this.matterNodeId : (matterNodeId as int?),
+      matterEndpointId: matterEndpointId == const Object() ? this.matterEndpointId : (matterEndpointId as int?),
+      pin: pin == const Object() ? this.pin : (pin as int?),
+      brightness: brightness ?? this.brightness,
+      rgbR: rgbR ?? this.rgbR,
+      rgbG: rgbG ?? this.rgbG,
+      rgbB: rgbB ?? this.rgbB,
+    );
+  }
 
   @override
   List<Object?> get props => [
