@@ -184,7 +184,7 @@ class AdvancedFeaturesCard extends StatelessWidget {
   void _showFeatureToast(String featureName, bool isOn) {
     final status = isOn ? 'تفعيل' : 'إيقاف';
     Get.snackbar(
-      '$featureName / ${featureName}',
+      '$featureName / $featureName',
       'تم $status خاصية $featureName',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF1E293B),
