@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/pages/remote_page.dart';
+import 'package:smart_home/features/dashboard/presentation/pages/rgb_page.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/room_preview_widget.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/weather_update_widget.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
@@ -275,9 +276,14 @@ Widget buildDeviceCards() {
               onToggle: () => controller.toggleDoor(device.id),
             );
           case DeviceType.rgb:
-            return RgbCard(
-              device: device,
-              onToggle: () => controller.toggleDevice(device.id),
+            return GestureDetector(
+              onLongPress: () {
+                Get.to(() => RgbPage(device: device));
+              },
+              child: RgbCard(
+                device: device,
+                onToggle: () => controller.toggleDevice(device.id),
+              ),
             );
         }
       },
