@@ -136,8 +136,7 @@ class Esp32Service extends GetxService {
 
     final connMess = MqttConnectMessage()
         .withClientIdentifier(clientId)
-        .startClean() // Non persistent session for mobile app
-        .withWillQos(MqttQos.atLeastOnce);
+        .startClean(); // Non persistent session for mobile app
     
     _client!.connectionMessage = connMess;
 
