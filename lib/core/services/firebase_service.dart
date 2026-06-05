@@ -74,8 +74,7 @@ class FirebaseService extends GetxService {
       'action': 'send_ir',
       'protocol': protocol,
       'value': value,
-  }
-  );
+    });
   }
   /// Save an IR code configuration to Firebase
   Future<void> saveIrCode(String deviceId, String fieldKey, String jsonCode) async {
