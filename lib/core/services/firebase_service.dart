@@ -5,10 +5,7 @@ import 'package:flutter/foundation.dart';
 
 class FirebaseService extends GetxService {
   FirebaseDatabase? get _db => Firebase.apps.isNotEmpty
-      ? FirebaseDatabase.instanceFor(
-          app: Firebase.app(),
-          databaseURL: 'https://smart-home-69271-default-rtdb.firebaseio.com',
-        )
+      ? FirebaseDatabase.instance
       : null;
   
   // Hardcoded device ID for demonstration; in a real app, this should be selected dynamically.
