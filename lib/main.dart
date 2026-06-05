@@ -8,12 +8,13 @@ import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'core/bindings/initial_binding.dart';
 import 'features/room/presentation/pages/room_placement_view.dart';
 import 'features/room/presentation/controllers/room_placement_controller.dart';
+import 'features/auth/presentation/pages/login_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-);
+  );
   await HiveService.init();
   runApp(const SmartHomeApp());
 }
@@ -30,6 +31,10 @@ class SmartHomeApp extends StatelessWidget {
       initialRoute: '/dashboard',
       initialBinding: InitialBinding(),
       getPages: [
+        GetPage(
+          name: '/login',
+          page: () => const LoginPage(),
+        ),
         GetPage(
           name: '/dashboard',
           page: () => const DashboardPage(),

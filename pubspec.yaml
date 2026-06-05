@@ -31,6 +31,7 @@ dependencies:
   jni_flutter: ^1.0.1
   firebase_core: ^4.10.0
   firebase_database: ^12.4.2
+  firebase_auth: ^6.5.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
