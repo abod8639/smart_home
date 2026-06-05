@@ -74,6 +74,55 @@ class FirebaseService extends GetxService {
       'action': 'send_ir',
       'protocol': protocol,
       'value': value,
-    });
+  }
+  );
+  }
+  /// Save an IR code configuration to Firebase
+  Future<void> saveIrCode(String deviceId, String fieldKey, String jsonCode) async {
+    if (_db == null) return;
+    try {
+      final ref = _db!.ref('app_data/ir_codes/$deviceId/$fieldKey');
+      await ref.set(jsonCode);
+      if (kDebugMode) {
+        print('IR code saved to Firebase for $deviceId -> $fieldKey');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to save IR code to Firebase: $e');
+      }
+    }
+  }
+
+  /// Delete an IR code configuration from Firebase
+  Future<void> deleteIrCode(String deviceId, String fieldKey) async {
+    if (_db == null) return;
+    try {
+      final ref = _db!.ref('app_data/ir_codes/$deviceId/$fieldKey');
+      await ref.remove();
+      if (kDebugMode) {
+        print('IR code deleted from Firebase for $deviceId -> $fieldKey');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to delete IR code from Firebase: $e');
+      }
+    }
+  }
+
+  /// Fetch all IR codes from Firebase for a specific device
+  Future<Map<String, String>> fetchIrCodes(String deviceId) async {
+    if (_db == null) return {};
+    try {
+      final snapshot = await _db!.ref('app_data/ir_codes/$deviceId').get();
+      if (snapshot.exists && snapshot.value != null) {
+        final Map<dynamic, dynamic> data = snapshot.value as Map<dynamic, dynamic>;
+        return data.map((key, value) => MapEntry(key.toString(), value.toString()));
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to fetch IR codes from Firebase: $e');
+      }
+    }
+    return {};
   }
 }
