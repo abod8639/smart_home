@@ -72,6 +72,7 @@ class DashboardController extends GetxController {
       _startAcTimer();
       _startEsp32Polling();
       _initFirebaseListeners();
+      _syncIrCodesFromFirebase();
     } else {
       isWeatherLoading.value = false;
       weatherLocation.value = 'Mock City';
@@ -110,6 +111,33 @@ class DashboardController extends GetxController {
           }
         }
       });
+    }
+  }
+
+  void _syncIrCodesFromFirebase() async {
+    if (Get.isRegistered<FirebaseService>()) {
+      bool changed = false;
+      for (int i = 0; i < devices.length; i++) {
+        if (devices[i] is AcDeviceEntity) {
+          final codes = await Get.find<FirebaseService>().fetchIrCodes(devices[i].id);
+          if (codes.isNotEmpty) {
+            DeviceEntity updated = devices[i];
+            codes.forEach((key, value) {
+              final newUpdated = _applyIrField(updated, key, value);
+              if (newUpdated != null) {
+                updated = newUpdated;
+              }
+            });
+            if (updated != devices[i]) {
+              devices[i] = updated;
+              changed = true;
+            }
+          }
+        }
+      }
+      if (changed) {
+        _persistDevices();
+      }
     }
   }
 
