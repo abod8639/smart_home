@@ -558,7 +558,7 @@ class Esp32Service extends GetxService {
         final result = await completer.future.timeout(const Duration(seconds: 15));
         return EspResponse.success(result);
       } catch (e) {
-        sub?.cancel();
+        sub.cancel();
         return EspResponse.failure('IR Learning via Firebase timed out: $e');
       }
     }
