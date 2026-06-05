@@ -16,7 +16,7 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   dio: ^5.9.2
-  web_socket_channel: ^3.0.3
+  mqtt_client: ^10.4.1
   equatable: ^2.0.8
   lottie: ^3.3.3
   shared_preferences: ^2.5.5
