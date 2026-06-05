@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:smart_home/core/services/hive_service.dart';
 import '../../domain/entities/room_entity.dart';
 import '../models/room_model.dart';
@@ -28,6 +29,10 @@ class RoomLocalDatasource {
     );
   }
 
+  // ── Helper ───────────────────────────────────────────────────────────────────
+
+  bool get _isTest => !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+
   // ── Public API ────────────────────────────────────────────────────────────────
 
   /// Interface matching clean architecture Repository dependencies.
@@ -37,7 +42,7 @@ class RoomLocalDatasource {
 
   /// Returns all saved rooms. Empty list if nothing has been saved yet.
   List<RoomModel> loadRooms() {
-    if (Platform.environment.containsKey('FLUTTER_TEST')) return [];
+    if (_isTest) return [];
     final box = HiveService.roomsBox;
     return box.values
         .map((raw) => _fromMap(Map<String, dynamic>.from(raw)))
@@ -46,7 +51,7 @@ class RoomLocalDatasource {
 
   /// Overwrites all saved rooms with [rooms].
   Future<void> saveRooms(List<RoomEntity> rooms) async {
-    if (Platform.environment.containsKey('FLUTTER_TEST')) return;
+    if (_isTest) return;
     final box = HiveService.roomsBox;
     await box.clear();
     final entries = {
@@ -57,13 +62,13 @@ class RoomLocalDatasource {
 
   /// Clears the entire rooms box.
   Future<void> clearRooms() async {
-    if (Platform.environment.containsKey('FLUTTER_TEST')) return;
+    if (_isTest) return;
     await HiveService.roomsBox.clear();
   }
 
   /// Returns true if there are any saved rooms.
   bool get hasData {
-    if (Platform.environment.containsKey('FLUTTER_TEST')) return false;
+    if (_isTest) return false;
     return HiveService.roomsBox.isNotEmpty;
   }
 }
