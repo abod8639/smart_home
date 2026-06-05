@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
-import 'package:smart_home/features/device/domain/entities/rgb_lamp_device_entity.dart';
 
 class RgbPage extends GetView<DashboardController> {
   final DeviceEntity device;
@@ -137,11 +136,11 @@ class RgbPage extends GetView<DashboardController> {
           height: 85,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isOn ? Colors.white : Colors.white.withOpacity(0.08),
+            color: isOn ? Colors.white : Colors.white.withValues(alpha: 0.08),
             boxShadow: isOn
                 ? [
                     BoxShadow(
-                      color: Colors.white.withOpacity(0.4),
+                      color: Colors.white.withValues(alpha: 0.4),
                       blurRadius: 25,
                       spreadRadius: 5,
                     )
@@ -200,10 +199,10 @@ class RgbPage extends GetView<DashboardController> {
                     child: SliderTheme(
                       data: SliderThemeData(
                         trackHeight: 6,
-                        activeTrackColor: currentDevice.isOn ? c : Colors.grey.withOpacity(0.5),
+                        activeTrackColor: currentDevice.isOn ? c : Colors.grey.withValues(alpha: 0.5),
                         inactiveTrackColor: Colors.white12,
                         thumbColor: Colors.white,
-                        overlayColor: Colors.white.withOpacity(0.2),
+                        overlayColor: Colors.white.withValues(alpha: 0.2),
                         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
                       ),
                       child: Slider(
@@ -281,7 +280,7 @@ class RgbPage extends GetView<DashboardController> {
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: color.withOpacity(0.6),
+                                  color: color.withValues(alpha: 0.6),
                                   blurRadius: 12,
                                   spreadRadius: 2,
                                 )
@@ -324,7 +323,7 @@ class RgbPage extends GetView<DashboardController> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.white.withOpacity(0.15) : Colors.white.withOpacity(0.02),
+                        color: isSelected ? Colors.white.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.02),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected ? Colors.white54 : Colors.white12,
@@ -361,9 +360,9 @@ class _GlassContainer extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.04),
+            color: Colors.white.withValues(alpha: 0.04),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
           ),
           child: child,
         ),
@@ -455,7 +454,7 @@ class ColorWheelPainter extends CustomPainter {
     
     // Glow effect
     final glowPaint = Paint()
-      ..color = currentColor.withOpacity(0.5)
+      ..color = currentColor.withValues(alpha: 0.5)
       ..style = PaintingStyle.fill
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18);
     

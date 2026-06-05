@@ -28,6 +28,7 @@ class RoomPreviewWidget extends GetView<DashboardController> {
           return Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
+              
               image: DecorationImage(
                 image: imageProvider,
                 fit: BoxFit.cover,

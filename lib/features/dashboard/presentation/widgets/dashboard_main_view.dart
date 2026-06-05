@@ -127,7 +127,7 @@ class DashboardMainView extends GetView<DashboardController> {
 
         // Desktop / Wide Layout (width >= 950): 2-Column Layout
         final previewWidth = constraints.maxWidth - 320 - gap - (padding * 2);
-        final previewHeight = previewWidth * 9 / 16;
+        final previewHeight = previewWidth * 8.5 / 16;
         // Clamp height to a minimum of 400.0 to ensure room list has sufficient space
         final rowHeight = previewHeight < 400.0 ? 400.0 : previewHeight;
 
