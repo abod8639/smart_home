@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get/get.dart';
 
@@ -24,13 +25,15 @@ class AuthService extends GetxService {
   }
 
   void _handleAuthChanged(User? user) {
-    if (user == null) {
-      // Direct to login page if logged out
-      Get.offAllNamed('/login');
-    } else {
-      // Direct to dashboard if logged in
-      Get.offAllNamed('/dashboard');
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (user == null) {
+        // Direct to login page if logged out
+        Get.offAllNamed('/login');
+      } else {
+        // Direct to dashboard if logged in
+        Get.offAllNamed('/dashboard');
+      }
+    });
   }
 
   /// Google Sign-In logic working across Web and Mobile
