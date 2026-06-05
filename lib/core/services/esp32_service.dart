@@ -109,11 +109,6 @@ class Esp32Service extends GetxService {
     super.onClose();
   }
 
-  @override
-  void onClose() {
-    _closeWebSocket();
-    super.onClose();
-  }
 
   void _connectWebSocket() {
     _closeWebSocket();
@@ -539,8 +534,6 @@ class Esp32Service extends GetxService {
             final nowSec = DateTime.now().millisecondsSinceEpoch ~/ 1000;
             if ((nowSec - timestamp).abs() < 15) { // within 15 seconds
               final entity = IrCodeEntity(
-                id: DateTime.now().toString(),
-                name: 'Learned Code',
                 protocol: IrProtocol.values.firstWhere(
                   (p) => p.name.toUpperCase() == protocolStr.toString().toUpperCase(),
                   orElse: () => IrProtocol.raw,
