@@ -18,7 +18,7 @@ class SettingsController extends GetxController {
   var hubConnectionMode = 'Wi-Fi'.obs;
   var autoBackups = true.obs;
   var lockTimeout = 5.0.obs; // in minutes
-  var ipAddress = '192.168.1.2'.obs;
+  var ipAddress = 'broker.hivemq.com'.obs;
   var isHubReachable = false.obs;
   var isCheckingHub = false.obs;
 
