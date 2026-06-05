@@ -57,7 +57,6 @@ class LoginPage extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       'Control your home from anywhere',
-                      // textAlign: Center, // Wait, Center isn't an enum value, use TextAlign.center
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurface.withOpacity(0.7),
