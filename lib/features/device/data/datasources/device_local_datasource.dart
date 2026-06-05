@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:smart_home/core/services/hive_service.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
@@ -207,11 +208,15 @@ class DeviceLocalDatasource {
     }
   }
 
+  // ── Helper ───────────────────────────────────────────────────────────────────
+
+  bool get _isTest => !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+
   // ── Public API ────────────────────────────────────────────────────────────────
 
   /// Returns all saved devices. Empty list if nothing has been saved yet.
   List<DeviceEntity> loadDevices() {
-    if (Platform.environment.containsKey('FLUTTER_TEST')) return [];
+    if (_isTest) return [];
     final box = HiveService.devicesBox;
     return box.values
         .map((raw) => _fromMap(Map<String, dynamic>.from(raw)))
@@ -220,7 +225,7 @@ class DeviceLocalDatasource {
 
   /// Overwrites all saved devices with [devices].
   Future<void> saveDevices(List<DeviceEntity> devices) async {
-    if (Platform.environment.containsKey('FLUTTER_TEST')) return;
+    if (_isTest) return;
     final box = HiveService.devicesBox;
     await box.clear();
     final entries = {
@@ -231,13 +236,13 @@ class DeviceLocalDatasource {
 
   /// Clears the entire devices box.
   Future<void> clearDevices() async {
-    if (Platform.environment.containsKey('FLUTTER_TEST')) return;
+    if (_isTest) return;
     await HiveService.devicesBox.clear();
   }
 
   /// Returns true if there are any saved devices.
   bool get hasData {
-    if (Platform.environment.containsKey('FLUTTER_TEST')) return false;
+    if (_isTest) return false;
     return HiveService.devicesBox.isNotEmpty;
   }
 }
