@@ -37,7 +37,7 @@ class LoginPage extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withOpacity(0.2),
+                        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -59,7 +59,7 @@ class LoginPage extends StatelessWidget {
                       'Control your home from anywhere',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -94,7 +94,7 @@ class LoginPage extends StatelessWidget {
                             'Sign In Failed',
                             'Failed to sign in with Google or cancelled.',
                             snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.redAccent.withOpacity(0.8),
+                            backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
                             colorText: Colors.white,
                           );
                         }
@@ -126,7 +126,7 @@ class LoginPage extends StatelessWidget {
                     Text(
                       'By signing in, you agree to our Terms and Conditions',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.5),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                         fontSize: 11,
                       ),
                     ),
