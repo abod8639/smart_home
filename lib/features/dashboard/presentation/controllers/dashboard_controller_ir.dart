@@ -190,6 +190,10 @@ extension DashboardControllerIr on DashboardController {
     devices[index] = updated;
     _persistDevices();
 
+    if (Get.isRegistered<FirebaseService>()) {
+      Get.find<FirebaseService>().deleteIrCode(deviceId, fieldKey);
+    }
+
     Get.snackbar(
       'تم الحذف / Deleted',
       'تم حذف إشارة الريموت المحفوظة.',
@@ -250,6 +254,11 @@ extension DashboardControllerIr on DashboardController {
 
           devices[index] = updated;
           _persistDevices();
+
+          if (Get.isRegistered<FirebaseService>()) {
+            Get.find<FirebaseService>().saveIrCode(deviceId, fieldKey, jsonCode);
+          }
+
           return true;
         }
       }
