@@ -13,6 +13,7 @@ import 'package:smart_home/features/room/data/datasources/room_local_datasource.
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/ir_learning_dialog.dart';
+import 'package:smart_home/core/services/firebase_service.dart';
 
 part 'dashboard_controller_weather.dart';
 part 'dashboard_controller_rooms.dart';
@@ -67,6 +68,7 @@ class DashboardController extends GetxController {
       fetchLiveWeather();
       _startAcTimer();
       _startEsp32Polling();
+      _initFirebaseListeners();
     } else {
       isWeatherLoading.value = false;
       weatherLocation.value = 'Mock City';
@@ -80,6 +82,32 @@ class DashboardController extends GetxController {
     _acTimer?.cancel();
     _espTimer?.cancel();
     super.onClose();
+  }
+
+  void _initFirebaseListeners() {
+    if (Get.isRegistered<FirebaseService>()) {
+      final fb = Get.find<FirebaseService>();
+      
+      // Update temperature from Firebase if local WebSocket is down
+      fb.temperatureStream.listen((event) {
+        if (Get.isRegistered<Esp32Service>() && !Get.find<Esp32Service>().isConnected.value) {
+          final val = event.snapshot.value;
+          if (val != null) {
+            temperature.value = '$val°';
+          }
+        }
+      });
+
+      // Update humidity from Firebase if local WebSocket is down
+      fb.humidityStream.listen((event) {
+        if (Get.isRegistered<Esp32Service>() && !Get.find<Esp32Service>().isConnected.value) {
+          final val = event.snapshot.value;
+          if (val != null) {
+            humidity.value = '$val%';
+          }
+        }
+      });
+    }
   }
 
   void _loadData() {
