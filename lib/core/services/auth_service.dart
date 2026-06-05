@@ -40,10 +40,9 @@ class AuthService extends GetxService {
         return await _auth.signInWithPopup(authProvider);
       } else {
         // Mobile uses standard flow
-        final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
-        if (googleUser == null) return null; // Cancelled by user
+        final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
 
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final GoogleSignInAuthentication googleAuth = googleUser.authentication;
         
         final AuthCredential credential = GoogleAuthProvider.credential(
           idToken: googleAuth.idToken,
