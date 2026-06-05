@@ -650,32 +650,32 @@ class PlacementDeviceDialogs {
                   updated = device.copyWith(
                     name: name,
                     showAsDot: showAsDot.value,
-                    pin: selectedPin.value ?? const Object(),
+                    pin: selectedPin.value,
                     linkedDevicesCount: linkedCount,
                   );
                 } else if (device is AcDeviceEntity) {
                   updated = device.copyWith(
                     name: name,
                     showAsDot: showAsDot.value,
-                    pin: selectedPin.value ?? const Object(),
+                    pin: selectedPin.value,
                   );
                 } else if (device is LampDeviceEntity) {
                   updated = device.copyWith(
                     name: name,
                     showAsDot: showAsDot.value,
-                    pin: selectedPin.value ?? const Object(),
+                    pin: selectedPin.value,
                   );
                 } else if (device is RgbLampDeviceEntity) {
                   updated = device.copyWith(
                     name: name,
                     showAsDot: showAsDot.value,
-                    pin: selectedPin.value ?? const Object(),
+                    pin: selectedPin.value,
                   );
                 } else if (device is VacuumDeviceEntity) {
                   updated = device.copyWith(
                     name: name,
                     showAsDot: showAsDot.value,
-                    pin: selectedPin.value ?? const Object(),
+                    pin: selectedPin.value,
                   );
                 } else {
                   updated = device; // Should not happen
