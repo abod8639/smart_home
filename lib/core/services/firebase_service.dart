@@ -34,29 +34,46 @@ class FirebaseService extends GetxService {
       ? _db!.ref('devices/$_deviceId/humidity').onValue
       : const Stream.empty();
 
-  /// Send an IR command to the ESP32 via Firebase RTDB
-  Future<void> sendIrCommand(String protocol, String value) async {
+  /// Stream of target AC temperature
+  Stream<DatabaseEvent> get targetTempStream => _db != null
+      ? _db!.ref('devices/$_deviceId/target_temperature').onValue
+      : const Stream.empty();
+
+  /// Stream of output pin states (relays, PWM, etc.)
+  Stream<DatabaseEvent> get pinsStream => _db != null
+      ? _db!.ref('devices/$_deviceId/pins').onValue
+      : const Stream.empty();
+
+  /// Send a command to the ESP32 via Firebase RTDB
+  Future<void> sendCommand(Map<String, dynamic> command) async {
     if (_db == null) {
       if (kDebugMode) {
-        print('Firebase not initialized. Cannot send IR Command.');
+        print('Firebase not initialized. Cannot send command.');
       }
       return;
     }
     try {
       final ref = _db!.ref('devices/$_deviceId/commands');
       await ref.set({
-        'action': 'send_ir',
-        'protocol': protocol,
-        'value': value, // Can be "0xFFE01F" or raw CSV string "9000,4500,560..."
+        ...command,
         'timestamp': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       });
       if (kDebugMode) {
-        print('IR Command sent via Firebase: $protocol, $value');
+        print('Command sent via Firebase: $command');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Failed to send IR Command via Firebase: $e');
+        print('Failed to send command via Firebase: $e');
       }
     }
+  }
+
+  /// Send an IR command to the ESP32 via Firebase RTDB
+  Future<void> sendIrCommand(String protocol, String value) async {
+    await sendCommand({
+      'action': 'send_ir',
+      'protocol': protocol,
+      'value': value,
+    });
   }
 }
