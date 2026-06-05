@@ -51,6 +51,7 @@ class DefaultFirebaseOptions {
     authDomain: 'smart-home-69271.firebaseapp.com',
     storageBucket: 'smart-home-69271.firebasestorage.app',
     measurementId: 'G-RGHCEE27X1',
+    databaseURL: 'https://smart-home-69271-default-rtdb.firebaseio.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -59,6 +60,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '263208865722',
     projectId: 'smart-home-69271',
     storageBucket: 'smart-home-69271.firebasestorage.app',
+    databaseURL: 'https://smart-home-69271-default-rtdb.firebaseio.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -68,6 +70,7 @@ class DefaultFirebaseOptions {
     projectId: 'smart-home-69271',
     storageBucket: 'smart-home-69271.firebasestorage.app',
     iosBundleId: 'com.example.smartHome',
+    databaseURL: 'https://smart-home-69271-default-rtdb.firebaseio.com',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -77,5 +80,6 @@ class DefaultFirebaseOptions {
     projectId: 'smart-home-69271',
     storageBucket: 'smart-home-69271.firebasestorage.app',
     iosBundleId: 'com.example.smartHome',
+    databaseURL: 'https://smart-home-69271-default-rtdb.firebaseio.com',
   );
 }
