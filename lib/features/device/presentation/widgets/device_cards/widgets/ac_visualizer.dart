@@ -28,7 +28,7 @@ class AcVisualizer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDeviceOn = device.isOn;
-    final acW = 220 * scale;
+    final acW = 210 * scale;
     final acH = 59 * scale;
     final ventW = 180 * scale;
     final ventH = (4 * scale).clamp(2.0, 4.0);
