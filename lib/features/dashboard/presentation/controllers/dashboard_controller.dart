@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
@@ -60,11 +61,13 @@ class DashboardController extends GetxController {
     currentNavigationIndex.value = index;
   }
 
+  bool get _isTest => !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+
   @override
   void onInit() {
     super.onInit();
     _loadData();
-    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+    if (!_isTest) {
       fetchLiveWeather();
       _startAcTimer();
       _startEsp32Polling();
@@ -134,14 +137,14 @@ class DashboardController extends GetxController {
   }
 
   void _persistRooms() {
-    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+    if (!_isTest) {
       _roomDatasource.saveRooms(rooms.toList());
     }
   }
 
   /// Save current devices snapshot to Hive.
   void _persistDevices() {
-    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+    if (!_isTest) {
       _datasource.saveDevices(devices.toList());
     }
   }
