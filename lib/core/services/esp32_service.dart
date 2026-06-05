@@ -7,6 +7,7 @@ import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:smart_home/core/services/firebase_service.dart';
 
 /// Generic response wrapper for ESP32 operations
 class EspResponse<T> {
@@ -38,6 +39,12 @@ class Esp32Service extends GetxService {
   // Base WebSocket URL computed dynamically from settings IP
   String get wsUrl => 'ws://${_settings.ipAddress.value}/ws';
 
+  // Retrieves FirebaseService for external network fallback
+  FirebaseService get _firebase => Get.find<FirebaseService>();
+
+  // Subscription list for cleaning up Firebase listeners if needed
+  final List<StreamSubscription> _firebaseSubscriptions = [];
+
   @override
   void onInit() { 
     super.onInit();
@@ -50,6 +57,56 @@ class Esp32Service extends GetxService {
       debugPrint('ESP32 IP changed, reconnecting to WebSocket...');
       _reconnect();
     });
+
+    // Start listening to Firebase states to sync UI when WebSocket is disconnected
+    _initFirebaseSync();
+  }
+
+  void _initFirebaseSync() {
+    _firebaseSubscriptions.add(_firebase.temperatureStream.listen((event) {
+      if (!isConnected.value && event.snapshot.value != null) {
+        final double temp = (event.snapshot.value as num).toDouble();
+        _syncSensorsWithControllers({'temperature': temp});
+      }
+    }));
+
+    _firebaseSubscriptions.add(_firebase.humidityStream.listen((event) {
+      if (!isConnected.value && event.snapshot.value != null) {
+        final double hum = (event.snapshot.value as num).toDouble();
+        _syncSensorsWithControllers({'humidity': hum});
+      }
+    }));
+
+    _firebaseSubscriptions.add(_firebase.targetTempStream.listen((event) {
+      if (!isConnected.value && event.snapshot.value != null) {
+        final int target = (event.snapshot.value as num).toInt();
+        _syncStateWithControllers({'target_temperature': target});
+      }
+    }));
+
+    _firebaseSubscriptions.add(_firebase.pinsStream.listen((event) {
+      if (!isConnected.value && event.snapshot.value != null) {
+        try {
+          final Map<dynamic, dynamic> pinsMap = event.snapshot.value as Map<dynamic, dynamic>;
+          final Map<String, dynamic> formattedPins = {};
+          pinsMap.forEach((key, val) {
+            formattedPins[key.toString()] = val;
+          });
+          _syncStateWithControllers({'pins': formattedPins});
+        } catch (e) {
+          debugPrint('Error parsing pins map from Firebase: $e');
+        }
+      }
+    }));
+  }
+
+  @override
+  void onClose() {
+    _closeWebSocket();
+    for (var sub in _firebaseSubscriptions) {
+      sub.cancel();
+    }
+    super.onClose();
   }
 
   @override
@@ -345,28 +402,40 @@ class Esp32Service extends GetxService {
 
   // ─────────────── PUBLIC BACKWARD-COMPATIBLE API ───────────────
 
-  /// Ping ESP32 to test host reachability over WebSockets
+  /// Ping ESP32 to test host reachability over WebSockets or fallback to Firebase online status
   Future<EspResponse<bool>> pingHub() async {
     if (isConnected.value) return EspResponse.success(true);
     _connectWebSocket();
     int wait = 0;
-    while (!isConnected.value && wait < 2000) {
+    while (!isConnected.value && wait < 1500) {
       await Future.delayed(const Duration(milliseconds: 100));
       wait += 100;
     }
     if (isConnected.value) return EspResponse.success(true);
+    
+    // Fallback: check online status from Firebase
+    try {
+      final statusEvent = await _firebase.deviceStatusStream.first.timeout(const Duration(seconds: 2));
+      final status = statusEvent.snapshot.value;
+      if (status == 'online') {
+        return EspResponse.success(true); // Hub is online via Firebase
+      }
+    } catch (_) {}
+    
     return EspResponse.failure('Unable to establish WebSocket connection');
   }
 
   /// Read real-time sensor metrics
   Future<EspResponse<Map<String, dynamic>>> getSensorData() async {
-    _stateCompleter = Completer<Map<String, dynamic>>();
-    if (sendRawMessage({'action': 'get_state'})) {
-      try {
-        final state = await _stateCompleter!.future.timeout(const Duration(seconds: 3));
-        return EspResponse.success(state);
-      } catch (e) {
-        return EspResponse.failure(e.toString());
+    if (isConnected.value) {
+      _stateCompleter = Completer<Map<String, dynamic>>();
+      if (sendRawMessage({'action': 'get_state'})) {
+        try {
+          final state = await _stateCompleter!.future.timeout(const Duration(seconds: 3));
+          return EspResponse.success(state);
+        } catch (e) {
+          return EspResponse.failure(e.toString());
+        }
       }
     }
     return EspResponse.failure('WebSocket not connected');
@@ -375,23 +444,45 @@ class Esp32Service extends GetxService {
   /// Toggle a digital pin state / relay channel
   Future<EspResponse<bool>> setDigitalOutput(dynamic pin, bool state) async {
     final int pinInt = pin is String ? int.parse(pin) : pin as int;
-    final success = sendRawMessage({
-      'action': 'set_relay',
-      'pin': pinInt,
-      'value': state ? 1 : 0
-    });
-    return success ? EspResponse.success(true) : EspResponse.failure('WebSocket not connected');
+    
+    if (isConnected.value) {
+      final success = sendRawMessage({
+        'action': 'set_relay',
+        'pin': pinInt,
+        'value': state ? 1 : 0
+      });
+      return success ? EspResponse.success(true) : EspResponse.failure('WebSocket transmission failed');
+    } else {
+      // Firebase fallback
+      await _firebase.sendCommand({
+        'action': 'set_relay',
+        'pin': pinInt,
+        'value': state ? 1 : 0,
+      });
+      return EspResponse.success(true);
+    }
   }
 
   /// Write an analog/PWM duty cycle value
   Future<EspResponse<bool>> setAnalogOutput(dynamic pin, int value) async {
     final int pinInt = pin is String ? int.parse(pin) : pin as int;
-    final success = sendRawMessage({
-      'action': 'set_pwm',
-      'pin': pinInt,
-      'value': value.clamp(0, 255)
-    });
-    return success ? EspResponse.success(true) : EspResponse.failure('WebSocket not connected');
+    
+    if (isConnected.value) {
+      final success = sendRawMessage({
+        'action': 'set_pwm',
+        'pin': pinInt,
+        'value': value.clamp(0, 255)
+      });
+      return success ? EspResponse.success(true) : EspResponse.failure('WebSocket transmission failed');
+    } else {
+      // Firebase fallback
+      await _firebase.sendCommand({
+        'action': 'set_pwm',
+        'pin': pinInt,
+        'value': value.clamp(0, 255),
+      });
+      return EspResponse.success(true);
+    }
   }
 
   /// Execute dynamic raw endpoints / payloads
@@ -401,39 +492,106 @@ class Esp32Service extends GetxService {
     dynamic data,
   }) async {
     if (path == 'control/ac') {
-      final success = sendRawMessage({
-        'action': 'control_ac',
-        'isOn': data['isOn'] == true ? 1 : 0,
-        'target_temp': data['target_temp']
-      });
-      return success ? EspResponse.success({'status': 'ok'}) : EspResponse.failure('WebSocket not connected');
+      if (isConnected.value) {
+        final success = sendRawMessage({
+          'action': 'control_ac',
+          'isOn': data['isOn'] == true ? 1 : 0,
+          'target_temp': data['target_temp']
+        });
+        return success ? EspResponse.success({'status': 'ok'}) : EspResponse.failure('WebSocket transmission failed');
+      } else {
+        // Firebase fallback
+        await _firebase.sendCommand({
+          'action': 'control_ac',
+          'isOn': data['isOn'] == true ? 1 : 0,
+          'target_temp': data['target_temp']
+        });
+        return EspResponse.success({'status': 'ok'});
+      }
     }
-    return EspResponse.failure('Path $path not supported via WebSocket');
+    return EspResponse.failure('Path $path not supported');
   }
 
   /// Starts IR remote code learning on the ESP32.
   Future<EspResponse<IrCodeEntity>> learnIrCode() async {
-    _irLearnCompleter = Completer<IrCodeEntity>();
-    if (sendRawMessage({'action': 'ir_learn'})) {
+    if (isConnected.value) {
+      _irLearnCompleter = Completer<IrCodeEntity>();
+      if (sendRawMessage({'action': 'ir_learn'})) {
+        try {
+          final entity = await _irLearnCompleter!.future.timeout(const Duration(seconds: 12));
+          return EspResponse.success(entity);
+        } catch (e) {
+          return EspResponse.failure(e.toString());
+        }
+      }
+      return EspResponse.failure('WebSocket not connected');
+    } else {
+      // Firebase fallback
+      final completer = Completer<IrCodeEntity>();
+      StreamSubscription? sub;
+      sub = _firebase.irSignalStream.listen((event) {
+        if (event.snapshot.value != null) {
+          try {
+            final data = Map<String, dynamic>.from(event.snapshot.value as Map);
+            final protocolStr = data['protocol'] ?? 'RAW';
+            final lastVal = data['last_value'] ?? '';
+            final timestamp = data['timestamp'] ?? 0;
+            final nowSec = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+            if ((nowSec - timestamp).abs() < 15) { // within 15 seconds
+              final entity = IrCodeEntity(
+                id: DateTime.now().toString(),
+                name: 'Learned Code',
+                protocol: IrProtocol.values.firstWhere(
+                  (p) => p.name.toUpperCase() == protocolStr.toString().toUpperCase(),
+                  orElse: () => IrProtocol.raw,
+                ),
+                value: lastVal.toString(),
+                bits: lastVal.toString().split(',').length,
+                frequency: 38,
+              );
+              if (!completer.isCompleted) {
+                completer.complete(entity);
+                sub?.cancel();
+              }
+            }
+          } catch (e) {
+            debugPrint('Error parsing learned IR from Firebase: $e');
+          }
+        }
+      });
+      
+      await _firebase.sendCommand({'action': 'ir_learn'});
       try {
-        final entity = await _irLearnCompleter!.future.timeout(const Duration(seconds: 12));
-        return EspResponse.success(entity);
+        final result = await completer.future.timeout(const Duration(seconds: 15));
+        return EspResponse.success(result);
       } catch (e) {
-        return EspResponse.failure(e.toString());
+        sub?.cancel();
+        return EspResponse.failure('IR Learning via Firebase timed out: $e');
       }
     }
-    return EspResponse.failure('WebSocket not connected');
   }
 
   /// Sends a recorded IR code via the ESP32 transmitter.
   Future<EspResponse<bool>> sendIrCode(IrCodeEntity irCode) async {
-    final success = sendRawMessage({
-      'action': 'ir_send',
-      'protocol': irCode.protocol.name.toUpperCase(),
-      'value': irCode.value,
-      'bits': irCode.bits,
-      'frequency': irCode.frequency
-    });
-    return success ? EspResponse.success(true) : EspResponse.failure('WebSocket not connected');
+    if (isConnected.value) {
+      final success = sendRawMessage({
+        'action': 'ir_send',
+        'protocol': irCode.protocol.name.toUpperCase(),
+        'value': irCode.value,
+        'bits': irCode.bits,
+        'frequency': irCode.frequency
+      });
+      return success ? EspResponse.success(true) : EspResponse.failure('WebSocket not connected');
+    } else {
+      // Firebase fallback
+      await _firebase.sendCommand({
+        'action': 'ir_send',
+        'protocol': irCode.protocol.name.toUpperCase(),
+        'value': irCode.value,
+        'bits': irCode.bits,
+        'frequency': irCode.frequency
+      });
+      return EspResponse.success(true);
+    }
   }
 }
