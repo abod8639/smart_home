@@ -317,8 +317,47 @@ extension DashboardControllerIr on DashboardController {
       waited += 50;
     }
 
-    if (!await _ensureHubReachable(actionLabel: 'IR Send')) {
-      return false;
+    final bool isLocalConnected = Get.isRegistered<Esp32Service>() && Get.find<Esp32Service>().isConnected.value;
+
+    if (!isLocalConnected) {
+      if (Get.isRegistered<FirebaseService>()) {
+        debugPrint('[IR] Local WebSocket offline. Falling back to Firebase cloud channel...');
+        if (showFeedback) {
+          _showIrSnackbar(
+            title: 'إرسال عبر السحاب... / Sending via Cloud...',
+            message: 'الاتصال المحلي غير متاح، يتم الإرسال عبر Firebase.',
+            isError: false,
+          );
+        }
+        try {
+          await Get.find<FirebaseService>().sendIrCommand(
+            irCode.protocol.name.toUpperCase(),
+            irCode.value,
+          );
+          if (showFeedback) {
+            _showIrSnackbar(
+              title: 'تم الإرسال للسحاب ✓ / Sent to Cloud',
+              message: 'تم إرسال الأمر بنجاح إلى Firebase.',
+              isError: false,
+            );
+          }
+          return true;
+        } catch (e) {
+          debugPrint('[IR] Failed sending via Firebase: $e');
+          if (showFeedback) {
+            _showIrSnackbar(
+              title: 'فشل الإرسال السحابي / Cloud Send Failed',
+              message: e.toString(),
+              isError: true,
+            );
+          }
+          return false;
+        }
+      } else {
+        if (!await _ensureHubReachable(actionLabel: 'IR Send')) {
+          return false;
+        }
+      }
     }
 
     if (trackingKey != null) {
