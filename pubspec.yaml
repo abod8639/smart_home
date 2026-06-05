@@ -30,7 +30,7 @@ dependencies:
     path: /home/dexter/flutter_library/flutter_matter
   jni_flutter: ^1.0.1
   firebase_core: ^4.10.0
-  firebase_database: ^11.4.1
+  firebase_database: ^12.4.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
