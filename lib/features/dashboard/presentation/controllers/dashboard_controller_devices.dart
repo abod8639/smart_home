@@ -73,10 +73,24 @@ extension DashboardControllerDevices on DashboardController {
         else if (Get.isRegistered<Esp32Service>()) {
           if (device is LampDeviceEntity) {
             final pin = device.pin ?? 2;
-            Get.find<Esp32Service>().setDigitalOutput(pin, false);
+            if (pin == 22 || pin == 23 || pin == 25 || pin == 26) {
+              Get.find<Esp32Service>().setAnalogOutput(pin, 0);
+            } else {
+              Get.find<Esp32Service>().setDigitalOutput(pin, false);
+            }
           } else if (device is RgbLampDeviceEntity) {
-            final pin = device.pin ?? 2;
-            Get.find<Esp32Service>().setDigitalOutput(pin, false);
+            final pin = device.pin ?? 23;
+            if (pin == 22 || pin == 23 || pin == 25 || pin == 26) {
+              if (pin == 23) {
+                Get.find<Esp32Service>().setAnalogOutput(23, 0);
+                Get.find<Esp32Service>().setAnalogOutput(25, 0);
+                Get.find<Esp32Service>().setAnalogOutput(26, 0);
+              } else {
+                Get.find<Esp32Service>().setAnalogOutput(pin, 0);
+              }
+            } else {
+              Get.find<Esp32Service>().setDigitalOutput(pin, false);
+            }
           } else if (device is VacuumDeviceEntity) {
             final pin = device.pin ?? 2;
             Get.find<Esp32Service>().setDigitalOutput(pin, false);
@@ -122,10 +136,24 @@ extension DashboardControllerDevices on DashboardController {
       else if (Get.isRegistered<Esp32Service>()) {
         if (device is LampDeviceEntity) {
           final pin = device.pin ?? 2;
-          Get.find<Esp32Service>().setDigitalOutput(pin, newIsOn);
+          if (pin == 22 || pin == 23 || pin == 25 || pin == 26) {
+            Get.find<Esp32Service>().setAnalogOutput(pin, newIsOn ? (device.brightness ?? 255) : 0);
+          } else {
+            Get.find<Esp32Service>().setDigitalOutput(pin, newIsOn);
+          }
         } else if (device is RgbLampDeviceEntity) {
-          final pin = device.pin ?? 2;
-          Get.find<Esp32Service>().setDigitalOutput(pin, newIsOn);
+          final pin = device.pin ?? 23;
+          if (pin == 22 || pin == 23 || pin == 25 || pin == 26) {
+            if (pin == 23) {
+              Get.find<Esp32Service>().setAnalogOutput(23, newIsOn ? (device.rgbR ?? 255) : 0);
+              Get.find<Esp32Service>().setAnalogOutput(25, newIsOn ? (device.rgbG ?? 255) : 0);
+              Get.find<Esp32Service>().setAnalogOutput(26, newIsOn ? (device.rgbB ?? 255) : 0);
+            } else {
+              Get.find<Esp32Service>().setAnalogOutput(pin, newIsOn ? (device.brightness ?? 255) : 0);
+            }
+          } else {
+            Get.find<Esp32Service>().setDigitalOutput(pin, newIsOn);
+          }
         } else if (device is VacuumDeviceEntity) {
           final pin = device.pin ?? 2;
           Get.find<Esp32Service>().setDigitalOutput(pin, newIsOn);
