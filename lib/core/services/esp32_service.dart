@@ -249,6 +249,12 @@ class Esp32Service extends GetxService {
     if (state['humidity'] != null) {
       dashboard.humidity.value = '${state['humidity']}%';
     }
+    if (state['wifi_rssi'] != null) {
+      dashboard.wifiRssi.value = '${state['wifi_rssi']} dBm';
+    }
+    if (state['heap_free'] != null) {
+      dashboard.heapFree.value = '${(state['heap_free'] / 1024).toStringAsFixed(1)} KB';
+    }
 
     // Target AC temperature
     if (state['target_temperature'] != null) {
