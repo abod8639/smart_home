@@ -32,6 +32,8 @@ class DashboardController extends GetxController {
   var airflow = '80%'.obs;
   var temperature = '27°'.obs;
   var powerUsage = '360W'.obs;
+  var wifiRssi = '- dBm'.obs;
+  var heapFree = '0 KB'.obs;
 
   // Live Weather Observables
   var weatherLocation = 'Loading...'.obs;
