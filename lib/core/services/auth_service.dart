@@ -12,7 +12,9 @@ class AuthService extends GetxService {
   void onInit() {
     super.onInit();
     if (!kIsWeb) {
-      GoogleSignIn.instance.initialize();
+      GoogleSignIn.instance.initialize(
+        serverClientId: '263208865722-jhtj3i34m25u1i0svt1kdktbvukbhtjd.apps.googleusercontent.com',
+      );
     }
     // Bind current user to firebase auth changes
     currentUser.bindStream(_auth.authStateChanges());
