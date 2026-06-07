@@ -124,4 +124,36 @@ class FirebaseService extends GetxService {
     }
     return {};
   }
+
+  /// Sync rooms list to Firebase RTDB
+  Future<void> syncRooms(List<Map<String, dynamic>> roomsJson) async {
+    if (_db == null) return;
+    try {
+      final ref = _db!.ref('app_data/rooms');
+      await ref.set(roomsJson);
+      if (kDebugMode) {
+        print('Rooms successfully synced to Firebase RTDB');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to sync rooms to Firebase: $e');
+      }
+    }
+  }
+
+  /// Sync devices list to Firebase RTDB
+  Future<void> syncDevices(List<Map<String, dynamic>> devicesJson) async {
+    if (_db == null) return;
+    try {
+      final ref = _db!.ref('app_data/devices');
+      await ref.set(devicesJson);
+      if (kDebugMode) {
+        print('Devices successfully synced to Firebase RTDB');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to sync devices to Firebase: $e');
+      }
+    }
+  }
 }
