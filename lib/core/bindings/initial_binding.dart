@@ -10,10 +10,10 @@ import 'package:smart_home/core/services/notification_service.dart';
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(SettingsController());
     Get.put(AuthService());
     Get.put(FirebaseService());
     Get.put(NotificationService());
+    Get.put(SettingsController());
     Get.put(Esp32Service());
     Get.put(MatterService());
     Get.put(DashboardController());
