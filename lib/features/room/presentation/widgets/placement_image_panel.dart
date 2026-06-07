@@ -40,14 +40,14 @@ class PlacementImagePanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
     return GlassContainer(
-      padding: EdgeInsets.all(isMobile ? 12 : 16),
+      padding: EdgeInsets.all(isMobile ? 10 : 16),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final showRoomsList = constraints.maxHeight > 180.0;
           
           final imageWidget = Center(
             child: AspectRatio(
-              aspectRatio: 16 / 9,
+              aspectRatio: 19 / 9,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Stack(
@@ -153,7 +153,7 @@ class PlacementImagePanel extends StatelessWidget {
             children: [
               if (showRoomsList) ...[
                 SizedBox(
-                  height: isMobile ? 85 : 100,
+                  height: isMobile ? 83 : 100,
                   child: const RoomsListWidget(isCompact: true),
                 ),
                 const SizedBox(height: 6),

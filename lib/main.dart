@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/firebase_options.dart';
@@ -9,6 +10,7 @@ import 'core/bindings/initial_binding.dart';
 import 'features/room/presentation/pages/room_placement_view.dart';
 import 'features/room/presentation/controllers/room_placement_controller.dart';
 import 'features/auth/presentation/pages/login_page.dart';
+import 'core/services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +18,8 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    // Register background messaging handler
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   } catch (e) {
     if (e.toString().contains('duplicate-app')) {
       // Firebase already initialized, safe to ignore.
