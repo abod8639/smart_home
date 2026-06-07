@@ -8,7 +8,7 @@ import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 class DeviceLocalDatasource {
   // ── Serialization ────────────────────────────────────────────────────────────
 
-  static Map<String, dynamic> _toMap(DeviceEntity d) {
+  static Map<String, dynamic> toMap(DeviceEntity d) {
     final map = <String, dynamic>{
       'id': d.id,
       'name': d.name,
@@ -229,7 +229,7 @@ class DeviceLocalDatasource {
     final box = HiveService.devicesBox;
     await box.clear();
     final entries = {
-      for (var d in devices) d.id: _toMap(d),
+      for (var d in devices) d.id: toMap(d),
     };
     await box.putAll(entries);
   }
