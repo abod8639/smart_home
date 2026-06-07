@@ -9,7 +9,7 @@ import '../models/room_model.dart';
 class RoomLocalDatasource {
   // ── Serialization ────────────────────────────────────────────────────────────
 
-  static Map<String, dynamic> _toMap(RoomEntity r) => {
+  static Map<String, dynamic> toMap(RoomEntity r) => {
         'id': r.id,
         'name': r.name,
         'deviceCount': r.deviceCount,
@@ -55,7 +55,7 @@ class RoomLocalDatasource {
     final box = HiveService.roomsBox;
     await box.clear();
     final entries = {
-      for (var r in rooms) r.id: _toMap(r),
+      for (var r in rooms) r.id: toMap(r),
     };
     await box.putAll(entries);
   }
