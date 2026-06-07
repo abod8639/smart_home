@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:dio/dio.dart';
 import 'package:smart_home/core/services/esp32_service.dart';
 import 'package:smart_home/core/services/auth_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SettingsController extends GetxController {
   static const _ipKey = 'hub_ip_address';
@@ -23,7 +24,7 @@ class SettingsController extends GetxController {
   var hubConnectionMode = 'Wi-Fi'.obs;
   var autoBackups = true.obs;
   var lockTimeout = 5.0.obs; // in minutes
-  var ipAddress = 'broker.hivemq.com'.obs;
+  var ipAddress = (dotenv.env['MQTT_BROKER_URL'] ?? 'broker.hivemq.com').obs;
   var isHubReachable = false.obs;
   var isCheckingHub = false.obs;
 
@@ -150,7 +151,10 @@ class SettingsController extends GetxController {
           actions: [
             TextButton(
               onPressed: () => Get.back(),
-              child: const Text('Cancel', style: TextStyle(color: Color(0xFF8B8B8D))),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Color(0xFF8B8B8D)),
+              ),
             ),
             TextButton(
               onPressed: () async {
@@ -161,7 +165,10 @@ class SettingsController extends GetxController {
               },
               child: const Text(
                 'Disconnect',
-                style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -188,12 +195,11 @@ class SettingsController extends GetxController {
     if (user != null) {
       try {
         final idToken = await user.getIdToken();
+        final syncUrl = dotenv.env['GOOGLE_HOME_SYNC_URL'];
         final response = await Dio().post(
-          'https://us-central1-smart-home-69271.cloudfunctions.net/requestSync',
+          syncUrl!,
           options: Options(
-            headers: {
-              'Authorization': 'Bearer $idToken',
-            },
+            headers: {'Authorization': 'Bearer $idToken'},
             sendTimeout: const Duration(seconds: 5),
             receiveTimeout: const Duration(seconds: 5),
           ),
@@ -211,7 +217,9 @@ class SettingsController extends GetxController {
     final now = DateTime.now();
     final minutesStr = now.minute < 10 ? '0${now.minute}' : '${now.minute}';
     final ampm = now.hour >= 12 ? 'PM' : 'AM';
-    final hour = now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour);
+    final hour = now.hour > 12
+        ? now.hour - 12
+        : (now.hour == 0 ? 12 : now.hour);
     lastSyncTime.value = '$hour:$minutesStr $ampm';
 
     // Show result feedback to the user
@@ -233,7 +241,10 @@ class SettingsController extends GetxController {
             const SizedBox(width: 12),
             Text(
               syncSuccess ? 'Sync Completed' : 'Local Sync Successful',
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -246,7 +257,13 @@ class SettingsController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('OK', style: TextStyle(color: Color(0xFF00E5FF), fontWeight: FontWeight.bold)),
+            child: const Text(
+              'OK',
+              style: TextStyle(
+                color: Color(0xFF00E5FF),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
