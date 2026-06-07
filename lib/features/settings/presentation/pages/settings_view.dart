@@ -8,6 +8,7 @@ import 'package:smart_home/features/settings/presentation/widgets/preferences_ca
 import 'package:smart_home/features/settings/presentation/widgets/google_home_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/hub_config_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/device_placement_card.dart';
+import 'package:smart_home/features/settings/presentation/widgets/fcm_token_card.dart';
 
 class SettingsView extends GetView<SettingsController> {
   const SettingsView({super.key});
@@ -109,10 +110,11 @@ class SettingsView extends GetView<SettingsController> {
           SizedBox(height: gap),
           const GoogleHomeCard(),
           SizedBox(height: gap),
+          const FcmTokenCard(),
+          SizedBox(height: gap),
           SizedBox(height: 320, child: DevicePlacementCard()),
           SizedBox(height: gap),
           const HubConfigCard(),
-
         ],
       ),
     );
@@ -132,6 +134,8 @@ class SettingsView extends GetView<SettingsController> {
                 const PreferencesCard(),
                 SizedBox(height: gap),
                 const GoogleHomeCard(),
+                SizedBox(height: gap),
+                const FcmTokenCard(),
               ],
             ),
           ),
@@ -149,7 +153,6 @@ class SettingsView extends GetView<SettingsController> {
                   child: DevicePlacementCard(),
                 ),
                 SizedBox(height: gap),
-
               ],
             ),
           ),
