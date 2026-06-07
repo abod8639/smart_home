@@ -1,15 +1,19 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 
 class FirebaseService extends GetxService {
-  FirebaseDatabase? get _db => Firebase.apps.isNotEmpty
-      ? FirebaseDatabase.instanceFor(
-          app: Firebase.app(),
-          databaseURL: 'https://smart-home-69271-default-rtdb.firebaseio.com',
-        )
-      : null;
+  FirebaseDatabase? get _db {
+    if (Firebase.apps.isEmpty) return null;
+    
+    final dbUrl = dotenv.env['FIREBASE_DATABASE_URL'];
+    return FirebaseDatabase.instanceFor(
+      app: Firebase.app(),
+      databaseURL: dbUrl,
+    );
+  }
   
   // Hardcoded device ID for demonstration; in a real app, this should be selected dynamically.
   final String _deviceId = 'esp32_smart_home_1';
