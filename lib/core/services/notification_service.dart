@@ -122,7 +122,7 @@ class NotificationService extends GetxService {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: AppTheme.cardBackground,
         colorText: Colors.white,
-        borderColor: AppTheme.primaryBlue.withOpacity(0.3),
+        borderColor: AppTheme.primaryBlue.withValues(alpha: 0.3),
         borderWidth: 1,
         margin: const EdgeInsets.all(16),
         icon: const Icon(Icons.check_circle_outline, color: AppTheme.accentCyan),
@@ -153,7 +153,7 @@ class NotificationService extends GetxService {
       icon: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppTheme.primaryPurple.withOpacity(0.1),
+          color: AppTheme.primaryPurple.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: const Icon(
@@ -166,7 +166,7 @@ class NotificationService extends GetxService {
       borderRadius: 16,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       padding: const EdgeInsets.all(16),
-      borderColor: AppTheme.primaryPurple.withOpacity(0.3),
+      borderColor: AppTheme.primaryPurple.withValues(alpha: 0.3),
       borderWidth: 1,
       duration: const Duration(seconds: 5),
       snackPosition: SnackPosition.TOP,
