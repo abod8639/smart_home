@@ -164,11 +164,16 @@ class DashboardController extends GetxController {
       _loadMockData();
       _persistDevices(); // seed Hive with the initial mock data
     }
+
+    // Sync to Firebase on startup to ensure remote matches local state
+    _syncRoomsToFirebase();
+    _syncDevicesToFirebase();
   }
 
   void _persistRooms() {
     if (!_isTest) {
       _roomDatasource.saveRooms(rooms.toList());
+      _syncRoomsToFirebase();
     }
   }
 
@@ -176,6 +181,21 @@ class DashboardController extends GetxController {
   void _persistDevices() {
     if (!_isTest) {
       _datasource.saveDevices(devices.toList());
+      _syncDevicesToFirebase();
+    }
+  }
+
+  void _syncRoomsToFirebase() {
+    if (!_isTest && Get.isRegistered<FirebaseService>()) {
+      final roomsJson = rooms.map((r) => RoomLocalDatasource.toMap(r)).toList();
+      Get.find<FirebaseService>().syncRooms(roomsJson);
+    }
+  }
+
+  void _syncDevicesToFirebase() {
+    if (!_isTest && Get.isRegistered<FirebaseService>()) {
+      final devicesJson = devices.map((d) => DeviceLocalDatasource.toMap(d)).toList();
+      Get.find<FirebaseService>().syncDevices(devicesJson);
     }
   }
 
