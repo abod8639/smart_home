@@ -4,12 +4,12 @@ import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
-class _AcModeData {
+class AcModeData {
   final String label;
   final IconData icon;
   final Color color;
 
-  const _AcModeData(this.label, this.icon, this.color);
+  const AcModeData(this.label, this.icon, this.color);
 }
 
 class AcModeSelectionCard extends StatelessWidget {
@@ -27,11 +27,11 @@ class AcModeSelectionCard extends StatelessWidget {
     final currentMode = device.mode ?? 'Auto mode';
 
     final modes = [
-      const _AcModeData('Auto mode', Icons.autorenew_outlined, Color(0xFF00E5FF)),
-      const _AcModeData('Cool mode', Icons.ac_unit_outlined, Color(0xFF60A5FA)),
-      const _AcModeData('Heat mode', Icons.whatshot_outlined, Color(0xFFFB923C)),
-      const _AcModeData('Dry mode', Icons.water_drop_outlined, Color(0xFF2DD4BF)),
-      const _AcModeData('Eco mode', Icons.eco_outlined, Color(0xFF4ADE80)),
+      const AcModeData('Auto mode', Icons.autorenew_outlined, Color(0xFF00E5FF)),
+      const AcModeData('Cool mode', Icons.ac_unit_outlined, Color(0xFF60A5FA)),
+      const AcModeData('Heat mode', Icons.whatshot_outlined, Color(0xFFFB923C)),
+      const AcModeData('Dry mode', Icons.water_drop_outlined, Color(0xFF2DD4BF)),
+      const AcModeData('Eco mode', Icons.eco_outlined, Color(0xFF4ADE80)),
     ];
 
     return GlassContainer(

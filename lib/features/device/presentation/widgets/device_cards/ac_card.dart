@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
+import 'package:smart_home/features/dashboard/presentation/widgets/remote/ac_mode_selection_card.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/glass_switch.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/widgets/ac_visualizer.dart';
@@ -160,10 +161,10 @@ class AcCard extends StatelessWidget {
 
   void _showModeSheet(BuildContext context) {
     const modes = [
-      _AcMode('Auto mode',  Icons.autorenew_outlined,  Color(0xFF00E5FF)),
-      _AcMode('Cool mode',  Icons.ac_unit_outlined,    Color(0xFF60A5FA)),
-      _AcMode('Heat mode',  Icons.whatshot_outlined,   Color(0xFFFB923C)),
-      _AcMode('Eco mode',   Icons.eco_outlined,        Color(0xFF4ADE80)),
+      AcModeData('Auto mode',  Icons.autorenew_outlined,  Color(0xFF00E5FF)),
+      AcModeData('Cool mode',  Icons.ac_unit_outlined,    Color(0xFF60A5FA)),
+      AcModeData('Heat mode',  Icons.whatshot_outlined,   Color(0xFFFB923C)),
+      AcModeData('Eco mode',   Icons.eco_outlined,        Color(0xFF4ADE80)),
     ];
 
     showModalBottomSheet(
@@ -320,11 +321,3 @@ class _AcCardMetrics {
   const _AcCardMetrics({required this.cardWidth, required this.scale});
 }
 
-/// Simple data class for AC mode options in the bottom sheet.
-class _AcMode {
-  final String label;
-  final IconData icon;
-  final Color color;
-
-  const _AcMode(this.label, this.icon, this.color);
-}

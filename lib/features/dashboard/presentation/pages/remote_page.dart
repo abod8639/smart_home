@@ -429,7 +429,9 @@ class _RemotePageState extends State<RemotePage> {
                         dashboardController: controller,
                       ),
                     ),
+
                     const SizedBox(height: 40),
+
                   ],
                 ),
               ),
