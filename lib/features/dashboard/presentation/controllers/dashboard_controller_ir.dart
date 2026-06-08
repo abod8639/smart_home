@@ -55,8 +55,8 @@ extension DashboardControllerIr on DashboardController {
 
     if (irCode == null) {
       Get.snackbar(
-        mode,
-        'لم يتم تسجيل زر هذا الوضع بعد.\nافتح إعدادات الجهاز وسجّل زر $mode.',
+        'Error',
+         '$mode hasn\'t been set yet.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF1E293B),
         colorText: Colors.white,
@@ -65,8 +65,8 @@ extension DashboardControllerIr on DashboardController {
       return;
     }
 
-    // Update mode label in UI
-    devices[index] = device.copyWith(mode: mode);
+    // Update mode label in UI and turn the device ON
+    devices[index] = device.copyWith(mode: mode, isOn: true);
     _persistDevices();
 
     // Send IR signal
@@ -94,8 +94,8 @@ extension DashboardControllerIr on DashboardController {
   Future<bool> _ensureHubReachable({required String actionLabel}) async {
     if (!Get.isRegistered<Esp32Service>()) {
       Get.snackbar(
-        'خطأ / Error',
-        'خدمة ESP32 غير مسجلة.',
+        'Error',
+        'ESP32 service is not registered.',
         backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
@@ -106,8 +106,8 @@ extension DashboardControllerIr on DashboardController {
       await Get.find<SettingsController>().checkHubConnection();
       if (!Get.find<SettingsController>().isHubReachable.value) {
         Get.snackbar(
-          'لا اتصال / No Connection',
-          'تعذر الوصول إلى ESP32. تحقق من IP في الإعدادات قبل $actionLabel.',
+          'No Connection',
+          'Unable to reach ESP32. Check the IP address in Settings before $actionLabel.',
           backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
           colorText: Colors.white,
         );
@@ -119,8 +119,8 @@ extension DashboardControllerIr on DashboardController {
     final ping = await Get.find<Esp32Service>().pingHub();
     if (!ping.isSuccess) {
       Get.snackbar(
-        'لا اتصال / No Connection',
-        ping.errorMessage ?? 'ESP32 غير متصل.',
+        'No Connection',
+        ping.errorMessage ?? 'ESP32 is not connected.',
         backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
@@ -195,8 +195,8 @@ extension DashboardControllerIr on DashboardController {
     }
 
     Get.snackbar(
-      'تم الحذف / Deleted',
-      'تم حذف إشارة الريموت المحفوظة.',
+      'Deleted',
+      'IR code deleted successfully.',
       backgroundColor: const Color(0xFF4C86FF).withValues(alpha: 0.85),
       colorText: Colors.white,
     );
@@ -206,7 +206,7 @@ extension DashboardControllerIr on DashboardController {
   void setAcAutoMode(String id) => setAcMode(id, 'Auto mode');
 
   Future<bool> learnAndSaveIrCode(String deviceId, String fieldKey) async {
-    if (!await _ensureHubReachable(actionLabel: 'نسخ الإشارة')) {
+    if (!await _ensureHubReachable(actionLabel: 'Learning')) {
       return false;
     }
 
@@ -235,7 +235,7 @@ extension DashboardControllerIr on DashboardController {
         if (!data.isValid) {
           Get.snackbar(
             'Error',
-            'الإشارة المستلمة غير صالحة (قيمة أو bits فارغة).',
+            'The received signal is invalid.',
             backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
             colorText: Colors.white,
           );
@@ -265,7 +265,7 @@ extension DashboardControllerIr on DashboardController {
 
       Get.snackbar(
         'Error',
-        response.errorMessage ?? 'لم يتم تلقي أي إشارة IR من الريموت.',
+        response.errorMessage ?? 'No IR signal was received from the remote.',
         backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
@@ -273,8 +273,8 @@ extension DashboardControllerIr on DashboardController {
     } catch (e) {
       if (Get.isDialogOpen ?? false) Get.back();
       Get.snackbar(
-        'خطأ / Error',
-        'فشل عملية النسخ: $e',
+        'Error',
+        'Learning failed: $e',
         backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
@@ -333,8 +333,8 @@ extension DashboardControllerIr on DashboardController {
         debugPrint('[IR] Local WebSocket offline. Falling back to Firebase cloud channel...');
         if (showFeedback) {
           _showIrSnackbar(
-            title: 'إرسال عبر السحاب... / Sending via Cloud...',
-            message: 'الاتصال المحلي غير متاح، يتم الإرسال عبر Firebase.',
+            title: 'Sending via Cloud...',
+            message: 'Local connection is not available, sending via Firebase.',
             isError: false,
           );
         }
@@ -345,8 +345,8 @@ extension DashboardControllerIr on DashboardController {
           );
           if (showFeedback) {
             _showIrSnackbar(
-              title: 'تم الإرسال للسحاب ✓ / Sent to Cloud',
-              message: 'تم إرسال الأمر بنجاح إلى Firebase.',
+              title: 'Sent to Cloud',
+              message: 'Command was sent to Firebase successfully.',
               isError: false,
             );
           }
@@ -355,7 +355,7 @@ extension DashboardControllerIr on DashboardController {
           debugPrint('[IR] Failed sending via Firebase: $e');
           if (showFeedback) {
             _showIrSnackbar(
-              title: 'فشل الإرسال السحابي / Cloud Send Failed',
+              title: 'Cloud Send Failed',
               message: e.toString(),
               isError: true,
             );
