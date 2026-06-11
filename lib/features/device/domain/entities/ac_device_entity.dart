@@ -5,6 +5,7 @@ class AcDeviceEntity extends DeviceEntity {
   final String? mode;
   final int? coolingTime;
   final AcIrCodes acIrCodes;
+  final int? sleepTimerRemaining;
 
   const AcDeviceEntity({
     required super.id,
@@ -23,6 +24,7 @@ class AcDeviceEntity extends DeviceEntity {
     this.mode,
     this.coolingTime,
     required this.acIrCodes,
+    this.sleepTimerRemaining,
   }) : super(
           type: DeviceType.airConditioner,
         );
@@ -45,6 +47,7 @@ class AcDeviceEntity extends DeviceEntity {
     String? mode,
     int? coolingTime,
     AcIrCodes? acIrCodes,
+    int? sleepTimerRemaining,
   }) {
     return AcDeviceEntity(
       id: id ?? this.id,
@@ -63,6 +66,7 @@ class AcDeviceEntity extends DeviceEntity {
       mode: mode ?? this.mode,
       coolingTime: coolingTime ?? this.coolingTime,
       acIrCodes: acIrCodes ?? this.acIrCodes,
+      sleepTimerRemaining: sleepTimerRemaining ?? this.sleepTimerRemaining,
     );
   }
 
@@ -73,5 +77,6 @@ class AcDeviceEntity extends DeviceEntity {
         mode,
         coolingTime,
         acIrCodes,
+        sleepTimerRemaining,
       ];
 }
