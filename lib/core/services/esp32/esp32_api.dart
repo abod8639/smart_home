@@ -109,6 +109,23 @@ extension Esp32Api on Esp32Service {
         });
         return EspResponse.success({'status': 'ok'});
       }
+    } else if (path == 'control/ac/timer') {
+      if (isConnected.value) {
+        final success = sendRawMessage({
+          'action': 'set_ac_timer',
+          'seconds': data['seconds'],
+          'ir_code': data['ir_code']
+        });
+        return success ? EspResponse.success({'status': 'ok'}) : EspResponse.failure('MQTT transmission failed');
+      } else {
+        // Firebase fallback
+        await _firebase.sendCommand({
+          'action': 'set_ac_timer',
+          'seconds': data['seconds'],
+          'ir_code': data['ir_code']
+        });
+        return EspResponse.success({'status': 'ok'});
+      }
     }
     return EspResponse.failure('Path $path not supported');
   }
