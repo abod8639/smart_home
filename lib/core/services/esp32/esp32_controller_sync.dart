@@ -27,6 +27,18 @@ extension Esp32ControllerSync on Esp32Service {
       }
     }
 
+    // AC sleep timer remaining
+    if (state['ac_timer_remaining'] != null) {
+      final int timerRemaining = state['ac_timer_remaining'];
+      final acIndex = dashboard.devices.indexWhere((d) => d.id == 'ac1');
+      if (acIndex != -1) {
+        final acDevice = dashboard.devices[acIndex] as AcDeviceEntity;
+        if (acDevice.sleepTimerRemaining != timerRemaining) {
+          dashboard.devices[acIndex] = acDevice.copyWith(sleepTimerRemaining: timerRemaining);
+        }
+      }
+    }
+
     // Relay & PWM pins mapping
     if (state['pins'] != null) {
       final pinsMap = state['pins'] as Map<String, dynamic>;
