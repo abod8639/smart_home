@@ -450,4 +450,57 @@ extension DashboardControllerIr on DashboardController {
       dismissDirection: DismissDirection.horizontal,
     );
   }
+
+  Future<void> setAcSleepTimer(String id, Duration duration) async {
+    final index = devices.indexWhere((d) => d.id == id);
+    if (index == -1) return;
+    final device = devices[index];
+    if (device is! AcDeviceEntity) return;
+
+    if (duration.inSeconds == 0) {
+      // Cancel timer
+      devices[index] = device.copyWith(sleepTimerRemaining: 0);
+      _persistDevices();
+
+      if (Get.isRegistered<Esp32Service>()) {
+        await Get.find<Esp32Service>().sendRawCommand(
+          'control/ac/timer',
+          method: 'POST',
+          data: {
+            'seconds': 0,
+          },
+        );
+      }
+      return;
+    }
+
+    final String? irPowerCode = device.acIrCodes.irPower;
+    if (irPowerCode == null) {
+      Get.snackbar(
+        'Error',
+        'Power button hasn\'t been learned yet.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF1E293B),
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    final irCode = IrCodeEntity.fromJson(irPowerCode);
+
+    // Optimistically update UI
+    devices[index] = device.copyWith(sleepTimerRemaining: duration.inSeconds);
+    _persistDevices();
+
+    if (Get.isRegistered<Esp32Service>()) {
+      await Get.find<Esp32Service>().sendRawCommand(
+        'control/ac/timer',
+        method: 'POST',
+        data: {
+          'seconds': duration.inSeconds,
+          'ir_code': irCode.toEsp32Payload(),
+        },
+      );
+    }
+  }
 }
