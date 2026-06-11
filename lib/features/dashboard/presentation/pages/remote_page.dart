@@ -38,59 +38,60 @@ class _RemotePageState extends State<RemotePage> {
   bool _isDisplayOn = true;
 
   // Sleep Timer variables
-  Timer? _sleepTimer;
   Timer? _countdownTimer;
   Duration? _timeLeft;
 
   @override
+  void initState() {
+    super.initState();
+    final controller = Get.find<DashboardController>();
+    final d = controller.devices.firstWhereOrNull((device) => device.id == widget.device.id);
+    if (d is AcDeviceEntity && d.sleepTimerRemaining != null && d.sleepTimerRemaining! > 0) {
+      _timeLeft = Duration(seconds: d.sleepTimerRemaining!);
+      _startLocalCountdown();
+    }
+  }
+
+  @override
   void dispose() {
-    _sleepTimer?.cancel();
     _countdownTimer?.cancel();
     super.dispose();
   }
 
   void _setSleepTimer(Duration duration) {
-    _cancelSleepTimer();
+    _countdownTimer?.cancel();
     _timeLeft = duration;
+    _startLocalCountdown();
 
-    _sleepTimer = Timer(duration, () {
-      final controller = Get.find<DashboardController>();
-      final freshDevice = controller.devices.firstWhereOrNull((d) => d.id == widget.device.id);
-      if (freshDevice != null && freshDevice.isOn) {
-        controller.toggleDevice(freshDevice.id);
-      }
-      _cancelSleepTimer();
-      Get.snackbar(
-        'Sleep Timer',
-        'Turned off the AC automatically.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFEF4444),
-        colorText: Colors.white,
-      );
-    });
-
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_timeLeft == null || _timeLeft!.inSeconds <= 1) {
-          _cancelSleepTimer();
-        } else {
-          _timeLeft = Duration(seconds: _timeLeft!.inSeconds - 1);
-        }
-      });
-    });
-
-    setState(() {});
+    Get.find<DashboardController>().setAcSleepTimer(widget.device.id, duration);
   }
 
   void _cancelSleepTimer() {
-    _sleepTimer?.cancel();
     _countdownTimer?.cancel();
-    _sleepTimer = null;
     _countdownTimer = null;
     _timeLeft = null;
     if (mounted) {
       setState(() {});
     }
+    
+    Get.find<DashboardController>().setAcSleepTimer(widget.device.id, Duration.zero);
+  }
+
+  void _startLocalCountdown() {
+    _countdownTimer?.cancel();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          if (_timeLeft == null || _timeLeft!.inSeconds <= 1) {
+            _timeLeft = null;
+            _countdownTimer?.cancel();
+            _countdownTimer = null;
+          } else {
+            _timeLeft = Duration(seconds: _timeLeft!.inSeconds - 1);
+          }
+        });
+      }
+    });
   }
 
   Color _modeColor(String? mode) {
@@ -249,6 +250,28 @@ class _RemotePageState extends State<RemotePage> {
             (d) => d.id == widget.device.id,
             orElse: () => widget.device,
           );
+
+          if (device is AcDeviceEntity) {
+            final espSec = device.sleepTimerRemaining ?? 0;
+            final localSec = _timeLeft?.inSeconds ?? 0;
+            if ((localSec - espSec).abs() > 5 || (espSec == 0 && localSec > 0) || (espSec > 0 && localSec == 0)) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() {
+                    if (espSec > 0) {
+                      _timeLeft = Duration(seconds: espSec);
+                      _startLocalCountdown();
+                    } else {
+                      _timeLeft = null;
+                      _countdownTimer?.cancel();
+                      _countdownTimer = null;
+                    }
+                  });
+                }
+              });
+            }
+          }
+
           final temp = device.temperature ?? 24;
           final isDeviceOn = device.isOn;
           final currentModeColor = _modeColor(device.mode);
@@ -485,7 +508,7 @@ class _RemotePageState extends State<RemotePage> {
         // Power Card
         Expanded(
           child: GestureDetector(
-            onTap: () => controller.toggleDevice(device.id),
+            onTap: isDeviceOn ? () => controller.toggleDevice(device.id) : null,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 250),
               padding: const EdgeInsets.symmetric(vertical: 14),
