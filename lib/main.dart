@@ -25,6 +25,7 @@ Future<void> main() async {
 
   try {
     await Firebase.initializeApp(
+      
       options: DefaultFirebaseOptions.currentPlatform,
     );
     // Register background messaging handler
@@ -39,6 +40,9 @@ Future<void> main() async {
   await HiveService.init();
   runApp(const SmartHomeApp());
 }
+
+
+
 
 class SmartHomeApp extends StatelessWidget {
   const SmartHomeApp({super.key});
