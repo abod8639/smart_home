@@ -311,6 +311,18 @@ extension DashboardControllerDevices on DashboardController {
             }
           }
 
+          // Sync AC Sleep Timer remaining seconds
+          if (data['ac_timer_remaining'] != null) {
+            final int timerRemaining = data['ac_timer_remaining'];
+            final acIndex = devices.indexWhere((d) => d.id == 'ac1');
+            if (acIndex != -1) {
+              final acDevice = devices[acIndex] as AcDeviceEntity;
+              if (acDevice.sleepTimerRemaining != timerRemaining) {
+                devices[acIndex] = acDevice.copyWith(sleepTimerRemaining: timerRemaining);
+              }
+            }
+          }
+
           if (data['pins'] != null) {
             final pinsMap = data['pins'] as Map<String, dynamic>;
 
