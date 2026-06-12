@@ -2,6 +2,7 @@
 
 A professional Flutter application for real-time monitoring and control of a smart home network. The app acts as a unified control panel that bridges a mobile/desktop interface to physical IoT hardware, supporting two distinct communication protocols: a custom ESP32 HTTP API and the open Matter standard via Google Home integration.
 
+[![codecov](https://codecov.io/gh/abod8639/smart_home/graph/badge.svg?token=TMDTYVIR8D)](https://codecov.io/gh/abod8639/smart_home)
 ---
 
 ## Purpose
