@@ -12,7 +12,7 @@ extension DashboardControllerWeather on DashboardController {
 
     try {
       // Step 1: Geolocation using ipapi.co
-      final geoResponse = await _dio.get('https://ipapi.co/json/');
+      final geoResponse = await dio.get('https://ipapi.co/json/');
       if (geoResponse.statusCode == 200 && geoResponse.data != null) {
         final data = geoResponse.data;
         final city = data['city'] ?? 'Cairo';
@@ -23,7 +23,7 @@ extension DashboardControllerWeather on DashboardController {
         weatherLocation.value = '$city, $country';
 
         // Step 2: Fetch weather details using Open-Meteo
-        final weatherResponse = await _dio.get(
+        final weatherResponse = await dio.get(
           'https://api.open-meteo.com/v1/forecast',
           queryParameters: {
             'latitude': lat,
