@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
 import 'package:smart_home/main.dart';
 
 void main() {
+  setUp(() {
+    dotenv.loadFromString(envString: 'MQTT_BROKER_URL=broker.hivemq.com');
+  });
+
   testWidgets('Smart Home Dashboard App smoke test', (WidgetTester tester) async {
     // Set a tablet/desktop screen size (1440x900)
     tester.view.physicalSize = const Size(1440, 900);
