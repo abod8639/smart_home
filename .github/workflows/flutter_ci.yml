@@ -13,16 +13,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Create dummy .env file
+        run: |
+          touch .env
+          echo "MQTT_BROKER_URL=broker.hivemq.com" > .env
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-
-      # - name: Set up flutter_matter dependency
-        # run: |
-          # sudo mkdir -p /home/dexter/flutter_library
-          # sudo chown -R $USER:$USER /home/dexter
-          # git clone https://github.com/abod8639/flutter_matter.git /home/dexter/flutter_library/flutter_matter
 
       - name: Install dependencies
         run: |
