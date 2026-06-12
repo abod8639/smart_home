@@ -18,11 +18,11 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Set up flutter_matter dependency
-        run: |
-          sudo mkdir -p /home/dexter/flutter_library
-          sudo chown -R $USER:$USER /home/dexter
-          git clone https://github.com/abod8639/flutter_matter.git /home/dexter/flutter_library/flutter_matter
+      # - name: Set up flutter_matter dependency
+        # run: |
+          # sudo mkdir -p /home/dexter/flutter_library
+          # sudo chown -R $USER:$USER /home/dexter
+          # git clone https://github.com/abod8639/flutter_matter.git /home/dexter/flutter_library/flutter_matter
 
       - name: Install dependencies
         run: |

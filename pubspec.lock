@@ -361,9 +361,10 @@ packages:
   flutter_matter:
     dependency: "direct main"
     description:
-      path: "/home/dexter/flutter_library/flutter_matter"
-      relative: false
-    source: path
+      name: flutter_matter
+      sha256: e45312b08115b7d9b696d7cf81b78021d84ed23557989bc86569ca63998b4ef5
+      url: "https://pub.dev"
+    source: hosted
     version: "0.0.10"
   flutter_plugin_android_lifecycle:
     dependency: transitive
