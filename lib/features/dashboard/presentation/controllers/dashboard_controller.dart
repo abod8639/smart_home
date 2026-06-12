@@ -51,7 +51,7 @@ class DashboardController extends GetxController {
   /// Mutex flag — only one IR HTTP request at a time to prevent ESP32 overlap.
   bool _irBusy = false;
 
-  final Dio _dio = Dio();
+  final Dio dio = Dio();
   Timer? _acTimer;
   Timer? _espTimer;
   final DeviceLocalDatasource _datasource = DeviceLocalDatasource();
