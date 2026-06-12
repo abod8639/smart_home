@@ -71,7 +71,7 @@ class DeviceLocalDatasource {
     return map;
   }
 
-  static DeviceEntity _fromMap(Map map) {
+  static DeviceEntity fromMap(Map map) {
     final typeStr = map['type'] as String? ?? 'lamp';
     final type = DeviceType.values.firstWhere(
       (e) => e.name == typeStr,
@@ -219,7 +219,7 @@ class DeviceLocalDatasource {
     if (_isTest) return [];
     final box = HiveService.devicesBox;
     return box.values
-        .map((raw) => _fromMap(Map<String, dynamic>.from(raw)))
+        .map((raw) => fromMap(Map<String, dynamic>.from(raw)))
         .toList();
   }
 
@@ -234,7 +234,6 @@ class DeviceLocalDatasource {
     await box.putAll(entries);
   }
 
-  /// Clears the entire devices box.
   Future<void> clearDevices() async {
     if (_isTest) return;
     await HiveService.devicesBox.clear();
