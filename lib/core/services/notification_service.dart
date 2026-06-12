@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 class NotificationService extends GetxService {
-  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+  late final FirebaseMessaging _fcm;
   
   final RxString fcmToken = ''.obs;
   final RxBool hasPermission = false.obs;
@@ -26,7 +27,11 @@ class NotificationService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    setupNotifications();
+    final isTest = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+    if (!isTest) {
+      _fcm = FirebaseMessaging.instance;
+      setupNotifications();
+    }
   }
 
   Future<void> setupNotifications() async {
