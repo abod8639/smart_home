@@ -18,7 +18,7 @@ class RoomLocalDatasource {
         'imagePath': r.imagePath,
       };
 
-  static RoomModel _fromMap(Map map) {
+  static RoomModel fromMap(Map map) {
     return RoomModel(
       id: map['id'] as String,
       name: map['name'] as String,
@@ -45,7 +45,7 @@ class RoomLocalDatasource {
     if (_isTest) return [];
     final box = HiveService.roomsBox;
     return box.values
-        .map((raw) => _fromMap(Map<String, dynamic>.from(raw)))
+        .map((raw) => fromMap(Map<String, dynamic>.from(raw)))
         .toList();
   }
 
