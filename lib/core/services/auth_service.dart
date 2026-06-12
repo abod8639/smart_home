@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -6,22 +7,26 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get/get.dart';
 
 class AuthService extends GetxService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  late final FirebaseAuth _auth;
   final Rx<User?> currentUser = Rx<User?>(null);
 
   @override
   void onInit() {
     super.onInit();
-    if (!kIsWeb) {
-      GoogleSignIn.instance.initialize(
-        serverClientId: '263208865722-jhtj3i34m25u1i0svt1kdktbvukbhtjd.apps.googleusercontent.com',
-      );
+    final isTest = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+    if (!isTest) {
+      _auth = FirebaseAuth.instance;
+      if (!kIsWeb) {
+        GoogleSignIn.instance.initialize(
+          serverClientId: '263208865722-jhtj3i34m25u1i0svt1kdktbvukbhtjd.apps.googleusercontent.com',
+        );
+      }
+      // Bind current user to firebase auth changes
+      currentUser.bindStream(_auth.authStateChanges());
+      
+      // Auth router: automatically redirect routes based on login state
+      ever(currentUser, _handleAuthChanged);
     }
-    // Bind current user to firebase auth changes
-    currentUser.bindStream(_auth.authStateChanges());
-    
-    // Auth router: automatically redirect routes based on login state
-    ever(currentUser, _handleAuthChanged);
   }
 
   void _handleAuthChanged(User? user) {
