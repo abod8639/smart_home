@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -68,17 +69,20 @@ class Esp32Service extends GetxService {
   void onInit() { 
     super.onInit();
     
-    // Initialize MQTT connection
-    _connectMqtt();
-    
-    // Auto-reconnect if the broker address configuration changes
-    ever(_settings.ipAddress, (_) {
-      debugPrint('MQTT Broker URL changed, reconnecting...');
-      _reconnect();
-    });
+    final isTest = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+    if (!isTest) {
+      // Initialize MQTT connection
+      _connectMqtt();
+      
+      // Auto-reconnect if the broker address configuration changes
+      ever(_settings.ipAddress, (_) {
+        debugPrint('MQTT Broker URL changed, reconnecting...');
+        _reconnect();
+      });
 
-    // Start listening to Firebase states to sync UI when MQTT is disconnected
-    _initFirebaseSync();
+      // Start listening to Firebase states to sync UI when MQTT is disconnected
+      _initFirebaseSync();
+    }
   }
 
   @override
