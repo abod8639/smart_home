@@ -11,15 +11,18 @@ part 'auth_service.g.dart';
 @Riverpod(keepAlive: true)
 class AuthService extends _$AuthService {
   FirebaseAuth get _auth => FirebaseAuth.instance;
+  final Completer<void> _initCompleter = Completer<void>();
 
   @override
   void build() {
-    // Initialize GoogleSignIn once
     _initializeGoogleSignIn();
   }
 
   Future<void> _initializeGoogleSignIn() async {
-    if (kIsWeb) return;
+    if (kIsWeb) {
+      _initCompleter.complete();
+      return;
+    }
     
     try {
       await GoogleSignIn.instance.initialize(
@@ -29,6 +32,10 @@ class AuthService extends _$AuthService {
       if (kDebugMode) {
         print("Error initializing Google Sign-In: $e");
       }
+    } finally {
+      if (!_initCompleter.isCompleted) {
+        _initCompleter.complete();
+      }
     }
   }
 
@@ -36,6 +43,7 @@ class AuthService extends _$AuthService {
 
   /// Google Sign-In logic working across Web and Mobile
   Future<UserCredential?> signInWithGoogle() async {
+    await _initCompleter.future;
     try {
       if (kIsWeb) {
         // Web uses popup to avoid DWDS hangs and manual client ID config
