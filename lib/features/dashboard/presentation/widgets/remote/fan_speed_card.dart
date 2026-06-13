@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
-class FanSpeedCard extends StatelessWidget {
+class FanSpeedCard extends ConsumerWidget {
   final DeviceEntity device;
   final DashboardController controller;
   final String currentFanSpeed;
@@ -20,7 +21,7 @@ class FanSpeedCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final speeds = ['Quiet', 'Low', 'Medium', 'High', 'Auto'];
     return GlassContainer(
       padding: const EdgeInsets.all(16),
@@ -67,14 +68,7 @@ class FanSpeedCard extends StatelessWidget {
                       if (irCode != null) {
                         controller.sendIrCommand(irCode);
                       } else {
-                        Get.snackbar(
-                          'Fan Speed',
-                          'Fan speed not set to $speed',
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: const Color(0xFF1E293B),
-                          colorText: Colors.white,
-                          duration: const Duration(seconds: 1),
-                        );
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fan Speed' + ': ' + 'Fan speed not set to $speed')));
                       }
                     },
                     child: AnimatedContainer(
