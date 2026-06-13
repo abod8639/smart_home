@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
+import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/settings/presentation/widgets/profile_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/preferences_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/google_home_card.dart';
@@ -57,31 +58,36 @@ class SettingsView extends ConsumerWidget {
       ],
     );
 
-    final statusBadge = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.greenAccent.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.greenAccent.withValues(alpha: 0.2),
-        ),
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.wifi, color: Colors.greenAccent, size: 16),
-          SizedBox(width: 8),
-          Text(
-            'Hub Connected',
-            style: TextStyle(
-              color: Colors.greenAccent,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
+    final statusBadge = Consumer(builder: (context, ref, _) {
+      final isHubReachable = ref.watch(settingsControllerProvider.select((s) => s.isHubReachable));
+      final color = isHubReachable ? Colors.greenAccent : Colors.redAccent;
+      
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: color.withValues(alpha: 0.2),
           ),
-        ],
-      ),
-    );
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(isHubReachable ? Icons.wifi : Icons.wifi_off, color: color, size: 16),
+            const SizedBox(width: 8),
+            Text(
+              isHubReachable ? 'Hub Connected' : 'Hub Offline',
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
 
     if (isCompact) {
       return Column(
