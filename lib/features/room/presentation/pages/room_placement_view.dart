@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
@@ -13,8 +14,8 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
   const RoomPlacementView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final dashboardController = Get.find<DashboardController>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dashboardController = ref.read(dashboardControllerProvider.notifier);
     final GlobalKey imageKey = GlobalKey();
 
     return Scaffold(
@@ -25,7 +26,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         title: const Text('Room Device Placement'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Get.back(),
+          onPressed: () => if (context.mounted) context.pop(),
         ),
       ),
       body: Padding(
