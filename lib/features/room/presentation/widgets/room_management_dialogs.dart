@@ -95,7 +95,7 @@ class RoomManagementDialogs {
                   ),
                   const SizedBox(height: 20),
                   const Text(
-                    'Room Background Image / صورة خلفية الغرفة',
+                    'Room Background Image',
                     style: TextStyle(color: AppTheme.textGrey, fontSize: 13, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 8),
@@ -172,7 +172,7 @@ class RoomManagementDialogs {
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
-                                  'اضغط لالتقاط أو اختيار صورة للغرفة\nTap to capture or select photo',
+                                  'Tap to capture or select photo',
                                   style: TextStyle(
                                     color: AppTheme.textGrey.withValues(alpha: 0.8),
                                     fontSize: 12,
@@ -257,7 +257,7 @@ class RoomManagementDialogs {
                   ),
                   const SizedBox(height: 20),
                   const Text(
-                    'Room Background Image / صورة خلفية الغرفة',
+                    'Room Background Image',
                     style: TextStyle(color: AppTheme.textGrey, fontSize: 13, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 8),
@@ -334,7 +334,7 @@ class RoomManagementDialogs {
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
-                                  'اضغط لالتقاط أو اختيار صورة للغرفة\nTap to capture or select photo',
+                                  'Tap to capture or select photo',
                                   style: TextStyle(
                                     color: AppTheme.textGrey.withValues(alpha: 0.8),
                                     fontSize: 12,
@@ -450,7 +450,7 @@ class RoomManagementDialogs {
               ),
               const SizedBox(height: 16),
               const Text(
-                'اختر مصدر الصورة / Select Image Source',
+                'Select Image Source',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -467,7 +467,7 @@ class RoomManagementDialogs {
                   ),
                   child: const Icon(Icons.camera_alt_outlined, color: AppTheme.primaryPurple),
                 ),
-                title: const Text('التقاط صورة للكاميرا / Take Photo', style: TextStyle(color: Colors.white)),
+                title: const Text('Take Photo', style: TextStyle(color: Colors.white)),
                 onTap: () async {
                   Navigator.pop(context);
                   final path = await _pickImage(ImageSource.camera);
@@ -484,7 +484,7 @@ class RoomManagementDialogs {
                   ),
                   child: const Icon(Icons.photo_library_outlined, color: AppTheme.primaryBlue),
                 ),
-                title: const Text('اختيار من المعرض / Choose from Gallery', style: TextStyle(color: Colors.white)),
+                title: const Text('Choose from Gallery', style: TextStyle(color: Colors.white)),
                 onTap: () async {
                   Navigator.pop(context);
                   final path = await _pickImage(ImageSource.gallery);
