@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
@@ -9,7 +10,7 @@ import 'package:smart_home/features/room/presentation/widgets/placement_device_m
 import 'package:smart_home/features/room/presentation/widgets/rooms_list_widget.dart';
 
 /// The left/main panel: room image + rooms list + draggable device markers.
-class PlacementImagePanel extends StatelessWidget {
+class PlacementImagePanel extends ConsumerWidget {
   final DashboardController dashboardController;
   final RoomPlacementController placementController;
   final GlobalKey imageKey;
@@ -37,7 +38,7 @@ class PlacementImagePanel extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isMobile = Responsive.isMobile(context);
     return GlassContainer(
       padding: EdgeInsets.all(isMobile ? 10 : 16),
@@ -55,7 +56,7 @@ class PlacementImagePanel extends StatelessWidget {
                   children: [
                     // Background image (reactive to selected room)
                     Positioned.fill(
-                      child: Obx(() {
+                      child: Consumer(builder: (context, ref, _) {
                         final room = dashboardController.activeRoom;
                         if (room != null && room.imagePath != null && room.imagePath!.isNotEmpty) {
                           final file = File(room.imagePath!);
@@ -79,10 +80,10 @@ class PlacementImagePanel extends StatelessWidget {
                     Positioned.fill(
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          return Obx(() {
+                          return Consumer(builder: (context, ref, _) {
                             final activeRoomId =
                                 dashboardController.activeRoom?.id ?? '3';
-                            final validDevices = dashboardController.devices
+                            final validDevices = ref.watch(dashboardControllerProvider).devices
                                 .where((d) =>
                                     d.positionX != null && d.positionY != null)
                                 .where((d) =>
@@ -118,9 +119,9 @@ class PlacementImagePanel extends StatelessWidget {
                                   mH = normH * constraints.maxHeight;
                                 }
 
-                                final isSelected =
-                                    placementController.selectedDeviceId.value ==
-                                    device.id;
+                                 final isSelected =
+                                     ref.watch(roomPlacementControllerProvider) ==
+                                     device.id;
 
                                 return Positioned(
                                   left: posX - mW / 2,
