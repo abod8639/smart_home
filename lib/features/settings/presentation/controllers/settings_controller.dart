@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:dio/dio.dart';
 import 'package:smart_home/core/services/esp32_service.dart';
 import 'package:smart_home/core/services/auth_service.dart';
+import 'package:smart_home/core/utils/formatting_utils.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:equatable/equatable.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -293,16 +294,9 @@ class SettingsController extends _$SettingsController {
       }
     }
 
-    final now = DateTime.now();
-    final minutesStr = now.minute < 10 ? '0${now.minute}' : '${now.minute}';
-    final ampm = now.hour >= 12 ? 'PM' : 'AM';
-    final hour = now.hour > 12
-        ? now.hour - 12
-        : (now.hour == 0 ? 12 : now.hour);
-        
     state = state.copyWith(
       isSyncing: false,
-      lastSyncTime: '$hour:$minutesStr $ampm',
+      lastSyncTime: FormattingUtils.formatTime(DateTime.now()),
     );
 
     // Show result feedback to the user
