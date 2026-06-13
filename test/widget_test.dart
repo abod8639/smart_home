@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
 import 'package:smart_home/main.dart';
 
@@ -22,7 +23,7 @@ void main() {
       
 
       // Build our app and trigger a frame.
-      await tester.pumpWidget(const SmartHomeApp());
+      await tester.pumpWidget(const ProviderScope(child: SmartHomeApp()));
       await tester.pumpAndSettle();
 
       // Verify that the main rooms from our mock data are present on screen.
