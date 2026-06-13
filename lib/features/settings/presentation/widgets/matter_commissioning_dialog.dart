@@ -89,7 +89,7 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
           rgbR: 255,
           rgbG: 191,
           rgbB: 0,
-          brightness: 100,
+          brightness: 255,
           positionX: 0.5,
           positionY: 0.5,
           markerWidth: 100,
@@ -120,7 +120,7 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
           id: newId,
           name: _deviceName,
           isOn: true,
-          brightness: 80,
+          brightness: 204, // Normalized to 0-255 (approx 80%)
           positionX: 0.5,
           positionY: 0.5,
           markerWidth: 100,
