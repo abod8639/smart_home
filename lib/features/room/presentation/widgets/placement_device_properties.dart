@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
@@ -9,7 +10,7 @@ import 'package:smart_home/features/room/presentation/widgets/placement_device_d
 import 'package:smart_home/features/room/presentation/widgets/placement_device_ir_controls.dart';
 
 /// Shows properties and quick-toggle for the currently selected device.
-class PlacementDeviceProperties extends StatelessWidget {
+class PlacementDeviceProperties extends ConsumerWidget {
   final DeviceEntity device;
   final DashboardController dashboardController;
   final RoomPlacementController placementController;
@@ -22,7 +23,7 @@ class PlacementDeviceProperties extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isMobile = Responsive.isMobile(context);
     final gap = Responsive.contentGap(context);
 
@@ -84,7 +85,7 @@ class PlacementDeviceProperties extends StatelessWidget {
                 // Properties
                 buildPropertyRow('Name', device.name),
                 const SizedBox(height: 16),
-                buildPropertyRow('Type', device.type.name.capitalizeFirst ?? ''),
+                buildPropertyRow('Type', device.type.name.substring(0, 1).toUpperCase() + device.type.name.substring(1)),
                 const SizedBox(height: 16),
                 buildPropertyRow('Status', device.isOn ? 'ON' : 'OFF'),
                 const SizedBox(height: 16),
