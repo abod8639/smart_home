@@ -118,7 +118,7 @@ class _AirSwingCardState extends State<AirSwingCard> {
                   label: const Text('نسخ الريموت / Learn IR'),
                   onPressed: () {
                     Navigator.pop(context);
-                    widget.controller.learnAndSaveIrCode(widget.device.id, _customFieldKeys[index]);
+                    widget.controller.learnAndSaveIrCode(context, widget.device.id, _customFieldKeys[index]);
                   },
                 ),
               )
@@ -190,7 +190,7 @@ class _AirSwingCardState extends State<AirSwingCard> {
                   onTap: () {
                     widget.onVerticalSwingChanged(!widget.verticalSwing);
                     if (widget.device.irSwingV != null) {
-                      widget.controller.sendIrCommand(widget.device.irSwingV!);
+                      widget.controller.sendIrCommand(context, widget.device.irSwingV!);
                     }
                   },
                 ),
@@ -204,7 +204,7 @@ class _AirSwingCardState extends State<AirSwingCard> {
                   onTap: () {
                     widget.onHorizontalSwingChanged(!widget.horizontalSwing);
                     if (widget.device.irSwingH != null) {
-                      widget.controller.sendIrCommand(widget.device.irSwingH!);
+                      widget.controller.sendIrCommand(context, widget.device.irSwingH!);
                     }
                   },
                 ),
@@ -248,7 +248,7 @@ class _AirSwingCardState extends State<AirSwingCard> {
       onTap: () {
         final code = _getIrCodeForIndex(index);
         if (code != null) {
-          widget.controller.sendIrCommand(code);
+          widget.controller.sendIrCommand(context, code);
         } else {
           _showEditDialog(index);
         }
