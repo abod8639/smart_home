@@ -646,6 +646,7 @@ void main() {
     group('Initial State Tests', () {
       test('controller loads mock rooms on first launch', () async {
         final container = createContainer();
+        container.read(dashboardControllerProvider.notifier); // trigger build()
           await Future.microtask(() {});
         expect(container.read(dashboardControllerProvider).rooms.isNotEmpty, isTrue);
         expect(container.read(dashboardControllerProvider).rooms.any((r) => r.name == 'Bedroom'), isTrue);
@@ -654,6 +655,7 @@ void main() {
 
       test('controller loads mock devices on first launch', () async {
         final container = createContainer();
+        container.read(dashboardControllerProvider.notifier); // trigger build()
           await Future.microtask(() {});
         expect(container.read(dashboardControllerProvider).devices.isNotEmpty, isTrue);
         // Should have at least one of each type
@@ -666,6 +668,7 @@ void main() {
 
       test('activeRoom returns the room with isActive = true', () async {
         final container = createContainer();
+        container.read(dashboardControllerProvider.notifier); // trigger build()
           await Future.microtask(() {});
         final active = container.read(dashboardControllerProvider.notifier).activeRoom;
         expect(active, isNotNull);
@@ -674,6 +677,7 @@ void main() {
 
       test('weather initial values are set in test mode', () async {
         final container = createContainer();
+        container.read(dashboardControllerProvider.notifier); // trigger build()
           await Future.microtask(() {});
         expect(container.read(dashboardControllerProvider).isWeatherLoading, isFalse);
         expect(container.read(dashboardControllerProvider).weatherLocation, 'Mock City');
