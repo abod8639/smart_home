@@ -45,7 +45,6 @@ class _RemotePageState extends ConsumerState<RemotePage> {
   @override
   void initState() {
     super.initState();
-    final controller = ref.read(dashboardControllerProvider.notifier);
     final d = ref.read(dashboardControllerProvider).devices.firstWhereOrNull((device) => device.id == widget.device.id);
     if (d is AcDeviceEntity && d.sleepTimerRemaining != null && d.sleepTimerRemaining! > 0) {
       _timeLeft = Duration(seconds: d.sleepTimerRemaining!);
