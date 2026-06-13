@@ -6,8 +6,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 import 'package:flutter/material.dart';
@@ -395,7 +393,7 @@ void main() {
         expect(container.read(dashboardControllerProvider).devices.firstWhere((d) => d.id == 'ac_1').isOn, isFalse);
 
         // Verify service calls
-        final mockMatterCalls = (mockMatter as MockMatterService).calls;
+        final mockMatterCalls = mockMatter.calls;
         expect(mockMatterCalls, contains('toggleDevice(101, 1, false)'));
 
         expect(mockFirebase.calls, contains('sendCommand({action: set_pwm, pin: 22, value: 0})'));
@@ -429,7 +427,7 @@ void main() {
         // Toggle Matter device
         controller.toggleDevice('matter_lamp');
         expect(container.read(dashboardControllerProvider).devices.firstWhere((d) => d.id == 'matter_lamp').isOn, isTrue);
-        expect((mockMatter as MockMatterService).calls, contains('toggleDevice(101, 1, true)'));
+        expect(mockMatter.calls, contains('toggleDevice(101, 1, true)'));
 
         // Toggle ESP device
         controller.toggleDevice('esp_lamp');
@@ -567,7 +565,6 @@ void main() {
       testWidgets('clearIrCode removes IR code locally and from Firebase', (tester) async {
         await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Scaffold(body: Container()))));
         final mockFirebase = MockFirebaseService();
-        final mockMatter = MockMatterService();
         final container = createContainer(overrides: [
           firebaseServiceProvider.overrideWith(() => mockFirebase),
         ]);
@@ -588,7 +585,7 @@ void main() {
         
         final updated = container.read(dashboardControllerProvider).devices.firstWhere((d) => d.id == 'ac_clear') as AcDeviceEntity;
         expect(updated.acIrCodes.irPower, null);
-        expect((mockFirebase as MockFirebaseService).calls, contains('deleteIrCode(ac_clear, irPower)'));
+        expect(mockFirebase.calls, contains('deleteIrCode(ac_clear, irPower)'));
         // Drain GetX snackbar timer ("Deleted" snackbar)
         await tester.pump(const Duration(seconds: 4));
         await tester.pumpAndSettle();
@@ -649,7 +646,6 @@ void main() {
     group('Initial State Tests', () {
       test('controller loads mock rooms on first launch', () async {
         final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
           await Future.microtask(() {});
         expect(container.read(dashboardControllerProvider).rooms.isNotEmpty, isTrue);
         expect(container.read(dashboardControllerProvider).rooms.any((r) => r.name == 'Bedroom'), isTrue);
@@ -658,7 +654,6 @@ void main() {
 
       test('controller loads mock devices on first launch', () async {
         final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
           await Future.microtask(() {});
         expect(container.read(dashboardControllerProvider).devices.isNotEmpty, isTrue);
         // Should have at least one of each type
@@ -671,7 +666,6 @@ void main() {
 
       test('activeRoom returns the room with isActive = true', () async {
         final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
           await Future.microtask(() {});
         final active = container.read(dashboardControllerProvider.notifier).activeRoom;
         expect(active, isNotNull);
@@ -680,7 +674,6 @@ void main() {
 
       test('weather initial values are set in test mode', () async {
         final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
           await Future.microtask(() {});
         expect(container.read(dashboardControllerProvider).isWeatherLoading, isFalse);
         expect(container.read(dashboardControllerProvider).weatherLocation, 'Mock City');
