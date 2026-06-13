@@ -2,39 +2,38 @@ part of '../esp32_service.dart';
 
 extension Esp32ControllerSync on Esp32Service {
   void _syncStateWithControllers(Map<String, dynamic> state) {
-    if (!Get.isRegistered<DashboardController>()) return;
-    final dashboard = Get.find<DashboardController>();
+    final dashboard = ref.read(dashboardControllerProvider.notifier);
     
     if (state['temperature'] != null) {
-      dashboard.temperature.value = '${state['temperature']}°';
+      dashboard.setTemperature('${state['temperature']}°');
     }
     if (state['humidity'] != null) {
-      dashboard.humidity.value = '${state['humidity']}%';
+      dashboard.setHumidity('${state['humidity']}%');
     }
     if (state['wifi_rssi'] != null) {
-      dashboard.wifiRssi.value = '${state['wifi_rssi']} dBm';
+      dashboard.setWifiRssi('${state['wifi_rssi']} dBm');
     }
     if (state['heap_free'] != null) {
-      dashboard.heapFree.value = '${(state['heap_free'] / 1024).toStringAsFixed(1)} KB';
+      dashboard.setHeapFree('${(state['heap_free'] / 1024).toStringAsFixed(1)} KB');
     }
 
     // Target AC temperature
     if (state['target_temperature'] != null) {
       final int targetTemp = state['target_temperature'];
-      final acIndex = dashboard.devices.indexWhere((d) => d.id == 'ac1');
-      if (acIndex != -1 && dashboard.devices[acIndex].temperature != targetTemp) {
-        dashboard.devices[acIndex] = dashboard.devices[acIndex].copyWith(temperature: targetTemp);
+      final acIndex = dashboard.state.devices.indexWhere((d) => d.id == 'ac1');
+      if (acIndex != -1 && dashboard.state.devices[acIndex].temperature != targetTemp) {
+        dashboard.updateDevice(dashboard.state.devices[acIndex].copyWith(temperature: targetTemp));
       }
     }
 
     // AC sleep timer remaining
     if (state['ac_timer_remaining'] != null) {
       final int timerRemaining = state['ac_timer_remaining'];
-      final acIndex = dashboard.devices.indexWhere((d) => d.id == 'ac1');
+      final acIndex = dashboard.state.devices.indexWhere((d) => d.id == 'ac1');
       if (acIndex != -1) {
-        final acDevice = dashboard.devices[acIndex] as AcDeviceEntity;
+        final acDevice = dashboard.state.devices[acIndex] as AcDeviceEntity;
         if (acDevice.sleepTimerRemaining != timerRemaining) {
-          dashboard.devices[acIndex] = acDevice.copyWith(sleepTimerRemaining: timerRemaining);
+          dashboard.updateDevice(acDevice.copyWith(sleepTimerRemaining: timerRemaining));
         }
       }
     }
@@ -47,19 +46,17 @@ extension Esp32ControllerSync on Esp32Service {
   }
 
   void _syncSensorsWithControllers(Map<String, dynamic> data) {
-    if (!Get.isRegistered<DashboardController>()) return;
-    final dashboard = Get.find<DashboardController>();
+    final dashboard = ref.read(dashboardControllerProvider.notifier);
     if (data['temperature'] != null) {
-      dashboard.temperature.value = '${data['temperature']}°';
+      dashboard.setTemperature('${data['temperature']}°');
     }
     if (data['humidity'] != null) {
-      dashboard.humidity.value = '${data['humidity']}%';
+      dashboard.setHumidity('${data['humidity']}%');
     }
   }
 
   void _syncRelayWithControllers(Map<String, dynamic> data) {
-    if (!Get.isRegistered<DashboardController>()) return;
-    final dashboard = Get.find<DashboardController>();
+    final dashboard = ref.read(dashboardControllerProvider.notifier);
     final int? endpoint = data['endpoint'];
     final int? state = data['state'];
     if (endpoint == null || state == null) return;
@@ -74,18 +71,18 @@ extension Esp32ControllerSync on Esp32Service {
       pin = 21;
     }
 
-    for (var i = 0; i < dashboard.devices.length; i++) {
-      final device = dashboard.devices[i];
+    for (var i = 0; i < dashboard.state.devices.length; i++) {
+      final device = dashboard.state.devices[i];
       if (device.pin == pin || (device.id == 'lamp1' && endpoint == 1) || (device.id == 'door1' && endpoint == 2)) {
         if (device.type == DeviceType.door) {
           final bool isLocked = (state == 0);
           if (device.isLocked != isLocked) {
-            dashboard.devices[i] = device.copyWith(isLocked: isLocked);
+            dashboard.updateDevice(device.copyWith(isLocked: isLocked));
           }
         } else {
           final bool isOn = (state == 1);
           if (device.isOn != isOn) {
-            dashboard.devices[i] = device.copyWith(isOn: isOn);
+            dashboard.updateDevice(device.copyWith(isOn: isOn));
           }
         }
       }
@@ -93,45 +90,43 @@ extension Esp32ControllerSync on Esp32Service {
   }
 
   void _syncPwmWithControllers(Map<String, dynamic> data) {
-    if (!Get.isRegistered<DashboardController>()) return;
-    final dashboard = Get.find<DashboardController>();
+    final dashboard = ref.read(dashboardControllerProvider.notifier);
     final int? endpoint = data['endpoint'];
     final int? level = data['level'];
     if (endpoint == null || level == null) return;
 
-    for (var i = 0; i < dashboard.devices.length; i++) {
-      final device = dashboard.devices[i];
+    for (var i = 0; i < dashboard.state.devices.length; i++) {
+      final device = dashboard.state.devices[i];
       if (endpoint == 5 && device.type == DeviceType.lamp && (device.pin == 22 || device.id == 'lamp1')) {
         final bool isOn = level > 0;
         if (device.brightness != level || device.isOn != isOn) {
-          dashboard.devices[i] = device.copyWith(brightness: level, isOn: isOn);
+          dashboard.updateDevice(device.copyWith(brightness: level, isOn: isOn));
         }
       } else if (endpoint == 6 && device.type == DeviceType.rgb) {
         if (device.brightness != level) {
-          dashboard.devices[i] = device.copyWith(brightness: level);
+          dashboard.updateDevice(device.copyWith(brightness: level));
         }
       }
     }
   }
 
   void _syncAcWithControllers(Map<String, dynamic> data) {
-    if (!Get.isRegistered<DashboardController>()) return;
-    final dashboard = Get.find<DashboardController>();
+    final dashboard = ref.read(dashboardControllerProvider.notifier);
     final bool? isOn = data['isOn'];
     final int? targetTemp = data['target_temp'];
     
-    final acIndex = dashboard.devices.indexWhere((d) => d.id == 'ac1');
+    final acIndex = dashboard.state.devices.indexWhere((d) => d.id == 'ac1');
     if (acIndex != -1) {
-      var ac = dashboard.devices[acIndex];
+      var ac = dashboard.state.devices[acIndex];
       if (isOn != null) ac = ac.copyWith(isOn: isOn);
       if (targetTemp != null) ac = ac.copyWith(temperature: targetTemp);
-      dashboard.devices[acIndex] = ac;
+      dashboard.updateDevice(ac);
     }
   }
 
   void _applyPinsMap(DashboardController dashboard, Map<String, dynamic> pinsMap) {
-    for (var i = 0; i < dashboard.devices.length; i++) {
-      final device = dashboard.devices[i];
+    for (var i = 0; i < dashboard.state.devices.length; i++) {
+      final device = dashboard.state.devices[i];
       final pin = device.pin;
 
       if (pin != null) {
@@ -159,26 +154,26 @@ extension Esp32ControllerSync on Esp32Service {
           if (device.type == DeviceType.door) {
             final bool isLocked = (val == 0);
             if (device.isLocked != isLocked) {
-              dashboard.devices[i] = device.copyWith(isLocked: isLocked);
+              dashboard.updateDevice(device.copyWith(isLocked: isLocked));
             }
           } else if (device.type == DeviceType.lamp && pin == 22) {
             final int brightness = val as int;
             final bool isOn = brightness > 0;
             if (device.brightness != brightness || device.isOn != isOn) {
-              dashboard.devices[i] = device.copyWith(brightness: brightness, isOn: isOn);
+              dashboard.updateDevice(device.copyWith(brightness: brightness, isOn: isOn));
             }
           } else if (device.type == DeviceType.rgb) {
             final int rVal = pinsMap['pwm_rgb_r'] ?? device.rgbR ?? 0;
             final int gVal = pinsMap['pwm_rgb_g'] ?? device.rgbG ?? 0;
             final int bVal = pinsMap['pwm_rgb_b'] ?? device.rgbB ?? 0;
             if (device.rgbR != rVal || device.rgbG != gVal || device.rgbB != bVal) {
-              dashboard.devices[i] = device.copyWith(rgbR: rVal, rgbG: gVal, rgbB: bVal);
+              dashboard.updateDevice(device.copyWith(rgbR: rVal, rgbG: gVal, rgbB: bVal));
             }
           } else {
             if (device.type != DeviceType.airConditioner) {
               final bool isOn = (val == 1);
               if (device.isOn != isOn) {
-                dashboard.devices[i] = device.copyWith(isOn: isOn);
+                dashboard.updateDevice(device.copyWith(isOn: isOn));
               }
             }
           }
