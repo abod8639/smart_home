@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
@@ -16,8 +15,6 @@ class SettingsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(settingsControllerProvider);
-    final controller = ref.read(settingsControllerProvider.notifier);
 
     final gap = Responsive.contentGap(context);
     final isCompact = Responsive.isMobile(context);
