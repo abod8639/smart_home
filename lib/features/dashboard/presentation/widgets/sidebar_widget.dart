@@ -64,14 +64,17 @@ class SidebarWidget extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.red.withValues(alpha: 0.1),
+                        GestureDetector(
+                          onTap: () => ref.read(authServiceProvider.notifier).signOut(),
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.red.withValues(alpha: 0.1),
+                            ),
+                            child: const Icon(Icons.logout, color: Colors.redAccent),
                           ),
-                          child: const Icon(Icons.logout, color: Colors.redAccent),
                         ),
                       ],
                     ),
