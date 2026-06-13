@@ -5,7 +5,6 @@ import 'package:smart_home/features/settings/presentation/controllers/settings_c
 import 'package:smart_home/core/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 import 'package:mockito/mockito.dart';
