@@ -142,7 +142,7 @@ Widget buildDeviceCards(WidgetRef ref, BuildContext context) {
   final dashboardState = ref.watch(dashboardControllerProvider);
   final dashboardController = ref.read(dashboardControllerProvider.notifier);
   
-  final activeRoomId = dashboardState.activeRoom?.id ?? '3';
+  final activeRoomId = dashboardController.activeRoom?.id ?? '3';
   final filteredDevices = dashboardState.devices
       .where(
         (d) =>
