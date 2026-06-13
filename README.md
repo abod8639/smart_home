@@ -1,8 +1,30 @@
-# Smart Home IoT
+# 🏠 Smart Home IoT
 
-A professional Flutter application for real-time monitoring and control of a smart home network. The app acts as a unified control panel that bridges a mobile/desktop interface to physical IoT hardware, supporting two distinct communication protocols: a custom ESP32 HTTP API and the open Matter standard via Google Home integration.
+<p align="center">
+  <strong>A professional Flutter application for real-time monitoring and control of a smart home network.</strong>
+  <br />
+  The app acts as a unified control panel that bridges a mobile/desktop interface to physical IoT hardware, supporting two distinct communication protocols: a custom ESP32 HTTP API and the open Matter standard via Google Home integration.
+</p>
 
-[![codecov](https://codecov.io/gh/abod8639/smart_home/graph/badge.svg?token=TMDTYVIR8D)](https://codecov.io/gh/abod8639/smart_home)
+<p align="center">
+  <a href="https://github.com/abod8639/smart_home/actions/workflows/flutter_ci.yml"><img src="https://github.com/abod8639/smart_home/actions/workflows/flutter_ci.yml/badge.svg" alt="Build Status" /></a>
+  <a href="https://codecov.io/gh/abod8639/smart_home"><img src="https://codecov.io/gh/abod8639/smart_home/graph/badge.svg?token=TMDTYVIR8D" alt="Codecov Coverage" /></a>
+  <a href="https://flutter.dev"><img src="https://img.shields.io/badge/Flutter-%E2%89%A5_3.12-02569B?logo=flutter&logoColor=white" alt="Flutter SDK" /></a>
+  <a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-%E2%89%A5_3.0-0175C2?logo=dart&logoColor=white" alt="Dart SDK" /></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Desktop-blue.svg?logo=flutter&logoColor=white" alt="Platform Support" />
+  <a href="https://pub.dev/packages/get"><img src="https://img.shields.io/badge/State_Management-GetX_4.7-8A2BE2.svg?logo=flutter&logoColor=white" alt="GetX State Management" /></a>
+  <a href="https://pub.dev/packages/hive"><img src="https://img.shields.io/badge/Database-Hive_2.2-FFD700.svg?logo=hive&logoColor=black" alt="Hive Database" /></a>
+</p>
+
+<p align="center">
+  <a href="#matter-protocol-integration"><img src="https://img.shields.io/badge/Protocol-Matter-00F5FF?logo=connectivity-standards-alliance&logoColor=black" alt="Matter Standard" /></a>
+  <a href="#hardware-communication-layer"><img src="https://img.shields.io/badge/Hardware-ESP32_HTTP_API-E7352C?logo=espressif&logoColor=white" alt="ESP32 HTTP API" /></a>
+  <a href="#data-persistence"><img src="https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black" alt="Firebase Backend" /></a>
+</p>
+
 ---
 
 ## Purpose
@@ -19,9 +41,24 @@ The application is designed for homeowners and developers who have built or are 
 
 ## DEMO
 
-![demo](assets/image1.png)
-![demo](assets/image2.png)
-![demo](assets/image3.png)
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="33%">
+        <b>Dashboard & Live Weather</b><br/>
+        <img src="assets/image1.png" alt="Dashboard Screen" width="100%"/>
+      </td>
+      <td align="center" width="33%">
+        <b>Interactive Floor Plan</b><br/>
+        <img src="assets/image2.png" alt="Room Placement Screen" width="100%"/>
+      </td>
+      <td align="center" width="33%">
+        <b>Advanced IR Control</b><br/>
+        <img src="assets/image3.png" alt="IR Remote Learner Screen" width="100%"/>
+      </td>
+    </tr>
+  </table>
+</div>
 
 ## How It Works
 
