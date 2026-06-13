@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'dart:math';
 
-class AddDeviceDialog extends StatefulWidget {
+class AddDeviceDialog extends ConsumerStatefulWidget {
   const AddDeviceDialog({super.key});
 
   @override
-  State<AddDeviceDialog> createState() => _AddDeviceDialogState();
+  ConsumerState<AddDeviceDialog> createState() => _AddDeviceDialogState();
 }
 
-class _AddDeviceDialogState extends State<AddDeviceDialog> {
+class _AddDeviceDialogState extends ConsumerState<AddDeviceDialog> {
   final _nameController = TextEditingController();
   final _linkedCountController = TextEditingController(text: '0');
   DeviceType _selectedType = DeviceType.lamp;
@@ -82,10 +83,10 @@ class _AddDeviceDialogState extends State<AddDeviceDialog> {
         );
     }
 
-    final dashboardController = Get.find<DashboardController>();
+    final dashboardController = ref.read(dashboardControllerProvider.notifier);
     dashboardController.addDevice(newDevice);
 
-    Get.back();
+    if (context.mounted) context.pop();
   }
 
   @override
@@ -145,7 +146,7 @@ class _AddDeviceDialogState extends State<AddDeviceDialog> {
                   items: DeviceType.values.map((type) {
                     return DropdownMenuItem(
                       value: type,
-                      child: Text(type.name.capitalizeFirst ?? type.name),
+                      child: Text(type.name.substring(0, 1).toUpperCase() + type.name.substring(1) ?? type.name),
                     );
                   }).toList(),
                   onChanged: (val) {
@@ -179,7 +180,7 @@ class _AddDeviceDialogState extends State<AddDeviceDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () => Get.back(),
+                  onPressed: () => context.pop(),
                   child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
                 ),
                 const SizedBox(width: 12),
