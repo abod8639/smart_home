@@ -106,7 +106,7 @@ extension DashboardControllerDevices on DashboardController {
             esp32.setDigitalOutput(pin, false);
           } else if (device is AcDeviceEntity) {
             if (device.acIrCodes.irPower != null) {
-              sendIrCommand(device.acIrCodes.irPower!);
+              sendIrCommand(null, device.acIrCodes.irPower!);
             } else if (device.pin != null) {
               esp32.setDigitalOutput(device.pin!, false);
             } else {
@@ -173,7 +173,7 @@ extension DashboardControllerDevices on DashboardController {
           esp32.setDigitalOutput(pin, newIsOn);
         } else if (device is AcDeviceEntity) {
           if (device.acIrCodes.irPower != null) {
-            sendIrCommand(device.acIrCodes.irPower!);
+            sendIrCommand(null, device.acIrCodes.irPower!);
           } else if (device.pin != null) {
             esp32.setDigitalOutput(device.pin!, newIsOn);
           } else {
