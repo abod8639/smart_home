@@ -1,4 +1,7 @@
+import 'dart:io';
+import 'package:hive/hive.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:smart_home/core/services/hive_service.dart';
 import 'package:smart_home/features/device/data/datasources/device_local_datasource.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/data/datasources/room_local_datasource.dart';
@@ -148,6 +151,76 @@ void main() {
       expect(deserialized.isActive, room.isActive);
       expect(deserialized.iconPath, room.iconPath);
       expect(deserialized.imagePath, room.imagePath);
+    });
+  });
+
+  group('Local Datasource Persistence Tests', () {
+    late Directory tempDir;
+
+    setUp(() async {
+      tempDir = await Directory.systemTemp.createTemp();
+      await HiveService.init(testPath: tempDir.path);
+    });
+
+    tearDown(() async {
+      await Hive.close();
+      if (await tempDir.exists()) {
+        await tempDir.delete(recursive: true);
+      }
+    });
+
+    test('DeviceLocalDatasource loads, saves, and clears devices using Hive', () async {
+      final datasource = DeviceLocalDatasource();
+      expect(datasource.hasData, isFalse);
+      expect(datasource.loadDevices(), isEmpty);
+
+      final lamp = LampDeviceEntity(
+        id: 'lamp_1',
+        name: 'Test Lamp',
+        isOn: true,
+        roomId: 'room_1',
+        brightness: 150,
+      );
+
+      await datasource.saveDevices([lamp]);
+      expect(datasource.hasData, isTrue);
+
+      final loaded = datasource.loadDevices();
+      expect(loaded, hasLength(1));
+      expect(loaded.first.id, 'lamp_1');
+      expect(loaded.first.name, 'Test Lamp');
+      expect((loaded.first as LampDeviceEntity).brightness, 150);
+
+      await datasource.clearDevices();
+      expect(datasource.hasData, isFalse);
+      expect(datasource.loadDevices(), isEmpty);
+    });
+
+    test('RoomLocalDatasource loads, saves, and clears rooms using Hive', () async {
+      final datasource = RoomLocalDatasource();
+      expect(datasource.hasData, isFalse);
+      expect(await datasource.getRooms(), isEmpty);
+
+      final room = RoomEntity(
+        id: 'room_1',
+        name: 'Test Room',
+        deviceCount: 3,
+        isActive: true,
+        iconPath: 'icon.png',
+      );
+
+      await datasource.saveRooms([room]);
+      expect(datasource.hasData, isTrue);
+
+      final loaded = datasource.loadRooms();
+      expect(loaded, hasLength(1));
+      expect(loaded.first.id, 'room_1');
+      expect(loaded.first.name, 'Test Room');
+      expect(loaded.first.isActive, isTrue);
+
+      await datasource.clearRooms();
+      expect(datasource.hasData, isFalse);
+      expect(datasource.loadRooms(), isEmpty);
     });
   });
 }
