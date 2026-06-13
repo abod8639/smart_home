@@ -3,15 +3,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/hive_service.dart';
-import 'features/dashboard/presentation/pages/dashboard_page.dart';
-import 'core/bindings/initial_binding.dart';
-import 'features/room/presentation/pages/room_placement_view.dart';
-import 'features/room/presentation/controllers/room_placement_controller.dart';
-import 'features/auth/presentation/pages/login_page.dart';
+import 'core/router/app_router.dart';
 import 'core/services/notification_service.dart';
 
 Future<void> main() async {
@@ -45,44 +41,25 @@ Future<void> main() async {
       }
     }
   } else {
-    debugPrint("Firebase is not supported on this platform ($defaultTargetPlatform). Skipping initialization.");
+    debugPrint("Firebase is not supported on this platform (\$defaultTargetPlatform). Skipping initialization.");
   }
   
   await HiveService.init();
-  runApp(const SmartHomeApp());
+  runApp(const ProviderScope(child: SmartHomeApp()));
 }
 
 
-
-
-class SmartHomeApp extends StatelessWidget {
+class SmartHomeApp extends ConsumerWidget {
   const SmartHomeApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final goRouter = ref.watch(appRouterProvider);
+    return MaterialApp.router(
       title: 'Smart Home IoT',
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      initialRoute: '/dashboard',
-      initialBinding: InitialBinding(),
-      getPages: [
-        GetPage(
-          name: '/login',
-          page: () => const LoginPage(),
-        ),
-        GetPage(
-          name: '/dashboard',
-          page: () => const DashboardPage(),
-        ),
-        GetPage(
-          name: '/room-placement',
-          page: () => const RoomPlacementView(),
-          binding: BindingsBuilder(() {
-            Get.lazyPut(() => RoomPlacementController());
-          }),
-        ),
-      ],
-      );
+      routerConfig: goRouter,
+    );
   }
 }
