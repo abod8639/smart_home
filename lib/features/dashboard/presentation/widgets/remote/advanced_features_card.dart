@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
-class AdvancedFeaturesCard extends StatelessWidget {
+class AdvancedFeaturesCard extends ConsumerWidget {
   final DeviceEntity device;
   final DashboardController controller;
   final bool isPlasmaclusterOn;
@@ -36,7 +37,7 @@ class AdvancedFeaturesCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GlassContainer(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -143,14 +144,7 @@ class AdvancedFeaturesCard extends StatelessWidget {
                   if (device.irClean != null) {
                     controller.sendIrCommand(device.irClean!);
                   } else {
-                    Get.snackbar(
-                      'Clean',
-                      'Clean mode not set to this AC.',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: const Color(0xFF1E293B),
-                      colorText: Colors.white,
-                      duration: const Duration(seconds: 2),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Clean' + ': ' + 'Clean mode not set to this AC.')));
                   }
                 },
                 child: Container(
@@ -183,14 +177,7 @@ class AdvancedFeaturesCard extends StatelessWidget {
 
   void _showFeatureToast(String featureName, bool isOn) {
     final status = isOn ? 'تفعيل' : 'إيقاف';
-    Get.snackbar(
-      '$featureName / $featureName',
-      'تم $status خاصية $featureName',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFF1E293B),
-      colorText: Colors.white,
-      duration: const Duration(seconds: 1),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$featureName / $featureName' + ': ' + 'تم $status خاصية $featureName')));
   }
 }
 
