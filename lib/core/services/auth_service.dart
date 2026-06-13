@@ -7,8 +7,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'auth_service.g.dart';
 
 @Riverpod(keepAlive: true)
+FirebaseAuth firebaseAuth(Ref ref) => FirebaseAuth.instance;
+
+@Riverpod(keepAlive: true)
 class AuthService extends _$AuthService {
-  FirebaseAuth get _auth => FirebaseAuth.instance;
+  FirebaseAuth get _auth => ref.read(firebaseAuthProvider);
   final Completer<void> _initCompleter = Completer<void>();
 
   @override
