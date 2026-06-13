@@ -94,7 +94,7 @@ class NotificationService extends _$NotificationService {
         sound: true,
       );
 
-      ref.read(hasNotificationPermissionProvider.notifier).state = settings.authorizationStatus == AuthorizationStatus.authorized;
+      ref.read(hasNotificationPermissionProvider.notifier).set(settings.authorizationStatus == AuthorizationStatus.authorized);
 
       if (kDebugMode) {
         print('User granted permission: ${settings.authorizationStatus}');
@@ -110,14 +110,14 @@ class NotificationService extends _$NotificationService {
     try {
       String? token = await _fcm.getToken();
       if (token != null) {
-        ref.read(fcmTokenProvider.notifier).state = token;
+        ref.read(fcmTokenProvider.notifier).set(token);
         if (kDebugMode) {
           print('FCM Token: $token');
         }
       }
       // Listen to token refresh
       _fcm.onTokenRefresh.listen((newToken) {
-        ref.read(fcmTokenProvider.notifier).state = newToken;
+        ref.read(fcmTokenProvider.notifier).set(newToken);
         if (kDebugMode) {
           print('FCM Token Refreshed: $newToken');
         }
