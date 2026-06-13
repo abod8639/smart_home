@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:smart_home/core/services/auth_service.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
@@ -12,9 +13,27 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(de
 
 @riverpod
 GoRouter appRouter(Ref ref) {
+  final authStateAsync = ref.watch(authStateProvider);
+
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/dashboard',
+    redirect: (context, state) {
+      final authState = authStateAsync.asData?.value;
+      final isLoggingIn = state.matchedLocation == '/login';
+
+      if (authState == null) {
+        // Not logged in
+        return isLoggingIn ? null : '/login';
+      }
+
+      // Logged in
+      if (isLoggingIn) {
+        return '/dashboard';
+      }
+
+      return null;
+    },
     routes: [
       GoRoute(
         path: '/login',
