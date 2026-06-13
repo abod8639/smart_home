@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
@@ -9,7 +10,7 @@ import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 class RoomManagementDialogs {
   RoomManagementDialogs._();
 
-  static void showRoomOptions(BuildContext context, RoomEntity room) {
+  static void showRoomOptions(BuildContext context, WidgetRef ref, RoomEntity room) {
     showDialog(
       context: context,
       builder: (context) {
@@ -32,7 +33,7 @@ class RoomManagementDialogs {
                 title: const Text('Edit Room Name', style: TextStyle(color: Colors.white)),
                 onTap: () {
                   Navigator.pop(context);
-                  showEditRoomDialog(context, room);
+                  showEditRoomDialog(context, ref, room);
                 },
               ),
               if (room.name.toLowerCase() != 'living room')
@@ -41,7 +42,7 @@ class RoomManagementDialogs {
                   title: const Text('Delete Room', style: TextStyle(color: Colors.white)),
                   onTap: () {
                     Navigator.pop(context);
-                    showDeleteConfirmation(context, room);
+                    showDeleteConfirmation(context, ref, room);
                   },
                 ),
             ],
@@ -51,8 +52,8 @@ class RoomManagementDialogs {
     );
   }
 
-  static void showAddRoomDialog(BuildContext context) {
-    final controller = Get.find<DashboardController>();
+  static void showAddRoomDialog(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(dashboardControllerProvider.notifier);
     final textController = TextEditingController();
     String? selectedImagePath;
 
@@ -215,8 +216,8 @@ class RoomManagementDialogs {
     );
   }
 
-  static void showEditRoomDialog(BuildContext context, RoomEntity room) {
-    final controller = Get.find<DashboardController>();
+  static void showEditRoomDialog(BuildContext context, WidgetRef ref, RoomEntity room) {
+    final controller = ref.read(dashboardControllerProvider.notifier);
     final textController = TextEditingController(text: room.name);
     String? selectedImagePath = room.imagePath;
 
@@ -373,8 +374,8 @@ class RoomManagementDialogs {
     );
   }
 
-  static void showDeleteConfirmation(BuildContext context, RoomEntity room) {
-    final controller = Get.find<DashboardController>();
+  static void showDeleteConfirmation(BuildContext context, WidgetRef ref, RoomEntity room) {
+    final controller = ref.read(dashboardControllerProvider.notifier);
     showDialog(
       context: context,
       builder: (context) {
