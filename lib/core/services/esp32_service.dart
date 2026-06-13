@@ -93,4 +93,14 @@ class Esp32Service extends GetxService {
     }
     super.onClose();
   }
+
+  // ─────────────── DYNAMIC DISPATCH / MOCKING SUPPORT ───────────────
+  // These forwarding methods allow the Esp32Api extension methods to be mockable/overridden.
+  Future<EspResponse<bool>> pingHub() => Esp32Api(this).pingHub();
+  Future<EspResponse<Map<String, dynamic>>> getSensorData() => Esp32Api(this).getSensorData();
+  Future<EspResponse<bool>> setDigitalOutput(dynamic pin, bool state) => Esp32Api(this).setDigitalOutput(pin, state);
+  Future<EspResponse<bool>> setAnalogOutput(dynamic pin, int value) => Esp32Api(this).setAnalogOutput(pin, value);
+  Future<EspResponse<dynamic>> sendRawCommand(String path, {String method = 'POST', dynamic data}) => Esp32Api(this).sendRawCommand(path, method: method, data: data);
+  Future<EspResponse<IrCodeEntity>> learnIrCode() => Esp32Api(this).learnIrCode();
+  Future<EspResponse<bool>> sendIrCode(IrCodeEntity irCode) => Esp32Api(this).sendIrCode(irCode);
 }
