@@ -37,9 +37,10 @@ void main() {
 
   group('DashboardController Tests', () {
     group('Independent AC control tests', () {
-      test('Toggling one AC does not toggle other ACs', () {
+      test('Toggling one AC does not toggle other ACs', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
 
         // Ensure we have at least two ACs in the initial list
         final acDevices = container.read(dashboardControllerProvider).devices
@@ -65,9 +66,10 @@ void main() {
         expect(container.read(dashboardControllerProvider).devices[secondAcIndex].isOn, isFalse);
       });
 
-      test('Updating temperature on one AC does not update other ACs', () {
+      test('Updating temperature on one AC does not update other ACs', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
 
         final acDevices = container.read(dashboardControllerProvider).devices
             .where((d) => d.type == DeviceType.airConditioner)
@@ -91,9 +93,10 @@ void main() {
     });
 
     group('Room Management Tests', () {
-      test('Adding a room increases room count', () {
+      test('Adding a room increases room count', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final initialCount = container.read(dashboardControllerProvider).rooms.length;
 
         const newRoom = RoomEntity(id: '99', name: 'Garage', deviceCount: 0);
@@ -103,9 +106,10 @@ void main() {
         expect(container.read(dashboardControllerProvider).rooms.any((r) => r.id == '99' && r.name == 'Garage'), isTrue);
       });
 
-      test('Updating a room changes its attributes', () {
+      test('Updating a room changes its attributes', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final targetRoom = container.read(dashboardControllerProvider).rooms[0];
         
         final updatedRoom = targetRoom.copyWith(name: 'Updated Bedroom Name', deviceCount: 10);
@@ -115,9 +119,10 @@ void main() {
         expect(container.read(dashboardControllerProvider).rooms[0].deviceCount, 10);
       });
 
-      test('Deleting active room selects another room as active', () {
+      test('Deleting active room selects another room as active', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         
         // Ensure only the first room is active
         for (int i = 0; i < container.read(dashboardControllerProvider).rooms.length; i++) {
@@ -135,9 +140,10 @@ void main() {
         expect(activeRoom.id, fallbackRoomId);
       });
 
-      test('selectRoom updates active state and clears selected placement device', () {
+      test('selectRoom updates active state and clears selected placement device', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final targetRoomId = container.read(dashboardControllerProvider).rooms[0].id;
 
         controller.selectRoom(targetRoomId);
@@ -148,9 +154,10 @@ void main() {
     });
 
     group('Device CRUD and Controls Tests', () {
-      test('addDevice sets default values and room association', () {
+      test('addDevice sets default values and room association', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final activeRoom = container.read(dashboardControllerProvider.notifier).activeRoom;
         expect(activeRoom, isNotNull);
 
@@ -163,9 +170,10 @@ void main() {
         expect(added.positionY, 0.5);
       });
 
-      test('updateDevice updates attributes correctly', () {
+      test('updateDevice updates attributes correctly', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final device = container.read(dashboardControllerProvider).devices[0];
 
         final updated = device.copyWith(name: 'Renamed Device', isOn: !device.isOn);
@@ -176,9 +184,10 @@ void main() {
         expect(current.isOn, !device.isOn);
       });
 
-      test('deleteDevice removes it from the list', () {
+      test('deleteDevice removes it from the list', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final initialCount = container.read(dashboardControllerProvider).devices.length;
         final targetId = container.read(dashboardControllerProvider).devices[0].id;
 
@@ -188,9 +197,10 @@ void main() {
         expect(container.read(dashboardControllerProvider).devices.any((d) => d.id == targetId), isFalse);
       });
 
-      test('updateDevicePosition updates coordinates', () {
+      test('updateDevicePosition updates coordinates', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final targetId = container.read(dashboardControllerProvider).devices[0].id;
 
         controller.updateDevicePosition(targetId, 0.75, 0.25);
@@ -200,9 +210,10 @@ void main() {
         expect(current.positionY, 0.25);
       });
 
-      test('toggleDoor flips lock status', () {
+      test('toggleDoor flips lock status', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final doorIndex = container.read(dashboardControllerProvider).devices.indexWhere((d) => d.type == DeviceType.door);
         expect(doorIndex, isNot(-1));
 
@@ -215,9 +226,10 @@ void main() {
         expect(updatedDoor.isLocked, !initialLockState);
       });
 
-      test('updateDeviceBrightness updates lamp brightness correctly', () {
+      test('updateDeviceBrightness updates lamp brightness correctly', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final lampIndex = container.read(dashboardControllerProvider).devices.indexWhere((d) => d.type == DeviceType.lamp);
         expect(lampIndex, isNot(-1));
 
@@ -236,9 +248,10 @@ void main() {
         expect(turnedOffLamp.isOn, isFalse);
       });
 
-      test('updateDeviceColor updates RGB colors', () {
+      test('updateDeviceColor updates RGB colors', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final rgbIndex = container.read(dashboardControllerProvider).devices.indexWhere((d) => d.type == DeviceType.rgb);
         expect(rgbIndex, isNot(-1));
 
@@ -252,9 +265,10 @@ void main() {
         expect(updatedRgb.rgbB, 200);
       });
 
-      test('updateDeviceMarkerSize clamps width and height', () {
+      test('updateDeviceMarkerSize clamps width and height', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final targetId = container.read(dashboardControllerProvider).devices[0].id;
 
         // Under minimal clamp limits (0.05)
@@ -281,6 +295,7 @@ void main() {
       test('fetchLiveWeather handles network failure gracefully and sets fallbacks', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         controller.dio.httpClientAdapter = MockDioAdapter((options) async {
           throw DioException(
             requestOptions: options,
@@ -299,6 +314,7 @@ void main() {
       test('fetchLiveWeather handles network success and updates weather correctly', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         controller.dio.httpClientAdapter = MockDioAdapter((options) async {
           if (options.path.contains('ipapi.co')) {
             final data = {
@@ -347,12 +363,15 @@ void main() {
 
     group('Device Service Integration Tests', () {
       testWidgets('closeAllDevicesInRoom with Matter and ESP32 services', (tester) async {
-        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
-        final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
-        
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Scaffold(body: Container()))));
         final mockFirebase = MockFirebaseService();
         final mockMatter = MockMatterService();
+        final container = createContainer(overrides: [
+          firebaseServiceProvider.overrideWith(() => mockFirebase),
+          matterServiceProvider.overrideWith(() => mockMatter),
+        ]);
+        final controller = container.read(dashboardControllerProvider.notifier);
+        await Future.microtask(() {});
 
         // Setup some devices in a specific room
         const roomId = 'room_123';
@@ -362,7 +381,7 @@ void main() {
         const vacuum = VacuumDeviceEntity(id: 'vac_1', name: 'Vacuum 1', isOn: true, roomId: roomId, pin: 2);
         const ac = AcDeviceEntity(id: 'ac_1', name: 'AC 1', isOn: true, roomId: roomId, acIrCodes: AcIrCodes(irPower: '{"protocol":"NEC","value":"0x12345","bits":32,"frequency":38}'));
 
-        container.read(dashboardControllerProvider).devices.clear();
+        controller.setDevicesForTest([]);
         container.read(dashboardControllerProvider).devices.addAll([lamp, matterDevice, rgbDevice, vacuum, ac]);
 
         // Call closeAllDevicesInRoom
@@ -389,18 +408,22 @@ void main() {
       });
 
       testWidgets('toggleDevice and update methods with Matter and ESP32', (tester) async {
-        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
-        final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Scaffold(body: Container()))));
         final mockFirebase = MockFirebaseService();
         final mockMatter = MockMatterService();
+        final container = createContainer(overrides: [
+          firebaseServiceProvider.overrideWith(() => mockFirebase),
+          matterServiceProvider.overrideWith(() => mockMatter),
+        ]);
+        final controller = container.read(dashboardControllerProvider.notifier);
+        await Future.microtask(() {});
 
         const roomId = 'room_456';
         const matterDevice = RgbLampDeviceEntity(id: 'matter_lamp', name: 'Matter Lamp', isOn: false, roomId: roomId, matterNodeId: 101, matterEndpointId: 1);
         const espLamp = LampDeviceEntity(id: 'esp_lamp', name: 'ESP Lamp', isOn: false, roomId: roomId, pin: 22);
         const espRgb = RgbLampDeviceEntity(id: 'esp_rgb', name: 'ESP RGB', isOn: false, roomId: roomId, pin: 23);
 
-        container.read(dashboardControllerProvider).devices.clear();
+        controller.setDevicesForTest([]);
         container.read(dashboardControllerProvider).devices.addAll([matterDevice, espLamp, espRgb]);
 
         // Toggle Matter device
@@ -439,15 +462,19 @@ void main() {
       });
 
       testWidgets('toggleDoor lock state and ESP32 command', (tester) async {
-        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
-        final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Scaffold(body: Container()))));
         final mockFirebase = MockFirebaseService();
         final mockMatter = MockMatterService();
+        final container = createContainer(overrides: [
+          firebaseServiceProvider.overrideWith(() => mockFirebase),
+          matterServiceProvider.overrideWith(() => mockMatter),
+        ]);
+        final controller = container.read(dashboardControllerProvider.notifier);
+        await Future.microtask(() {});
 
         const door = DoorDeviceEntity(id: 'door_test', name: 'Door Test', isLocked: true, pin: 18);
-        container.read(dashboardControllerProvider).devices.clear();
-        container.read(dashboardControllerProvider).devices.add(door);
+        controller.setDevicesForTest([]);
+        controller.setDevicesForTest([...container.read(dashboardControllerProvider).devices, door]);
 
         controller.toggleDoor('door_test');
         expect((container.read(dashboardControllerProvider).devices[0] as DoorDeviceEntity).isLocked, isFalse);
@@ -458,11 +485,15 @@ void main() {
 
     group('IR & AC Control Tests', () {
       testWidgets('updateAcTemperature clamping and transmission', (tester) async {
-        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
-        final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Scaffold(body: Container()))));
         final mockFirebase = MockFirebaseService();
         final mockMatter = MockMatterService();
+        final container = createContainer(overrides: [
+          firebaseServiceProvider.overrideWith(() => mockFirebase),
+          matterServiceProvider.overrideWith(() => mockMatter),
+        ]);
+        final controller = container.read(dashboardControllerProvider.notifier);
+        await Future.microtask(() {});
 
         const ac = AcDeviceEntity(
           id: 'ac_test_ir',
@@ -474,8 +505,8 @@ void main() {
             irTempDown: '{"protocol":"NEC","value":"0x2222","bits":32,"frequency":38}',
           ),
         );
-        container.read(dashboardControllerProvider).devices.clear();
-        container.read(dashboardControllerProvider).devices.add(ac);
+        controller.setDevicesForTest([]);
+        controller.setDevicesForTest([...container.read(dashboardControllerProvider).devices, ac]);
 
         // Clamping check over max limit
         controller.updateAcTemperature('ac_test_ir', 35);
@@ -496,11 +527,15 @@ void main() {
       });
 
       testWidgets('setAcMode changes mode and sends IR command', (tester) async {
-        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
-        final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Scaffold(body: Container()))));
         final mockFirebase = MockFirebaseService();
         final mockMatter = MockMatterService();
+        final container = createContainer(overrides: [
+          firebaseServiceProvider.overrideWith(() => mockFirebase),
+          matterServiceProvider.overrideWith(() => mockMatter),
+        ]);
+        final controller = container.read(dashboardControllerProvider.notifier);
+        await Future.microtask(() {});
 
         const ac = AcDeviceEntity(
           id: 'ac_test_mode',
@@ -511,8 +546,8 @@ void main() {
             irCool: '{"protocol":"NEC","value":"0x3333","bits":32,"frequency":38}',
           ),
         );
-        container.read(dashboardControllerProvider).devices.clear();
-        container.read(dashboardControllerProvider).devices.add(ac);
+        controller.setDevicesForTest([]);
+        controller.setDevicesForTest([...container.read(dashboardControllerProvider).devices, ac]);
 
         // Set mode that is not learned yet
         controller.setAcMode(tester.element(find.byType(Container)), 'ac_test_mode', 'Heat mode');
@@ -530,13 +565,14 @@ void main() {
       });
 
       testWidgets('clearIrCode removes IR code locally and from Firebase', (tester) async {
-        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Scaffold(body: Container()))));
         final mockFirebase = MockFirebaseService();
         final mockMatter = MockMatterService();
         final container = createContainer(overrides: [
           firebaseServiceProvider.overrideWith(() => mockFirebase),
         ]);
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
 
         const ac = AcDeviceEntity(
           id: 'ac_clear',
@@ -545,8 +581,8 @@ void main() {
             irPower: '{"protocol":"NEC","value":"0x4444","bits":32,"frequency":38}',
           ),
         );
-        container.read(dashboardControllerProvider).devices.clear();
-        container.read(dashboardControllerProvider).devices.add(ac);
+        controller.setDevicesForTest([]);
+        controller.setDevicesForTest([...container.read(dashboardControllerProvider).devices, ac]);
 
         await controller.clearIrCode(tester.element(find.byType(Container)), 'ac_clear', 'irPower');
         
@@ -559,11 +595,15 @@ void main() {
       });
 
       testWidgets('setAcSleepTimer sets timer on ESP32', (tester) async {
-        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
-        final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Scaffold(body: Container()))));
         final mockFirebase = MockFirebaseService();
         final mockMatter = MockMatterService();
+        final container = createContainer(overrides: [
+          firebaseServiceProvider.overrideWith(() => mockFirebase),
+          matterServiceProvider.overrideWith(() => mockMatter),
+        ]);
+        final controller = container.read(dashboardControllerProvider.notifier);
+        await Future.microtask(() {});
 
         const ac = AcDeviceEntity(
           id: 'ac_timer',
@@ -572,8 +612,8 @@ void main() {
             irPower: '{"protocol":"NEC","value":"0x5555","bits":32,"frequency":38}',
           ),
         );
-        container.read(dashboardControllerProvider).devices.clear();
-        container.read(dashboardControllerProvider).devices.add(ac);
+        controller.setDevicesForTest([]);
+        controller.setDevicesForTest([...container.read(dashboardControllerProvider).devices, ac]);
 
         await controller.setAcSleepTimer(tester.element(find.byType(Container)), 'ac_timer', const Duration(seconds: 120));
         
@@ -588,9 +628,10 @@ void main() {
     });
 
     group('Room Selection and Device Reorder Tests', () {
-      test('reorderDevices updates order correctly', () {
+      test('reorderDevices updates order correctly', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final initialDevices = List<DeviceEntity>.from(container.read(dashboardControllerProvider).devices);
         expect(initialDevices.length, greaterThan(2));
 
@@ -606,17 +647,19 @@ void main() {
     });
 
     group('Initial State Tests', () {
-      test('controller loads mock rooms on first launch', () {
+      test('controller loads mock rooms on first launch', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         expect(container.read(dashboardControllerProvider).rooms.isNotEmpty, isTrue);
         expect(container.read(dashboardControllerProvider).rooms.any((r) => r.name == 'Bedroom'), isTrue);
         expect(container.read(dashboardControllerProvider).rooms.any((r) => r.name == 'Living room'), isTrue);
       });
 
-      test('controller loads mock devices on first launch', () {
+      test('controller loads mock devices on first launch', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         expect(container.read(dashboardControllerProvider).devices.isNotEmpty, isTrue);
         // Should have at least one of each type
         expect(container.read(dashboardControllerProvider).devices.any((d) => d.type == DeviceType.airConditioner), isTrue);
@@ -626,26 +669,29 @@ void main() {
         expect(container.read(dashboardControllerProvider).devices.any((d) => d.type == DeviceType.rgb), isTrue);
       });
 
-      test('activeRoom returns the room with isActive = true', () {
+      test('activeRoom returns the room with isActive = true', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         final active = container.read(dashboardControllerProvider.notifier).activeRoom;
         expect(active, isNotNull);
         expect(active!.isActive, isTrue);
       });
 
-      test('weather initial values are set in test mode', () {
+      test('weather initial values are set in test mode', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         expect(container.read(dashboardControllerProvider).isWeatherLoading, isFalse);
         expect(container.read(dashboardControllerProvider).weatherLocation, 'Mock City');
         expect(container.read(dashboardControllerProvider).weatherTemp, '25°C');
         expect(container.read(dashboardControllerProvider).weatherCondition, 'Sunny');
       });
 
-      test('changeTab updates currentNavigationIndex', () {
+      test('changeTab updates currentNavigationIndex', () async {
         final container = createContainer();
         final controller = container.read(dashboardControllerProvider.notifier);
+          await Future.microtask(() {});
         controller.changeTab(2);
         expect(container.read(dashboardControllerProvider).currentNavigationIndex, 2);
         controller.changeTab(0);
