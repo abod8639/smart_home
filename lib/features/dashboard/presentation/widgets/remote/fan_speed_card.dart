@@ -66,7 +66,7 @@ class FanSpeedCard extends ConsumerWidget {
                         _ => null,
                       };
                       if (irCode != null) {
-                        controller.sendIrCommand(irCode);
+                        controller.sendIrCommand(context, irCode);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fan Speed' + ': ' + 'Fan speed not set to $speed')));
                       }
