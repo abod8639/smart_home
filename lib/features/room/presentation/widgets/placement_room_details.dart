@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
@@ -7,7 +8,7 @@ import 'package:smart_home/features/room/presentation/controllers/room_placement
 import 'package:smart_home/features/room/presentation/widgets/placement_device_dialogs.dart';
 
 /// Shows room statistics, environment data and a quick "Add Device" button.
-class PlacementRoomDetails extends StatelessWidget {
+class PlacementRoomDetails extends ConsumerWidget {
   final DashboardController dashboardController;
   final RoomPlacementController placementController;
 
@@ -18,7 +19,7 @@ class PlacementRoomDetails extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final activeRoom = dashboardController.activeRoom;
     final isMobile = Responsive.isMobile(context);
     final gap = Responsive.contentGap(context);
@@ -32,7 +33,7 @@ class PlacementRoomDetails extends StatelessWidget {
       );
     }
 
-    final roomDevices = dashboardController.devices
+    final roomDevices = ref.watch(dashboardControllerProvider).devices
         .where((d) =>
             d.roomId == activeRoom.id ||
             (d.roomId == null && activeRoom.id == '3'))
@@ -71,16 +72,16 @@ class PlacementRoomDetails extends StatelessWidget {
                 SizedBox(height: gap),
                 SizedBox(
                   height: Responsive.deviceCardsHeight(context) - 40,
-                  child: buildDeviceCards(),
+                  child: buildDeviceCards(ref, context),
                 ),
                 SizedBox(height: gap),
-                buildPropertyRow('Temperature', dashboardController.temperature.value),
+                buildPropertyRow('Temperature', ref.watch(dashboardControllerProvider).temperature),
                 SizedBox(height: gap),
-                buildPropertyRow('Humidity', dashboardController.humidity.value),
+                buildPropertyRow('Humidity', ref.watch(dashboardControllerProvider).humidity),
                 SizedBox(height: gap),
-                buildPropertyRow('Airflow', dashboardController.airflow.value),
+                buildPropertyRow('Airflow', ref.watch(dashboardControllerProvider).airflow),
                 SizedBox(height: gap),
-                buildPropertyRow('Power Usage', dashboardController.powerUsage.value),
+                buildPropertyRow('Power Usage', ref.watch(dashboardControllerProvider).powerUsage),
               ],
             ),
           ),
