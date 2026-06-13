@@ -14,6 +14,7 @@ import 'package:smart_home/features/room/presentation/controllers/room_placement
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/ir_learning_dialog.dart';
 import 'package:smart_home/core/services/firebase_service.dart';
+import 'package:smart_home/core/utils/formatting_utils.dart';
 import 'package:equatable/equatable.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
