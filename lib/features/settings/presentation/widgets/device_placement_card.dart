@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
-class DevicePlacementCard extends GetView<DashboardController> {
+class DevicePlacementCard extends ConsumerWidget {
   final GlobalKey _imageKey = GlobalKey();
 
   DevicePlacementCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(dashboardControllerProvider.notifier);
+    final state = ref.watch(dashboardControllerProvider);
+
     return GlassContainer(
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -29,7 +33,7 @@ class DevicePlacementCard extends GetView<DashboardController> {
               ),
               IconButton(
                 color: AppTheme.primaryBlue,
-                onPressed: () => Get.toNamed('/room-placement'),
+                onPressed: () => context.push('/room-placement'),
                 icon: const Icon(Icons.edit, color: AppTheme.primaryBlue),
               )
             ],
@@ -62,8 +66,8 @@ class DevicePlacementCard extends GetView<DashboardController> {
                   Positioned.fill(
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        return Obx(() {
-                          final validDevices = controller.devices
+                        return Consumer(builder: (context, ref, _) {
+                          final validDevices = state.devices
                               .where((d) => d.positionX != null && d.positionY != null)
                               .toList();
 
