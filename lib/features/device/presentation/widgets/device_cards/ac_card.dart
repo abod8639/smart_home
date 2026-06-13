@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_home/core/utils/responsive.dart';
+import 'package:smart_home/core/utils/formatting_utils.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/remote/ac_mode_selection_card.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
@@ -129,8 +130,8 @@ class AcCard extends StatelessWidget {
                         ? Icons.timer_outlined
                         : Icons.access_time,
                     value: device.sleepTimerRemaining != null && device.sleepTimerRemaining! > 0
-                        ? _formatDuration(Duration(seconds: device.sleepTimerRemaining!))
-                        : _formatRunningTime(device.coolingTime),
+                        ? FormattingUtils.formatDuration(Duration(seconds: device.sleepTimerRemaining!))
+                        : FormattingUtils.formatCoolingTime(device.coolingTime),
                     scale: m.scale,
                   ),
                 ),
@@ -143,20 +144,6 @@ class AcCard extends StatelessWidget {
   }
 
   // ── helpers ──────────────────────────────────────────────────────────────
-
-  String _formatDuration(Duration duration) {
-    final minutes = duration.inMinutes;
-    if (minutes < 60) {
-      return '${minutes}m left';
-    } else {
-      final hours = minutes ~/ 60;
-      final mins = minutes % 60;
-      if (mins > 0) {
-        return '${hours}h ${mins}m';
-      }
-      return '${hours}h left';
-    }
-  }
 
   IconData _modeIcon(String? mode) {
     switch (mode) {
@@ -266,23 +253,6 @@ class AcCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  // Format running time from minutes to a readable string (e.g. 35 min or 1h 15m)
-  String _formatRunningTime(int? totalMinutes) {
-    if (totalMinutes == null || totalMinutes == 0) return '0 min';
-    final hours = totalMinutes ~/ 60;
-    final minutes = totalMinutes % 60;
-
-    if (hours > 0) {
-      if (minutes > 0) {
-        return '${hours}h ${minutes}m';
-      } else {
-        return '${hours}h';
-      }
-    } else {
-      return '$minutes min';
-    }
   }
 
   Widget _buildBottomStat({
