@@ -111,7 +111,7 @@ class RgbPage extends ConsumerWidget {
       currentColor: c,
       onColorChanged: (newColor) {
         controller.updateDeviceColor(
-            device.id, newColor.red, newColor.green, newColor.blue);
+            device.id, (newColor.r * 255).toInt(), (newColor.g * 255).toInt(), (newColor.b * 255).toInt());
       },
     );
   }
@@ -239,14 +239,14 @@ class RgbPage extends ConsumerWidget {
               runSpacing: 18,
               alignment: WrapAlignment.center,
               children: presets.map((color) {
-                final isSelected = currentDevice.rgbR == color.red &&
-                    currentDevice.rgbG == color.green &&
-                    currentDevice.rgbB == color.blue;
+                final isSelected = currentDevice.rgbR == (color.r * 255).toInt() &&
+                    currentDevice.rgbG == (color.g * 255).toInt() &&
+                    currentDevice.rgbB == (color.b * 255).toInt();
 
                 return GestureDetector(
                   onTap: () {
                     controller.updateDeviceColor(
-                        device.id, color.red, color.green, color.blue);
+                        device.id, (color.r * 255).toInt(), (color.g * 255).toInt(), (color.b * 255).toInt());
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
