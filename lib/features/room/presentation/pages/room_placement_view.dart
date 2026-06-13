@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:collection/collection.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
@@ -10,7 +11,7 @@ import 'package:smart_home/features/room/presentation/widgets/placement_device_p
 import 'package:smart_home/features/room/presentation/widgets/placement_image_panel.dart';
 import 'package:smart_home/features/room/presentation/widgets/placement_room_details.dart';
 
-class RoomPlacementView extends GetView<RoomPlacementController> {
+class RoomPlacementView extends ConsumerWidget {
   const RoomPlacementView({super.key});
 
   @override
@@ -26,14 +27,16 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         title: const Text('Room Device Placement'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => if (context.mounted) context.pop(),
+          onPressed: () {
+            if (context.mounted) context.pop();
+          },
         ),
       ),
       body: Padding(
         padding: EdgeInsets.all(Responsive.pagePadding(context)),
         child: Responsive.isMobile(context) || Responsive.isTablet(context)
-            ? _buildMobileLayout(context, dashboardController, imageKey)
-            : _buildWideLayout(context, dashboardController, imageKey),
+            ? _buildMobileLayout(context, ref, dashboardController, imageKey)
+            : _buildWideLayout(context, ref, dashboardController, imageKey),
       ),
     );
   }
@@ -42,13 +45,15 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
 
   Widget _buildMobileLayout(
     BuildContext context,
+    WidgetRef ref,
     DashboardController dashboardController,
     GlobalKey imageKey,
   ) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height);
-        final double imagePanelHeight = (screenWidth * 452).clamp(300, 552) ;
+        final double imagePanelHeight = (screenWidth * 452).clamp(300, 552);
+        final placementController = ref.read(roomPlacementControllerProvider.notifier);
 
         return Column(
           children: [
@@ -56,7 +61,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
               height: imagePanelHeight,
               child: PlacementImagePanel(
                 dashboardController: dashboardController,
-                placementController: controller,
+                placementController: placementController,
                 imageKey: imageKey,
               ),
             ),
@@ -64,8 +69,8 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
             Expanded(
               child: GlassContainer(
                 padding: EdgeInsets.all(Responsive.isMobile(context) ? 12 : 16),
-                child: Obx(
-                  () => _buildSidePanel(context, dashboardController),
+                child: Consumer(
+                  builder: (context, ref, _) => _buildSidePanel(context, ref, dashboardController),
                 ),
               ),
             ),
@@ -77,11 +82,13 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
 
   Widget _buildWideLayout(
     BuildContext context,
+    WidgetRef ref,
     DashboardController dashboardController,
     GlobalKey imageKey,
   ) {
     final isTablet = Responsive.isTablet(context);
     final sidePanelWidth = isTablet ? 320.0 : 385.0;
+    final placementController = ref.read(roomPlacementControllerProvider.notifier);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -89,7 +96,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
         Expanded(
           child: PlacementImagePanel(
             dashboardController: dashboardController,
-            placementController: controller,
+            placementController: placementController,
             imageKey: imageKey,
           ),
         ),
@@ -98,8 +105,8 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
           width: sidePanelWidth,
           child: GlassContainer(
             padding: EdgeInsets.all(isTablet ? 16 : 24),
-            child: Obx(
-              () => _buildSidePanel(context, dashboardController),
+            child: Consumer(
+              builder: (context, ref, _) => _buildSidePanel(context, ref, dashboardController),
             ),
           ),
         ),
@@ -111,19 +118,22 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
 
   Widget _buildSidePanel(
     BuildContext context,
+    WidgetRef ref,
     DashboardController dashboardController,
   ) {
-    final selectedId = controller.selectedDeviceId.value;
+    final selectedId = ref.watch(roomPlacementControllerProvider);
+    final placementController = ref.read(roomPlacementControllerProvider.notifier);
 
     // No selection → show room details
     if (selectedId == null) {
       return PlacementRoomDetails(
         dashboardController: dashboardController,
-        placementController: controller,
+        placementController: placementController,
       );
     }
 
-    final device = dashboardController.devices.firstWhereOrNull(
+    final dashboardState = ref.watch(dashboardControllerProvider);
+    final device = dashboardState.devices.firstWhereOrNull(
       (d) => d.id == selectedId,
     );
 
@@ -140,7 +150,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     if (deviceRoomId != activeRoomId) {
       return PlacementRoomDetails(
         dashboardController: dashboardController,
-        placementController: controller,
+        placementController: placementController,
       );
     }
 
@@ -148,7 +158,7 @@ class RoomPlacementView extends GetView<RoomPlacementController> {
     return PlacementDeviceProperties(
       device: device,
       dashboardController: dashboardController,
-      placementController: controller,
+      placementController: placementController,
     );
   }
 }
