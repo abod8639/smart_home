@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_service.g.dart';
@@ -52,7 +50,6 @@ class AuthService extends _$AuthService {
       } else {
         // Mobile uses standard flow
         final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
-        if (googleUser == null) return null;
 
         final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
