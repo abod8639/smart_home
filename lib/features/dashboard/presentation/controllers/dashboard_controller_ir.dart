@@ -228,47 +228,46 @@ extension DashboardControllerIr on DashboardController {
     try {
       final esp32 = ref.read(esp32ServiceProvider.notifier);
       final response = await esp32.learnIrCode();
-      if (context.mounted && Navigator.canPop(context)) {
-        Navigator.of(context).pop(); // dismiss dialog
-      }
+      
+      if (context.mounted) {
+        if (Navigator.canPop(context)) {
+          Navigator.of(context).pop(); // dismiss dialog
+        }
 
-      if (response.isSuccess && response.data != null) {
-        final data = response.data!;
+        if (response.isSuccess && response.data != null) {
+          final data = response.data!;
 
-        if (!data.isValid) {
-          if (context.mounted) {
+          if (!data.isValid) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('The received signal is invalid.'),
                 backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
               ),
             );
+            return false;
           }
-          return false;
+
+          if (!data.verifyRoundtrip()) {
+            return false;
+          }
+
+          final jsonCode = data.toJson();
+          final index = state.devices.indexWhere((d) => d.id == deviceId);
+          if (index != -1) {
+            final newDevices = List<DeviceEntity>.from(state.devices);
+            final updated = _applyIrField(newDevices[index], fieldKey, jsonCode);
+            if (updated == null) return false;
+
+            newDevices[index] = updated;
+            state = state.copyWith(devices: newDevices);
+            _persistDevices();
+
+            ref.read(firebaseServiceProvider.notifier).saveIrCode(deviceId, fieldKey, jsonCode);
+
+            return true;
+          }
         }
 
-        if (!data.verifyRoundtrip()) {
-          return false;
-        }
-
-        final jsonCode = data.toJson();
-        final index = state.devices.indexWhere((d) => d.id == deviceId);
-        if (index != -1) {
-          final newDevices = List<DeviceEntity>.from(state.devices);
-          final updated = _applyIrField(newDevices[index], fieldKey, jsonCode);
-          if (updated == null) return false;
-
-          newDevices[index] = updated;
-          state = state.copyWith(devices: newDevices);
-          _persistDevices();
-
-          ref.read(firebaseServiceProvider.notifier).saveIrCode(deviceId, fieldKey, jsonCode);
-
-          return true;
-        }
-      }
-
-      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(response.errorMessage ?? 'No IR signal was received from the remote.'),
@@ -278,10 +277,10 @@ extension DashboardControllerIr on DashboardController {
       }
       return false;
     } catch (e) {
-      if (context.mounted && Navigator.canPop(context)) {
-        Navigator.of(context).pop();
-      }
       if (context.mounted) {
+        if (Navigator.canPop(context)) {
+          Navigator.of(context).pop();
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Learning failed: $e'),
