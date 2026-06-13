@@ -31,7 +31,18 @@ class RoomLocalDatasource {
 
   // ── Helper ───────────────────────────────────────────────────────────────────
 
-  bool get _isTest => !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+  bool get _isTest {
+    final underTest = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+    if (underTest) {
+      try {
+        HiveService.roomsBox;
+        return false;
+      } catch (_) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   // ── Public API ────────────────────────────────────────────────────────────────
 
