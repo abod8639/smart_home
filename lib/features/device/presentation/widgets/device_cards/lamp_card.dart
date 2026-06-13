@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
@@ -25,15 +25,15 @@ class LightBeamClipper extends CustomClipper<Path> {
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
-class LampCard extends StatelessWidget {
+class LampCard extends ConsumerWidget {
   final DeviceEntity device;
   final VoidCallback onToggle;
 
   const LampCard({super.key, required this.device, required this.onToggle});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.find<DashboardController>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(dashboardControllerProvider.notifier);
     final isDeviceOn = device.isOn;
     final brightnessVal = device.brightness ?? 0;
 
