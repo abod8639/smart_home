@@ -111,8 +111,7 @@ class PlacementRoomDetails extends ConsumerWidget {
             ),
             onPressed: () => PlacementDeviceDialogs.showAddDevice(
               context,
-              dashboardController,
-              placementController,
+              ref,
             ),
           ),
         ),
