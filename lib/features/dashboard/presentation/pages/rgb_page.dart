@@ -1,45 +1,46 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
-class RgbPage extends GetView<DashboardController> {
+class RgbPage extends ConsumerWidget {
   final DeviceEntity device;
 
   const RgbPage({super.key, required this.device});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(dashboardControllerProvider);
+    final controller = ref.read(dashboardControllerProvider.notifier);
+
+    final currentDevice = state.devices.firstWhere(
+        (d) => d.id == device.id,
+        orElse: () => device) as RgbLampDeviceEntity;
+    
+    final color = Color.fromRGBO(
+        currentDevice.rgbR ?? 255,
+        currentDevice.rgbG ?? 255,
+        currentDevice.rgbB ?? 255,
+        currentDevice.isOn ? 0.35 : 0.0);
+
     return Scaffold(
       backgroundColor: const Color(0xFF13131A), // Deep dark premium background
       body: Stack(
         children: [
           // Background Gradient (Dynamic based on current color)
-          Obx(() {
-            final currentDevice = controller.devices.firstWhere(
-                (d) => d.id == device.id,
-                orElse: () => device) as RgbLampDeviceEntity;
-            
-            final color = Color.fromRGBO(
-                currentDevice.rgbR ?? 255,
-                currentDevice.rgbG ?? 255,
-                currentDevice.rgbB ?? 255,
-                currentDevice.isOn ? 0.35 : 0.0);
-
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 600),
-              curve: Curves.easeInOut,
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: const Alignment(0, -0.7),
-                  radius: 1.3,
-                  colors: [color, Colors.transparent],
-                ),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: const Alignment(0, -0.7),
+                radius: 1.3,
+                colors: [color, Colors.transparent],
               ),
-            );
-          }),
+            ),
+          ),
           
           SafeArea(
             child: Column(
@@ -52,13 +53,13 @@ class RgbPage extends GetView<DashboardController> {
                       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
                       child: Column(
                         children: [
-                          _buildLampPreview(),
+                          _buildLampPreview(currentDevice, controller),
                           const SizedBox(height: 35),
-                          _buildPowerButton(),
+                          _buildPowerButton(currentDevice, controller),
                           const SizedBox(height: 35),
-                          _buildBrightnessSlider(),
+                          _buildBrightnessSlider(currentDevice, controller),
                           const SizedBox(height: 25),
-                          _buildColorPresets(),
+                          _buildColorPresets(currentDevice, controller),
                           const SizedBox(height: 25),
                           _buildModes(),
                           const SizedBox(height: 40),
@@ -83,7 +84,7 @@ class RgbPage extends GetView<DashboardController> {
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 22),
-            onPressed: () => Get.back(),
+            onPressed: () => Navigator.of(context).pop(),
           ),
           Text(
             device.name,
@@ -99,133 +100,117 @@ class RgbPage extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildLampPreview() {
-    return Obx(() {
-      final currentDevice = controller.devices.firstWhere(
-          (d) => d.id == device.id,
-          orElse: () => device) as RgbLampDeviceEntity;
-      
-      final c = Color.fromRGBO(
-          currentDevice.rgbR ?? 255,
-          currentDevice.rgbG ?? 255,
-          currentDevice.rgbB ?? 255,
-          1.0);
+  Widget _buildLampPreview(RgbLampDeviceEntity currentDevice, DashboardController controller) {
+    final c = Color.fromRGBO(
+        currentDevice.rgbR ?? 255,
+        currentDevice.rgbG ?? 255,
+        currentDevice.rgbB ?? 255,
+        1.0);
 
-      return ColorWheelPicker(
-        currentColor: c,
-        onColorChanged: (newColor) {
-          controller.updateDeviceColor(
-              device.id, newColor.red, newColor.green, newColor.blue);
-        },
-      );
-    });
+    return ColorWheelPicker(
+      currentColor: c,
+      onColorChanged: (newColor) {
+        controller.updateDeviceColor(
+            device.id, newColor.red, newColor.green, newColor.blue);
+      },
+    );
   }
 
-  Widget _buildPowerButton() {
-    return Obx(() {
-      final currentDevice = controller.devices.firstWhere(
-          (d) => d.id == device.id,
-          orElse: () => device) as RgbLampDeviceEntity;
-      final isOn = currentDevice.isOn;
+  Widget _buildPowerButton(RgbLampDeviceEntity currentDevice, DashboardController controller) {
+    final isOn = currentDevice.isOn;
 
-      return GestureDetector(
-        onTap: () => controller.toggleDevice(device.id),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          width: 85,
-          height: 85,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isOn ? Colors.white : Colors.white.withValues(alpha: 0.08),
-            boxShadow: isOn
-                ? [
-                    BoxShadow(
-                      color: Colors.white.withValues(alpha: 0.4),
-                      blurRadius: 25,
-                      spreadRadius: 5,
-                    )
-                  ]
-                : [],
-          ),
-          child: Center(
-            child: Icon(
-              Icons.power_settings_new,
-              size: 42,
-              color: isOn ? Colors.black : Colors.white,
-            ),
+    return GestureDetector(
+      onTap: () => controller.toggleDevice(device.id),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: 85,
+        height: 85,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isOn ? Colors.white : Colors.white.withValues(alpha: 0.08),
+          boxShadow: isOn
+              ? [
+                  BoxShadow(
+                    color: Colors.white.withValues(alpha: 0.4),
+                    blurRadius: 25,
+                    spreadRadius: 5,
+                  )
+                ]
+              : [],
+        ),
+        child: Center(
+          child: Icon(
+            Icons.power_settings_new,
+            size: 42,
+            color: isOn ? Colors.black : Colors.white,
           ),
         ),
-      );
-    });
+      ),
+    );
   }
 
-  Widget _buildBrightnessSlider() {
-    return Obx(() {
-      final currentDevice = controller.devices.firstWhere(
-          (d) => d.id == device.id,
-          orElse: () => device) as RgbLampDeviceEntity;
-      final brightness = currentDevice.brightness ?? 50;
-      final c = Color.fromRGBO(
-          currentDevice.rgbR ?? 255,
-          currentDevice.rgbG ?? 255,
-          currentDevice.rgbB ?? 255,
-          1.0);
+  Widget _buildBrightnessSlider(RgbLampDeviceEntity currentDevice, DashboardController controller) {
+    final brightness = currentDevice.brightness ?? 50;
+    final c = Color.fromRGBO(
+        currentDevice.rgbR ?? 255,
+        currentDevice.rgbG ?? 255,
+        currentDevice.rgbB ?? 255,
+        1.0);
 
-      return _GlassContainer(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 22.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Brightness',
-                    style: TextStyle(
-                        color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    '${((brightness / 255) * 100).toInt()}%',
-                    style: const TextStyle(color: Colors.white70, fontSize: 15),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 15),
-              Row(
-                children: [
-                  const Icon(Icons.brightness_low, color: Colors.white54, size: 22),
-                  Expanded(
-                    child: SliderTheme(
-                      data: SliderThemeData(
-                        trackHeight: 6,
-                        activeTrackColor: currentDevice.isOn ? c : Colors.grey.withValues(alpha: 0.5),
-                        inactiveTrackColor: Colors.white12,
-                        thumbColor: Colors.white,
-                        overlayColor: Colors.white.withValues(alpha: 0.2),
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-                      ),
-                      child: Slider(
-                        value: brightness.toDouble(),
-                        min: 0,
-                        max: 255,
-                        onChanged: (val) {
-                          controller.updateDeviceBrightness(device.id, val.toInt());
-                        },
-                      ),
+    return _GlassContainer(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 22.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Brightness',
+                  style: TextStyle(
+                      color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  '${((brightness / 255) * 100).toInt()}%',
+                  style: const TextStyle(color: Colors.white70, fontSize: 15),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            Row(
+              children: [
+                const Icon(Icons.brightness_low, color: Colors.white54, size: 22),
+                Expanded(
+                  child: SliderTheme(
+                    data: SliderThemeData(
+                      trackHeight: 6,
+                      activeTrackColor: currentDevice.isOn ? c : Colors.grey.withValues(alpha: 0.5),
+                      inactiveTrackColor: Colors.white12,
+                      thumbColor: Colors.white,
+                      overlayColor: Colors.white.withValues(alpha: 0.2),
+                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                    ),
+                    child: Slider(
+                      value: brightness.toDouble(),
+                      min: 0,
+                      max: 255,
+                      onChanged: (val) {
+                        controller.updateDeviceBrightness(device.id, val.toInt());
+                      },
                     ),
                   ),
-                  const Icon(Icons.brightness_high, color: Colors.white54, size: 22),
-                ],
-              ),
-            ],
-          ),
+                ),
+                const Icon(Icons.brightness_high, color: Colors.white54, size: 22),
+              ],
+            ),
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 
-  Widget _buildColorPresets() {
+  Widget _buildColorPresets(RgbLampDeviceEntity currentDevice, DashboardController controller) {
     final List<Color> presets = [
       Colors.redAccent,
       Colors.orange,
@@ -254,42 +239,37 @@ class RgbPage extends GetView<DashboardController> {
               runSpacing: 18,
               alignment: WrapAlignment.center,
               children: presets.map((color) {
-                return Obx(() {
-                  final currentDevice = controller.devices.firstWhere(
-                      (d) => d.id == device.id,
-                      orElse: () => device) as RgbLampDeviceEntity;
-                  final isSelected = currentDevice.rgbR == color.red &&
-                      currentDevice.rgbG == color.green &&
-                      currentDevice.rgbB == color.blue;
+                final isSelected = currentDevice.rgbR == color.red &&
+                    currentDevice.rgbG == color.green &&
+                    currentDevice.rgbB == color.blue;
 
-                  return GestureDetector(
-                    onTap: () {
-                      controller.updateDeviceColor(
-                          device.id, color.red, color.green, color.blue);
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: color,
-                        border: isSelected
-                            ? Border.all(color: Colors.white, width: 3)
-                            : Border.all(color: Colors.transparent, width: 3),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: color.withValues(alpha: 0.6),
-                                  blurRadius: 12,
-                                  spreadRadius: 2,
-                                )
-                              ]
-                            : [],
-                      ),
+                return GestureDetector(
+                  onTap: () {
+                    controller.updateDeviceColor(
+                        device.id, color.red, color.green, color.blue);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: color,
+                      border: isSelected
+                          ? Border.all(color: Colors.white, width: 3)
+                          : Border.all(color: Colors.transparent, width: 3),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: color.withValues(alpha: 0.6),
+                                blurRadius: 12,
+                                spreadRadius: 2,
+                              )
+                            ]
+                          : [],
                     ),
-                  );
-                });
+                  ),
+                );
               }).toList(),
             ),
           ],
