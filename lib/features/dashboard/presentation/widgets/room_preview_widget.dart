@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
@@ -8,16 +8,19 @@ import 'package:smart_home/features/dashboard/presentation/controllers/dashboard
 import 'package:smart_home/features/dashboard/presentation/widgets/pulsing_dot_marker.dart';
 import 'package:smart_home/features/room/presentation/widgets/card_device_marker.dart';
 
-class RoomPreviewWidget extends GetView<DashboardController> {
+class RoomPreviewWidget extends ConsumerWidget {
   const RoomPreviewWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(dashboardControllerProvider);
+    final controller = ref.read(dashboardControllerProvider.notifier);
+
     return Center(
       child: AspectRatio(
         aspectRatio: 16 / 9,
-        child: Obx(() {
-          final activeRoom = controller.activeRoom;
+        child: Builder(builder: (context) {
+          final activeRoom = state.activeRoom;
           final ImageProvider imageProvider;
           if (activeRoom != null && activeRoom.imagePath != null && activeRoom.imagePath!.isNotEmpty && File(activeRoom.imagePath!).existsSync()) {
             imageProvider = FileImage(File(activeRoom.imagePath!));
@@ -68,15 +71,15 @@ class RoomPreviewWidget extends GetView<DashboardController> {
                       // Environment Stats
                       Row(
                         children: [
-                          _buildStatChip(Icons.water_drop_outlined, controller.humidity.value, Responsive.isMobile(context)),
+                          _buildStatChip(Icons.water_drop_outlined, state.humidity, Responsive.isMobile(context)),
                           SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
-                          _buildStatChip(Icons.air_outlined, controller.airflow.value, Responsive.isMobile(context)),
+                          _buildStatChip(Icons.air_outlined, state.airflow, Responsive.isMobile(context)),
                           SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
-                          _buildStatChip(Icons.thermostat_outlined, controller.temperature.value, Responsive.isMobile(context)),
+                          _buildStatChip(Icons.thermostat_outlined, state.temperature, Responsive.isMobile(context)),
                           SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
-                          _buildStatChip(Icons.wifi_outlined, controller.wifiRssi.value, Responsive.isMobile(context)),
+                          _buildStatChip(Icons.wifi_outlined, state.wifiRssi, Responsive.isMobile(context)),
                           SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
-                          _buildStatChip(Icons.memory_outlined, controller.heapFree.value, Responsive.isMobile(context)),
+                          _buildStatChip(Icons.memory_outlined, state.heapFree, Responsive.isMobile(context)),
                         ],
                       ),
                     ],
@@ -85,11 +88,9 @@ class RoomPreviewWidget extends GetView<DashboardController> {
 
                 // Dynamic Device Markers (Simulated AR Overlay)
                 Positioned.fill(
-                  child: Obx(() {
-                    // Reading controller.devices here ensures GetX tracks it
-                    // as a reactive dependency — so markers rebuild on toggle.
-                    final activeRoomId = controller.activeRoom?.id ?? '3';
-                    final validDevices = controller.devices
+                  child: Builder(builder: (context) {
+                    final activeRoomId = state.activeRoom?.id ?? '3';
+                    final validDevices = state.devices
                         .where((d) => d.positionX != null && d.positionY != null)
                         .where((d) => d.roomId == activeRoomId || (d.roomId == null && activeRoomId == '3'))
                         .toList();
