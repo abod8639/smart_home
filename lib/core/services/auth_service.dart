@@ -35,15 +35,15 @@ class AuthService extends _$AuthService {
         return await _auth.signInWithPopup(authProvider);
       } else {
         // Mobile uses standard flow
-        final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.signIn();
+        final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
         if (googleUser == null) return null;
 
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-        
+        final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+
         final AuthCredential credential = GoogleAuthProvider.credential(
           idToken: googleAuth.idToken,
         );
-        
+
         return await _auth.signInWithCredential(credential);
       }
     } catch (e) {

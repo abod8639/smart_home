@@ -131,8 +131,14 @@ void main() {
 
     group('Device CRUD and Controls Tests', () {
       test('addDevice sets default values and room association', () {
+<<<<<<< Updated upstream
         final controller = Get.put(DashboardController());
         final activeRoom = controller.activeRoom;
+=======
+        final container = createContainer();
+        final controller = container.read(dashboardControllerProvider.notifier);
+        final activeRoom = container.read(dashboardControllerProvider.notifier).activeRoom;
+>>>>>>> Stashed changes
         expect(activeRoom, isNotNull);
 
         const newDevice = LampDeviceEntity(id: 'lamp_test_add', name: 'Test Add Lamp');
@@ -319,9 +325,13 @@ void main() {
 
     group('Device Service Integration Tests', () {
       testWidgets('closeAllDevicesInRoom with Matter and ESP32 services', (tester) async {
+<<<<<<< Updated upstream
         await tester.pumpWidget(GetMaterialApp(home: Container()));
         final controller = Get.put(DashboardController());
         
+=======
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
+>>>>>>> Stashed changes
         final mockFirebase = MockFirebaseService();
         Get.put<FirebaseService>(mockFirebase);
         Get.put<SettingsController>(MockSettingsController());
@@ -363,8 +373,12 @@ void main() {
       });
 
       testWidgets('toggleDevice and update methods with Matter and ESP32', (tester) async {
+<<<<<<< Updated upstream
         await tester.pumpWidget(GetMaterialApp(home: Container()));
         final controller = Get.put(DashboardController());
+=======
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
+>>>>>>> Stashed changes
         final mockFirebase = MockFirebaseService();
         Get.put<FirebaseService>(mockFirebase);
         Get.put<SettingsController>(MockSettingsController());
@@ -415,8 +429,12 @@ void main() {
       });
 
       testWidgets('toggleDoor lock state and ESP32 command', (tester) async {
+<<<<<<< Updated upstream
         await tester.pumpWidget(GetMaterialApp(home: Container()));
         final controller = Get.put(DashboardController());
+=======
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
+>>>>>>> Stashed changes
         final mockFirebase = MockFirebaseService();
         Get.put<FirebaseService>(mockFirebase);
         Get.put<SettingsController>(MockSettingsController());
@@ -435,8 +453,12 @@ void main() {
 
     group('IR & AC Control Tests', () {
       testWidgets('updateAcTemperature clamping and transmission', (tester) async {
+<<<<<<< Updated upstream
         await tester.pumpWidget(GetMaterialApp(home: Container()));
         final controller = Get.put(DashboardController());
+=======
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
+>>>>>>> Stashed changes
         final mockFirebase = MockFirebaseService();
         Get.put<FirebaseService>(mockFirebase);
         Get.put<SettingsController>(MockSettingsController());
@@ -474,8 +496,12 @@ void main() {
       });
 
       testWidgets('setAcMode changes mode and sends IR command', (tester) async {
+<<<<<<< Updated upstream
         await tester.pumpWidget(GetMaterialApp(home: Container()));
         final controller = Get.put(DashboardController());
+=======
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
+>>>>>>> Stashed changes
         final mockFirebase = MockFirebaseService();
         Get.put<FirebaseService>(mockFirebase);
         Get.put<SettingsController>(MockSettingsController());
@@ -509,9 +535,18 @@ void main() {
       });
 
       testWidgets('clearIrCode removes IR code locally and from Firebase', (tester) async {
+<<<<<<< Updated upstream
         await tester.pumpWidget(GetMaterialApp(home: Container()));
         final controller = Get.put(DashboardController());
         final mockFirebase = Get.put<FirebaseService>(MockFirebaseService());
+=======
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
+        final mockFirebase = MockFirebaseService();
+        final container = createContainer(overrides: [
+          firebaseServiceProvider.overrideWith(() => mockFirebase),
+        ]);
+        final controller = container.read(dashboardControllerProvider.notifier);
+>>>>>>> Stashed changes
 
         const ac = AcDeviceEntity(
           id: 'ac_clear',
@@ -534,8 +569,12 @@ void main() {
       });
 
       testWidgets('setAcSleepTimer sets timer on ESP32', (tester) async {
+<<<<<<< Updated upstream
         await tester.pumpWidget(GetMaterialApp(home: Container()));
         final controller = Get.put(DashboardController());
+=======
+        await tester.pumpWidget(ProviderScope(child: MaterialApp(home: Container())));
+>>>>>>> Stashed changes
         final mockFirebase = MockFirebaseService();
         Get.put<FirebaseService>(mockFirebase);
         Get.put<SettingsController>(MockSettingsController());

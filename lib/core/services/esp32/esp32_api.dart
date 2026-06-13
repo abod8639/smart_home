@@ -5,14 +5,14 @@ extension Esp32Api on Esp32Service {
 
   /// Ping ESP32 to test host reachability over MQTT or fallback to Firebase online status
   Future<EspResponse<bool>> pingHub() async {
-    if (isConnected.value) return EspResponse.success(true);
+    if (isConnected) return EspResponse.success(true);
     _connectMqtt();
     int wait = 0;
-    while (!isConnected.value && wait < 2000) {
+    while (!isConnected && wait < 2000) {
       await Future.delayed(const Duration(milliseconds: 100));
       wait += 100;
     }
-    if (isConnected.value) return EspResponse.success(true);
+    if (isConnected) return EspResponse.success(true);
     
     // Fallback: check online status from Firebase
     try {
@@ -28,7 +28,7 @@ extension Esp32Api on Esp32Service {
 
   /// Read real-time sensor metrics
   Future<EspResponse<Map<String, dynamic>>> getSensorData() async {
-    if (isConnected.value) {
+    if (isConnected) {
       _stateCompleter = Completer<Map<String, dynamic>>();
       if (sendRawMessage({'action': 'get_state'})) {
         try {
@@ -46,7 +46,7 @@ extension Esp32Api on Esp32Service {
   Future<EspResponse<bool>> setDigitalOutput(dynamic pin, bool state) async {
     final int pinInt = pin is String ? int.parse(pin) : pin as int;
     
-    if (isConnected.value) {
+    if (isConnected) {
       final success = sendRawMessage({
         'action': 'set_relay',
         'pin': pinInt,
@@ -68,7 +68,7 @@ extension Esp32Api on Esp32Service {
   Future<EspResponse<bool>> setAnalogOutput(dynamic pin, int value) async {
     final int pinInt = pin is String ? int.parse(pin) : pin as int;
     
-    if (isConnected.value) {
+    if (isConnected) {
       final success = sendRawMessage({
         'action': 'set_pwm',
         'pin': pinInt,
@@ -93,7 +93,7 @@ extension Esp32Api on Esp32Service {
     dynamic data,
   }) async {
     if (path == 'control/ac') {
-      if (isConnected.value) {
+      if (isConnected) {
         final success = sendRawMessage({
           'action': 'control_ac',
           'isOn': data['isOn'] == true ? 1 : 0,
@@ -110,7 +110,7 @@ extension Esp32Api on Esp32Service {
         return EspResponse.success({'status': 'ok'});
       }
     } else if (path == 'control/ac/timer') {
-      if (isConnected.value) {
+      if (isConnected) {
         final success = sendRawMessage({
           'action': 'set_ac_timer',
           'seconds': data['seconds'],
@@ -132,7 +132,7 @@ extension Esp32Api on Esp32Service {
 
   /// Starts IR remote code learning on the ESP32.
   Future<EspResponse<IrCodeEntity>> learnIrCode() async {
-    if (isConnected.value) {
+    if (isConnected) {
       _irLearnCompleter = Completer<IrCodeEntity>();
       if (sendRawMessage({'action': 'ir_learn'})) {
         try {
@@ -189,7 +189,7 @@ extension Esp32Api on Esp32Service {
 
   /// Sends a recorded IR code via the ESP32 transmitter.
   Future<EspResponse<bool>> sendIrCode(IrCodeEntity irCode) async {
-    if (isConnected.value) {
+    if (isConnected) {
       final success = sendRawMessage({
         'action': 'ir_send',
         'protocol': irCode.protocol.name.toUpperCase(),
