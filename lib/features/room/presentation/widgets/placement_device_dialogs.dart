@@ -67,309 +67,325 @@ class PlacementDeviceDialogs {
 
   static void showAddDevice(
     BuildContext context,
-    DashboardController dashboardController,
-    RoomPlacementController placementController,
+    WidgetRef ref,
   ) {
     final nameController = TextEditingController();
     final linkedCountController = TextEditingController(text: '0');
-    var selectedType = DeviceType.lamp.obs;
-    var showAsDot = false.obs;
-    var selectedPin = Rx<int?>(null);
+    DeviceType selectedType = DeviceType.lamp;
+    bool showAsDot = false;
+    int? selectedPin;
 
-    showDialog(context: context, builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.cardBackground,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-        ),
-        title: const Row(
-          children: [
-            Icon(Icons.add_circle_outline, color: AppTheme.primaryBlue, size: 22),
-            SizedBox(width: 8),
-            Text(
-              'Add New Device',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: nameController,
-                style: const TextStyle(color: Colors.white),
-                autofocus: true,
-                decoration: const InputDecoration(
-                  labelText: 'Device Name',
-                  hintText: 'e.g. Bedroom Lamp',
-                  hintStyle: TextStyle(color: Colors.white24),
-                  labelStyle: TextStyle(color: AppTheme.textGrey),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppTheme.primaryBlue),
-                  ),
-                ),
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final dashboardState = ref.watch(dashboardControllerProvider);
+            final dashboardController = ref.read(dashboardControllerProvider.notifier);
+            final placementController = ref.read(roomPlacementControllerProvider.notifier);
+
+            final usedPins = dashboardState.devices
+                .map((d) => d.pin)
+                .whereType<int>()
+                .toSet();
+
+            return AlertDialog(
+              backgroundColor: AppTheme.cardBackground,
+              surfaceTintColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+                side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
               ),
-              const SizedBox(height: 20),
-              const Text(
-                'Device Type',
-                style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
-              ),
-              const SizedBox(height: 8),
-              Obx(
-                () => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.black26,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.white12),
+              title: const Row(
+                children: [
+                  Icon(Icons.add_circle_outline, color: AppTheme.primaryBlue, size: 22),
+                  SizedBox(width: 8),
+                  Text(
+                    'Add New Device',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<DeviceType>(
-                      value: selectedType.value,
-                      dropdownColor: AppTheme.cardBackground,
-                      isExpanded: true,
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
-                      onChanged: (val) {
-                        if (val != null) selectedType.value = val;
-                      },
-                      items: DeviceType.values.map((type) {
-                        return DropdownMenuItem(
-                          value: type,
-                          child: Row(
-                            children: [
-                              Icon(iconForDeviceType(type),
-                                  color: AppTheme.primaryBlue, size: 18),
-                              const SizedBox(width: 8),
-                              Text(type.name.capitalizeFirst ?? ''),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      style: const TextStyle(color: Colors.white),
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Device Name',
+                        hintText: 'e.g. Bedroom Lamp',
+                        hintStyle: TextStyle(color: Colors.white24),
+                        labelStyle: TextStyle(color: AppTheme.textGrey),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppTheme.primaryBlue),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'ESP32 Pin / طرف ESP32',
-                style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'الطرف (GPIO) المتحكم في تشغيل وإطفاء الجهاز',
-                style: TextStyle(color: AppTheme.textGrey, fontSize: 10),
-              ),
-              const SizedBox(height: 8),
-              Obx(
-                () {
-                  final usedPins = dashboardController.devices
-                      .map((d) => d.pin)
-                      .whereType<int>()
-                      .toSet();
-
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.white12),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Device Type',
+                      style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
                     ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<int?>(
-                        value: selectedPin.value,
-                        dropdownColor: AppTheme.cardBackground,
-                        isExpanded: true,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
-                        onChanged: (val) {
-                          selectedPin.value = val;
-                        },
-                        items: [
-                          const DropdownMenuItem<int?>(
-                            value: null,
-                            child: Row(
-                              children: [
-                                Icon(Icons.link_off, color: AppTheme.textGrey, size: 18),
-                                SizedBox(width: 8),
-                                Text('None / Not Connected (غير متصل)', style: TextStyle(color: AppTheme.textGrey)),
-                              ],
-                            ),
-                          ),
-                          ...esp32Pins.map((p) {
-                            final pinVal = p['pin'] as int;
-                            final isPwm = p['isPwm'] as bool;
-                            final isUsed = usedPins.contains(pinVal);
-
-                            return DropdownMenuItem<int?>(
-                              value: pinVal,
-                              enabled: !isUsed,
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<DeviceType>(
+                          value: selectedType,
+                          dropdownColor: AppTheme.cardBackground,
+                          isExpanded: true,
+                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setState(() {
+                                selectedType = val;
+                              });
+                            }
+                          },
+                          items: DeviceType.values.map((type) {
+                            final typeName = type.name.substring(0, 1).toUpperCase() + type.name.substring(1);
+                            return DropdownMenuItem(
+                              value: type,
                               child: Row(
                                 children: [
-                                  Icon(
-                                    isPwm ? Icons.waves : Icons.bolt,
-                                    color: isUsed ? Colors.white24 : (isPwm ? Colors.orangeAccent : AppTheme.primaryBlue),
-                                    size: 18,
-                                  ),
+                                  Icon(iconForDeviceType(type),
+                                      color: AppTheme.primaryBlue, size: 18),
                                   const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      p['label'] as String,
-                                      style: TextStyle(
-                                        color: isUsed ? Colors.white24 : Colors.white,
-                                        decoration: isUsed ? TextDecoration.lineThrough : null,
-                                      ),
-                                    ),
-                                  ),
-                                  if (isUsed)
-                                    const Text(
-                                      'In Use (مستعمل)',
-                                      style: TextStyle(color: Colors.redAccent, fontSize: 11),
-                                    ),
+                                  Text(typeName),
                                 ],
                               ),
                             );
-                          }),
-                        ],
+                          }).toList(),
+                        ),
                       ),
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: linkedCountController,
-                style: const TextStyle(color: Colors.white),
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Linked Devices Count',
-                  labelStyle: TextStyle(color: AppTheme.textGrey),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppTheme.primaryBlue),
-                  ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'ESP32 Pin / طرف ESP32',
+                      style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'الطرف (GPIO) المتحكم في تشغيل وإطفاء الجهاز',
+                      style: TextStyle(color: AppTheme.textGrey, fontSize: 10),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<int?>(
+                          value: selectedPin,
+                          dropdownColor: AppTheme.cardBackground,
+                          isExpanded: true,
+                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          onChanged: (val) {
+                            setState(() {
+                              selectedPin = val;
+                            });
+                          },
+                          items: [
+                            const DropdownMenuItem<int?>(
+                              value: null,
+                              child: Row(
+                                children: [
+                                  Icon(Icons.link_off, color: AppTheme.textGrey, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('None / Not Connected (غير متصل)', style: TextStyle(color: AppTheme.textGrey)),
+                                ],
+                              ),
+                            ),
+                            ...esp32Pins.map((p) {
+                              final pinVal = p['pin'] as int;
+                              final isPwm = p['isPwm'] as bool;
+                              final isUsed = usedPins.contains(pinVal);
+
+                              return DropdownMenuItem<int?>(
+                                value: pinVal,
+                                enabled: !isUsed,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      isPwm ? Icons.waves : Icons.bolt,
+                                      color: isUsed ? Colors.white24 : (isPwm ? Colors.orangeAccent : AppTheme.primaryBlue),
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        p['label'] as String,
+                                        style: TextStyle(
+                                          color: isUsed ? Colors.white24 : Colors.white,
+                                          decoration: isUsed ? TextDecoration.lineThrough : null,
+                                        ),
+                                      ),
+                                    ),
+                                    if (isUsed)
+                                      const Text(
+                                        'In Use (مستعمل)',
+                                        style: TextStyle(color: Colors.redAccent, fontSize: 11),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: linkedCountController,
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Linked Devices Count',
+                        labelStyle: TextStyle(color: AppTheme.textGrey),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppTheme.primaryBlue),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SwitchListTile(
+                      title: const Text(
+                        'Show as Glowing Dot',
+                        style: TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                      subtitle: const Text(
+                        'Compact glowing marker instead of card',
+                        style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
+                      ),
+                      value: showAsDot,
+                      activeThumbColor: AppTheme.primaryBlue,
+                      contentPadding: EdgeInsets.zero,
+                      onChanged: (val) {
+                        setState(() {
+                          showAsDot = val;
+                        });
+                      },
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 20),
-              Obx(
-                () => SwitchListTile(
-                  title: const Text(
-                    'Show as Glowing Dot',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                  subtitle: const Text(
-                    'Compact glowing marker instead of card',
-                    style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
-                  ),
-                  value: showAsDot.value,
-                  activeThumbColor: AppTheme.primaryBlue,
-                  contentPadding: EdgeInsets.zero,
-                  onChanged: (val) => showAsDot.value = val,
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    if (context.mounted) context.pop();
+                  },
+                  child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
                 ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => if (context.mounted) context.pop(),
-            child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
-          ),
-          TextButton(
-            onPressed: () {
-              final name = nameController.text.trim();
-              if (name.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Validation' + ': ' + 'Device name cannot be empty')));
-                return;
-              }
-              final linkedCount = int.tryParse(linkedCountController.text) ?? 0;
-              final id = const Uuid().v4();
-              
-              DeviceEntity newDevice;
-              switch (selectedType.value) {
-                case DeviceType.airConditioner:
-                  newDevice = AcDeviceEntity(
-                    id: id,
-                    name: name,
-                    positionX: 0.5,
-                    positionY: 0.5,
-                    showAsDot: showAsDot.value,
-                    pin: selectedPin.value,
-                    temperature: 24,
-                    mode: 'Auto mode',
-                    coolingTime: 0,
-                    acIrCodes: const AcIrCodes(),
-                  );
-                  break;
-                case DeviceType.lamp:
-                  newDevice = LampDeviceEntity(
-                    id: id,
-                    name: name,
-                    positionX: 0.5,
-                    positionY: 0.5,
-                    showAsDot: showAsDot.value,
-                    pin: selectedPin.value,
-                    brightness: 50,
-                  );
-                  break;
-                case DeviceType.rgb:
-                  newDevice = RgbLampDeviceEntity(
-                    id: id,
-                    name: name,
-                    positionX: 0.5,
-                    positionY: 0.5,
-                    showAsDot: showAsDot.value,
-                    pin: selectedPin.value,
-                    brightness: 50,
-                    rgbR: 255,
-                    rgbG: 255,
-                    rgbB: 255,
-                  );
-                  break;
-                case DeviceType.door:
-                  newDevice = DoorDeviceEntity(
-                    id: id,
-                    name: name,
-                    positionX: 0.5,
-                    positionY: 0.5,
-                    showAsDot: showAsDot.value,
-                    pin: selectedPin.value,
-                    isLocked: true,
-                    linkedDevicesCount: linkedCount,
-                  );
-                  break;
-                case DeviceType.vacuum:
-                  newDevice = VacuumDeviceEntity(
-                    id: id,
-                    name: name,
-                    positionX: 0.5,
-                    positionY: 0.5,
-                    showAsDot: showAsDot.value,
-                    pin: selectedPin.value,
-                    batteryLevel: 100,
-                    areaCleaned: 0,
-                    cleaningTime: 0,
-                    filterStatus: 100,
-                  );
-                  break;
-              }
-              dashboardController.addDevice(newDevice);
-              placementController.selectDevice(newDevice.id);
-              if (context.mounted) context.pop();
-            },
-            child: const Text(
-              'Add',
-              style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
+                TextButton(
+                  onPressed: () {
+                    final name = nameController.text.trim();
+                    if (name.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Validation: Device name cannot be empty')));
+                      return;
+                    }
+                    final linkedCount = int.tryParse(linkedCountController.text) ?? 0;
+                    final id = const Uuid().v4();
+
+                    DeviceEntity newDevice;
+                    switch (selectedType) {
+                      case DeviceType.airConditioner:
+                        newDevice = AcDeviceEntity(
+                          id: id,
+                          name: name,
+                          positionX: 0.5,
+                          positionY: 0.5,
+                          showAsDot: showAsDot,
+                          pin: selectedPin,
+                          temperature: 24,
+                          mode: 'Auto mode',
+                          coolingTime: 0,
+                          acIrCodes: const AcIrCodes(),
+                        );
+                        break;
+                      case DeviceType.lamp:
+                        newDevice = LampDeviceEntity(
+                          id: id,
+                          name: name,
+                          positionX: 0.5,
+                          positionY: 0.5,
+                          showAsDot: showAsDot,
+                          pin: selectedPin,
+                          brightness: 50,
+                        );
+                        break;
+                      case DeviceType.rgb:
+                        newDevice = RgbLampDeviceEntity(
+                          id: id,
+                          name: name,
+                          positionX: 0.5,
+                          positionY: 0.5,
+                          showAsDot: showAsDot,
+                          pin: selectedPin,
+                          brightness: 50,
+                          rgbR: 255,
+                          rgbG: 255,
+                          rgbB: 255,
+                        );
+                        break;
+                      case DeviceType.door:
+                        newDevice = DoorDeviceEntity(
+                          id: id,
+                          name: name,
+                          positionX: 0.5,
+                          positionY: 0.5,
+                          showAsDot: showAsDot,
+                          pin: selectedPin,
+                          isLocked: true,
+                          linkedDevicesCount: linkedCount,
+                        );
+                        break;
+                      case DeviceType.vacuum:
+                        newDevice = VacuumDeviceEntity(
+                          id: id,
+                          name: name,
+                          positionX: 0.5,
+                          positionY: 0.5,
+                          showAsDot: showAsDot,
+                          pin: selectedPin,
+                          batteryLevel: 100,
+                          areaCleaned: 0,
+                          cleaningTime: 0,
+                          filterStatus: 100,
+                        );
+                        break;
+                    }
+                    dashboardController.addDevice(newDevice);
+                    placementController.selectDevice(newDevice.id);
+                    if (context.mounted) context.pop();
+                  },
+                  child: const Text(
+                    'Add',
+                    style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -377,11 +393,15 @@ class PlacementDeviceDialogs {
 
   static void showDeleteConfirmation(
     BuildContext context,
+    WidgetRef ref,
     DeviceEntity device,
-    DashboardController dashboardController,
-    RoomPlacementController placementController,
   ) {
-    showDialog(context: context, builder: (context) => AlertDialog(
+    final dashboardController = ref.read(dashboardControllerProvider.notifier);
+    final placementController = ref.read(roomPlacementControllerProvider.notifier);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
         backgroundColor: AppTheme.cardBackground,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -398,7 +418,9 @@ class PlacementDeviceDialogs {
         ),
         actions: [
           TextButton(
-            onPressed: () => if (context.mounted) context.pop(),
+            onPressed: () {
+              if (context.mounted) context.pop();
+            },
             child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
           ),
           TextButton(
@@ -421,369 +443,380 @@ class PlacementDeviceDialogs {
 
   static void showEditDevice(
     BuildContext context,
+    WidgetRef ref,
     DeviceEntity device,
-    DashboardController dashboardController,
   ) {
     final nameController = TextEditingController(text: device.name);
     final linkedCountController = TextEditingController(
       text: (device.linkedDevicesCount ?? 0).toString(),
     );
-    var selectedType = device.type.obs;
-    var showAsDot = device.showAsDot.obs;
-    var selectedPin = Rx<int?>(device.pin);
+    DeviceType selectedType = device.type;
+    bool showAsDot = device.showAsDot;
+    int? selectedPin = device.pin;
 
-    showDialog(context: context, builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.cardBackground,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-        ),
-        title: const Text(
-          'Edit Device',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: nameController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Device Name',
-                  labelStyle: TextStyle(color: AppTheme.textGrey),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppTheme.primaryBlue),
-                  ),
-                ),
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final dashboardState = ref.watch(dashboardControllerProvider);
+            final dashboardController = ref.read(dashboardControllerProvider.notifier);
+
+            final usedPins = dashboardState.devices
+                .where((d) => d.id != device.id)
+                .map((d) => d.pin)
+                .whereType<int>()
+                .toSet();
+
+            return AlertDialog(
+              backgroundColor: AppTheme.cardBackground,
+              surfaceTintColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+                side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
               ),
-              const SizedBox(height: 20),
-              const Text(
-                'Device Type',
-                style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
+              title: const Text(
+                'Edit Device',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 8),
-              Obx(
-                () => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.black26,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.white12),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<DeviceType>(
-                      value: selectedType.value,
-                      dropdownColor: AppTheme.cardBackground,
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
-                      onChanged: (val) {
-                        if (val != null) selectedType.value = val;
-                      },
-                      items: DeviceType.values.map((type) {
-                        return DropdownMenuItem(
-                          value: type,
-                          child: Row(
-                            children: [
-                              Icon(iconForDeviceType(type),
-                                  color: AppTheme.primaryBlue, size: 18),
-                              const SizedBox(width: 8),
-                              Text(type.name.capitalizeFirst ?? ''),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'Device Name',
+                        labelStyle: TextStyle(color: AppTheme.textGrey),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppTheme.primaryBlue),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'ESP32 Pin / طرف ESP32',
-                style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'الطرف (GPIO) المتحكم في تشغيل وإطفاء الجهاز',
-                style: TextStyle(color: AppTheme.textGrey, fontSize: 10),
-              ),
-              const SizedBox(height: 8),
-              Obx(
-                () {
-                  final usedPins = dashboardController.devices
-                      .where((d) => d.id != device.id)
-                      .map((d) => d.pin)
-                      .whereType<int>()
-                      .toSet();
-
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.white12),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Device Type',
+                      style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
                     ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<int?>(
-                        value: selectedPin.value,
-                        dropdownColor: AppTheme.cardBackground,
-                        isExpanded: true,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
-                        onChanged: (val) {
-                          selectedPin.value = val;
-                        },
-                        items: [
-                          const DropdownMenuItem<int?>(
-                            value: null,
-                            child: Row(
-                              children: [
-                                Icon(Icons.link_off, color: AppTheme.textGrey, size: 18),
-                                SizedBox(width: 8),
-                                Text('None / Not Connected (غير متصل)', style: TextStyle(color: AppTheme.textGrey)),
-                              ],
-                            ),
-                          ),
-                          ...esp32Pins.map((p) {
-                            final pinVal = p['pin'] as int;
-                            final isPwm = p['isPwm'] as bool;
-                            final isUsed = usedPins.contains(pinVal);
-
-                            return DropdownMenuItem<int?>(
-                              value: pinVal,
-                              enabled: !isUsed,
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<DeviceType>(
+                          value: selectedType,
+                          dropdownColor: AppTheme.cardBackground,
+                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setState(() {
+                                selectedType = val;
+                              });
+                            }
+                          },
+                          items: DeviceType.values.map((type) {
+                            final typeName = type.name.substring(0, 1).toUpperCase() + type.name.substring(1);
+                            return DropdownMenuItem(
+                              value: type,
                               child: Row(
                                 children: [
-                                  Icon(
-                                    isPwm ? Icons.waves : Icons.bolt,
-                                    color: isUsed ? Colors.white24 : (isPwm ? Colors.orangeAccent : AppTheme.primaryBlue),
-                                    size: 18,
-                                  ),
+                                  Icon(iconForDeviceType(type),
+                                      color: AppTheme.primaryBlue, size: 18),
                                   const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      p['label'] as String,
-                                      style: TextStyle(
-                                        color: isUsed ? Colors.white24 : Colors.white,
-                                        decoration: isUsed ? TextDecoration.lineThrough : null,
-                                      ),
-                                    ),
-                                  ),
-                                  if (isUsed)
-                                    const Text(
-                                      'In Use (مستعمل)',
-                                      style: TextStyle(color: Colors.redAccent, fontSize: 11),
-                                    ),
+                                  Text(typeName),
                                 ],
                               ),
                             );
-                          }),
-                        ],
+                          }).toList(),
+                        ),
                       ),
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: linkedCountController,
-                style: const TextStyle(color: Colors.white),
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Linked Devices Count',
-                  labelStyle: TextStyle(color: AppTheme.textGrey),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppTheme.primaryBlue),
-                  ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'ESP32 Pin / طرف ESP32',
+                      style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'الطرف (GPIO) المتحكم في تشغيل وإطفاء الجهاز',
+                      style: TextStyle(color: AppTheme.textGrey, fontSize: 10),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<int?>(
+                          value: selectedPin,
+                          dropdownColor: AppTheme.cardBackground,
+                          isExpanded: true,
+                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          onChanged: (val) {
+                            setState(() {
+                              selectedPin = val;
+                            });
+                          },
+                          items: [
+                            const DropdownMenuItem<int?>(
+                              value: null,
+                              child: Row(
+                                children: [
+                                  Icon(Icons.link_off, color: AppTheme.textGrey, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('None / Not Connected (غير متصل)', style: TextStyle(color: AppTheme.textGrey)),
+                                ],
+                              ),
+                            ),
+                            ...esp32Pins.map((p) {
+                              final pinVal = p['pin'] as int;
+                              final isPwm = p['isPwm'] as bool;
+                              final isUsed = usedPins.contains(pinVal);
+
+                              return DropdownMenuItem<int?>(
+                                value: pinVal,
+                                enabled: !isUsed,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      isPwm ? Icons.waves : Icons.bolt,
+                                      color: isUsed ? Colors.white24 : (isPwm ? Colors.orangeAccent : AppTheme.primaryBlue),
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        p['label'] as String,
+                                        style: TextStyle(
+                                          color: isUsed ? Colors.white24 : Colors.white,
+                                          decoration: isUsed ? TextDecoration.lineThrough : null,
+                                        ),
+                                      ),
+                                    ),
+                                    if (isUsed)
+                                      const Text(
+                                        'In Use (مستعمل)',
+                                        style: TextStyle(color: Colors.redAccent, fontSize: 11),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: linkedCountController,
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Linked Devices Count',
+                        labelStyle: TextStyle(color: AppTheme.textGrey),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppTheme.primaryBlue),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SwitchListTile(
+                      title: const Text(
+                        'Show as Glowing Dot',
+                        style: TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                      subtitle: const Text(
+                        'Compact glowing marker instead of card',
+                        style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
+                      ),
+                      value: showAsDot,
+                      activeThumbColor: AppTheme.primaryBlue,
+                      contentPadding: EdgeInsets.zero,
+                      onChanged: (val) {
+                        setState(() {
+                          showAsDot = val;
+                        });
+                      },
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 20),
-              Obx(
-                () => SwitchListTile(
-                  title: const Text(
-                    'Show as Glowing Dot',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                  subtitle: const Text(
-                    'Compact glowing marker instead of card',
-                    style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
-                  ),
-                  value: showAsDot.value,
-                  activeThumbColor: AppTheme.primaryBlue,
-                  contentPadding: EdgeInsets.zero,
-                  onChanged: (val) => showAsDot.value = val,
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    if (context.mounted) context.pop();
+                  },
+                  child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
                 ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              if (context.mounted) context.pop();
-            },
-            child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
-          ),
-          TextButton(
-            onPressed: () {
-              final name = nameController.text.trim();
-              if (name.isEmpty) return;
-              final linkedCount = int.tryParse(linkedCountController.text) ?? 0;
-              DeviceEntity updated = device;
-              
-              if (device.type == selectedType.value) {
-                // If type hasn't changed, we can safely copy the specific subclass
-                if (device is DoorDeviceEntity) {
-                  updated = device.copyWith(
-                    name: name,
-                    showAsDot: showAsDot.value,
-                    pin: selectedPin.value,
-                    linkedDevicesCount: linkedCount,
-                  );
-                } else if (device is AcDeviceEntity) {
-                  updated = device.copyWith(
-                    name: name,
-                    showAsDot: showAsDot.value,
-                    pin: selectedPin.value,
-                  );
-                } else if (device is LampDeviceEntity) {
-                  updated = device.copyWith(
-                    name: name,
-                    showAsDot: showAsDot.value,
-                    pin: selectedPin.value,
-                  );
-                } else if (device is RgbLampDeviceEntity) {
-                  updated = device.copyWith(
-                    name: name,
-                    showAsDot: showAsDot.value,
-                    pin: selectedPin.value,
-                  );
-                } else if (device is VacuumDeviceEntity) {
-                  updated = device.copyWith(
-                    name: name,
-                    showAsDot: showAsDot.value,
-                    pin: selectedPin.value,
-                  );
-                } else {
-                  updated = device; // Should not happen
-                }
-              } else {
-                // If type changed, create a new instance of the correct subclass
-                // retaining common properties like id, roomId, position.
-                switch (selectedType.value) {
-                  case DeviceType.airConditioner:
-                    updated = AcDeviceEntity(
-                      id: device.id,
-                      name: name,
-                      isOn: device.isOn,
-                      roomId: device.roomId,
-                      positionX: device.positionX,
-                      positionY: device.positionY,
-                      markerWidth: device.markerWidth,
-                      markerHeight: device.markerHeight,
-                      matterNodeId: device.matterNodeId,
-                      matterEndpointId: device.matterEndpointId,
-                      showAsDot: showAsDot.value,
-                      pin: selectedPin.value,
-                      temperature: 24,
-                      mode: 'Auto mode',
-                      coolingTime: 0,
-                      acIrCodes: const AcIrCodes(),
-                    );
-                    break;
-                  case DeviceType.lamp:
-                    updated = LampDeviceEntity(
-                      id: device.id,
-                      name: name,
-                      isOn: device.isOn,
-                      roomId: device.roomId,
-                      positionX: device.positionX,
-                      positionY: device.positionY,
-                      markerWidth: device.markerWidth,
-                      markerHeight: device.markerHeight,
-                      matterNodeId: device.matterNodeId,
-                      matterEndpointId: device.matterEndpointId,
-                      showAsDot: showAsDot.value,
-                      pin: selectedPin.value,
-                      brightness: 50,
-                    );
-                    break;
-                  case DeviceType.rgb:
-                    updated = RgbLampDeviceEntity(
-                      id: device.id,
-                      name: name,
-                      isOn: device.isOn,
-                      roomId: device.roomId,
-                      positionX: device.positionX,
-                      positionY: device.positionY,
-                      markerWidth: device.markerWidth,
-                      markerHeight: device.markerHeight,
-                      matterNodeId: device.matterNodeId,
-                      matterEndpointId: device.matterEndpointId,
-                      showAsDot: showAsDot.value,
-                      pin: selectedPin.value,
-                      brightness: 50,
-                      rgbR: 255,
-                      rgbG: 255,
-                      rgbB: 255,
-                    );
-                    break;
-                  case DeviceType.door:
-                    updated = DoorDeviceEntity(
-                      id: device.id,
-                      name: name,
-                      isOn: device.isOn,
-                      roomId: device.roomId,
-                      positionX: device.positionX,
-                      positionY: device.positionY,
-                      markerWidth: device.markerWidth,
-                      markerHeight: device.markerHeight,
-                      matterNodeId: device.matterNodeId,
-                      matterEndpointId: device.matterEndpointId,
-                      showAsDot: showAsDot.value,
-                      pin: selectedPin.value,
-                      isLocked: true,
-                      linkedDevicesCount: linkedCount,
-                    );
-                    break;
-                  case DeviceType.vacuum:
-                    updated = VacuumDeviceEntity(
-                      id: device.id,
-                      name: name,
-                      isOn: device.isOn,
-                      roomId: device.roomId,
-                      positionX: device.positionX,
-                      positionY: device.positionY,
-                      markerWidth: device.markerWidth,
-                      markerHeight: device.markerHeight,
-                      matterNodeId: device.matterNodeId,
-                      matterEndpointId: device.matterEndpointId,
-                      showAsDot: showAsDot.value,
-                      pin: selectedPin.value,
-                      batteryLevel: 100,
-                      areaCleaned: 0,
-                      cleaningTime: 0,
-                      filterStatus: 100,
-                    );
-                    break;
-                }
-              }
-              dashboardController.updateDevice(updated);
-              if (context.mounted) context.pop();
-            },
-            child: const Text(
-              'Save',
-              style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
+                TextButton(
+                  onPressed: () {
+                    final name = nameController.text.trim();
+                    if (name.isEmpty) return;
+                    final linkedCount = int.tryParse(linkedCountController.text) ?? 0;
+                    DeviceEntity updated = device;
+
+                    if (device.type == selectedType) {
+                      if (device is DoorDeviceEntity) {
+                        updated = device.copyWith(
+                          name: name,
+                          showAsDot: showAsDot,
+                          pin: selectedPin,
+                          linkedDevicesCount: linkedCount,
+                        );
+                      } else if (device is AcDeviceEntity) {
+                        updated = device.copyWith(
+                          name: name,
+                          showAsDot: showAsDot,
+                          pin: selectedPin,
+                        );
+                      } else if (device is LampDeviceEntity) {
+                        updated = device.copyWith(
+                          name: name,
+                          showAsDot: showAsDot,
+                          pin: selectedPin,
+                        );
+                      } else if (device is RgbLampDeviceEntity) {
+                        updated = device.copyWith(
+                          name: name,
+                          showAsDot: showAsDot,
+                          pin: selectedPin,
+                        );
+                      } else if (device is VacuumDeviceEntity) {
+                        updated = device.copyWith(
+                          name: name,
+                          showAsDot: showAsDot,
+                          pin: selectedPin,
+                        );
+                      } else {
+                        updated = device;
+                      }
+                    } else {
+                      switch (selectedType) {
+                        case DeviceType.airConditioner:
+                          updated = AcDeviceEntity(
+                            id: device.id,
+                            name: name,
+                            isOn: device.isOn,
+                            roomId: device.roomId,
+                            positionX: device.positionX,
+                            positionY: device.positionY,
+                            markerWidth: device.markerWidth,
+                            markerHeight: device.markerHeight,
+                            matterNodeId: device.matterNodeId,
+                            matterEndpointId: device.matterEndpointId,
+                            showAsDot: showAsDot,
+                            pin: selectedPin,
+                            temperature: 24,
+                            mode: 'Auto mode',
+                            coolingTime: 0,
+                            acIrCodes: const AcIrCodes(),
+                          );
+                          break;
+                        case DeviceType.lamp:
+                          updated = LampDeviceEntity(
+                            id: device.id,
+                            name: name,
+                            isOn: device.isOn,
+                            roomId: device.roomId,
+                            positionX: device.positionX,
+                            positionY: device.positionY,
+                            markerWidth: device.markerWidth,
+                            markerHeight: device.markerHeight,
+                            matterNodeId: device.matterNodeId,
+                            matterEndpointId: device.matterEndpointId,
+                            showAsDot: showAsDot,
+                            pin: selectedPin,
+                            brightness: 50,
+                          );
+                          break;
+                        case DeviceType.rgb:
+                          updated = RgbLampDeviceEntity(
+                            id: device.id,
+                            name: name,
+                            isOn: device.isOn,
+                            roomId: device.roomId,
+                            positionX: device.positionX,
+                            positionY: device.positionY,
+                            markerWidth: device.markerWidth,
+                            markerHeight: device.markerHeight,
+                            matterNodeId: device.matterNodeId,
+                            matterEndpointId: device.matterEndpointId,
+                            showAsDot: showAsDot,
+                            pin: selectedPin,
+                            brightness: 50,
+                            rgbR: 255,
+                            rgbG: 255,
+                            rgbB: 255,
+                          );
+                          break;
+                        case DeviceType.door:
+                          updated = DoorDeviceEntity(
+                            id: device.id,
+                            name: name,
+                            isOn: device.isOn,
+                            roomId: device.roomId,
+                            positionX: device.positionX,
+                            positionY: device.positionY,
+                            markerWidth: device.markerWidth,
+                            markerHeight: device.markerHeight,
+                            matterNodeId: device.matterNodeId,
+                            matterEndpointId: device.matterEndpointId,
+                            showAsDot: showAsDot,
+                            pin: selectedPin,
+                            isLocked: true,
+                            linkedDevicesCount: linkedCount,
+                          );
+                          break;
+                        case DeviceType.vacuum:
+                          updated = VacuumDeviceEntity(
+                            id: device.id,
+                            name: name,
+                            isOn: device.isOn,
+                            roomId: device.roomId,
+                            positionX: device.positionX,
+                            positionY: device.positionY,
+                            markerWidth: device.markerWidth,
+                            markerHeight: device.markerHeight,
+                            matterNodeId: device.matterNodeId,
+                            matterEndpointId: device.matterEndpointId,
+                            showAsDot: showAsDot,
+                            pin: selectedPin,
+                            batteryLevel: 100,
+                            areaCleaned: 0,
+                            cleaningTime: 0,
+                            filterStatus: 100,
+                          );
+                          break;
+                      }
+                    }
+                    dashboardController.updateDevice(updated);
+                    if (context.mounted) context.pop();
+                  },
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
