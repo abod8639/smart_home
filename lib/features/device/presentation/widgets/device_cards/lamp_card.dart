@@ -37,9 +37,10 @@ class LampCard extends ConsumerWidget {
     final isDeviceOn = device.isOn;
     final brightnessVal = device.brightness ?? 0;
 
-    // Calculate dynamic glow parameters based on brightness
-    final double glowOpacity = isDeviceOn ? (brightnessVal / 100.0 * 0.5).clamp(0.1, 0.5) : 0.0;
-    final double glowSize = isDeviceOn ? (60.0 + (brightnessVal / 100.0 * 60.0)) : 0.0;
+    // Calculate dynamic glow parameters based on brightness (normalized to 0-1)
+    final normalizedBrightness = brightnessVal / 255.0;
+    final double glowOpacity = isDeviceOn ? (normalizedBrightness * 0.5).clamp(0.1, 0.5) : 0.0;
+    final double glowSize = isDeviceOn ? (60.0 + (normalizedBrightness * 60.0)) : 0.0;
 
     final isMobile = Responsive.isMobile(context);
     final double cardWidth = isMobile ? 210.0 : 240.0;
@@ -265,7 +266,7 @@ class LampCard extends ConsumerWidget {
                           child: Slider(
                             value: brightnessVal.toDouble(),
                             min: 0,
-                            max: 100,
+                            max: 255,
                             onChanged: (val) {
                               controller.updateDeviceBrightness(device.id, val.round());
                             },
@@ -275,7 +276,7 @@ class LampCard extends ConsumerWidget {
                       SizedBox(
                         width: 32,
                         child: Text(
-                          '$brightnessVal%', 
+                          '${(brightnessVal / 255 * 100).toInt()}%', 
                           style: TextStyle(
                             color: isDeviceOn ? Colors.white : AppTheme.textGrey, 
                             fontSize: 11,
