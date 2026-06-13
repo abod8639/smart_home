@@ -97,7 +97,7 @@ class LoginPage extends ConsumerWidget {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: const Text('Failed to sign in with Google or cancelled.'),
-                                backgroundColor: Colors.redAccent.withOpacity(0.8),
+                                backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
                               ),
                             );
                           }
