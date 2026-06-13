@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -35,7 +36,14 @@ class EspResponse<T> {
   }
 }
 
-final isConnectedProvider = StateProvider<bool>((ref) => false);
+
+class IsConnectedNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+  void set(bool val) => state = val;
+}
+final isConnectedProvider = NotifierProvider<IsConnectedNotifier, bool>(IsConnectedNotifier.new);
+
 
 /// Professional and flexible control service for ESP32 microcontrollers using MQTT
 @Riverpod(keepAlive: true)
@@ -44,6 +52,8 @@ class Esp32Service extends _$Esp32Service {
   
   Completer<IrCodeEntity>? _irLearnCompleter;
   Completer<Map<String, dynamic>>? _stateCompleter;
+
+  bool get isConnected => _client?.connectionStatus?.state == MqttConnectionState.connected;
   
   // Broker URL
   String get brokerUrl => ref.read(settingsControllerProvider).ipAddress;
