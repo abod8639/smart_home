@@ -143,6 +143,7 @@ class SettingsController extends _$SettingsController {
 
   Future<void> _loadIpAddress() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!ref.mounted) return;
     final savedIp = prefs.getString(_ipKey);
     if (savedIp != null && savedIp.isNotEmpty) {
       state = state.copyWith(ipAddress: savedIp);
@@ -151,14 +152,20 @@ class SettingsController extends _$SettingsController {
   }
 
   Future<void> checkHubConnection() async {
+    if (!ref.mounted) return;
     state = state.copyWith(isCheckingHub: true);
     try {
       final result = await ref.read(esp32ServiceProvider.notifier).pingHub();
+      if (!ref.mounted) return;
       state = state.copyWith(isHubReachable: result.isSuccess);
     } catch (e) {
-      state = state.copyWith(isHubReachable: false);
+      if (ref.mounted) {
+        state = state.copyWith(isHubReachable: false);
+      }
     } finally {
-      state = state.copyWith(isCheckingHub: false);
+      if (ref.mounted) {
+        state = state.copyWith(isCheckingHub: false);
+      }
     }
   }
 
