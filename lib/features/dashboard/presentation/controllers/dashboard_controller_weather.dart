@@ -68,19 +68,6 @@ extension DashboardControllerWeather on DashboardController {
     }
   }
 
-  // Format date to: weekday, month day
-  String _getFormattedDate() {
-    final now = DateTime.now();
-    final weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    final months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    final weekday = weekdays[now.weekday - 1];
-    final month = months[now.month - 1];
-    return '$weekday, $month ${now.day}';
-  }
-
   // Map WMO codes to weather conditions
   String _mapWeatherCode(int code, int dayFlag) {
     final isNight = dayFlag == 0;
