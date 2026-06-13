@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -23,20 +24,30 @@ Future<void> main() async {
     debugPrint("Warning: Could not load .env file: $e");
   }
 
-  try {
-    await Firebase.initializeApp(
-      
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    // Register background messaging handler
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  } catch (e) {
-    if (e.toString().contains('duplicate-app')) {
-      // Firebase already initialized, safe to ignore.
-    } else {
-      rethrow;
+  // Only initialize Firebase if the platform is supported
+  final isFirebaseSupported = kIsWeb ||
+      defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+
+  if (isFirebaseSupported) {
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      // Register background messaging handler
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    } catch (e) {
+      if (e.toString().contains('duplicate-app')) {
+        // Firebase already initialized, safe to ignore.
+      } else {
+        rethrow;
+      }
     }
+  } else {
+    debugPrint("Firebase is not supported on this platform ($defaultTargetPlatform). Skipping initialization.");
   }
+  
   await HiveService.init();
   runApp(const SmartHomeApp());
 }
