@@ -26,7 +26,9 @@ class ProfileCard extends GetView<SettingsController> {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(
-                    image: AssetImage('assets/images/user_avatar.png'),
+                    image: NetworkImage(
+                      'https://avatars.githubusercontent.com/u/108903062?v=4',
+                    ),
                     fit: BoxFit.cover,
                   ),
                 ),
