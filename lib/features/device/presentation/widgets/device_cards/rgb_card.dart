@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
@@ -7,15 +7,15 @@ import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/glass_switch.dart';
 
-class RgbCard extends StatelessWidget {
+class RgbCard extends ConsumerWidget {
   final DeviceEntity device;
   final VoidCallback onToggle;
 
   const RgbCard({super.key, required this.device, required this.onToggle});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.find<DashboardController>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(dashboardControllerProvider.notifier);
 
     final r = device.rgbR ?? 255;
     final g = device.rgbG ?? 0;
