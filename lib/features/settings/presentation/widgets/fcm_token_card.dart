@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/services/notification_service.dart';
 import 'package:smart_home/features/settings/presentation/widgets/settings_row.dart';
 
-class FcmTokenCard extends StatelessWidget {
+class FcmTokenCard extends ConsumerWidget {
   const FcmTokenCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notificationService = ref.read(notificationServiceProvider.notifier);
     final isMobile = Responsive.isMobile(context);
-    final notificationService = Get.find<NotificationService>();
 
     return GlassContainer(
       padding: EdgeInsets.all(isMobile ? 16 : 24),
@@ -43,8 +44,8 @@ class FcmTokenCard extends StatelessWidget {
           const SizedBox(height: 20),
 
           // 1. Permission Status
-          Obx(() {
-            final hasPermission = notificationService.hasPermission.value;
+          Consumer(builder: (context, ref, _) {
+            final hasPermission = ref.watch(hasNotificationPermissionProvider);
             return SettingsRow(
               icon: Icons.security_outlined,
               title: 'Notification Status',
@@ -79,8 +80,8 @@ class FcmTokenCard extends StatelessWidget {
           const Divider(color: Colors.white10, height: 32),
 
           // 2. Request Permission (Only show if not authorized)
-          Obx(() {
-            final hasPermission = notificationService.hasPermission.value;
+          Consumer(builder: (context, ref, _) {
+            final hasPermission = ref.watch(hasNotificationPermissionProvider);
             if (hasPermission) return const SizedBox.shrink();
 
             return Column(
@@ -113,8 +114,8 @@ class FcmTokenCard extends StatelessWidget {
           }),
 
           // 3. FCM Device Token Row
-          Obx(() {
-            final token = notificationService.fcmToken.value;
+          Consumer(builder: (context, ref, _) {
+            final token = ref.watch(fcmTokenProvider);
             final hasToken = token.isNotEmpty;
 
             // Shorten the token for display
