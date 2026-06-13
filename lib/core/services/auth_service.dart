@@ -36,7 +36,7 @@ class AuthService extends _$AuthService {
         return await _auth.signInWithPopup(authProvider);
       } else {
         // Mobile uses standard flow
-        final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
+        final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
         if (googleUser == null) return null;
 
         final GoogleSignInAuthentication googleAuth = googleUser.authentication;
