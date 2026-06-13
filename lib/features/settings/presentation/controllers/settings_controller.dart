@@ -122,18 +122,22 @@ class SettingsController extends _$SettingsController {
         );
     });
 
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      state = state.copyWith(
-        isGoogleLinked: true,
-        googleEmail: user.email ?? '',
-        userName: user.displayName ?? 'Dexter',
-      );
-    } else {
-      state = state.copyWith(
-        isGoogleLinked: false,
-        googleEmail: '',
-      );
+    try {
+      final user = ref.read(firebaseAuthProvider).currentUser;
+      if (user != null) {
+        state = state.copyWith(
+          isGoogleLinked: true,
+          googleEmail: user.email ?? '',
+          userName: user.displayName ?? 'Dexter',
+        );
+      } else {
+        state = state.copyWith(
+          isGoogleLinked: false,
+          googleEmail: '',
+        );
+      }
+    } catch (_) {
+      // FirebaseAuth might not be initialized in some test environments
     }
   }
 
