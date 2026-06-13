@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
@@ -75,8 +76,7 @@ class PlacementDeviceDialogs {
     var showAsDot = false.obs;
     var selectedPin = Rx<int?>(null);
 
-    Get.dialog(
-      AlertDialog(
+    showDialog(context: context, builder: (context) => AlertDialog(
         backgroundColor: AppTheme.cardBackground,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -278,21 +278,14 @@ class PlacementDeviceDialogs {
         ),
         actions: [
           TextButton(
-            onPressed: () => Get.back(),
+            onPressed: () => if (context.mounted) context.pop(),
             child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
           ),
           TextButton(
             onPressed: () {
               final name = nameController.text.trim();
               if (name.isEmpty) {
-                Get.snackbar(
-                  'Validation',
-                  'Device name cannot be empty',
-                  backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-                  colorText: Colors.white,
-                  snackPosition: SnackPosition.BOTTOM,
-                  margin: const EdgeInsets.all(16),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Validation' + ': ' + 'Device name cannot be empty')));
                 return;
               }
               final linkedCount = int.tryParse(linkedCountController.text) ?? 0;
@@ -368,7 +361,7 @@ class PlacementDeviceDialogs {
               }
               dashboardController.addDevice(newDevice);
               placementController.selectDevice(newDevice.id);
-              Get.back();
+              if (context.mounted) context.pop();
             },
             child: const Text(
               'Add',
@@ -388,8 +381,7 @@ class PlacementDeviceDialogs {
     DashboardController dashboardController,
     RoomPlacementController placementController,
   ) {
-    Get.dialog(
-      AlertDialog(
+    showDialog(context: context, builder: (context) => AlertDialog(
         backgroundColor: AppTheme.cardBackground,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -406,14 +398,14 @@ class PlacementDeviceDialogs {
         ),
         actions: [
           TextButton(
-            onPressed: () => Get.back(),
+            onPressed: () => if (context.mounted) context.pop(),
             child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
           ),
           TextButton(
             onPressed: () {
               dashboardController.deleteDevice(device.id);
               placementController.selectDevice(null);
-              Get.back();
+              if (context.mounted) context.pop();
             },
             child: const Text(
               'Delete',
@@ -440,8 +432,7 @@ class PlacementDeviceDialogs {
     var showAsDot = device.showAsDot.obs;
     var selectedPin = Rx<int?>(device.pin);
 
-    Get.dialog(
-      AlertDialog(
+    showDialog(context: context, builder: (context) => AlertDialog(
         backgroundColor: AppTheme.cardBackground,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -634,7 +625,9 @@ class PlacementDeviceDialogs {
         ),
         actions: [
           TextButton(
-            onPressed: () => Get.back(),
+            onPressed: () {
+              if (context.mounted) context.pop();
+            },
             child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
           ),
           TextButton(
@@ -642,7 +635,7 @@ class PlacementDeviceDialogs {
               final name = nameController.text.trim();
               if (name.isEmpty) return;
               final linkedCount = int.tryParse(linkedCountController.text) ?? 0;
-              DeviceEntity updated;
+              DeviceEntity updated = device;
               
               if (device.type == selectedType.value) {
                 // If type hasn't changed, we can safely copy the specific subclass
@@ -782,7 +775,7 @@ class PlacementDeviceDialogs {
                 }
               }
               dashboardController.updateDevice(updated);
-              Get.back();
+              if (context.mounted) context.pop();
             },
             child: const Text(
               'Save',
