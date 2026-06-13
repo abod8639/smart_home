@@ -1,10 +1,15 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-class FirebaseService extends GetxService {
+part 'firebase_service.g.dart';
+
+@Riverpod(keepAlive: true)
+class FirebaseService extends _$FirebaseService {
+  @override
+  void build() {}
   FirebaseDatabase? get _db {
     if (Firebase.apps.isEmpty) return null;
     

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/pages/remote_page.dart';
@@ -13,12 +13,13 @@ import 'package:smart_home/features/device/presentation/widgets/device_cards/lam
 import 'package:smart_home/features/device/presentation/widgets/device_cards/vacuum_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/door_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/rgb_card.dart';
+import 'package:go_router/go_router.dart';
 
-class DashboardMainView extends GetView<DashboardController> {
+class DashboardMainView extends ConsumerWidget {
   const DashboardMainView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final gap = Responsive.contentGap(context);
     final deviceHeight = Responsive.deviceCardsHeight(context);
     final padding = Responsive.pagePadding(context);
@@ -47,7 +48,7 @@ class DashboardMainView extends GetView<DashboardController> {
                     ),
                   ),
                   SizedBox(height: gap * 0.5),
-                  SizedBox(height: deviceHeight, child: buildDeviceCards()),
+                  SizedBox(height: deviceHeight, child: buildDeviceCards(ref, context)),
                   SizedBox(height: gap),
                   Text(
                     'Rooms',
@@ -66,64 +67,6 @@ class DashboardMainView extends GetView<DashboardController> {
             ),
           );
         }
-
-        // tablet view with spacing
-        // if (Responsive.isTablet(context)) {
-        //   // Tablet / Medium Layout: Scrollable Column with side-by-side preview and weather
-        //   return SingleChildScrollView(
-        //     physics: const BouncingScrollPhysics(),
-        //     child: Padding(
-        //       padding: EdgeInsets.all(padding),
-        //       child: Column(
-        //         crossAxisAlignment: CrossAxisAlignment.stretch,
-        //         children: [
-        //           // Top section: Room Preview & Weather side-by-side
-        //           Row(
-        //             crossAxisAlignment: CrossAxisAlignment.start,
-        //             children: [
-        //               const Expanded(flex: 5, child: RoomPreviewWidget()),
-        //               SizedBox(width: gap),
-        //               // const SizedBox(
-        //               //   width: 280,
-        //               //   child: WeatherUpdateWidget(),
-        //               // ),
-        //             ],
-        //           ),
-        //           SizedBox(height: gap),
-
-        //           // Rooms section
-        //           Text(
-        //             'Rooms',
-        //             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-        //               color: Colors.white,
-        //               fontWeight: FontWeight.bold,
-        //               fontSize: 18,
-        //             ),
-        //           ),
-        //           SizedBox(height: gap * 0.5),
-        //           const SizedBox(
-        //             height: 130, // Fits the horizontal room card height
-        //             child: RoomsListWidget(isCompact: true),
-        //           ),
-        //           SizedBox(height: gap),
-
-        //           // Devices section
-        //           Text(
-        //             'Devices',
-        //             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-        //               color: Colors.white,
-        //               fontWeight: FontWeight.bold,
-        //               fontSize: 18,
-        //             ),
-        //           ),
-        //           SizedBox(height: gap * 0.5),
-        //           SizedBox(height: deviceHeight, child: buildDeviceCards()),
-        //           SizedBox(height: gap * 2),
-        //         ],
-        //       ),
-            // ),
-          // );
-        // }
 
         // Desktop / Wide Layout (width >= 950): 2-Column Layout
         final previewWidth = constraints.maxWidth - 320 - gap - (padding * 2);
@@ -185,7 +128,7 @@ class DashboardMainView extends GetView<DashboardController> {
                 ),
                 SizedBox(height: gap * 0.5),
             
-                SizedBox(height: deviceHeight, child: buildDeviceCards()),
+                SizedBox(height: deviceHeight, child: buildDeviceCards(ref, context)),
                 SizedBox(height: gap),
               ],
             ),
@@ -196,97 +139,101 @@ class DashboardMainView extends GetView<DashboardController> {
   }
 }
 
-Widget buildDeviceCards() {
-  final DashboardController controller = Get.find();
-  return Obx(() {
-    final activeRoomId = controller.activeRoom?.id ?? '3';
-    final filteredDevices = controller.devices
-        .where(
-          (d) =>
-              d.roomId == activeRoomId ||
-              (d.roomId == null && activeRoomId == '3'),
-        )
-        .toList();
+Widget buildDeviceCards(WidgetRef ref, BuildContext context) {
+  final dashboardState = ref.watch(dashboardControllerProvider);
+  final dashboardController = ref.read(dashboardControllerProvider.notifier);
+  
+  final activeRoomId = dashboardState.activeRoom?.id ?? '3';
+  final filteredDevices = dashboardState.devices
+      .where(
+        (d) =>
+            d.roomId == activeRoomId ||
+            (d.roomId == null && activeRoomId == '3'),
+      )
+      .toList();
 
-    if (filteredDevices.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text(
-            'No devices in this room',
-            style: TextStyle(
-              color: Colors.white38,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+  if (filteredDevices.isEmpty) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text(
+          'No devices in this room',
+          style: TextStyle(
+            color: Colors.white38,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
         ),
-      );
-    }
-
-    return ListView.separated(
-      scrollDirection: Axis.horizontal,
-      itemCount: filteredDevices.length,
-      separatorBuilder: (context, index) =>
-          SizedBox(
-            // height: 10,
-            width: Responsive.contentGap(context)),
-      itemBuilder: (context, index) {
-        final device = filteredDevices[index];
-
-        switch (device.type) {
-          case DeviceType.airConditioner:
-            return GestureDetector(
-              onLongPress: (){
-                // go to remote page
-                Get.to(() => RemotePage(device: device));
-              },
-              child: AcCard(
-                onDecreaseTemp: () {
-                  Get.find<DashboardController>().updateAcTemperature(
-                    device.id,
-                    (device.temperature ?? 24) - 1,
-                  );
-                },
-                device: device,
-                onIncreaseTemp: () {
-                  Get.find<DashboardController>().updateAcTemperature(
-                    device.id,
-                    (device.temperature ?? 24) + 1,
-                  );
-                },
-                onToggle: () => controller.toggleDevice(device.id),
-                onModeChange: (mode) =>
-                    Get.find<DashboardController>().setAcMode(device.id, mode),
-              ),
-            );
-          case DeviceType.lamp:
-            return LampCard(
-              device: device,
-              onToggle: () => controller.toggleDevice(device.id),
-            );
-          case DeviceType.vacuum:
-            return VacuumCard(
-              device: device,
-              onToggle: () => controller.toggleDevice(device.id),
-            );
-          case DeviceType.door:
-            return DoorCard(
-              device: device,
-              onToggle: () => controller.toggleDoor(device.id),
-            );
-          case DeviceType.rgb:
-            return GestureDetector(
-              onLongPress: () {
-                Get.to(() => RgbPage(device: device));
-              },
-              child: RgbCard(
-                device: device,
-                onToggle: () => controller.toggleDevice(device.id),
-              ),
-            );
-        }
-      },
+      ),
     );
-  });
+  }
+
+  return ListView.separated(
+    scrollDirection: Axis.horizontal,
+    itemCount: filteredDevices.length,
+    separatorBuilder: (context, index) =>
+        SizedBox(
+          // height: 10,
+          width: Responsive.contentGap(context)),
+    itemBuilder: (context, index) {
+      final device = filteredDevices[index];
+
+      switch (device.type) {
+        case DeviceType.airConditioner:
+          return GestureDetector(
+            onLongPress: (){
+              // go to remote page using Navigator push
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => RemotePage(device: device))
+              );
+            },
+            child: AcCard(
+              onDecreaseTemp: () {
+                dashboardController.updateAcTemperature(
+                  device.id,
+                  (device.temperature ?? 24) - 1,
+                );
+              },
+              device: device,
+              onIncreaseTemp: () {
+                dashboardController.updateAcTemperature(
+                  device.id,
+                  (device.temperature ?? 24) + 1,
+                );
+              },
+              onToggle: () => dashboardController.toggleDevice(device.id),
+              onModeChange: (mode) =>
+                  dashboardController.setAcMode(context, device.id, mode),
+            ),
+          );
+        case DeviceType.lamp:
+          return LampCard(
+            device: device,
+            onToggle: () => dashboardController.toggleDevice(device.id),
+          );
+        case DeviceType.vacuum:
+          return VacuumCard(
+            device: device,
+            onToggle: () => dashboardController.toggleDevice(device.id),
+          );
+        case DeviceType.door:
+          return DoorCard(
+            device: device,
+            onToggle: () => dashboardController.toggleDoor(device.id),
+          );
+        case DeviceType.rgb:
+          return GestureDetector(
+            onLongPress: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => RgbPage(device: device))
+              );
+            },
+            child: RgbCard(
+              device: device,
+              onToggle: () => dashboardController.toggleDevice(device.id),
+            ),
+          );
+      }
+    },
+  );
 }

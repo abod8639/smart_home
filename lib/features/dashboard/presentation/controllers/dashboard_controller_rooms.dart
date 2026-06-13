@@ -7,33 +7,42 @@ part of 'dashboard_controller.dart';
 
 extension DashboardControllerRooms on DashboardController {
   void selectRoom(String id) {
-    rooms.value = rooms.map((r) => r.copyWith(isActive: r.id == id)).toList();
+    state = state.copyWith(
+      rooms: state.rooms.map((r) => r.copyWith(isActive: r.id == id)).toList()
+    );
     _persistRooms();
-    if (Get.isRegistered<RoomPlacementController>()) {
-      Get.find<RoomPlacementController>().selectDevice(null);
+    
+    // Attempt to clear selected device if RoomPlacementController is loaded
+    try {
+      ref.read(roomPlacementControllerProvider.notifier).selectDevice(null);
+    } catch (_) {
+      // Ignore if provider doesn't exist yet
     }
   }
 
   void addRoom(RoomEntity room) {
-    rooms.add(room);
+    state = state.copyWith(rooms: [...state.rooms, room]);
     _persistRooms();
   }
 
   void updateRoom(RoomEntity room) {
-    final index = rooms.indexWhere((r) => r.id == room.id);
+    final index = state.rooms.indexWhere((r) => r.id == room.id);
     if (index != -1) {
-      rooms[index] = room;
+      final newRooms = List<RoomEntity>.from(state.rooms);
+      newRooms[index] = room;
+      state = state.copyWith(rooms: newRooms);
       _persistRooms();
     }
   }
 
   void deleteRoom(String id) {
-    rooms.removeWhere((r) => r.id == id);
+    final newRooms = state.rooms.where((r) => r.id != id).toList();
     // If the active room is deleted, select the first remaining room
-    final hasActive = rooms.any((r) => r.isActive);
-    if (!hasActive && rooms.isNotEmpty) {
-      rooms[0] = rooms[0].copyWith(isActive: true);
+    final hasActive = newRooms.any((r) => r.isActive);
+    if (!hasActive && newRooms.isNotEmpty) {
+      newRooms[0] = newRooms[0].copyWith(isActive: true);
     }
+    state = state.copyWith(rooms: newRooms);
     _persistRooms();
   }
 }

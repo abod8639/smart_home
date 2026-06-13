@@ -31,7 +31,7 @@ extension Esp32Mqtt on Esp32Service {
 
   void _onConnected() {
     debugPrint('MQTT Connected');
-    isConnected.value = true;
+    ref.read(isConnectedProvider.notifier).state = true;
     
     // Subscribe to topics
     _client!.subscribe(Esp32Service.topicState, MqttQos.atLeastOnce);
@@ -51,7 +51,7 @@ extension Esp32Mqtt on Esp32Service {
 
   void _onDisconnected() {
     debugPrint('MQTT Disconnected');
-    isConnected.value = false;
+    ref.read(isConnectedProvider.notifier).state = false;
     _reconnectAfterDelay();
   }
 
@@ -120,7 +120,7 @@ extension Esp32Mqtt on Esp32Service {
 
   /// Send raw map over MQTT
   bool sendRawMessage(Map<String, dynamic> jsonMap) {
-    if (_client == null || !isConnected.value) {
+    if (_client == null || !ref.read(isConnectedProvider)) {
       debugPrint('Cannot send MQTT message: not connected');
       return false;
     }

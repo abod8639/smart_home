@@ -3,8 +3,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+
+part 'notification_service.g.dart';
+
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 // Top-level background message handler.
 // Must be annotated with @pragma('vm:entry-point')
@@ -18,15 +22,12 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   }
 }
 
-class NotificationService extends GetxService {
+@Riverpod(keepAlive: true)
+class NotificationService extends _$NotificationService {
   late final FirebaseMessaging _fcm;
   
-  final RxString fcmToken = ''.obs;
-  final RxBool hasPermission = false.obs;
-
   @override
-  void onInit() {
-    super.onInit();
+  void build() {
     final isTest = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
     final isSupported = kIsWeb ||
         defaultTargetPlatform == TargetPlatform.android ||
@@ -92,7 +93,7 @@ class NotificationService extends GetxService {
         sound: true,
       );
 
-      hasPermission.value = settings.authorizationStatus == AuthorizationStatus.authorized;
+      ref.read(hasNotificationPermissionProvider.notifier).state = settings.authorizationStatus == AuthorizationStatus.authorized;
 
       if (kDebugMode) {
         print('User granted permission: ${settings.authorizationStatus}');
@@ -108,14 +109,14 @@ class NotificationService extends GetxService {
     try {
       String? token = await _fcm.getToken();
       if (token != null) {
-        fcmToken.value = token;
+        ref.read(fcmTokenProvider.notifier).state = token;
         if (kDebugMode) {
           print('FCM Token: $token');
         }
       }
       // Listen to token refresh
       _fcm.onTokenRefresh.listen((newToken) {
-        fcmToken.value = newToken;
+        ref.read(fcmTokenProvider.notifier).state = newToken;
         if (kDebugMode) {
           print('FCM Token Refreshed: $newToken');
         }
@@ -128,18 +129,36 @@ class NotificationService extends GetxService {
   }
 
   void copyTokenToClipboard() {
-    if (fcmToken.value.isNotEmpty) {
-      Clipboard.setData(ClipboardData(text: fcmToken.value));
-      Get.snackbar(
-        'Success',
-        'FCM Token copied to clipboard',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppTheme.cardBackground,
-        colorText: Colors.white,
-        borderColor: AppTheme.primaryBlue.withValues(alpha: 0.3),
-        borderWidth: 1,
-        margin: const EdgeInsets.all(16),
-        icon: const Icon(Icons.check_circle_outline, color: AppTheme.accentCyan),
+    final fcmToken = ref.read(fcmTokenProvider);
+    if (fcmToken.isNotEmpty) {
+      Clipboard.setData(ClipboardData(text: fcmToken));
+      
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle_outline, color: AppTheme.accentCyan),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Text('Success', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text('FCM Token copied to clipboard', style: TextStyle(color: Colors.white70)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: AppTheme.cardBackground,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.3), width: 1),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          margin: const EdgeInsets.all(16),
+        ),
       );
     }
   }
@@ -148,44 +167,58 @@ class NotificationService extends GetxService {
     final title = message.notification?.title ?? 'Notification';
     final body = message.notification?.body ?? '';
     
-    Get.rawSnackbar(
-      titleText: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
+    scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryPurple.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.notifications_active_outlined,
+                color: AppTheme.primaryBlue,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    body,
+                    style: const TextStyle(
+                      color: AppTheme.textGrey,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: AppTheme.primaryPurple.withOpacity(0.3), width: 1),
+        ),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        duration: const Duration(seconds: 5),
+        dismissDirection: DismissDirection.horizontal,
       ),
-      messageText: Text(
-        body,
-        style: const TextStyle(
-          color: AppTheme.textGrey,
-          fontSize: 14,
-        ),
-      ),
-      icon: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: AppTheme.primaryPurple.withValues(alpha: 0.1),
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(
-          Icons.notifications_active_outlined,
-          color: AppTheme.primaryBlue,
-          size: 24,
-        ),
-      ),
-      backgroundColor: AppTheme.cardBackground,
-      borderRadius: 16,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      padding: const EdgeInsets.all(16),
-      borderColor: AppTheme.primaryPurple.withValues(alpha: 0.3),
-      borderWidth: 1,
-      duration: const Duration(seconds: 5),
-      snackPosition: SnackPosition.TOP,
-      barBlur: 10,
-      dismissDirection: DismissDirection.horizontal,
     );
   }
 
@@ -196,3 +229,6 @@ class NotificationService extends GetxService {
     // Implement custom routing or action here
   }
 }
+
+final fcmTokenProvider = StateProvider<String>((ref) => '');
+final hasNotificationPermissionProvider = StateProvider<bool>((ref) => false);

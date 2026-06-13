@@ -7,8 +7,10 @@ part of 'dashboard_controller.dart';
 extension DashboardControllerWeather on DashboardController {
   // Fetch real weather and geolocation details
   Future<void> fetchLiveWeather() async {
-    isWeatherLoading.value = true;
-    weatherDate.value = _getFormattedDate();
+    state = state.copyWith(
+      isWeatherLoading: true,
+      weatherDate: _getFormattedDate(),
+    );
 
     try {
       // Step 1: Geolocation using ipapi.co
@@ -20,7 +22,7 @@ extension DashboardControllerWeather on DashboardController {
         final double lat = (data['latitude'] as num?)?.toDouble() ?? 30.0507;
         final double lon = (data['longitude'] as num?)?.toDouble() ?? 31.2489;
 
-        weatherLocation.value = '$city, $country';
+        state = state.copyWith(weatherLocation: '$city, $country');
 
         // Step 2: Fetch weather details using Open-Meteo
         final weatherResponse = await dio.get(
@@ -39,24 +41,28 @@ extension DashboardControllerWeather on DashboardController {
             final int code = (weatherData['weathercode'] as num?)?.toInt() ?? 0;
             final int dayFlag = (weatherData['is_day'] as num?)?.toInt() ?? 1;
 
-            weatherTemp.value = '${temp.round()}°C';
-            weatherCode.value = code;
-            isDay.value = dayFlag;
-            weatherCondition.value = _mapWeatherCode(code, dayFlag);
-            weatherSuggestion.value = _generateSuggestion(temp, code);
+            state = state.copyWith(
+              weatherTemp: '${temp.round()}°C',
+              weatherCode: code,
+              isDay: dayFlag,
+              weatherCondition: _mapWeatherCode(code, dayFlag),
+              weatherSuggestion: _generateSuggestion(temp, code),
+            );
           }
         }
       }
     } catch (e) {
       // Fallback gracefully on network error
-      weatherLocation.value = 'Jakarta, Indonesia';
-      weatherTemp.value = '27°C';
-      weatherCondition.value = 'Clear Evening';
-      isDay.value = 0;
-      weatherCode.value = 0;
-      weatherSuggestion.value = "Activate 'Relax Mode', dim lights, soft music, and lower thermostat.";
+      state = state.copyWith(
+        weatherLocation: 'Jakarta, Indonesia',
+        weatherTemp: '27°C',
+        weatherCondition: 'Clear Evening',
+        isDay: 0,
+        weatherCode: 0,
+        weatherSuggestion: "Activate 'Relax Mode', dim lights, soft music, and lower thermostat.",
+      );
     } finally {
-      isWeatherLoading.value = false;
+      state = state.copyWith(isWeatherLoading: false);
     }
   }
 

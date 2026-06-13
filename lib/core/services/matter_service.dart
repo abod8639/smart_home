@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
 import 'package:flutter_matter/flutter_matter.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'matter_service.g.dart';
 
 class MatterResponse<T> {
   final bool isSuccess;
@@ -12,12 +14,12 @@ class MatterResponse<T> {
   MatterResponse.failure(this.errorMessage) : isSuccess = false, data = null;
 }
 
-class MatterService extends GetxService {
+@Riverpod(keepAlive: true)
+class MatterService extends _$MatterService {
   ChipDeviceController? _controller;
 
   @override
-  void onInit() {
-    super.onInit();
+  void build() {
     debugPrint('MatterService initialized');
   }
 

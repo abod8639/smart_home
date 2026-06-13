@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:uuid/uuid.dart';
@@ -16,6 +16,7 @@ part 'esp32/esp32_mqtt.dart';
 part 'esp32/esp32_firebase.dart';
 part 'esp32/esp32_controller_sync.dart';
 part 'esp32/esp32_api.dart';
+part 'esp32_service.g.dart';
 
 /// Generic response wrapper for ESP32 operations
 class EspResponse<T> {
@@ -33,19 +34,18 @@ class EspResponse<T> {
   }
 }
 
+final isConnectedProvider = StateProvider<bool>((ref) => false);
+
 /// Professional and flexible control service for ESP32 microcontrollers using MQTT
-class Esp32Service extends GetxService {
+@Riverpod(keepAlive: true)
+class Esp32Service extends _$Esp32Service {
   MqttServerClient? _client;
-  final isConnected = false.obs;
   
   Completer<IrCodeEntity>? _irLearnCompleter;
   Completer<Map<String, dynamic>>? _stateCompleter;
   
-  // Retrieves SettingsController which holds the current broker URL (formerly IP)
-  SettingsController get _settings => Get.find<SettingsController>();
-
   // Broker URL
-  String get brokerUrl => _settings.ipAddress.value;
+  String get brokerUrl => ref.read(settingsControllerProvider).ipAddress;
 
   // Device ID must match ESP32
   static const String deviceId = 'esp32_smart_home_1';
@@ -58,7 +58,7 @@ class Esp32Service extends GetxService {
   static const String topicStatus = 'smarthome/$deviceId/status';
 
   // Retrieves FirebaseService for external network fallback
-  FirebaseService get _firebase => Get.find<FirebaseService>();
+  FirebaseService get _firebase => ref.read(firebaseServiceProvider.notifier);
 
   // Subscription list for cleaning up Firebase listeners if needed
   final List<StreamSubscription> _firebaseSubscriptions = [];
@@ -66,32 +66,30 @@ class Esp32Service extends GetxService {
   bool _reconnecting = false;
 
   @override
-  void onInit() { 
-    super.onInit();
-    
+  void build() { 
     final isTest = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
     if (!isTest) {
       // Initialize MQTT connection
       _connectMqtt();
       
       // Auto-reconnect if the broker address configuration changes
-      ever(_settings.ipAddress, (_) {
-        debugPrint('MQTT Broker URL changed, reconnecting...');
-        _reconnect();
+      ref.listen(settingsControllerProvider.select((s) => s.ipAddress), (prev, next) {
+        if (prev != next) {
+          debugPrint('MQTT Broker URL changed, reconnecting...');
+          _reconnect();
+        }
       });
 
       // Start listening to Firebase states to sync UI when MQTT is disconnected
       _initFirebaseSync();
     }
-  }
-
-  @override
-  void onClose() {
-    _disconnectMqtt();
-    for (var sub in _firebaseSubscriptions) {
-      sub.cancel();
-    }
-    super.onClose();
+    
+    ref.onDispose(() {
+      _disconnectMqtt();
+      for (var sub in _firebaseSubscriptions) {
+        sub.cancel();
+      }
+    });
   }
 
   // ─────────────── DYNAMIC DISPATCH / MOCKING SUPPORT ───────────────

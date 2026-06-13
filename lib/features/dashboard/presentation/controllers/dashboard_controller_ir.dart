@@ -6,25 +6,28 @@ part of 'dashboard_controller.dart';
 
 extension DashboardControllerIr on DashboardController {
   void updateAcTemperature(String id, int temp) async {
-    final index = devices.indexWhere((d) => d.id == id);
+    final index = state.devices.indexWhere((d) => d.id == id);
     if (index != -1) {
-      final device = devices[index];
+      final newDevices = List<DeviceEntity>.from(state.devices);
+      final device = newDevices[index];
       if (device is AcDeviceEntity) {
         final oldTemp = device.temperature ?? 24;
         final newTemp = temp.clamp(16, 30);
         final delta = newTemp - oldTemp;
 
-        devices[index] = device.copyWith(temperature: newTemp);
+        newDevices[index] = device.copyWith(temperature: newTemp);
+        state = state.copyWith(devices: newDevices);
         _persistDevices();
 
-        if (delta == 0 || !Get.isRegistered<Esp32Service>()) return;
+        if (delta == 0) return;
 
         if (delta > 0 && device.acIrCodes.irTempUp != null) {
-          await _sendIrRepeated(device.acIrCodes.irTempUp!, delta.abs());
+          await _sendIrRepeated(null, device.acIrCodes.irTempUp!, delta.abs());
         } else if (delta < 0 && device.acIrCodes.irTempDown != null) {
-          await _sendIrRepeated(device.acIrCodes.irTempDown!, delta.abs());
+          await _sendIrRepeated(null, device.acIrCodes.irTempDown!, delta.abs());
         } else {
-          Get.find<Esp32Service>().sendRawCommand(
+          final esp32 = ref.read(esp32ServiceProvider.notifier);
+          esp32.sendRawCommand(
             'control/ac',
             method: 'POST',
             data: {'target_temp': newTemp},
@@ -36,11 +39,12 @@ extension DashboardControllerIr on DashboardController {
 
   /// Activates the given AC [mode]: sends the learned IR signal and
   /// updates the device [mode] field to reflect it in the UI.
-  void setAcMode(String id, String mode) {
-    final index = devices.indexWhere((d) => d.id == id);
+  void setAcMode(BuildContext context, String id, String mode) {
+    final index = state.devices.indexWhere((d) => d.id == id);
     if (index == -1) return;
 
-    final device = devices[index];
+    final newDevices = List<DeviceEntity>.from(state.devices);
+    final device = newDevices[index];
     if (device is! AcDeviceEntity) return;
 
     // Resolve which stored IR code corresponds to the requested mode
@@ -54,30 +58,30 @@ extension DashboardControllerIr on DashboardController {
     };
 
     if (irCode == null) {
-      Get.snackbar(
-        'Error',
-         '$mode hasn\'t been set yet.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF1E293B),
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$mode hasn\'t been set yet.'),
+          backgroundColor: const Color(0xFF1E293B),
+        ),
       );
       return;
     }
 
     // Update mode label in UI and turn the device ON
-    devices[index] = device.copyWith(mode: mode, isOn: true);
+    newDevices[index] = device.copyWith(mode: mode, isOn: true);
+    state = state.copyWith(devices: newDevices);
     _persistDevices();
 
     // Send IR signal
-    sendIrCommand(irCode);
+    sendIrCommand(context, irCode);
   }
 
   /// Sends the same IR code [count] times sequentially (for temp up/down steps).
   /// Uses a shorter inter-signal gap of 220 ms which is safe for most remotes.
-  Future<void> _sendIrRepeated(String jsonCodeString, int count) async {
+  Future<void> _sendIrRepeated(BuildContext? context, String jsonCodeString, int count) async {
     for (var i = 0; i < count; i++) {
       final ok = await sendIrCommand(
+        context,
         jsonCodeString,
         showFeedback: false,   // suppress per-step snackbars
         allowRetry: false,     // no retry in repeated mode — just skip
@@ -91,42 +95,38 @@ extension DashboardControllerIr on DashboardController {
 
   String irTrackingKey(String deviceId, String fieldKey) => '$deviceId::$fieldKey';
 
-  Future<bool> _ensureHubReachable({required String actionLabel}) async {
-    if (!Get.isRegistered<Esp32Service>()) {
-      Get.snackbar(
-        'Error',
-        'ESP32 service is not registered.',
-        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-        colorText: Colors.white,
-      );
-      return false;
-    }
-
-    if (Get.isRegistered<SettingsController>()) {
-      await Get.find<SettingsController>().checkHubConnection();
-      if (!Get.find<SettingsController>().isHubReachable.value) {
-        Get.snackbar(
-          'No Connection',
-          'Unable to reach ESP32. Check the IP address in Settings before $actionLabel.',
-          backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-          colorText: Colors.white,
-        );
+  Future<bool> _ensureHubReachable(BuildContext? context, {required String actionLabel}) async {
+    try {
+      final settings = ref.read(settingsControllerProvider.notifier);
+      await settings.checkHubConnection();
+      if (!settings.state.isHubReachable) {
+        if (context != null && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Unable to reach ESP32. Check the IP address in Settings before $actionLabel.'),
+              backgroundColor: Colors.redAccent.withOpacity(0.85),
+            ),
+          );
+        }
+        return false;
+      }
+      return true;
+    } catch (_) {
+      final esp32 = ref.read(esp32ServiceProvider.notifier);
+      final ping = await esp32.pingHub();
+      if (!ping.isSuccess) {
+        if (context != null && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(ping.errorMessage ?? 'ESP32 is not connected.'),
+              backgroundColor: Colors.redAccent.withOpacity(0.85),
+            ),
+          );
+        }
         return false;
       }
       return true;
     }
-
-    final ping = await Get.find<Esp32Service>().pingHub();
-    if (!ping.isSuccess) {
-      Get.snackbar(
-        'No Connection',
-        ping.errorMessage ?? 'ESP32 is not connected.',
-        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-        colorText: Colors.white,
-      );
-      return false;
-    }
-    return true;
   }
 
   DeviceEntity? _applyIrField(DeviceEntity device, String fieldKey, String? jsonCode) {
@@ -180,65 +180,71 @@ extension DashboardControllerIr on DashboardController {
     }
   }
 
-  Future<void> clearIrCode(String deviceId, String fieldKey) async {
-    final index = devices.indexWhere((d) => d.id == deviceId);
+  Future<void> clearIrCode(BuildContext context, String deviceId, String fieldKey) async {
+    final index = state.devices.indexWhere((d) => d.id == deviceId);
     if (index == -1) return;
 
-    final updated = _applyIrField(devices[index], fieldKey, null);
+    final newDevices = List<DeviceEntity>.from(state.devices);
+    final updated = _applyIrField(newDevices[index], fieldKey, null);
     if (updated == null) return;
 
-    devices[index] = updated;
+    newDevices[index] = updated;
+    state = state.copyWith(devices: newDevices);
     _persistDevices();
 
-    if (Get.isRegistered<FirebaseService>()) {
-      Get.find<FirebaseService>().deleteIrCode(deviceId, fieldKey);
-    }
+    ref.read(firebaseServiceProvider.notifier).deleteIrCode(deviceId, fieldKey);
 
-    Get.snackbar(
-      'Deleted',
-      'IR code deleted successfully.',
-      backgroundColor: const Color(0xFF4C86FF).withValues(alpha: 0.85),
-      colorText: Colors.white,
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('IR code deleted successfully.'),
+        backgroundColor: const Color(0xFF4C86FF).withOpacity(0.85),
+      ),
     );
   }
 
   /// Legacy convenience — kept for backward compat.
-  void setAcAutoMode(String id) => setAcMode(id, 'Auto mode');
+  void setAcAutoMode(BuildContext context, String id) => setAcMode(context, id, 'Auto mode');
 
-  Future<bool> learnAndSaveIrCode(String deviceId, String fieldKey) async {
-    if (!await _ensureHubReachable(actionLabel: 'Learning')) {
+  Future<bool> learnAndSaveIrCode(BuildContext context, String deviceId, String fieldKey) async {
+    if (!await _ensureHubReachable(context, actionLabel: 'Learning')) {
       return false;
     }
 
     // Show animated countdown learning dialog
-    Get.dialog(
-      AlertDialog(
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1A1B2E),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+          side: BorderSide(color: Colors.white.withOpacity(0.08)),
         ),
         contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
         content: const IrLearningDialogContent(),
       ),
-      barrierDismissible: false,
     );
 
     try {
-      final response = await Get.find<Esp32Service>().learnIrCode();
-      if (Get.isDialogOpen ?? false) Get.back();
+      final esp32 = ref.read(esp32ServiceProvider.notifier);
+      final response = await esp32.learnIrCode();
+      if (context.mounted && Navigator.canPop(context)) {
+        Navigator.of(context).pop(); // dismiss dialog
+      }
 
       if (response.isSuccess && response.data != null) {
         final data = response.data!;
 
         if (!data.isValid) {
-          Get.snackbar(
-            'Error',
-            'The received signal is invalid.',
-            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-            colorText: Colors.white,
-          );
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('The received signal is invalid.'),
+                backgroundColor: Colors.redAccent.withOpacity(0.85),
+              ),
+            );
+          }
           return false;
         }
 
@@ -247,37 +253,43 @@ extension DashboardControllerIr on DashboardController {
         }
 
         final jsonCode = data.toJson();
-        final index = devices.indexWhere((d) => d.id == deviceId);
+        final index = state.devices.indexWhere((d) => d.id == deviceId);
         if (index != -1) {
-          final updated = _applyIrField(devices[index], fieldKey, jsonCode);
+          final newDevices = List<DeviceEntity>.from(state.devices);
+          final updated = _applyIrField(newDevices[index], fieldKey, jsonCode);
           if (updated == null) return false;
 
-          devices[index] = updated;
+          newDevices[index] = updated;
+          state = state.copyWith(devices: newDevices);
           _persistDevices();
 
-          if (Get.isRegistered<FirebaseService>()) {
-            Get.find<FirebaseService>().saveIrCode(deviceId, fieldKey, jsonCode);
-          }
+          ref.read(firebaseServiceProvider.notifier).saveIrCode(deviceId, fieldKey, jsonCode);
 
           return true;
         }
       }
 
-      Get.snackbar(
-        'Error',
-        response.errorMessage ?? 'No IR signal was received from the remote.',
-        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-        colorText: Colors.white,
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.errorMessage ?? 'No IR signal was received from the remote.'),
+            backgroundColor: Colors.redAccent.withOpacity(0.85),
+          ),
+        );
+      }
       return false;
     } catch (e) {
-      if (Get.isDialogOpen ?? false) Get.back();
-      Get.snackbar(
-        'Error',
-        'Learning failed: $e',
-        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-        colorText: Colors.white,
-      );
+      if (context.mounted && Navigator.canPop(context)) {
+        Navigator.of(context).pop();
+      }
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Learning failed: $e'),
+            backgroundColor: Colors.redAccent.withOpacity(0.85),
+          ),
+        );
+      }
       return false;
     }
   }
@@ -288,6 +300,7 @@ extension DashboardControllerIr on DashboardController {
   /// - [showFeedback]: whether to show snackbars on success/failure.
   /// - [allowRetry]: if true, automatically retries once on failure (default true).
   Future<bool> sendIrCommand(
+    BuildContext? context,
     String jsonCodeString, {
     String? trackingKey,
     bool showFeedback = true,
@@ -298,8 +311,9 @@ extension DashboardControllerIr on DashboardController {
     try {
       irCode = IrCodeEntity.fromJson(jsonCodeString);
     } catch (_) {
-      if (showFeedback) {
+      if (showFeedback && context != null && context.mounted) {
         _showIrSnackbar(
+          context: context,
           title: 'Invalid Code',
           message: 'Stored IR code is corrupted or unreadable.',
           isError: true,
@@ -309,8 +323,9 @@ extension DashboardControllerIr on DashboardController {
     }
 
     if (!irCode.isValid) {
-      if (showFeedback) {
+      if (showFeedback && context != null && context.mounted) {
         _showIrSnackbar(
+          context: context,
           title: 'Invalid Code',
           message: 'IR code is missing protocol or bit data.',
           isError: true,
@@ -326,68 +341,68 @@ extension DashboardControllerIr on DashboardController {
       waited += 50;
     }
 
-    final bool isLocalConnected = Get.isRegistered<Esp32Service>() && Get.find<Esp32Service>().isConnected.value;
+    final bool isLocalConnected = ref.read(isConnectedProvider);
 
     if (!isLocalConnected) {
-      if (Get.isRegistered<FirebaseService>()) {
-        debugPrint('[IR] Local WebSocket offline. Falling back to Firebase cloud channel...');
-        if (showFeedback) {
+      final firebaseService = ref.read(firebaseServiceProvider.notifier);
+      debugPrint('[IR] Local WebSocket offline. Falling back to Firebase cloud channel...');
+      if (showFeedback && context != null && context.mounted) {
+        _showIrSnackbar(
+          context: context,
+          title: 'Sending via Cloud...',
+          message: 'Local connection is not available, sending via Firebase.',
+          isError: false,
+        );
+      }
+      try {
+        await firebaseService.sendIrCommand(
+          irCode.protocol.name.toUpperCase(),
+          irCode.value,
+        );
+        if (showFeedback && context != null && context.mounted) {
           _showIrSnackbar(
-            title: 'Sending via Cloud...',
-            message: 'Local connection is not available, sending via Firebase.',
+            context: context,
+            title: 'Sent to Cloud',
+            message: 'Command was sent to Firebase successfully.',
             isError: false,
           );
         }
-        try {
-          await Get.find<FirebaseService>().sendIrCommand(
-            irCode.protocol.name.toUpperCase(),
-            irCode.value,
+        return true;
+      } catch (e) {
+        debugPrint('[IR] Failed sending via Firebase: $e');
+        if (showFeedback && context != null && context.mounted) {
+          _showIrSnackbar(
+            context: context,
+            title: 'Cloud Send Failed',
+            message: e.toString(),
+            isError: true,
           );
-          if (showFeedback) {
-            _showIrSnackbar(
-              title: 'Sent to Cloud',
-              message: 'Command was sent to Firebase successfully.',
-              isError: false,
-            );
-          }
-          return true;
-        } catch (e) {
-          debugPrint('[IR] Failed sending via Firebase: $e');
-          if (showFeedback) {
-            _showIrSnackbar(
-              title: 'Cloud Send Failed',
-              message: e.toString(),
-              isError: true,
-            );
-          }
-          return false;
         }
-      } else {
-        if (!await _ensureHubReachable(actionLabel: 'IR Send')) {
-          return false;
-        }
+        return false;
       }
     }
 
     if (trackingKey != null) {
-      sendingIrKeys.add(trackingKey);
-      sendingIrKeys.refresh();
+      final newKeys = Set<String>.from(state.sendingIrKeys)..add(trackingKey);
+      state = state.copyWith(sendingIrKeys: newKeys);
     }
 
     _irBusy = true;
     try {
-      EspResponse<bool> response = await Get.find<Esp32Service>().sendIrCode(irCode);
+      final esp32 = ref.read(esp32ServiceProvider.notifier);
+      EspResponse<bool> response = await esp32.sendIrCode(irCode);
 
       // ── Single automatic retry on transient failure ───────────────────
       if (!response.isSuccess && allowRetry) {
         debugPrint('[IR] First attempt failed — retrying after 150 ms...');
         await Future.delayed(const Duration(milliseconds: 150));
-        response = await Get.find<Esp32Service>().sendIrCode(irCode);
+        response = await esp32.sendIrCode(irCode);
       }
 
       if (response.isSuccess) {
-        if (showFeedback) {
+        if (showFeedback && context != null && context.mounted) {
           _showIrSnackbar(
+            context: context,
             title: 'Signal Sent ✓',
             message: '${irCode.protocol.name.toUpperCase()} · ${irCode.bits} bits',
             isError: false,
@@ -396,8 +411,9 @@ extension DashboardControllerIr on DashboardController {
         return true;
       }
 
-      if (showFeedback) {
+      if (showFeedback && context != null && context.mounted) {
         _showIrSnackbar(
+          context: context,
           title: 'Send Failed',
           message: response.errorMessage ?? 'ESP32 rejected the IR payload.',
           isError: true,
@@ -406,8 +422,9 @@ extension DashboardControllerIr on DashboardController {
       debugPrint('[IR] Send failed: ${response.errorMessage}');
       return false;
     } catch (e) {
-      if (showFeedback) {
+      if (showFeedback && context != null && context.mounted) {
         _showIrSnackbar(
+          context: context,
           title: 'Send Error',
           message: e.toString(),
           isError: true,
@@ -418,70 +435,72 @@ extension DashboardControllerIr on DashboardController {
     } finally {
       _irBusy = false;
       if (trackingKey != null) {
-        sendingIrKeys.remove(trackingKey);
-        sendingIrKeys.refresh();
+        final newKeys = Set<String>.from(state.sendingIrKeys)..remove(trackingKey);
+        state = state.copyWith(sendingIrKeys: newKeys);
       }
     }
   }
 
   /// Shows a compact IR-themed snackbar with colour-coded result.
   void _showIrSnackbar({
+    required BuildContext context,
     required String title,
     required String message,
     required bool isError,
   }) {
-    Get.snackbar(
-      title,
-      message,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: isError
-          ? Colors.redAccent.withValues(alpha: 0.90)
-          : const Color(0xFF1E3A5F),
-      colorText: Colors.white,
-      icon: Icon(
-        isError ? Icons.wifi_tethering_error_rounded : Icons.wifi_tethering_rounded,
-        color: isError ? Colors.white : Colors.cyanAccent,
-        size: 22,
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(message),
+          ],
+        ),
+        backgroundColor: isError
+            ? Colors.redAccent.withOpacity(0.90)
+            : const Color(0xFF1E3A5F),
+        duration: Duration(seconds: isError ? 3 : 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      borderRadius: 14,
-      duration: Duration(seconds: isError ? 3 : 2),
-      isDismissible: true,
-      dismissDirection: DismissDirection.horizontal,
     );
   }
 
-  Future<void> setAcSleepTimer(String id, Duration duration) async {
-    final index = devices.indexWhere((d) => d.id == id);
+  Future<void> setAcSleepTimer(BuildContext context, String id, Duration duration) async {
+    final index = state.devices.indexWhere((d) => d.id == id);
     if (index == -1) return;
-    final device = devices[index];
+    
+    final newDevices = List<DeviceEntity>.from(state.devices);
+    final device = newDevices[index];
     if (device is! AcDeviceEntity) return;
+
+    final esp32 = ref.read(esp32ServiceProvider.notifier);
 
     if (duration.inSeconds == 0) {
       // Cancel timer
-      devices[index] = device.copyWith(sleepTimerRemaining: 0);
+      newDevices[index] = device.copyWith(sleepTimerRemaining: 0);
+      state = state.copyWith(devices: newDevices);
       _persistDevices();
 
-      if (Get.isRegistered<Esp32Service>()) {
-        await Get.find<Esp32Service>().sendRawCommand(
-          'control/ac/timer',
-          method: 'POST',
-          data: {
-            'seconds': 0,
-          },
-        );
-      }
+      await esp32.sendRawCommand(
+        'control/ac/timer',
+        method: 'POST',
+        data: {
+          'seconds': 0,
+        },
+      );
       return;
     }
 
     final String? irPowerCode = device.acIrCodes.irPower;
     if (irPowerCode == null) {
-      Get.snackbar(
-        'Error',
-        'Power button hasn\'t been learned yet.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF1E293B),
-        colorText: Colors.white,
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Power button hasn\'t been learned yet.'),
+          backgroundColor: Color(0xFF1E293B),
+        ),
       );
       return;
     }
@@ -489,18 +508,17 @@ extension DashboardControllerIr on DashboardController {
     final irCode = IrCodeEntity.fromJson(irPowerCode);
 
     // Optimistically update UI
-    devices[index] = device.copyWith(sleepTimerRemaining: duration.inSeconds);
+    newDevices[index] = device.copyWith(sleepTimerRemaining: duration.inSeconds);
+    state = state.copyWith(devices: newDevices);
     _persistDevices();
 
-    if (Get.isRegistered<Esp32Service>()) {
-      await Get.find<Esp32Service>().sendRawCommand(
-        'control/ac/timer',
-        method: 'POST',
-        data: {
-          'seconds': duration.inSeconds,
-          'ir_code': irCode.toEsp32Payload(),
-        },
-      );
-    }
+    await esp32.sendRawCommand(
+      'control/ac/timer',
+      method: 'POST',
+      data: {
+        'seconds': duration.inSeconds,
+        'ir_code': irCode.toEsp32Payload(),
+      },
+    );
   }
 }

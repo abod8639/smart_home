@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/app_navigation.dart';
 
-class SidebarWidget extends GetView<DashboardController> {
+class SidebarWidget extends ConsumerWidget {
   const SidebarWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final width = Responsive.sidebarWidth(context) ?? 80.0;
+    final currentNavigationIndex = ref.watch(dashboardControllerProvider.select((s) => s.currentNavigationIndex));
+    final controller = ref.read(dashboardControllerProvider.notifier);
+
     return SizedBox(
       width: width,
       child: LayoutBuilder(
@@ -29,20 +32,18 @@ class SidebarWidget extends GetView<DashboardController> {
                         color: AppTheme.cardBackground.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(40),
                       ),
-                      child: Obx(
-                        () => Column(
-                          children: [
-                            for (final item in kAppNavItems) ...[
-                              AppNavigationButton(
-                                icon: item.icon,
-                                isActive: controller.currentNavigationIndex.value == item.index,
-                                onTap: () => controller.changeTab(item.index),
-                              ),
-                              const SizedBox(height: 32),
-                            ],
-                            const Icon(Icons.keyboard_arrow_down, color: AppTheme.textGrey),
+                      child: Column(
+                        children: [
+                          for (final item in kAppNavItems) ...[
+                            AppNavigationButton(
+                              icon: item.icon,
+                              isActive: currentNavigationIndex == item.index,
+                              onTap: () => controller.changeTab(item.index),
+                            ),
+                            const SizedBox(height: 32),
                           ],
-                        ),
+                          const Icon(Icons.keyboard_arrow_down, color: AppTheme.textGrey),
+                        ],
                       ),
                     ),
 

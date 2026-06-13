@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/sidebar_widget.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/app_navigation.dart';
@@ -7,11 +7,11 @@ import 'package:smart_home/features/dashboard/presentation/controllers/dashboard
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
 import 'package:smart_home/features/settings/presentation/pages/settings_view.dart';
 
-class DashboardPage extends GetView<DashboardController> {
+class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // final gap = Responsive.contentGap(context);
 
     return Scaffold(
@@ -23,7 +23,7 @@ class DashboardPage extends GetView<DashboardController> {
               const SidebarWidget(),
               // SizedBox(width: gap),
             ],
-            Expanded(child: _buildMainContent()),
+            Expanded(child: _buildMainContent(ref)),
           ],
         ),
       ),
@@ -31,17 +31,17 @@ class DashboardPage extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildMainContent() {
-    return Obx(() {
-      switch (controller.currentNavigationIndex.value) {
-        case 0:
-          return const DashboardMainView();
-        case 6:
-          return const SettingsView();
-        default:
-          return _buildUnderConstructionView();
-      }
-    });
+  Widget _buildMainContent(WidgetRef ref) {
+    final currentNavigationIndex = ref.watch(dashboardControllerProvider.select((state) => state.currentNavigationIndex));
+    
+    switch (currentNavigationIndex) {
+      case 0:
+        return const DashboardMainView();
+      case 6:
+        return const SettingsView();
+      default:
+        return _buildUnderConstructionView();
+    }
   }
 
   Widget _buildUnderConstructionView() {

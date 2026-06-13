@@ -1,11 +1,15 @@
-import 'package:get/get.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-class RoomPlacementController extends GetxController {
-  // Observables
-  var selectedDeviceId = RxnString();
+part 'room_placement_controller.g.dart';
 
-  // Actions
+@riverpod
+class RoomPlacementController extends _$RoomPlacementController {
+  @override
+  String? build() {
+    return null;
+  }
+
   void selectDevice(String? id) {
-    selectedDeviceId.value = id;
+    state = id;
   }
 }

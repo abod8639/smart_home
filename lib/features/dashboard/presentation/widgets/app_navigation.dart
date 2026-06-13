@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
@@ -21,22 +21,22 @@ const List<AppNavItem> kAppNavItems = [
   AppNavItem(icon: Icons.settings_rounded, index: 6),
 ];
 
-class MobileBottomNav extends GetView<DashboardController> {
+class MobileBottomNav extends ConsumerWidget {
   const MobileBottomNav({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentNavigationIndex = ref.watch(dashboardControllerProvider.select((s) => s.currentNavigationIndex));
+    final controller = ref.read(dashboardControllerProvider.notifier);
+    
     return Container(
       color: Colors.transparent, // Ensures scaffold bottom navigation background is transparent
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
       child: SafeArea(
         top: false,
         child: ClipRRect(
-
-
           borderRadius: BorderRadius.circular(24),
           child: BackdropFilter(
-
             filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
             child: Container(
               height: 72,
@@ -58,17 +58,14 @@ class MobileBottomNav extends GetView<DashboardController> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: kAppNavItems.map((item) {
-                  return Obx(() {
-                    final isActive =
-                        controller.currentNavigationIndex.value == item.index;
-                    return AppNavigationButton(
-                      icon: item.icon,
-                      isActive: isActive,
-                      onTap: () => controller.changeTab(item.index),
-                      iconSize: 24,
-                      padding: const EdgeInsets.all(10),
-                    );
-                  });
+                  final isActive = currentNavigationIndex == item.index;
+                  return AppNavigationButton(
+                    icon: item.icon,
+                    isActive: isActive,
+                    onTap: () => controller.changeTab(item.index),
+                    iconSize: 24,
+                    padding: const EdgeInsets.all(10),
+                  );
                 }).toList(),
               ),
             ),

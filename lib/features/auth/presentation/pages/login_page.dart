@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/services/auth_service.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final authService = Get.find<AuthService>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authService = ref.watch(authServiceProvider.notifier);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -80,23 +80,27 @@ class LoginPage extends StatelessWidget {
                       ),
                       onPressed: () async {
                         // Trigger Google Sign-In
-                        Get.dialog(
-                          const Center(
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => const Center(
                             child: CircularProgressIndicator(),
                           ),
-                          barrierDismissible: false,
                         );
                         final credential = await authService.signInWithGoogle();
-                        Get.back(); // Dismiss loading spinner
+                        if (context.mounted) {
+                          Navigator.pop(context); // Dismiss loading spinner
+                        }
                         
                         if (credential == null) {
-                          Get.snackbar(
-                            'Sign In Failed',
-                            'Failed to sign in with Google or cancelled.',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
-                            colorText: Colors.white,
-                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Failed to sign in with Google or cancelled.'),
+                                backgroundColor: Colors.redAccent.withOpacity(0.8),
+                              ),
+                            );
+                          }
                         }
                       },
                       child: Row(
