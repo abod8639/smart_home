@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 
-class ProfileCard extends GetView<SettingsController> {
+class ProfileCard extends ConsumerWidget {
   const ProfileCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(settingsControllerProvider.notifier);
+    final state = ref.watch(settingsControllerProvider);
+
     final isMobile = Responsive.isMobile(context);
     final avatarSize = isMobile ? 56.0 : 72.0;
 
@@ -52,8 +56,8 @@ class ProfileCard extends GetView<SettingsController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Obx(() => Text(
-                      controller.userName.value,
+                Consumer(builder: (context, ref, _) => Text(
+                      state.userName,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: isMobile ? 16 : 20,
@@ -61,8 +65,8 @@ class ProfileCard extends GetView<SettingsController> {
                       ),
                     )),
                 const SizedBox(height: 4),
-                Obx(() => Text(
-                      controller.userRole.value,
+                Consumer(builder: (context, ref, _) => Text(
+                      state.userRole,
                       style: TextStyle(
                         color: AppTheme.textGrey,
                         fontSize: isMobile ? 11 : 12,
@@ -72,10 +76,9 @@ class ProfileCard extends GetView<SettingsController> {
                     )),
               ],
             ),
-          ),
           IconButton(
             icon: const Icon(Icons.edit_outlined, color: AppTheme.primaryBlue),
-            onPressed: () => _showEditProfileDialog(context),
+            onPressed: () => _showEditProfileDialog(context, ref),
           ),
         ],
       ),
@@ -83,8 +86,10 @@ class ProfileCard extends GetView<SettingsController> {
   }
 
   // Dialog to Edit profile name
-  void _showEditProfileDialog(BuildContext context) {
-    final textController = TextEditingController(text: controller.userName.value);
+  void _showEditProfileDialog(BuildContext context, WidgetRef ref) {
+    final state = ref.read(settingsControllerProvider);
+    final controller = ref.read(settingsControllerProvider.notifier);
+    final textController = TextEditingController(text: state.userName);
 
     showDialog(
       context: context,
