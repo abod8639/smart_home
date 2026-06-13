@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
@@ -21,7 +22,7 @@ class RemotePage extends ConsumerStatefulWidget {
   const RemotePage({super.key, required this.device});
 
   @override
-  State<RemotePage> createState() => _RemotePageState();
+  ConsumerState<RemotePage> createState() => _RemotePageState();
 }
 
 class _RemotePageState extends ConsumerState<RemotePage> {
@@ -45,7 +46,7 @@ class _RemotePageState extends ConsumerState<RemotePage> {
   void initState() {
     super.initState();
     final controller = ref.read(dashboardControllerProvider.notifier);
-    final d = controller.devices.firstWhereOrNull((device) => device.id == widget.device.id);
+    final d = ref.read(dashboardControllerProvider).devices.firstWhereOrNull((device) => device.id == widget.device.id);
     if (d is AcDeviceEntity && d.sleepTimerRemaining != null && d.sleepTimerRemaining! > 0) {
       _timeLeft = Duration(seconds: d.sleepTimerRemaining!);
       _startLocalCountdown();
@@ -63,7 +64,7 @@ class _RemotePageState extends ConsumerState<RemotePage> {
     _timeLeft = duration;
     _startLocalCountdown();
 
-    ref.read(dashboardControllerProvider.notifier).setAcSleepTimer(widget.device.id, duration);
+    ref.read(dashboardControllerProvider.notifier).setAcSleepTimer(context, widget.device.id, duration);
   }
 
   void _cancelSleepTimer() {
@@ -74,7 +75,7 @@ class _RemotePageState extends ConsumerState<RemotePage> {
       setState(() {});
     }
     
-    ref.read(dashboardControllerProvider.notifier).setAcSleepTimer(widget.device.id, Duration.zero);
+    ref.read(dashboardControllerProvider.notifier).setAcSleepTimer(context, widget.device.id, Duration.zero);
   }
 
   void _startLocalCountdown() {
@@ -205,14 +206,14 @@ class _RemotePageState extends ConsumerState<RemotePage> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final DashboardController controller = ref.read(dashboardControllerProvider.notifier);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Consumer(builder: (context, ref, _) {
-          final device = controller.devices.firstWhere(
+          final device = ref.watch(dashboardControllerProvider).devices.firstWhere(
             (d) => d.id == widget.device.id,
             orElse: () => widget.device,
           );
@@ -246,7 +247,7 @@ class _RemotePageState extends ConsumerState<RemotePage> {
         ),
         child: Consumer(builder: (context, ref, _) {
           // Reactively fetch the latest device state
-          final device = controller.devices.firstWhere(
+          final device = ref.watch(dashboardControllerProvider).devices.firstWhere(
             (d) => d.id == widget.device.id,
             orElse: () => widget.device,
           );
