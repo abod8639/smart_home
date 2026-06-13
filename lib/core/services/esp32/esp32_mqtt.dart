@@ -31,7 +31,7 @@ extension Esp32Mqtt on Esp32Service {
 
   void _onConnected() {
     debugPrint('MQTT Connected');
-    ref.read(isConnectedProvider.notifier).state = true;
+    ref.read(isConnectedProvider.notifier).set(true);
     
     // Subscribe to topics
     _client!.subscribe(Esp32Service.topicState, MqttQos.atLeastOnce);
@@ -51,7 +51,7 @@ extension Esp32Mqtt on Esp32Service {
 
   void _onDisconnected() {
     debugPrint('MQTT Disconnected');
-    ref.read(isConnectedProvider.notifier).state = false;
+    ref.read(isConnectedProvider.notifier).set(false);
     _reconnectAfterDelay();
   }
 
