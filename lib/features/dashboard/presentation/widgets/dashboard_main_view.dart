@@ -13,7 +13,6 @@ import 'package:smart_home/features/device/presentation/widgets/device_cards/lam
 import 'package:smart_home/features/device/presentation/widgets/device_cards/vacuum_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/door_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/rgb_card.dart';
-import 'package:go_router/go_router.dart';
 
 class DashboardMainView extends ConsumerWidget {
   const DashboardMainView({super.key});
