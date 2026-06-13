@@ -168,7 +168,7 @@ class RoomsListWidget extends ConsumerWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${controller.devices.where((d) => d.roomId == room.id || (d.roomId == null && room.id == "3")).length} devices',
+                  '${dashboardState.devices.where((d) => d.roomId == room.id || (d.roomId == null && room.id == "3")).length} devices',
                   style: TextStyle(
                     color: isActive ? Colors.white70 : AppTheme.textGrey,
                     fontSize: subtitleFontSize,
