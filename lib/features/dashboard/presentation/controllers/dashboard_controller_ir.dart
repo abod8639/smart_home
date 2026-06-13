@@ -106,7 +106,7 @@ extension DashboardControllerIr on DashboardController {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Unable to reach ESP32. Check the IP address in Settings before $actionLabel.'),
-              backgroundColor: Colors.redAccent.withOpacity(0.85),
+              backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
             ),
           );
         }
@@ -121,7 +121,7 @@ extension DashboardControllerIr on DashboardController {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(ping.errorMessage ?? 'ESP32 is not connected.'),
-              backgroundColor: Colors.redAccent.withOpacity(0.85),
+              backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
             ),
           );
         }
@@ -199,7 +199,7 @@ extension DashboardControllerIr on DashboardController {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('IR code deleted successfully.'),
-        backgroundColor: const Color(0xFF4C86FF).withOpacity(0.85),
+        backgroundColor: const Color(0xFF4C86FF).withValues(alpha: 0.85),
       ),
     );
   }
@@ -221,7 +221,7 @@ extension DashboardControllerIr on DashboardController {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: Colors.white.withOpacity(0.08)),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
         contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
         content: const IrLearningDialogContent(),
@@ -243,7 +243,7 @@ extension DashboardControllerIr on DashboardController {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('The received signal is invalid.'),
-                backgroundColor: Colors.redAccent.withOpacity(0.85),
+                backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
               ),
             );
           }
@@ -275,7 +275,7 @@ extension DashboardControllerIr on DashboardController {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(response.errorMessage ?? 'No IR signal was received from the remote.'),
-            backgroundColor: Colors.redAccent.withOpacity(0.85),
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
           ),
         );
       }
@@ -288,7 +288,7 @@ extension DashboardControllerIr on DashboardController {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Learning failed: $e'),
-            backgroundColor: Colors.redAccent.withOpacity(0.85),
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
           ),
         );
       }
@@ -461,7 +461,7 @@ extension DashboardControllerIr on DashboardController {
           ],
         ),
         backgroundColor: isError
-            ? Colors.redAccent.withOpacity(0.90)
+            ? Colors.redAccent.withValues(alpha: 0.90)
             : const Color(0xFF1E3A5F),
         duration: Duration(seconds: isError ? 3 : 2),
         behavior: SnackBarBehavior.floating,
