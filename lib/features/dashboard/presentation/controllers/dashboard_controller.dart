@@ -386,4 +386,14 @@ class DashboardController extends _$DashboardController {
       ),
     ];
   }
+
+  @visibleForTesting
+  void setDevicesForTest(List<DeviceEntity> testDevices) {
+    state = state.copyWith(devices: testDevices);
+  }
+
+  @visibleForTesting
+  void setRoomsForTest(List<RoomEntity> testRooms) {
+    state = state.copyWith(rooms: testRooms);
+  }
 }
