@@ -46,6 +46,7 @@ void main() {
         temperature: 24,
         mode: 'Cool mode',
         coolingTime: 30,
+        sleepTimerRemaining: 3600,
         acIrCodes: const AcIrCodes(irPower: '{"protocol": "NEC", "value": "0x12", "bits": 32}'),
       );
 
@@ -108,6 +109,7 @@ void main() {
           expect(d.temperature, device.temperature);
           expect(d.mode, device.mode);
           expect(d.coolingTime, device.coolingTime);
+          expect(d.sleepTimerRemaining, device.sleepTimerRemaining);
           expect(d.acIrCodes.irPower, device.acIrCodes.irPower);
         } else if (device is LampDeviceEntity) {
           final d = deserialized as LampDeviceEntity;
