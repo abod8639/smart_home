@@ -114,10 +114,11 @@ class SettingsController extends _$SettingsController {
 
   void _bindAuthUser() {
     ref.listen(authStateProvider, (prev, user) {
+        final u = user.value;
         state = state.copyWith(
-          isGoogleLinked: true,
-          googleEmail: user.value?.email ?? '',
-          userName: user.value?.displayName ?? 'Dexter',
+          isGoogleLinked: u != null,
+          googleEmail: u?.email ?? '',
+          userName: u?.displayName ?? 'Dexter',
         );
     });
 
@@ -127,6 +128,11 @@ class SettingsController extends _$SettingsController {
         isGoogleLinked: true,
         googleEmail: user.email ?? '',
         userName: user.displayName ?? 'Dexter',
+      );
+    } else {
+      state = state.copyWith(
+        isGoogleLinked: false,
+        googleEmail: '',
       );
     }
   }
