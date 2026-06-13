@@ -76,6 +76,7 @@ class ProfileCard extends ConsumerWidget {
                     )),
               ],
             ),
+          ),
           IconButton(
             icon: const Icon(Icons.edit_outlined, color: AppTheme.primaryBlue),
             onPressed: () => _showEditProfileDialog(context, ref),
