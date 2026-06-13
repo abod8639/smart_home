@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +11,21 @@ class DevicePlacementCard extends ConsumerWidget {
   final GlobalKey _imageKey = GlobalKey();
 
   DevicePlacementCard({super.key});
+
+  String _backgroundImage(String? roomName) {
+    if (roomName == null) return 'assets/images/living_room.png';
+    switch (roomName.toLowerCase()) {
+      case 'kitchen':
+        return 'assets/images/kitchen.png';
+      case 'bedroom':
+        return 'assets/images/bedroom.png';
+      case 'bathroom':
+        return 'assets/images/bathroom.png';
+      case 'living room':
+      default:
+        return 'assets/images/living_room.png';
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -49,10 +65,17 @@ class DevicePlacementCard extends ConsumerWidget {
                 children: [
                   // Room Background
                   Positioned.fill(
-                    child: Image.asset(
-                      'assets/images/living_room.png',
-                      fit: BoxFit.cover,
-                    ),
+                    child: Consumer(builder: (context, ref, _) {
+                      final room = controller.activeRoom;
+                      if (room != null && room.imagePath != null && room.imagePath!.isNotEmpty) {
+                        final file = File(room.imagePath!);
+                        if (file.existsSync()) {
+                          return Image.file(file, fit: BoxFit.cover);
+                        }
+                      }
+                      final bgImage = _backgroundImage(room?.name);
+                      return Image.asset(bgImage, fit: BoxFit.cover);
+                    }),
                   ),
                   
                   // Semi-transparent overlay
@@ -67,8 +90,10 @@ class DevicePlacementCard extends ConsumerWidget {
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         return Consumer(builder: (context, ref, _) {
+                          final activeRoomId = controller.activeRoom?.id ?? '3';
                           final validDevices = state.devices
                               .where((d) => d.positionX != null && d.positionY != null)
+                              .where((d) => d.roomId == activeRoomId || (d.roomId == null && activeRoomId == '3'))
                               .toList();
 
                           return Stack(
