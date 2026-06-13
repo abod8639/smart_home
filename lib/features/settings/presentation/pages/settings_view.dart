@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
@@ -10,11 +11,14 @@ import 'package:smart_home/features/settings/presentation/widgets/hub_config_car
 import 'package:smart_home/features/settings/presentation/widgets/device_placement_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/fcm_token_card.dart';
 
-class SettingsView extends GetView<SettingsController> {
+class SettingsView extends ConsumerWidget {
   const SettingsView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(settingsControllerProvider);
+    final controller = ref.read(settingsControllerProvider.notifier);
+
     final gap = Responsive.contentGap(context);
     final isCompact = Responsive.isMobile(context);
     final padding = Responsive.pagePadding(context);
