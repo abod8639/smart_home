@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+
 part of '../esp32_service.dart';
 
 extension Esp32ControllerSync on Esp32Service {
