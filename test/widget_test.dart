@@ -17,7 +17,7 @@ void main() {
     await HttpOverrides.runZoned(() async {
       // Set a tablet/desktop screen size (1440x900)
       tester.view.physicalSize = const Size(1440, 900);
-      tester.view.devicePixelRatio = 2;
+      tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       
 
