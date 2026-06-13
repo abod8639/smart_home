@@ -5,6 +5,7 @@ extension DeviceEntityCompat on DeviceEntity {
   int? get temperature => this is AcDeviceEntity ? (this as AcDeviceEntity).temperature : null;
   String? get mode => this is AcDeviceEntity ? (this as AcDeviceEntity).mode : null;
   int? get coolingTime => this is AcDeviceEntity ? (this as AcDeviceEntity).coolingTime : null;
+  int? get sleepTimerRemaining => this is AcDeviceEntity ? (this as AcDeviceEntity).sleepTimerRemaining : null;
   
   // Getters for Lamps
   int? get brightness {
@@ -82,6 +83,7 @@ extension DeviceEntityCompat on DeviceEntity {
     int? cleaningTime,
     int? filterStatus,
     String? nextCleaning,
+    int? sleepTimerRemaining,
     AcIrCodes? acIrCodes,
   }) {
     if (this is AcDeviceEntity) {
@@ -100,6 +102,7 @@ extension DeviceEntityCompat on DeviceEntity {
         temperature: temperature,
         mode: mode,
         coolingTime: coolingTime,
+        sleepTimerRemaining: sleepTimerRemaining,
         acIrCodes: acIrCodes,
       );
     } else if (this is LampDeviceEntity) {
