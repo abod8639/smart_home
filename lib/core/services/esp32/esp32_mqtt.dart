@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 part of '../esp32_service.dart';
 
 extension Esp32Mqtt on Esp32Service {
