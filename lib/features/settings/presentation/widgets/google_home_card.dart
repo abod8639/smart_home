@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/core/utils/responsive.dart';
@@ -7,11 +8,14 @@ import 'package:smart_home/features/settings/presentation/controllers/settings_c
 import 'package:smart_home/features/settings/presentation/widgets/settings_row.dart';
 import 'package:smart_home/features/settings/presentation/widgets/matter_commissioning_dialog.dart';
 
-class GoogleHomeCard extends GetView<SettingsController> {
+class GoogleHomeCard extends ConsumerWidget {
   const GoogleHomeCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(settingsControllerProvider.notifier);
+    final state = ref.watch(settingsControllerProvider);
+
     final isMobile = Responsive.isMobile(context);
 
     return GlassContainer(
@@ -64,15 +68,15 @@ class GoogleHomeCard extends GetView<SettingsController> {
           const SizedBox(height: 20),
 
           // 1. Google Account Binding Row
-          Obx(() {
-            final isLinked = controller.isGoogleLinked.value;
-            final isSyncing = controller.isSyncing.value;
+          Consumer(builder: (context, ref, _) {
+            final isLinked = state.isGoogleLinked;
+            final isSyncing = state.isSyncing;
 
             return SettingsRow(
               icon: Icons.account_circle_outlined,
               title: 'Google Account',
               subtitle: isLinked
-                  ? controller.googleEmail.value
+                  ? state.googleEmail
                   : 'Link with Google Smart Home',
               trailing: isSyncing
                   ? const SizedBox(
@@ -84,7 +88,7 @@ class GoogleHomeCard extends GetView<SettingsController> {
                       ),
                     )
                   : ElevatedButton(
-                      onPressed: controller.toggleGoogleLink,
+                      onPressed: () => controller.toggleGoogleLink(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isLinked
                             ? Colors.white.withValues(alpha: 0.1)
@@ -112,16 +116,16 @@ class GoogleHomeCard extends GetView<SettingsController> {
           const Divider(color: Colors.white10, height: 32),
 
           // 2. Google Home Graph Sync
-          Obx(() {
-            final isLinked = controller.isGoogleLinked.value;
-            final isSyncing = controller.isSyncing.value;
+          Consumer(builder: (context, ref, _) {
+            final isLinked = state.isGoogleLinked;
+            final isSyncing = state.isSyncing;
 
             return Opacity(
               opacity: isLinked ? 1.0 : 0.4,
               child: SettingsRow(
                 icon: Icons.sync_outlined,
                 title: 'Sync Smart Devices',
-                subtitle: 'Last synced: ${controller.lastSyncTime.value}',
+                subtitle: 'Last synced: ${state.lastSyncTime}',
                 trailing: isSyncing && isLinked
                     ? const SizedBox(
                         width: 20,
@@ -133,7 +137,7 @@ class GoogleHomeCard extends GetView<SettingsController> {
                       )
                     : IconButton(
                         icon: const Icon(Icons.refresh, color: Colors.white70),
-                        onPressed: isLinked ? controller.syncGoogleDevices : null,
+                        onPressed: isLinked ? () => controller.syncGoogleDevices(context) : null,
                       ),
               ),
             );
@@ -142,8 +146,8 @@ class GoogleHomeCard extends GetView<SettingsController> {
           const Divider(color: Colors.white10, height: 32),
 
           // 3. Matter Commissioning (Adding new device)
-          Obx(() {
-            final isLinked = controller.isGoogleLinked.value;
+          Consumer(builder: (context, ref, _) {
+            final isLinked = state.isGoogleLinked;
 
             return Opacity(
               opacity: isLinked ? 1.0 : 0.4,
