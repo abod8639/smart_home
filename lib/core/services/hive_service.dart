@@ -10,8 +10,12 @@ class HiveService {
   static Box<Map>? _roomsBox;
 
   /// Opens Hive and all required boxes.
-  static Future<void> init() async {
-    await Hive.initFlutter();
+  static Future<void> init({String? testPath}) async {
+    if (testPath != null) {
+      Hive.init(testPath);
+    } else {
+      await Hive.initFlutter();
+    }
     _devicesBox = await Hive.openBox<Map>(_devicesBoxName);
     _roomsBox = await Hive.openBox<Map>(_roomsBoxName);
   }
