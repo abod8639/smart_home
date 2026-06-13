@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
 
-class PlacementDeviceIrControls extends StatelessWidget {
+class PlacementDeviceIrControls extends ConsumerWidget {
   final DeviceEntity device;
   final DashboardController dashboardController;
 
@@ -17,7 +18,7 @@ class PlacementDeviceIrControls extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (device.type != DeviceType.airConditioner) {
       return const SizedBox.shrink();
     }
@@ -209,6 +210,7 @@ class PlacementDeviceIrControls extends StatelessWidget {
                 child: _IrLearnButton(
                   hasCode: hasCode,
                   onTap: () => dashboardController.learnAndSaveIrCode(
+                    context,
                     device.id,
                     fieldKey,
                   ),
@@ -217,16 +219,17 @@ class PlacementDeviceIrControls extends StatelessWidget {
               if (hasCode) ...[
                 SizedBox(width: rowGap),
                 // Send button
-                Obx(() {
+                Consumer(builder: (context, ref, _) {
                   final trackingKey =
                       dashboardController.irTrackingKey(device.id, fieldKey);
                   final isSending =
-                      dashboardController.sendingIrKeys.contains(trackingKey);
+                      ref.watch(dashboardControllerProvider).sendingIrKeys.contains(trackingKey);
                   return _IrSendButton(
                     isSending: isSending,
                     onTap: isSending
                         ? null
                         : () => dashboardController.sendIrCommand(
+                              context,
                               savedValue!,
                               trackingKey: trackingKey,
                             ),
@@ -248,6 +251,7 @@ class PlacementDeviceIrControls extends StatelessWidget {
                     ),
                     tooltip: 'Delete',
                     onPressed: () => dashboardController.clearIrCode(
+                      context,
                       device.id,
                       fieldKey,
                     ),
@@ -265,12 +269,12 @@ class PlacementDeviceIrControls extends StatelessWidget {
 // ── Sub-widgets ────────────────────────────────────────────────────────────────
 
 /// Displays protocol/bits/address chips for a stored IR code
-class _IrCodeInfoChips extends StatelessWidget {
+class _IrCodeInfoChips extends ConsumerWidget {
   final IrCodeEntity code;
   const _IrCodeInfoChips({required this.code});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final chips = <_ChipData>[
       _ChipData(
         label: code.protocol.name.toUpperCase(),
@@ -369,13 +373,13 @@ class _ChipData {
 }
 
 /// Learn/Record button with animated state
-class _IrLearnButton extends StatelessWidget {
+class _IrLearnButton extends ConsumerWidget {
   final bool hasCode;
   final VoidCallback onTap;
   const _IrLearnButton({required this.hasCode, required this.onTap});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isMobile = Responsive.isMobile(context);
     final double btnHeight = isMobile ? 32.0 : 36.0;
     final double fontSize = isMobile ? 11.0 : 12.0;
@@ -426,13 +430,13 @@ class _IrLearnButton extends StatelessWidget {
 }
 
 /// Send button with loading indicator
-class _IrSendButton extends StatelessWidget {
+class _IrSendButton extends ConsumerWidget {
   final bool isSending;
   final VoidCallback? onTap;
   const _IrSendButton({required this.isSending, required this.onTap});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isMobile = Responsive.isMobile(context);
     final double btnHeight = isMobile ? 32.0 : 36.0;
     final double padding = isMobile ? 10.0 : 14.0;
