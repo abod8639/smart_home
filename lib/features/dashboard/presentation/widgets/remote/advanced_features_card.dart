@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
@@ -36,6 +35,61 @@ class AdvancedFeaturesCard extends ConsumerWidget {
     required this.onDisplayChanged,
   });
 
+  void _showFeatureToast(BuildContext context, String featureName, bool isOn) {
+    final status = isOn ? 'تفعيل' : 'إيقاف';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$featureName: تم $status خاصية $featureName')),
+    );
+  }
+
+  Widget _buildFeatureToggle({
+    required IconData? icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    Color? activeColor,
+  }) {
+    final color = activeColor ?? AppTheme.primaryBlue;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: .12) : Colors.white.withValues(alpha: .04),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? color.withValues(alpha: .5) : Colors.white10,
+            width: 1.2,
+          ),
+          boxShadow: isSelected
+              ? [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 8, spreadRadius: -2)]
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null)
+              Icon(
+                icon,
+                color: isSelected ? color : Colors.white60,
+                size: 22,
+              ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? color : Colors.white60,
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return GlassContainer(
@@ -67,7 +121,7 @@ class AdvancedFeaturesCard extends ConsumerWidget {
             crossAxisSpacing: 12,
             childAspectRatio: 1.3,
             children: [
-              buildFeatureToggle(
+              _buildFeatureToggle(
                 icon: Icons.bubble_chart,
                 label: 'Plasmacluster',
                 isSelected: isPlasmaclusterOn,
@@ -75,13 +129,13 @@ class AdvancedFeaturesCard extends ConsumerWidget {
                   final newVal = !isPlasmaclusterOn;
                   onPlasmaclusterChanged(newVal);
                   if (device.irPlasmacluster != null) {
-                    controller.sendIrCommand(device.irPlasmacluster!);
+                    controller.sendIrCommand(context, device.irPlasmacluster!);
                   } else {
-                    _showFeatureToast('Plasmacluster', newVal);
+                    _showFeatureToast(context, 'Plasmacluster', newVal);
                   }
                 },
               ),
-              buildFeatureToggle(
+              _buildFeatureToggle(
                 icon: Icons.speed_rounded,
                 label: 'Super Jet',
                 isSelected: isSuperJetOn,
@@ -90,13 +144,13 @@ class AdvancedFeaturesCard extends ConsumerWidget {
                   final newVal = !isSuperJetOn;
                   onSuperJetChanged(newVal);
                   if (device.irSuperJet != null) {
-                    controller.sendIrCommand(device.irSuperJet!);
+                    controller.sendIrCommand(context, device.irSuperJet!);
                   } else {
-                    _showFeatureToast('Super Jet', newVal);
+                    _showFeatureToast(context, 'Super Jet', newVal);
                   }
                 },
               ),
-              buildFeatureToggle(
+              _buildFeatureToggle(
                 icon: Icons.air,
                 label: 'Coanda',
                 isSelected: isCoandaOn,
@@ -104,13 +158,13 @@ class AdvancedFeaturesCard extends ConsumerWidget {
                   final newVal = !isCoandaOn;
                   onCoandaChanged(newVal);
                   if (device.irCoanda != null) {
-                    controller.sendIrCommand(device.irCoanda!);
+                    controller.sendIrCommand(context, device.irCoanda!);
                   } else {
-                    _showFeatureToast('Coanda', newVal);
+                    _showFeatureToast(context, 'Coanda', newVal);
                   }
                 },
               ),
-              buildFeatureToggle(
+              _buildFeatureToggle(
                 icon: Icons.person_pin_circle_rounded,
                 label: 'My Area',
                 isSelected: isMyAreaOn,
@@ -118,13 +172,13 @@ class AdvancedFeaturesCard extends ConsumerWidget {
                   final newVal = !isMyAreaOn;
                   onMyAreaChanged(newVal);
                   if (device.irMyArea != null) {
-                    controller.sendIrCommand(device.irMyArea!);
+                    controller.sendIrCommand(context, device.irMyArea!);
                   } else {
-                    _showFeatureToast('My Area', newVal);
+                    _showFeatureToast(context, 'My Area', newVal);
                   }
                 },
               ),
-              buildFeatureToggle(
+              _buildFeatureToggle(
                 icon: Icons.light_mode_outlined,
                 label: 'Display',
                 isSelected: isDisplayOn,
@@ -132,9 +186,9 @@ class AdvancedFeaturesCard extends ConsumerWidget {
                   final newVal = !isDisplayOn;
                   onDisplayChanged(newVal);
                   if (device.irDisplay != null) {
-                    controller.sendIrCommand(device.irDisplay!);
+                    controller.sendIrCommand(context, device.irDisplay!);
                   } else {
-                    _showFeatureToast('AC Display', newVal);
+                    _showFeatureToast(context, 'AC Display', newVal);
                   }
                 },
               ),
@@ -142,14 +196,16 @@ class AdvancedFeaturesCard extends ConsumerWidget {
               GestureDetector(
                 onTap: () {
                   if (device.irClean != null) {
-                    controller.sendIrCommand(device.irClean!);
+                    controller.sendIrCommand(context, device.irClean!);
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Clean' + ': ' + 'Clean mode not set to this AC.')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Clean: Clean mode not set to this AC.')),
+                    );
                   }
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha:0.04),
+                    color: Colors.white.withValues(alpha: 0.04),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.white10, width: 1.2),
                   ),
@@ -172,59 +228,4 @@ class AdvancedFeaturesCard extends ConsumerWidget {
       ),
     );
   }
-
-
-
-  void _showFeatureToast(String featureName, bool isOn) {
-    final status = isOn ? 'تفعيل' : 'إيقاف';
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$featureName / $featureName' + ': ' + 'تم $status خاصية $featureName')));
-  }
 }
-
-  Widget buildFeatureToggle({
-    required IconData? icon,
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-    Color? activeColor,
-  }) {
-    final color = activeColor ?? AppTheme.primaryBlue;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: .12) : Colors.white.withValues(alpha: .04),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? color.withValues(alpha: .5) : Colors.white10,
-            width: 1.2,
-          ),
-          boxShadow: isSelected
-              ? [BoxShadow(color: color.withValues(alpha:0.2), blurRadius: 8, spreadRadius: -2)]
-              : null,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (icon != null) 
-            Icon(
-              icon,
-              color: isSelected ? color : Colors.white60,
-              size: 22,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? color : Colors.white60,
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
