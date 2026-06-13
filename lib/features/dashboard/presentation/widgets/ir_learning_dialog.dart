@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class IrLearningDialogContent extends StatefulWidget {
   const IrLearningDialogContent({super.key});
@@ -23,8 +22,8 @@ class _IrLearningDialogContentState extends State<IrLearningDialogContent> {
             _countdown--;
           } else {
             _timer?.cancel();
-            if (Get.isDialogOpen ?? false) {
-              Get.back();
+            if (mounted) {
+              Navigator.of(context).pop();
             }
           }
         });
