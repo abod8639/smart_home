@@ -29,6 +29,7 @@ class DeviceLocalDatasource {
       map['temperature'] = d.temperature;
       map['mode'] = d.mode;
       map['coolingTime'] = d.coolingTime;
+      map['sleepTimerRemaining'] = d.sleepTimerRemaining;
       map['irPower'] = d.irPower;
       map['irTempUp'] = d.irTempUp;
       map['irTempDown'] = d.irTempDown;
@@ -129,6 +130,7 @@ class DeviceLocalDatasource {
           temperature: map['temperature'] as int?,
           mode: map['mode'] as String?,
           coolingTime: map['coolingTime'] as int?,
+          sleepTimerRemaining: map['sleepTimerRemaining'] as int?,
           acIrCodes: AcIrCodes(
             irPower: map['irPower'] as String?,
             irTempUp: map['irTempUp'] as String?,
