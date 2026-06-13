@@ -176,7 +176,7 @@ class PlacementDeviceProperties extends ConsumerWidget {
 
                 if (device.type == DeviceType.lamp && device.brightness != null) ...[
                   const SizedBox(height: 16),
-                  buildPropertyRow('Brightness', '${device.brightness}%'),
+                  buildPropertyRow('Brightness', '${(device.brightness! / 255 * 100).toInt()}%'),
                 ],
 
                 if (device.type == DeviceType.airConditioner &&
@@ -231,7 +231,7 @@ class PlacementDeviceProperties extends ConsumerWidget {
                   ),
                   if (device.brightness != null) ...[
                     const SizedBox(height: 16),
-                    buildPropertyRow('Brightness', '${device.brightness}%'),
+                    buildPropertyRow('Brightness', '${(device.brightness! / 255 * 100).toInt()}%'),
                   ],
                 ],
 
