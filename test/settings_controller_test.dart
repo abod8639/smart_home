@@ -3,6 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
+import 'package:smart_home/core/services/esp32_service.dart';
+import 'package:smart_home/core/services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
   setUp(() {
@@ -94,5 +97,86 @@ void main() {
       controller.toggleAutoBackups();
       expect(controller.autoBackups.value, isFalse);
     });
+
+    test('updateIpAddress saves and updates IP address correctly', () async {
+      final controller = Get.put(SettingsController());
+      
+      await controller.updateIpAddress('192.168.1.100');
+      expect(controller.ipAddress.value, '192.168.1.100');
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('hub_ip_address'), '192.168.1.100');
+
+      // Empty IP address should be ignored
+      await controller.updateIpAddress('');
+      expect(controller.ipAddress.value, '192.168.1.100');
+    });
+
+    test('checkHubConnection updates reachable state when Esp32Service registered', () async {
+      final mockEsp = Get.put<Esp32Service>(MockEsp32Service());
+      final controller = Get.put(SettingsController());
+
+      // Success scenario
+      (mockEsp as MockEsp32Service).pingSuccess = true;
+      await controller.checkHubConnection();
+      expect(controller.isHubReachable.value, isTrue);
+
+      // Failure scenario
+      mockEsp.pingSuccess = false;
+      await controller.checkHubConnection();
+      expect(controller.isHubReachable.value, isFalse);
+    });
+
+    test('AuthService binding updates user details in controller', () async {
+      final mockAuth = Get.put<AuthService>(MockAuthService());
+      final controller = Get.put(SettingsController());
+
+      expect(controller.isGoogleLinked.value, isFalse);
+      expect(controller.googleEmail.value, isEmpty);
+
+      // Sign in
+      await mockAuth.signInWithGoogle();
+      expect(controller.isGoogleLinked.value, isTrue);
+      expect(controller.googleEmail.value, 'test@gmail.com');
+      expect(controller.userName.value, 'Test User');
+
+      // Sign out
+      await mockAuth.signOut();
+      expect(controller.isGoogleLinked.value, isFalse);
+      expect(controller.googleEmail.value, isEmpty);
+    });
   });
+}
+
+class MockEsp32Service extends Esp32Service {
+  bool pingSuccess = true;
+
+  @override
+  Future<EspResponse<bool>> pingHub() async {
+    return pingSuccess ? EspResponse.success(true) : EspResponse.failure('error');
+  }
+}
+
+class MockAuthService extends AuthService {
+  @override
+  Future<UserCredential?> signInWithGoogle() async {
+    currentUser.value = MockUser();
+    return null;
+  }
+
+  @override
+  Future<void> signOut() async {
+    currentUser.value = null;
+  }
+}
+
+class MockUser implements User {
+  @override
+  String get email => 'test@gmail.com';
+
+  @override
+  String get displayName => 'Test User';
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
 }
