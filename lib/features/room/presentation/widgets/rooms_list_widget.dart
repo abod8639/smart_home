@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/shadow_container.dart';
@@ -8,20 +8,22 @@ import 'package:smart_home/features/dashboard/presentation/controllers/dashboard
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 import 'package:smart_home/features/room/presentation/widgets/room_management_dialogs.dart';
 
-class RoomsListWidget extends GetView<DashboardController> {
+class RoomsListWidget extends ConsumerWidget {
   final bool isCompact;
   const RoomsListWidget({
     this.isCompact = false,
     super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (Responsive.isMobile(context) || isCompact) {
-      return _buildMobileHorizontalList(context);
+      return _buildMobileHorizontalList(context, ref);
     }
 
     final cardWidth = Responsive.isDesktop(context) ? double.infinity : null;
     final cardHeight = Responsive.isDesktop(context) ? double.infinity : 415.0;
+
+    final dashboardState = ref.watch(dashboardControllerProvider);
 
     return ShadowContainer(
       width: cardWidth,
@@ -30,46 +32,32 @@ class RoomsListWidget extends GetView<DashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     Text('Rooms', style: Theme.of(context).textTheme.titleLarge),
-          //     const Icon(Icons.info_outline, color: AppTheme.textGrey, size: 20),
-          //   ],
-          // ),
-          // const SizedBox(height: 16),
           Expanded(
-            child: Obx(() => ListView.separated(
+            child: ListView.separated(
                   physics: const BouncingScrollPhysics(),
-                  itemCount: controller.rooms.length,
+                  itemCount: dashboardState.rooms.length,
                   separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final room = controller.rooms[index];
-                    return _buildRoomTile(context, room);
+                    final room = dashboardState.rooms[index];
+                    return _buildRoomTile(context, ref, room);
                   },
-                )),
+                ),
           ),
-          // const SizedBox(height: 12),
-          // GestureDetector(
-          //   onTap: () => _showAddRoomDialog(context),
-          //   child: _buildAddRoomButton(),
-          // ),
         ],
       ),
     );
   }
 
-  Widget _buildMobileHorizontalList(BuildContext context) {
+  Widget _buildMobileHorizontalList(BuildContext context, WidgetRef ref) {
+    final dashboardState = ref.watch(dashboardControllerProvider);
+    final roomsList = dashboardState.rooms;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
-        // const SizedBox(height: 12),
         Expanded(
           flex: 1,
-          child: Obx(() {
-            final roomsList = controller.rooms;
-            return ListView.separated(
+          child: ListView.separated(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               itemCount: roomsList.length + 1,
@@ -82,16 +70,15 @@ class RoomsListWidget extends GetView<DashboardController> {
                   );
                 }
                 final room = roomsList[index];
-                return _buildMobileRoomCard(context, room);
+                return _buildMobileRoomCard(context, ref, room);
               },
-            );
-          }),
+            ),
         ),
       ],
     );
   }
 
-  Widget _buildMobileRoomCard(BuildContext context, RoomEntity room) {
+  Widget _buildMobileRoomCard(BuildContext context, WidgetRef ref, RoomEntity room) {
     final isActive = room.isActive;
     final isMobile = Responsive.isMobile(context);
     final double cardWidth = isMobile ? (isCompact ? 125.0 : 140.0) : (isCompact ? 135.0 : 150.0);
@@ -102,10 +89,12 @@ class RoomsListWidget extends GetView<DashboardController> {
     final double titleFontSize = isMobile ? (isCompact ? 12.0 : 13.0) : (isCompact ? 13.0 : 15.0);
     final double subtitleFontSize = isMobile ? (isCompact ? 9.0 : 10.0) : (isCompact ? 10.0 : 11.0);
 
+    final dashboardState = ref.watch(dashboardControllerProvider);
+    final controller = ref.read(dashboardControllerProvider.notifier);
+
     return GestureDetector(
       onTap: () => controller.selectRoom(room.id),
       onLongPress: () {
-        // onLongPress close all devices in room
         controller.closeAllDevicesInRoom(room.id);
       },
       // RoomManagementDialogs.showRoomOptions(context, room),
@@ -236,8 +225,11 @@ class RoomsListWidget extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildRoomTile(BuildContext context, RoomEntity room) {
+  Widget _buildRoomTile(BuildContext context, WidgetRef ref, RoomEntity room) {
     final isActive = room.isActive;
+    final dashboardState = ref.watch(dashboardControllerProvider);
+    final controller = ref.read(dashboardControllerProvider.notifier);
+    
     return GestureDetector(
       onTap: () => controller.selectRoom(room.id),
       onLongPress: () => RoomManagementDialogs.showRoomOptions(context, room),
@@ -286,7 +278,7 @@ class RoomsListWidget extends GetView<DashboardController> {
                     ),
                   ),
                   Text(
-                    '${controller.devices.where((d) => d.roomId == room.id || (d.roomId == null && room.id == "3")).length} device(s)',
+                    '${dashboardState.devices.where((d) => d.roomId == room.id || (d.roomId == null && room.id == "3")).length} device(s)',
                     style: TextStyle(
                       color: isActive ? Colors.white70 : AppTheme.textGrey,
                       fontSize: 12,
