@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/shadow_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
-class WeatherUpdateWidget extends GetView<DashboardController> {
+class WeatherUpdateWidget extends ConsumerWidget {
   const WeatherUpdateWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Compute dynamic scale factor based on screen height and width relative to baseline
     final screenSize = MediaQuery.of(context).size;
     final double scaleX = screenSize.width / 375.0;
@@ -17,21 +17,22 @@ class WeatherUpdateWidget extends GetView<DashboardController> {
     final double scale = ((scaleX + scaleY) / 2.0).clamp(0.35, 0.8);
 
     final cardWidth = Responsive.isDesktop(context) ? 320.0 * scale : null;
+    final state = ref.watch(dashboardControllerProvider);
 
     return ShadowContainer(
       width: cardWidth,
       padding: EdgeInsets.symmetric(horizontal: 24 * scale, vertical: 10 * scale),
-      child: Obx(() {
-        if (controller.isWeatherLoading.value) {
+      child: Builder(builder: (context) {
+        if (state.isWeatherLoading) {
           return _buildLoadingState(scale);
         }
 
-        final location = controller.weatherLocation.value;
-        final date = controller.weatherDate.value;
-        final temp = controller.weatherTemp.value;
-        final condition = controller.weatherCondition.value;
-        final code = controller.weatherCode.value;
-        final dayFlag = controller.isDay.value;
+        final location = state.weatherLocation;
+        final date = state.weatherDate;
+        final temp = state.weatherTemp;
+        final condition = state.weatherCondition;
+        final code = state.weatherCode;
+        final dayFlag = state.isDay;
 
         return SingleChildScrollView(
           child: Column(
