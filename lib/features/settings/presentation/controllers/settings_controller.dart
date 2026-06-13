@@ -203,7 +203,7 @@ class SettingsController extends _$SettingsController {
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: Colors.white.withOpacity(0.1)),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: const Text(
             'Disconnect Google Smart Home?',
@@ -297,7 +297,7 @@ class SettingsController extends _$SettingsController {
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: Colors.white.withOpacity(0.1)),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: Row(
             children: [
