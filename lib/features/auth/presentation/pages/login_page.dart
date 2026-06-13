@@ -107,7 +107,7 @@ class LoginPage extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Image.network(
-                            'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
+                            'https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png',
                             height: 24,
                             width: 24,
                             errorBuilder: (context, error, stackTrace) => const Icon(
