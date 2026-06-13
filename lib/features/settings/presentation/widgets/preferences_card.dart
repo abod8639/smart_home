@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/settings/presentation/widgets/settings_row.dart';
 
-class PreferencesCard extends GetView<SettingsController> {
+class PreferencesCard extends ConsumerWidget {
   const PreferencesCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(settingsControllerProvider.notifier);
+    final state = ref.watch(settingsControllerProvider);
     final isMobile = Responsive.isMobile(context);
 
     return GlassContainer(
@@ -33,23 +36,23 @@ class PreferencesCard extends GetView<SettingsController> {
             icon: Icons.thermostat_outlined,
             title: 'Temperature Unit',
             subtitle: 'Choose Celsius or Fahrenheit',
-            trailing: Obx(() => Row(
+            trailing: Consumer(builder: (context, ref, _) => Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _buildToggleOption(
                       context: context,
                       label: '°C',
-                      isActive: controller.isCelsius.value,
+                      isActive: state.isCelsius,
                       onTap: () {
-                        if (!controller.isCelsius.value) controller.toggleTempUnit();
+                        if (!state.isCelsius) controller.toggleTempUnit();
                       },
                     ),
                     _buildToggleOption(
                       context: context,
                       label: '°F',
-                      isActive: !controller.isCelsius.value,
+                      isActive: !state.isCelsius,
                       onTap: () {
-                        if (controller.isCelsius.value) controller.toggleTempUnit();
+                        if (state.isCelsius) controller.toggleTempUnit();
                       },
                     ),
                   ],
@@ -62,7 +65,7 @@ class PreferencesCard extends GetView<SettingsController> {
             icon: Icons.mic_none_outlined,
             title: 'Voice Assistant',
             subtitle: 'Default hub controller assistant',
-            trailing: Obx(() => Container(
+            trailing: Consumer(builder: (context, ref, _) => Container(
                   padding: EdgeInsets.symmetric(horizontal: isMobile ? 8 : 12),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.3),
@@ -73,7 +76,7 @@ class PreferencesCard extends GetView<SettingsController> {
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
-                      value: controller.selectedVoiceAssistant.value,
+                      value: state.selectedVoiceAssistant,
                       dropdownColor: AppTheme.cardBackground,
                       icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white70),
                       style: TextStyle(
@@ -103,8 +106,8 @@ class PreferencesCard extends GetView<SettingsController> {
             icon: Icons.notifications_none_outlined,
             title: 'Push Notifications',
             subtitle: 'Alerts for device safety and changes',
-            trailing: Obx(() => Switch(
-                  value: controller.notificationsEnabled.value,
+            trailing: Consumer(builder: (context, ref, _) => Switch(
+                  value: state.notificationsEnabled,
                   onChanged: (_) => controller.toggleNotifications(),
                   activeThumbColor: AppTheme.primaryBlue,
                   activeTrackColor: AppTheme.primaryBlue.withValues(alpha: 0.3),
