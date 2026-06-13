@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
@@ -145,7 +146,7 @@ class _AddDeviceDialogState extends ConsumerState<AddDeviceDialog> {
                   items: DeviceType.values.map((type) {
                     return DropdownMenuItem(
                       value: type,
-                      child: Text(type.name.substring(0, 1).toUpperCase() + type.name.substring(1) ?? type.name),
+                      child: Text(type.name.substring(0, 1).toUpperCase() + type.name.substring(1)),
                     );
                   }).toList(),
                   onChanged: (val) {
