@@ -11,7 +11,7 @@ extension DashboardControllerWeather on DashboardController {
   Future<void> fetchLiveWeather() async {
     state = state.copyWith(
       isWeatherLoading: true,
-      weatherDate: _getFormattedDate(),
+      weatherDate: FormattingUtils.formatDate(DateTime.now()),
     );
 
     try {
