@@ -231,5 +231,18 @@ class NotificationService extends _$NotificationService {
   }
 }
 
-final fcmTokenProvider = StateProvider<String>((ref) => '');
-final hasNotificationPermissionProvider = StateProvider<bool>((ref) => false);
+
+class _FcmTokenNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+  void set(String value) => state = value;
+}
+
+class _NotificationPermissionNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+  void set(bool value) => state = value;
+}
+
+final fcmTokenProvider = NotifierProvider<_FcmTokenNotifier, String>(_FcmTokenNotifier.new);
+final hasNotificationPermissionProvider = NotifierProvider<_NotificationPermissionNotifier, bool>(_NotificationPermissionNotifier.new);
