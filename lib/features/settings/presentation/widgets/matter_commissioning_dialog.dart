@@ -38,7 +38,7 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
 
   void _startCommissioning() async {
     if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Required Field' + ': ' + 'Please enter a name for the device.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Required Field' ': ' + 'Please enter a name for the device.')));
       return;
     }
 
