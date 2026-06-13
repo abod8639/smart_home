@@ -14,9 +14,9 @@ class RoomModel extends RoomEntity {
     return RoomModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      deviceCount: json['deviceCount'] as int,
-      isActive: json['isActive'] as bool,
-      iconPath: json['iconPath'] as String,
+      deviceCount: json['deviceCount'] as int? ?? 0,
+      isActive: json['isActive'] as bool? ?? false,
+      iconPath: json['iconPath'] as String? ?? '',
       imagePath: json['imagePath'] as String?,
     );
   }
