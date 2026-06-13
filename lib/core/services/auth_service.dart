@@ -10,17 +10,24 @@ part 'auth_service.g.dart';
 
 @Riverpod(keepAlive: true)
 class AuthService extends _$AuthService {
-  late final FirebaseAuth _auth;
+  FirebaseAuth get _auth => FirebaseAuth.instance;
 
   @override
   void build() {
-    final isTest = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
-    if (!isTest) {
-      _auth = FirebaseAuth.instance;
-      if (!kIsWeb) {
-        GoogleSignIn.instance.initialize(
-          serverClientId: '263208865722-jhtj3i34m25u1i0svt1kdktbvukbhtjd.apps.googleusercontent.com',
-        );
+    // Initialize GoogleSignIn once
+    _initializeGoogleSignIn();
+  }
+
+  Future<void> _initializeGoogleSignIn() async {
+    if (kIsWeb) return;
+    
+    try {
+      await GoogleSignIn.instance.initialize(
+        serverClientId: '263208865722-jhtj3i34m25u1i0svt1kdktbvukbhtjd.apps.googleusercontent.com',
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error initializing Google Sign-In: $e");
       }
     }
   }
