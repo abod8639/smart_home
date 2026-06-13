@@ -102,14 +102,13 @@ extension DashboardControllerIr on DashboardController {
       final settings = ref.read(settingsControllerProvider.notifier);
       await settings.checkHubConnection();
       if (!settings.state.isHubReachable) {
-        if (context != null && context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Unable to reach ESP32. Check the IP address in Settings before $actionLabel.'),
-              backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-            ),
-          );
-        }
+        if (context == null || !context.mounted) return false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Unable to reach ESP32. Check the IP address in Settings before $actionLabel.'),
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+          ),
+        );
         return false;
       }
       return true;
@@ -117,17 +116,15 @@ extension DashboardControllerIr on DashboardController {
       final esp32 = ref.read(esp32ServiceProvider.notifier);
       final ping = await esp32.pingHub();
       if (!ping.isSuccess) {
-        if (context != null && context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(ping.errorMessage ?? 'ESP32 is not connected.'),
-              backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
-            ),
-          );
-        }
-        return false;
+        if (context == null || !context.mounted) return false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(ping.errorMessage ?? 'ESP32 is not connected.'),
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+          ),
+        );
       }
-      return true;
+      return ping.isSuccess;
     }
   }
 
