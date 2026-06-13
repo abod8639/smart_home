@@ -155,7 +155,7 @@ class NotificationService extends _$NotificationService {
           backgroundColor: AppTheme.cardBackground,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.3), width: 1),
+            side: BorderSide(color: AppTheme.primaryBlue.withValues(alpha: 0.3), width: 1),
             borderRadius: BorderRadius.circular(16),
           ),
           margin: const EdgeInsets.all(16),
@@ -175,7 +175,7 @@ class NotificationService extends _$NotificationService {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.primaryPurple.withOpacity(0.1),
+                color: AppTheme.primaryPurple.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -213,7 +213,7 @@ class NotificationService extends _$NotificationService {
         backgroundColor: AppTheme.cardBackground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: AppTheme.primaryPurple.withOpacity(0.3), width: 1),
+          side: BorderSide(color: AppTheme.primaryPurple.withValues(alpha: 0.3), width: 1),
         ),
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
