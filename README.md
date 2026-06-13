@@ -144,7 +144,7 @@ lib/
 | Category | Technology |
 |---|---|
 | Framework | Flutter (Dart SDK >= 3.12) |
-| State Management | GetX 4.7 |
+| State Management | Riverpod  |
 | Hardware Communication | Dio 5.9 (HTTP client for ESP32 REST API) |
 | Matter Protocol | flutter_matter (custom local library wrapping CHIP SDK) |
 | Local Storage | Hive 2.2 + Hive Flutter |
