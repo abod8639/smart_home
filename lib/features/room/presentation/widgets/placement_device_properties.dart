@@ -53,8 +53,8 @@ class PlacementDeviceProperties extends ConsumerWidget {
                       color: AppTheme.primaryBlue, size: isMobile ? 18 : 20),
                   onPressed: () => PlacementDeviceDialogs.showEditDevice(
                     context,
+                    ref,
                     device,
-                    dashboardController,
                   ),
                   tooltip: 'Edit Device',
                 ),
@@ -63,9 +63,8 @@ class PlacementDeviceProperties extends ConsumerWidget {
                       color: Colors.redAccent, size: isMobile ? 18 : 20),
                   onPressed: () => PlacementDeviceDialogs.showDeleteConfirmation(
                     context,
+                    ref,
                     device,
-                    dashboardController,
-                    placementController,
                   ),
                   tooltip: 'Delete Device',
                 ),
