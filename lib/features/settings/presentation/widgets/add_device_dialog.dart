@@ -46,23 +46,26 @@ class _AddDeviceDialogState extends ConsumerState<AddDeviceDialog> {
           coolingTime: 0,
           acIrCodes: const AcIrCodes(),
         );
+        break;
       case DeviceType.lamp:
         newDevice = LampDeviceEntity(
           id: id,
           name: name,
           isOn: false,
-          brightness: 50,
+          brightness: 158, // Normalized to 0-255 (approx 62%)
         );
+        break;
       case DeviceType.rgb:
         newDevice = RgbLampDeviceEntity(
           id: id,
           name: name,
           isOn: false,
-          brightness: 50,
+          brightness: 204, // Normalized to 0-255 (approx 80%)
           rgbR: 255,
           rgbG: 255,
           rgbB: 255,
         );
+        break;
       case DeviceType.door:
         newDevice = DoorDeviceEntity(
           id: id,
@@ -71,6 +74,7 @@ class _AddDeviceDialogState extends ConsumerState<AddDeviceDialog> {
           isLocked: true,
           linkedDevicesCount: linkedCount,
         );
+        break;
       case DeviceType.vacuum:
         newDevice = VacuumDeviceEntity(
           id: id,
@@ -81,6 +85,7 @@ class _AddDeviceDialogState extends ConsumerState<AddDeviceDialog> {
           cleaningTime: 0,
           filterStatus: 100,
         );
+        break;
     }
 
     final dashboardController = ref.read(dashboardControllerProvider.notifier);
