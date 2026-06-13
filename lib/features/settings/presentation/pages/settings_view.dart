@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
-import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/settings/presentation/widgets/profile_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/preferences_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/google_home_card.dart';
