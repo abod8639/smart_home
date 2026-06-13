@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
@@ -16,7 +17,7 @@ import 'package:smart_home/features/dashboard/presentation/widgets/remote/fan_sp
 import 'package:smart_home/features/dashboard/presentation/widgets/remote/air_swing_card.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/remote/advanced_features_card.dart';
 
-class RemotePage extends StatefulWidget {
+class RemotePage extends ConsumerStatefulWidget {
   final DeviceEntity device;
   const RemotePage({super.key, required this.device});
 
@@ -24,7 +25,7 @@ class RemotePage extends StatefulWidget {
   State<RemotePage> createState() => _RemotePageState();
 }
 
-class _RemotePageState extends State<RemotePage> {
+class _RemotePageState extends ConsumerState<RemotePage> {
   // Local state for options not stored in DeviceEntity
   String _fanSpeed = 'Auto';
   bool _verticalSwing = false;
@@ -44,7 +45,7 @@ class _RemotePageState extends State<RemotePage> {
   @override
   void initState() {
     super.initState();
-    final controller = Get.find<DashboardController>();
+    final controller = ref.read(dashboardControllerProvider.notifier);
     final d = controller.devices.firstWhereOrNull((device) => device.id == widget.device.id);
     if (d is AcDeviceEntity && d.sleepTimerRemaining != null && d.sleepTimerRemaining! > 0) {
       _timeLeft = Duration(seconds: d.sleepTimerRemaining!);
@@ -63,7 +64,7 @@ class _RemotePageState extends State<RemotePage> {
     _timeLeft = duration;
     _startLocalCountdown();
 
-    Get.find<DashboardController>().setAcSleepTimer(widget.device.id, duration);
+    ref.read(dashboardControllerProvider.notifier).setAcSleepTimer(widget.device.id, duration);
   }
 
   void _cancelSleepTimer() {
@@ -74,7 +75,7 @@ class _RemotePageState extends State<RemotePage> {
       setState(() {});
     }
     
-    Get.find<DashboardController>().setAcSleepTimer(widget.device.id, Duration.zero);
+    ref.read(dashboardControllerProvider.notifier).setAcSleepTimer(widget.device.id, Duration.zero);
   }
 
   void _startLocalCountdown() {
@@ -205,13 +206,13 @@ class _RemotePageState extends State<RemotePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final DashboardController controller = Get.find<DashboardController>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final DashboardController controller = ref.read(dashboardControllerProvider.notifier);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Obx(() {
+        title: Consumer(builder: (context, ref, _) {
           final device = controller.devices.firstWhere(
             (d) => d.id == widget.device.id,
             orElse: () => widget.device,
@@ -244,7 +245,7 @@ class _RemotePageState extends State<RemotePage> {
             ],
           ),
         ),
-        child: Obx(() {
+        child: Consumer(builder: (context, ref, _) {
           // Reactively fetch the latest device state
           final device = controller.devices.firstWhere(
             (d) => d.id == widget.device.id,
