@@ -125,8 +125,12 @@ class AcCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: _buildBottomStat(
-                    icon: Icons.access_time,
-                    value: _formatRunningTime(device.coolingTime),
+                    icon: device.sleepTimerRemaining != null && device.sleepTimerRemaining! > 0
+                        ? Icons.timer_outlined
+                        : Icons.access_time,
+                    value: device.sleepTimerRemaining != null && device.sleepTimerRemaining! > 0
+                        ? _formatDuration(Duration(seconds: device.sleepTimerRemaining!))
+                        : _formatRunningTime(device.coolingTime),
                     scale: m.scale,
                   ),
                 ),
@@ -139,6 +143,20 @@ class AcCard extends StatelessWidget {
   }
 
   // ── helpers ──────────────────────────────────────────────────────────────
+
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes;
+    if (minutes < 60) {
+      return '${minutes}m left';
+    } else {
+      final hours = minutes ~/ 60;
+      final mins = minutes % 60;
+      if (mins > 0) {
+        return '${hours}h ${mins}m';
+      }
+      return '${hours}h left';
+    }
+  }
 
   IconData _modeIcon(String? mode) {
     switch (mode) {
