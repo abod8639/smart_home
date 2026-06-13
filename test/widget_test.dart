@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:smart_home/core/services/auth_service.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
 import 'package:smart_home/main.dart';
 
@@ -16,6 +18,14 @@ void main() {
 
   testWidgets('Smart Home Dashboard App smoke test', (WidgetTester tester) async {
     await HttpOverrides.runZoned(() async {
+      // Create a mock user
+      final mockUser = MockUser(
+        isAnonymous: false,
+        uid: 'test_uid',
+        email: 'test@example.com',
+        displayName: 'Test User',
+      );
+
       // Set a tablet/desktop screen size (1440x900)
       tester.view.physicalSize = const Size(1440, 900);
       tester.view.devicePixelRatio = 1.0;
@@ -23,7 +33,14 @@ void main() {
       
 
       // Build our app and trigger a frame.
-      await tester.pumpWidget(const ProviderScope(child: SmartHomeApp()));
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authStateProvider.overrideWith((ref) => Stream.value(mockUser)),
+          ],
+          child: const SmartHomeApp(),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Verify that the main rooms from our mock data are present on screen.
