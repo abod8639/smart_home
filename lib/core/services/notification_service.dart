@@ -28,9 +28,18 @@ class NotificationService extends GetxService {
   void onInit() {
     super.onInit();
     final isTest = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
-    if (!isTest) {
+    final isSupported = kIsWeb ||
+        defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS;
+
+    if (!isTest && isSupported) {
       _fcm = FirebaseMessaging.instance;
       setupNotifications();
+    } else {
+      if (kDebugMode) {
+        print("Notifications (FCM) are disabled or unsupported on this platform.");
+      }
     }
   }
 
