@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 
-class HubConfigCard extends GetView<SettingsController> {
+class HubConfigCard extends ConsumerWidget {
   const HubConfigCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(settingsControllerProvider);
+    final controller = ref.read(settingsControllerProvider.notifier);
+
     final isMobile = Responsive.isMobile(context);
 
     return GlassContainer(
@@ -31,15 +35,15 @@ class HubConfigCard extends GetView<SettingsController> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Obx(() {
-                    if (controller.isCheckingHub.value) {
+                  Consumer(builder: (context, ref, _) {
+                    if (state.isCheckingHub) {
                       return const SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       );
                     }
-                    final connected = controller.isHubReachable.value;
+                    final connected = state.isHubReachable;
                     return Row(
                       children: [
                         Icon(
@@ -75,10 +79,10 @@ class HubConfigCard extends GetView<SettingsController> {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () => _showEditIpDialog(context),
-                  child: Obx(() => _buildInfoGridItem(
+                  onTap: () => _showEditIpDialog(context, ref),
+                  child: Consumer(builder: (context, ref, _) => _buildInfoGridItem(
                     label: 'HUB IP ADDRESS',
-                    value: controller.ipAddress.value,
+                    value: state.ipAddress,
                     icon: Icons.dns_outlined,
                   )),
                 ),
@@ -113,9 +117,9 @@ class HubConfigCard extends GetView<SettingsController> {
             ),
           ),
           const SizedBox(height: 12),
-          Obx(() => Row(
+          Consumer(builder: (context, ref, _) => Row(
                 children: controller.connectionModes.map((mode) {
-                  final isSelected = controller.hubConnectionMode.value == mode;
+                  final isSelected = state.hubConnectionMode == mode;
                   return Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -210,8 +214,10 @@ class HubConfigCard extends GetView<SettingsController> {
   }
 
   // Dialog to Edit Hub IP Address
-  void _showEditIpDialog(BuildContext context) {
-    final textController = TextEditingController(text: controller.ipAddress.value);
+  void _showEditIpDialog(BuildContext context, WidgetRef ref) {
+    final state = ref.read(settingsControllerProvider);
+    final controller = ref.read(settingsControllerProvider.notifier);
+    final textController = TextEditingController(text: state.ipAddress);
 
     showDialog(
       context: context,
