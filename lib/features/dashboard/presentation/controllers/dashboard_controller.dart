@@ -176,29 +176,7 @@ class DashboardController extends _$DashboardController {
   void setWifiRssi(String val) => state = state.copyWith(wifiRssi: val);
   void setHeapFree(String val) => state = state.copyWith(heapFree: val);
 
-  void _initFirebaseListeners() {
-    ref.listen(temperatureStreamProvider, (prev, next) {
-      next.whenData((event) {
-        if (!ref.read(isConnectedProvider)) {
-          final val = event.snapshot.value;
-          if (val != null) {
-            state = state.copyWith(temperature: '$val°');
-          }
-        }
-      });
-    });
-
-    ref.listen(humidityStreamProvider, (prev, next) {
-      next.whenData((event) {
-        if (!ref.read(isConnectedProvider)) {
-          final val = event.snapshot.value;
-          if (val != null) {
-            state = state.copyWith(humidity: '$val%');
-          }
-        }
-      });
-    });
-  }
+  void _initFirebaseListeners() {}
 
   void _syncIrCodesFromFirebase() async {
     bool changed = false;
