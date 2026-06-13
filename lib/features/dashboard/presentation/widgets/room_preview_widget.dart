@@ -20,7 +20,7 @@ class RoomPreviewWidget extends ConsumerWidget {
       child: AspectRatio(
         aspectRatio: 16 / 9,
         child: Builder(builder: (context) {
-          final activeRoom = state.activeRoom;
+          final activeRoom = controller.activeRoom;
           final ImageProvider imageProvider;
           if (activeRoom != null && activeRoom.imagePath != null && activeRoom.imagePath!.isNotEmpty && File(activeRoom.imagePath!).existsSync()) {
             imageProvider = FileImage(File(activeRoom.imagePath!));
@@ -89,7 +89,7 @@ class RoomPreviewWidget extends ConsumerWidget {
                 // Dynamic Device Markers (Simulated AR Overlay)
                 Positioned.fill(
                   child: Builder(builder: (context) {
-                    final activeRoomId = state.activeRoom?.id ?? '3';
+                    final activeRoomId = controller.activeRoom?.id ?? '3';
                     final validDevices = state.devices
                         .where((d) => d.positionX != null && d.positionY != null)
                         .where((d) => d.roomId == activeRoomId || (d.roomId == null && activeRoomId == '3'))
