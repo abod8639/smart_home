@@ -114,18 +114,11 @@ class SettingsController extends _$SettingsController {
 
   void _bindAuthUser() {
     ref.listen(authStateProvider, (prev, user) {
-      if (user != null) {
         state = state.copyWith(
           isGoogleLinked: true,
-          googleEmail: user.email ?? '',
-          userName: user.displayName ?? 'Dexter',
+          googleEmail: user.value?.email ?? '',
+          userName: user.value?.displayName ?? 'Dexter',
         );
-      } else {
-        state = state.copyWith(
-          isGoogleLinked: false,
-          googleEmail: '',
-        );
-      }
     });
 
     final user = FirebaseAuth.instance.currentUser;
