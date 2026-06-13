@@ -467,6 +467,9 @@ void main() {
         controller.updateAcTemperature('ac_test_ir', 18);
         expect(controller.devices.firstWhere((d) => d.id == 'ac_test_ir').temperature, 18);
         expect(mockFirebase.calls, contains('sendIrCommand(NEC, 0x1111)'));
+        // Drain pending 220ms IR inter-signal timers + IR snackbar timers
+        await tester.pump(const Duration(milliseconds: 800));
+        await tester.pump(const Duration(seconds: 3));
         await tester.pumpAndSettle();
       });
 
@@ -500,6 +503,8 @@ void main() {
         expect(updated.isOn, isTrue);
         expect(updated.mode, 'Cool mode');
         expect(mockFirebase.calls, contains('sendIrCommand(NEC, 0x3333)'));
+        // Drain snackbar display timer (GetX default ~3s)
+        await tester.pump(const Duration(seconds: 4));
         await tester.pumpAndSettle();
       });
 
@@ -523,6 +528,8 @@ void main() {
         final updated = controller.devices.firstWhere((d) => d.id == 'ac_clear') as AcDeviceEntity;
         expect(updated.acIrCodes.irPower, null);
         expect((mockFirebase as MockFirebaseService).calls, contains('deleteIrCode(ac_clear, irPower)'));
+        // Drain GetX snackbar timer ("Deleted" snackbar)
+        await tester.pump(const Duration(seconds: 4));
         await tester.pumpAndSettle();
       });
 
