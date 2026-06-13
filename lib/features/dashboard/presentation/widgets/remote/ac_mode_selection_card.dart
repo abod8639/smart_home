@@ -65,7 +65,7 @@ class AcModeSelectionCard extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: GestureDetector(
-                      onTap: () => controller.setAcMode(device.id, m.label),
+                      onTap: () => controller.setAcMode(context, device.id, m.label),
                       child: AnimatedContainer(
                         width: 72,
                         duration: const Duration(milliseconds: 200),
