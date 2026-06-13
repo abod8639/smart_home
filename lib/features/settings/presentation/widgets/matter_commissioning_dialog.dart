@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/core/services/matter_service.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
-class MatterCommissioningDialog extends StatefulWidget {
+class MatterCommissioningDialog extends ConsumerStatefulWidget {
   const MatterCommissioningDialog({super.key});
 
   @override
-  State<MatterCommissioningDialog> createState() => _MatterCommissioningDialogState();
+  ConsumerState<MatterCommissioningDialog> createState() => _MatterCommissioningDialogState();
 }
 
-class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
+class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningDialog> {
   int _currentStep = 0; // 0 = Input Form, 1 = Connecting Animation, 2 = Success Screen
   int _pairingStepIndex = 0;
   String _deviceName = '';
@@ -38,13 +39,7 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
 
   void _startCommissioning() async {
     if (_nameController.text.trim().isEmpty) {
-      Get.snackbar(
-        'Required Field',
-        'Please enter a name for the device.',
-        backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Required Field' + ': ' + 'Please enter a name for the device.')));
       return;
     }
 
@@ -56,25 +51,20 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
 
     // Start Real Matter Commissioning
     int nodeId = 1; // Default fallback
-    if (Get.isRegistered<MatterService>()) {
-      final pinCodeStr = _codeController.text.replaceAll('-', '').trim();
-      final setupPinCode = int.tryParse(pinCodeStr);
-      final response = await Get.find<MatterService>().commissionDevice(
-        setupPinCode: setupPinCode,
-      );
-      if (!response.isSuccess) {
-        if (!mounted) return;
-        Get.snackbar(
-          'Commissioning Failed',
-          response.errorMessage ?? 'Failed to add Matter device',
-          backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
-          colorText: Colors.white,
-        );
-        setState(() => _currentStep = 0);
-        return;
-      }
-      nodeId = response.data ?? 1;
+    final pinCodeStr = _codeController.text.replaceAll('-', '').trim();
+    final setupPinCode = int.tryParse(pinCodeStr);
+    final response = await ref.read(matterServiceProvider.notifier).commissionDevice(
+      setupPinCode: setupPinCode,
+    );
+    if (!response.isSuccess) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Commissioning Failed: ${response.errorMessage ?? "Failed to add Matter device"}'),
+      ));
+      setState(() => _currentStep = 0);
+      return;
     }
+    nodeId = response.data ?? 1;
 
     // Fast-forward UI steps for feedback
     for (int i = 0; i < _pairingSteps.length; i++) {
@@ -86,7 +76,7 @@ class _MatterCommissioningDialogState extends State<MatterCommissioningDialog> {
     }
 
     // Add device to controller
-    final dashboardController = Get.find<DashboardController>();
+    final dashboardController = ref.read(dashboardControllerProvider.notifier);
     final newId = 'matter_${DateTime.now().millisecondsSinceEpoch}';
     
     // Create new device entity with default stats
