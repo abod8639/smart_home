@@ -65,7 +65,7 @@ class RoomsListWidget extends ConsumerWidget {
               itemBuilder: (context, index) {
                 if (index == roomsList.length) {
                   return GestureDetector(
-                    onTap: () => RoomManagementDialogs.showAddRoomDialog(context),
+                    onTap: () => RoomManagementDialogs.showAddRoomDialog(context, ref),
                     child: _buildMobileAddRoomCard(context),
                   );
                 }
@@ -232,7 +232,7 @@ class RoomsListWidget extends ConsumerWidget {
     
     return GestureDetector(
       onTap: () => controller.selectRoom(room.id),
-      onLongPress: () => RoomManagementDialogs.showRoomOptions(context, room),
+      onLongPress: () => RoomManagementDialogs.showRoomOptions(context, ref, room),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
