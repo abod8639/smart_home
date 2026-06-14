@@ -7,6 +7,7 @@ import 'package:smart_home/core/services/esp32_service.dart';
 import 'package:smart_home/core/services/matter_service.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
+import 'package:smart_home/features/device/data/models/ir_code_model.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 import 'package:smart_home/features/room/domain/usecases/get_rooms_usecase.dart';
 import 'package:smart_home/features/room/domain/usecases/save_rooms_usecase.dart';
