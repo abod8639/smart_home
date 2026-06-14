@@ -8,9 +8,12 @@ part of 'save_rooms_usecase.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Provider for accessing [SaveRoomsUseCase].
 
 @ProviderFor(saveRoomsUseCase)
 final saveRoomsUseCaseProvider = SaveRoomsUseCaseProvider._();
+
+/// Provider for accessing [SaveRoomsUseCase].
 
 final class SaveRoomsUseCaseProvider
     extends
@@ -20,6 +23,7 @@ final class SaveRoomsUseCaseProvider
           SaveRoomsUseCase
         >
     with $Provider<SaveRoomsUseCase> {
+  /// Provider for accessing [SaveRoomsUseCase].
   SaveRoomsUseCaseProvider._()
     : super(
         from: null,
