@@ -1,28 +1,51 @@
 import 'package:equatable/equatable.dart';
 
+/// Set of IR commands learned or assigned for an Air Conditioner.
 class AcIrCodes extends Equatable {
+  /// Hex/timing payload for toggle power.
   final String? irPower;
+  /// Hex/timing payload to increase temperature.
   final String? irTempUp;
+  /// Hex/timing payload to decrease temperature.
   final String? irTempDown;
+  /// Hex/timing payload to set AC to Auto mode.
   final String? irAuto;
+  /// Hex/timing payload to set AC to Cool mode.
   final String? irCool;
+  /// Hex/timing payload to set AC to Heat mode.
   final String? irHeat;
+  /// Hex/timing payload to set AC to Eco mode.
   final String? irEco;
+  /// Hex/timing payload to set AC to Dry mode.
   final String? irDry;
+  /// Hex/timing payload for quiet fan speed.
   final String? irFanQuiet;
+  /// Hex/timing payload for low fan speed.
   final String? irFanLow;
+  /// Hex/timing payload for medium fan speed.
   final String? irFanMed;
+  /// Hex/timing payload for high fan speed.
   final String? irFanHigh;
+  /// Hex/timing payload for automatic fan speed.
   final String? irFanAuto;
+  /// Hex/timing payload for vertical swing.
   final String? irSwingV;
+  /// Hex/timing payload for horizontal swing.
   final String? irSwingH;
+  /// Hex/timing payload for plasmacluster mode.
   final String? irPlasmacluster;
+  /// Hex/timing payload for super jet mode.
   final String? irSuperJet;
+  /// Hex/timing payload for coanda airflow mode.
   final String? irCoanda;
+  /// Hex/timing payload for my area mode.
   final String? irMyArea;
+  /// Hex/timing payload to toggle display light.
   final String? irDisplay;
+  /// Hex/timing payload for clean mode.
   final String? irClean;
 
+  /// Creates a constant [AcIrCodes] instance.
   const AcIrCodes({
     this.irPower,
     this.irTempUp,
