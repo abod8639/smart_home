@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
+/// A widget representing the visual status of an AC unit, showing temperature control buttons and mode indicators.
 class AcVisualizer extends StatelessWidget {
+  /// The air conditioner device entity representation.
   final DeviceEntity device;
+  /// Callback executed when decreasing target temperature.
   final VoidCallback onDecreaseTemp;
+  /// Callback executed when increasing target temperature.
   final VoidCallback onIncreaseTemp;
+  /// The scaling factor for layout adjustment.
   final double scale;
 
+  /// Creates a constant [AcVisualizer] instance.
   const AcVisualizer({
     super.key,
     required this.device,
