@@ -156,7 +156,7 @@ extension Esp32Api on Esp32Service {
             final timestamp = data['timestamp'] ?? 0;
             final nowSec = DateTime.now().millisecondsSinceEpoch ~/ 1000;
             if ((nowSec - timestamp).abs() < 15) { // within 15 seconds
-              final entity = IrCodeEntity(
+              final entity = IrCodeModel(
                 protocol: IrProtocol.values.firstWhere(
                   (p) => p.name.toUpperCase() == protocolStr.toString().toUpperCase(),
                   orElse: () => IrProtocol.raw,
@@ -216,7 +216,7 @@ extension Esp32Api on Esp32Service {
     
     final status = data['status'];
     if (status == 'ok') {
-      final entity = IrCodeEntity.fromMap(data);
+      final entity = IrCodeModel.fromMap(data);
       _irLearnCompleter!.complete(entity);
     } else {
       _irLearnCompleter!.completeError(data['message'] ?? 'Failed to learn IR code');
