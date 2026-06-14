@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/utils/responsive.dart';
+import 'package:smart_home/core/utils/formatting_utils.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
@@ -25,7 +26,7 @@ class RoomPreviewWidget extends ConsumerWidget {
           if (activeRoom != null && activeRoom.imagePath != null && activeRoom.imagePath!.isNotEmpty && File(activeRoom.imagePath!).existsSync()) {
             imageProvider = FileImage(File(activeRoom.imagePath!));
           } else {
-            imageProvider = AssetImage(_getRoomBackgroundImage(activeRoom?.name));
+            imageProvider = AssetImage(FormattingUtils.getRoomBackgroundImage(activeRoom?.name));
           }
 
           return Container(
@@ -152,20 +153,7 @@ class RoomPreviewWidget extends ConsumerWidget {
     );
   }
 
-  String _getRoomBackgroundImage(String? roomName) {
-    if (roomName == null) return 'assets/images/living_room.png';
-    switch (roomName.toLowerCase()) {
-      case 'kitchen':
-        return 'assets/images/kitchen.png';
-      case 'bedroom':
-        return 'assets/images/bedroom.png';
-      case 'bathroom':
-        return 'assets/images/bathroom.png';
-      case 'living room':
-      default:
-        return 'assets/images/living_room.png';
-    }
-  }
+
 
   Widget _buildStatChip(IconData icon, String value, bool isMobile) {
     return GlassContainer(
