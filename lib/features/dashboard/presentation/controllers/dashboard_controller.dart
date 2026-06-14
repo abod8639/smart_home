@@ -213,7 +213,9 @@ class DashboardController extends _$DashboardController {
     final getDevicesUseCase = ref.read(getDevicesUseCaseProvider);
 
     final loadedRooms = await getRoomsUseCase.call();
+    if (!ref.mounted) return;
     final loadedDevices = await getDevicesUseCase.call();
+    if (!ref.mounted) return;
 
     List<RoomEntity> roomsToUse = loadedRooms;
     bool roomsNeedSeeding = false;
@@ -238,9 +240,11 @@ class DashboardController extends _$DashboardController {
     
     if (roomsNeedSeeding) {
       await _persistRooms();
+      if (!ref.mounted) return;
     }
     if (devicesNeedSeeding) {
       await _persistDevices();
+      if (!ref.mounted) return;
     }
 
     _syncRoomsToFirebase();
