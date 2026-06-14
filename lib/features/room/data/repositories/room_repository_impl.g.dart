@@ -8,13 +8,17 @@ part of 'room_repository_impl.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Provider for accessing the [RoomRepository] implementation.
 
 @ProviderFor(roomRepository)
 final roomRepositoryProvider = RoomRepositoryProvider._();
 
+/// Provider for accessing the [RoomRepository] implementation.
+
 final class RoomRepositoryProvider
     extends $FunctionalProvider<RoomRepository, RoomRepository, RoomRepository>
     with $Provider<RoomRepository> {
+  /// Provider for accessing the [RoomRepository] implementation.
   RoomRepositoryProvider._()
     : super(
         from: null,
