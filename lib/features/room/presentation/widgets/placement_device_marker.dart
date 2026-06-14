@@ -7,14 +7,28 @@ import 'package:smart_home/features/dashboard/presentation/widgets/pulsing_dot_m
 
 /// A draggable, resizable device card placed on the room floor-plan image.
 class PlacementDeviceMarker extends StatefulWidget {
+  /// The device entity represented by this marker.
   final DeviceEntity device;
+
+  /// Whether this marker is currently selected in the editor.
   final bool isSelected;
+
+  /// The controller for dashboard operations.
   final DashboardController dashboardController;
+
+  /// The controller for room device placement state.
   final RoomPlacementController placementController;
+
+  /// The key associated with the background image container.
   final GlobalKey imageKey;
+
+  /// The width of the parent container holding the image.
   final double parentWidth;
+
+  /// The height of the parent container holding the image.
   final double parentHeight;
 
+  /// Creates a [PlacementDeviceMarker].
   const PlacementDeviceMarker({
     super.key,
     required this.device,

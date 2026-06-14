@@ -10,10 +10,16 @@ import 'package:smart_home/features/room/presentation/widgets/placement_device_i
 
 /// Shows properties and quick-toggle for the currently selected device.
 class PlacementDeviceProperties extends ConsumerWidget {
+  /// The selected device entity whose properties are displayed.
   final DeviceEntity device;
+
+  /// The controller for dashboard operations.
   final DashboardController dashboardController;
+
+  /// The controller for room device placement state.
   final RoomPlacementController placementController;
 
+  /// Creates a [PlacementDeviceProperties].
   const PlacementDeviceProperties({
     super.key,
     required this.device,
