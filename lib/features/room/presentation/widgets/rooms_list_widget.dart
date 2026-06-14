@@ -17,7 +17,7 @@ class RoomsListWidget extends ConsumerWidget {
   const RoomsListWidget({
     this.isCompact = false,
     super.key});
-
+ 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (Responsive.isMobile(context) || isCompact) {
