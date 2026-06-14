@@ -4,10 +4,14 @@ import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
+/// A control card widget for managing and viewing status of a smart door lock.
 class DoorCard extends StatelessWidget {
+  /// The door device entity representation.
   final DeviceEntity device;
+  /// Callback executed when toggling the lock state.
   final VoidCallback onToggle;
 
+  /// Creates a constant [DoorCard] instance.
   const DoorCard({super.key, required this.device, required this.onToggle});
 
   @override
