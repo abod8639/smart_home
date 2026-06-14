@@ -1,15 +1,17 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_home/core/services/hive_service.dart';
-import '../../domain/entities/room_entity.dart';
 import '../models/room_model.dart';
+
+part 'room_local_datasource.g.dart';
 
 /// Local data source for persisting and retrieving [RoomEntity] objects
 /// using Hive. Rooms are stored as plain [Map] objects (no TypeAdapter needed).
 class RoomLocalDatasource {
   // ── Serialization ────────────────────────────────────────────────────────────
 
-  static Map<String, dynamic> toMap(RoomEntity r) => {
+  static Map<String, dynamic> toMap(RoomModel r) => {
         'id': r.id,
         'name': r.name,
         'deviceCount': r.deviceCount,
@@ -61,7 +63,7 @@ class RoomLocalDatasource {
   }
 
   /// Overwrites all saved rooms with [rooms].
-  Future<void> saveRooms(List<RoomEntity> rooms) async {
+  Future<void> saveRooms(List<RoomModel> rooms) async {
     if (_isTest) return;
     final box = HiveService.roomsBox;
     await box.clear();
@@ -82,4 +84,9 @@ class RoomLocalDatasource {
     if (_isTest) return false;
     return HiveService.roomsBox.isNotEmpty;
   }
+}
+
+@riverpod
+RoomLocalDatasource roomLocalDatasource(Ref ref) {
+  return RoomLocalDatasource();
 }
