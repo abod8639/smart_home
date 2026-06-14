@@ -11,8 +11,10 @@ part 'device_local_datasource.g.dart';
 class DeviceLocalDatasource {
   // ── Serialization ────────────────────────────────────────────────────────────
 
+  /// Serializes a [DeviceModel] to a JSON-compatible map.
   static Map<String, dynamic> toMap(DeviceModel d) => d.toJson();
 
+  /// Deserializes a [DeviceModel] from a map.
   static DeviceModel fromMap(Map map) => DeviceModel.fromJson(Map<String, dynamic>.from(map));
 
   // ── Helper ───────────────────────────────────────────────────────────────────
@@ -52,18 +54,21 @@ class DeviceLocalDatasource {
     await box.putAll(entries);
   }
 
+  /// Deletes all saved devices from local storage.
   Future<void> clearDevices() async {
     if (_isTest) return;
     await HiveService.devicesBox.clear();
   }
 
   /// Returns true if there are any saved devices.
+  /// Checks if there are any devices currently stored.
   bool get hasData {
     if (_isTest) return false;
     return HiveService.devicesBox.isNotEmpty;
   }
 }
 
+/// Riverpod provider for [DeviceLocalDatasource].
 @riverpod
 DeviceLocalDatasource deviceLocalDatasource(Ref ref) {
   return DeviceLocalDatasource();
