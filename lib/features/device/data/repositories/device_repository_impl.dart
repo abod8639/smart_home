@@ -6,9 +6,12 @@ import '../models/device_model.dart';
 
 part 'device_repository_impl.g.dart';
 
+/// Concrete implementation of [DeviceRepository] using [DeviceLocalDatasource].
 class DeviceRepositoryImpl implements DeviceRepository {
+  /// The local data source for reading/writing devices.
   final DeviceLocalDatasource localDatasource;
 
+  /// Creates a [DeviceRepositoryImpl] instance.
   DeviceRepositoryImpl({required this.localDatasource});
 
   @override
@@ -29,6 +32,7 @@ class DeviceRepositoryImpl implements DeviceRepository {
   }
 }
 
+/// Riverpod provider for [DeviceRepository].
 @riverpod
 DeviceRepository deviceRepository(Ref ref) {
   return DeviceRepositoryImpl(
