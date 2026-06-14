@@ -1,5 +1,6 @@
 import 'device_entity.dart';
 
+/// Backward-compatibility extension to access subtype-specific fields on the base [DeviceEntity].
 extension DeviceEntityCompat on DeviceEntity {
   // Getters for AC
   int? get temperature => this is AcDeviceEntity ? (this as AcDeviceEntity).temperature : null;
