@@ -5,6 +5,7 @@ import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
+import 'package:smart_home/features/device/data/models/ir_code_model.dart';
 
 /// Widget for displaying and managing IR remote command learning controls.
 class PlacementDeviceIrControls extends ConsumerWidget {
@@ -47,13 +48,16 @@ class PlacementDeviceIrControls extends ConsumerWidget {
           style: TextStyle(color: AppTheme.textGrey, fontSize: 11),
         ),
         const SizedBox(height: 16),
+        
         _buildIrRecordRow(
           context,
           label: 'Temp Up',
           savedValue: device.irTempUp,
           fieldKey: 'irTempUp',
         ),
+
         const SizedBox(height: 10),
+        
         _buildIrRecordRow(
           context,
           label: 'Temp Down',
@@ -137,7 +141,7 @@ class PlacementDeviceIrControls extends ConsumerWidget {
     IrCodeEntity? code;
     if (savedValue != null) {
       try {
-        code = IrCodeEntity.fromJson(savedValue);
+        code = IrCodeModel.fromJson(savedValue);
       } catch (_) {}
     }
     final hasCode = code != null;
