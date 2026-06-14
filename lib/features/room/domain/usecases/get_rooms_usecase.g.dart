@@ -8,14 +8,18 @@ part of 'get_rooms_usecase.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Provider for accessing [GetRoomsUseCase].
 
 @ProviderFor(getRoomsUseCase)
 final getRoomsUseCaseProvider = GetRoomsUseCaseProvider._();
+
+/// Provider for accessing [GetRoomsUseCase].
 
 final class GetRoomsUseCaseProvider
     extends
         $FunctionalProvider<GetRoomsUseCase, GetRoomsUseCase, GetRoomsUseCase>
     with $Provider<GetRoomsUseCase> {
+  /// Provider for accessing [GetRoomsUseCase].
   GetRoomsUseCaseProvider._()
     : super(
         from: null,
