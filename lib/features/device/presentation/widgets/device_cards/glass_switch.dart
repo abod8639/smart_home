@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 
+/// A glassmorphic custom switch button.
 class GlassSwitch extends StatelessWidget {
+  /// Creates a constant [GlassSwitch] instance.
   const GlassSwitch({
     super.key,
     required this.onToggle,
@@ -9,8 +11,11 @@ class GlassSwitch extends StatelessWidget {
     this.scale = 1.0,
   });
 
+  /// Callback executed when toggling the switch state.
   final VoidCallback onToggle;
+  /// Whether the switch is currently on.
   final bool isDeviceOn;
+  /// The scaling factor for sizing the switch.
   final double scale;
 
   @override
