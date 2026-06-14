@@ -4,4 +4,5 @@ abstract class RoomRepository {
   Future<List<RoomEntity>> getRooms();
   Future<void> addRoom(RoomEntity room);
   Future<void> deleteRoom(String id);
+  Future<void> saveRooms(List<RoomEntity> rooms);
 }
