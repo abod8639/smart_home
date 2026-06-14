@@ -9,34 +9,67 @@ export 'lamp_device_entity.dart';
 export 'rgb_lamp_device_entity.dart';
 export 'door_device_entity.dart';
 
-enum DeviceType { vacuum, airConditioner, lamp, door, rgb }
+/// The type of smart home device.
+enum DeviceType {
+  /// A robotic vacuum cleaner device.
+  vacuum,
+  /// An air conditioner device.
+  airConditioner,
+  /// A basic smart lamp/light.
+  lamp,
+  /// A smart door lock.
+  door,
+  /// An RGB led light strip/lamp.
+  rgb
+}
 
+/// Abstract base class representing a smart home device.
+/// 
+/// All device entities in the system extend this class and inherit its common properties.
 abstract class DeviceEntity extends Equatable {
+  /// The unique identifier of the device.
   final String id;
+
+  /// The human-readable name of the device.
   final String name;
+
+  /// The category of the device.
   final DeviceType type;
+
+  /// Whether the device is currently turned on.
   final bool isOn;
+
+  /// The unique identifier of the room this device is placed in.
   final String? roomId;
+
+  /// Icon representing the device in the user interface.
   final IconData? icon;
 
-  // Placement coordinates (normalized 0.0 to 1.0)
+  /// Normalized X coordinate (0.0 to 1.0) of the device marker in the room layout.
   final double? positionX;
+
+  /// Normalized Y coordinate (0.0 to 1.0) of the device marker in the room layout.
   final double? positionY;
 
-  // Display size in logical pixels (for room placement view)
+  /// Explicit display width of the device marker in logical pixels.
   final double? markerWidth;
+
+  /// Explicit display height of the device marker in logical pixels.
   final double? markerHeight;
 
-  // Presentation style
+  /// Whether to render this device as a simple dot instead of a full widget on the map.
   final bool showAsDot;
 
-  // Matter fields
+  /// The Matter node ID for Matter-compatible devices.
   final int? matterNodeId;
+
+  /// The Matter endpoint ID for Matter-compatible devices.
   final int? matterEndpointId;
 
-  // ESP32 GPIO pin mapping
+  /// The hardware GPIO pin number mapped on the ESP32.
   final int? pin;
 
+  /// Creates a constant [DeviceEntity] instance.
   const DeviceEntity({
     required this.id,
     required this.name,
