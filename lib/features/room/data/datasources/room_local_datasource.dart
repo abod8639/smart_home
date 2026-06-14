@@ -11,6 +11,7 @@ part 'room_local_datasource.g.dart';
 class RoomLocalDatasource {
   // ── Serialization ────────────────────────────────────────────────────────────
 
+  /// Converts a [RoomModel] to a key-value map for local persistence.
   static Map<String, dynamic> toMap(RoomModel r) => {
         'id': r.id,
         'name': r.name,
@@ -20,6 +21,7 @@ class RoomLocalDatasource {
         'imagePath': r.imagePath,
       };
 
+  /// Decodes a persisted raw map into a [RoomModel] object.
   static RoomModel fromMap(Map map) {
     return RoomModel(
       id: map['id'] as String,
@@ -86,6 +88,7 @@ class RoomLocalDatasource {
   }
 }
 
+/// Provider for accessing [RoomLocalDatasource].
 @riverpod
 RoomLocalDatasource roomLocalDatasource(Ref ref) {
   return RoomLocalDatasource();
