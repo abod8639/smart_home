@@ -54,4 +54,20 @@ class FormattingUtils {
       return '$minutes min';
     }
   }
+
+  /// Returns the background image asset path for a given room name.
+  static String getRoomBackgroundImage(String? roomName) {
+    if (roomName == null) return 'assets/images/living_room.png';
+    switch (roomName.toLowerCase()) {
+      case 'kitchen':
+        return 'assets/images/kitchen.png';
+      case 'bedroom':
+        return 'assets/images/bedroom.png';
+      case 'bathroom':
+        return 'assets/images/bathroom.png';
+      case 'living room':
+      default:
+        return 'assets/images/living_room.png';
+    }
+  }
 }
