@@ -1,9 +1,13 @@
 import 'device_entity.dart';
 
+/// Entity representing a smart door lock.
 class DoorDeviceEntity extends DeviceEntity {
+  /// Whether the door is currently locked.
   final bool? isLocked;
+  /// Number of other devices linked/grouped with this door.
   final int? linkedDevicesCount;
 
+  /// Creates a constant [DoorDeviceEntity] instance.
   const DoorDeviceEntity({
     required super.id,
     required super.name,
