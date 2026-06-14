@@ -6,10 +6,15 @@ import 'package:smart_home/features/dashboard/presentation/controllers/dashboard
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
 
+/// Widget for displaying and managing IR remote command learning controls.
 class PlacementDeviceIrControls extends ConsumerWidget {
+  /// The device entity whose IR commands are managed.
   final DeviceEntity device;
+
+  /// The controller for dashboard operations.
   final DashboardController dashboardController;
 
+  /// Creates a [PlacementDeviceIrControls].
   const PlacementDeviceIrControls({
     super.key,
     required this.device,
