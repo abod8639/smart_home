@@ -173,7 +173,6 @@ class DashboardController extends _$DashboardController {
       _startAcTimer();
       _startEsp32Polling();
       _initFirebaseListeners();
-      _syncIrCodesFromFirebase();
     });
 
     return const DashboardState();
@@ -188,7 +187,44 @@ class DashboardController extends _$DashboardController {
   void setWifiRssi(String val) => state = state.copyWith(wifiRssi: val);
   void setHeapFree(String val) => state = state.copyWith(heapFree: val);
 
-  void _initFirebaseListeners() {}
+  void _initFirebaseListeners() {
+    if (_isTest) return;
+
+    final roomsSub = ref.read(firebaseServiceProvider.notifier).roomsStream.listen((roomsJson) {
+      if (!ref.mounted) return;
+      final firebaseRooms = roomsJson.map((json) => RoomModel.fromJson(json)).toList();
+      if (firebaseRooms.isNotEmpty && firebaseRooms != state.rooms) {
+        state = state.copyWith(rooms: firebaseRooms);
+        ref.read(saveRoomsUseCaseProvider).call(firebaseRooms);
+      }
+    });
+    ref.onDispose(roomsSub.cancel);
+
+    final devicesSub = ref.read(firebaseServiceProvider.notifier).devicesStream.listen((devicesJson) {
+      if (!ref.mounted) return;
+      final firebaseDevices = devicesJson.map((json) => DeviceModel.fromJson(json).toEntity()).toList();
+      
+      // Preserve local IR codes that might not be in the devices stream
+      for (int i = 0; i < firebaseDevices.length; i++) {
+        final fDev = firebaseDevices[i];
+        if (fDev is AcDeviceEntity) {
+          final existing = state.devices.firstWhere(
+            (d) => d.id == fDev.id,
+            orElse: () => fDev,
+          );
+          if (existing is AcDeviceEntity) {
+            firebaseDevices[i] = fDev.copyWith(acIrCodes: existing.acIrCodes);
+          }
+        }
+      }
+
+      if (firebaseDevices.isNotEmpty && firebaseDevices != state.devices) {
+        state = state.copyWith(devices: firebaseDevices);
+        ref.read(saveDevicesUseCaseProvider).call(firebaseDevices);
+      }
+    });
+    ref.onDispose(devicesSub.cancel);
+  }
 
   void _syncIrCodesFromFirebase() async {
     bool changed = false;
@@ -221,43 +257,97 @@ class DashboardController extends _$DashboardController {
     final getRoomsUseCase = ref.read(getRoomsUseCaseProvider);
     final getDevicesUseCase = ref.read(getDevicesUseCaseProvider);
 
+    // 1. Load from local database first so UI is immediately responsive
     final loadedRooms = await getRoomsUseCase.call();
     if (!ref.mounted) return;
     final loadedDevices = await getDevicesUseCase.call();
     if (!ref.mounted) return;
 
-    List<RoomEntity> roomsToUse = loadedRooms;
-    bool roomsNeedSeeding = false;
-    if (loadedRooms.isEmpty) {
-      roomsNeedSeeding = true;
-      roomsToUse = [
-        const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 3),
-        const RoomEntity(id: '2', name: 'Kitchen', deviceCount: 2),
-        const RoomEntity(id: '3', name: 'Living room', deviceCount: 5, isActive: true),
-        const RoomEntity(id: '4', name: 'Bathroom', deviceCount: 3),
-      ];
-    }
+    state = state.copyWith(rooms: loadedRooms, devices: loadedDevices);
 
-    List<DeviceEntity> devicesToUse = loadedDevices;
-    bool devicesNeedSeeding = false;
-    if (loadedDevices.isEmpty) {
-      devicesNeedSeeding = true;
-      devicesToUse = _getMockDevices();
-    }
-    
-    state = state.copyWith(rooms: roomsToUse, devices: devicesToUse);
-    
-    if (roomsNeedSeeding) {
-      await _persistRooms();
+    // 2. Fetch from Firebase to update/override local data
+    if (!_isTest) {
+      final firebaseNotifier = ref.read(firebaseServiceProvider.notifier);
+      final firebaseRoomsJson = await firebaseNotifier.fetchRooms();
       if (!ref.mounted) return;
-    }
-    if (devicesNeedSeeding) {
-      await _persistDevices();
+      final firebaseDevicesJson = await firebaseNotifier.fetchDevices();
       if (!ref.mounted) return;
-    }
 
-    _syncRoomsToFirebase();
-    _syncDevicesToFirebase();
+      List<RoomEntity>? firebaseRooms;
+      if (firebaseRoomsJson != null && firebaseRoomsJson.isNotEmpty) {
+        firebaseRooms = firebaseRoomsJson.map((json) => RoomModel.fromJson(json)).toList();
+      }
+
+      List<DeviceEntity>? firebaseDevices;
+      if (firebaseDevicesJson != null && firebaseDevicesJson.isNotEmpty) {
+        firebaseDevices = firebaseDevicesJson.map((json) => DeviceModel.fromJson(json).toEntity()).toList();
+      }
+
+      if (firebaseRooms != null || firebaseDevices != null) {
+        if (firebaseDevices != null) {
+          for (int i = 0; i < firebaseDevices.length; i++) {
+            final fDev = firebaseDevices[i];
+            if (fDev is AcDeviceEntity) {
+              final existing = loadedDevices.firstWhere(
+                (d) => d.id == fDev.id,
+                orElse: () => fDev,
+              );
+              if (existing is AcDeviceEntity) {
+                firebaseDevices[i] = fDev.copyWith(acIrCodes: existing.acIrCodes);
+              }
+            }
+          }
+        }
+
+        state = state.copyWith(
+          rooms: firebaseRooms ?? state.rooms,
+          devices: firebaseDevices ?? state.devices,
+        );
+        if (firebaseRooms != null) {
+          await ref.read(saveRoomsUseCaseProvider).call(firebaseRooms);
+          if (!ref.mounted) return;
+        }
+        if (firebaseDevices != null) {
+          await ref.read(saveDevicesUseCaseProvider).call(firebaseDevices);
+          if (!ref.mounted) return;
+        }
+        
+        // After loading base devices, fetch missing IR codes from Firebase
+        _syncIrCodesFromFirebase();
+      } else {
+        // Both local database and Firebase are empty, so seed with default mock data
+        if (state.rooms.isEmpty && state.devices.isEmpty) {
+          final seedRooms = [
+            const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 3),
+            const RoomEntity(id: '2', name: 'Kitchen', deviceCount: 2),
+            const RoomEntity(id: '3', name: 'Living room', deviceCount: 5, isActive: true),
+            const RoomEntity(id: '4', name: 'Bathroom', deviceCount: 3),
+          ];
+          final seedDevices = _getMockDevices();
+          state = state.copyWith(rooms: seedRooms, devices: seedDevices);
+
+          await ref.read(saveRoomsUseCaseProvider).call(seedRooms);
+          if (!ref.mounted) return;
+          await ref.read(saveDevicesUseCaseProvider).call(seedDevices);
+          if (!ref.mounted) return;
+
+          _syncRoomsToFirebase();
+          _syncDevicesToFirebase();
+        }
+      }
+    } else {
+      // For testing, if empty, seed with mock data
+      if (loadedRooms.isEmpty && loadedDevices.isEmpty) {
+        final seedRooms = [
+          const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 3),
+          const RoomEntity(id: '2', name: 'Kitchen', deviceCount: 2),
+          const RoomEntity(id: '3', name: 'Living room', deviceCount: 5, isActive: true),
+          const RoomEntity(id: '4', name: 'Bathroom', deviceCount: 3),
+        ];
+        final seedDevices = _getMockDevices();
+        state = state.copyWith(rooms: seedRooms, devices: seedDevices);
+      }
+    }
   }
 
   Future<void> _persistRooms() async {
@@ -283,7 +373,7 @@ class DashboardController extends _$DashboardController {
 
   void _syncDevicesToFirebase() {
     if (!_isTest) {
-      final devicesJson = state.devices.map((d) => DeviceModel.fromEntity(d).toJson()).toList();
+      final devicesJson = state.devices.map((d) => DeviceModel.fromEntity(d).toJson(excludeIrCodes: true)).toList();
       ref.read(firebaseServiceProvider.notifier).syncDevices(devicesJson);
     }
   }
