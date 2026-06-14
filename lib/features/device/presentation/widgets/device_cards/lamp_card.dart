@@ -25,10 +25,14 @@ class LightBeamClipper extends CustomClipper<Path> {
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
+/// A control card widget for managing and viewing status of a smart lamp.
 class LampCard extends ConsumerWidget {
+  /// The lamp device entity representation.
   final DeviceEntity device;
+  /// Callback executed when toggling the power state.
   final VoidCallback onToggle;
 
+  /// Creates a constant [LampCard] instance.
   const LampCard({super.key, required this.device, required this.onToggle});
 
   @override
