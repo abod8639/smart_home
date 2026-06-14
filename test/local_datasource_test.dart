@@ -4,8 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_home/core/services/hive_service.dart';
 import 'package:smart_home/features/device/data/datasources/device_local_datasource.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
+import 'package:smart_home/features/device/data/models/device_model.dart';
 import 'package:smart_home/features/room/data/datasources/room_local_datasource.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
+import 'package:smart_home/features/room/data/models/room_model.dart';
 
 void main() {
   group('Local Datasource Serialization Tests', () {
@@ -85,12 +87,14 @@ void main() {
       final devices = [vacuum, ac, lamp, rgb, door];
 
       for (final device in devices) {
-        final map = DeviceLocalDatasource.toMap(device);
+        final model = DeviceModel.fromEntity(device);
+        final map = DeviceLocalDatasource.toMap(model);
         expect(map['id'], device.id);
         expect(map['name'], device.name);
         expect(map['type'], device.type.name);
 
-        final deserialized = DeviceLocalDatasource.fromMap(map);
+        final deserializedModel = DeviceLocalDatasource.fromMap(map);
+        final deserialized = deserializedModel.toEntity();
         expect(deserialized.id, device.id);
         expect(deserialized.name, device.name);
         expect(deserialized.type, device.type);
@@ -138,7 +142,8 @@ void main() {
         imagePath: 'assets/play_bg.png',
       );
 
-      final map = RoomLocalDatasource.toMap(room);
+      final model = RoomModel.fromEntity(room);
+      final map = RoomLocalDatasource.toMap(model);
       expect(map['id'], 'room_1');
       expect(map['name'], 'Playroom');
       expect(map['deviceCount'], 5);
@@ -184,14 +189,16 @@ void main() {
         brightness: 150,
       );
 
-      await datasource.saveDevices([lamp]);
+      final model = DeviceModel.fromEntity(lamp);
+      await datasource.saveDevices([model]);
       expect(datasource.hasData, isTrue);
 
       final loaded = datasource.loadDevices();
       expect(loaded, hasLength(1));
-      expect(loaded.first.id, 'lamp_1');
-      expect(loaded.first.name, 'Test Lamp');
-      expect((loaded.first as LampDeviceEntity).brightness, 150);
+      final loadedEntity = loaded.first.toEntity();
+      expect(loadedEntity.id, 'lamp_1');
+      expect(loadedEntity.name, 'Test Lamp');
+      expect((loadedEntity as LampDeviceEntity).brightness, 150);
 
       await datasource.clearDevices();
       expect(datasource.hasData, isFalse);
@@ -211,7 +218,8 @@ void main() {
         iconPath: 'icon.png',
       );
 
-      await datasource.saveRooms([room]);
+      final model = RoomModel.fromEntity(room);
+      await datasource.saveRooms([model]);
       expect(datasource.hasData, isTrue);
 
       final loaded = datasource.loadRooms();
