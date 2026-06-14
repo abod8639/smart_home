@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/utils/responsive.dart';
+import 'package:smart_home/core/utils/formatting_utils.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
@@ -27,20 +28,7 @@ class PlacementImagePanel extends ConsumerWidget {
     required this.imageKey,
   });
 
-  String _backgroundImage(String? roomName) {
-    if (roomName == null) return 'assets/images/living_room.png';
-    switch (roomName.toLowerCase()) {
-      case 'kitchen':
-        return 'assets/images/kitchen.png';
-      case 'bedroom':
-        return 'assets/images/bedroom.png';
-      case 'bathroom':
-        return 'assets/images/bathroom.png';
-      case 'living room':
-      default:
-        return 'assets/images/living_room.png';
-    }
-  }
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -69,7 +57,7 @@ class PlacementImagePanel extends ConsumerWidget {
                             return Image.file(file, fit: BoxFit.cover);
                           }
                         }
-                        final bgImage = _backgroundImage(room?.name);
+                        final bgImage = FormattingUtils.getRoomBackgroundImage(room?.name);
                         return Image.asset(bgImage, fit: BoxFit.cover);
                       }),
                     ),
