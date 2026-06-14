@@ -7,14 +7,20 @@ import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/glass_switch.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/widgets/ac_visualizer.dart';
 
+/// A control card widget for managing and viewing status of an air conditioner.
 class AcCard extends StatelessWidget {
+  /// The air conditioner device entity representation.
   final DeviceEntity device;
+  /// Callback executed when toggling the power state.
   final VoidCallback onToggle;
+  /// Callback executed when increasing target temperature.
   final VoidCallback onIncreaseTemp;
+  /// Callback executed when decreasing target temperature.
   final VoidCallback onDecreaseTemp;
   /// Called when the user picks a mode. Receives the selected mode label.
   final void Function(String mode)? onModeChange;
 
+  /// Creates a constant [AcCard] instance.
   const AcCard({
     super.key,
     required this.device,
