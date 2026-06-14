@@ -9,6 +9,7 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:uuid/uuid.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
+import 'package:smart_home/features/device/data/models/ir_code_model.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/core/services/firebase_service.dart';
