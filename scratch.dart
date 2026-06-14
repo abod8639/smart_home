@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_print
 import 'dart:convert';
-import 'lib/features/device/domain/entities/ir_code_entity.dart';
+import 'lib/features/device/data/models/ir_code_model.dart';
 
 void main() {
   final jsonStr = jsonEncode({
@@ -17,7 +17,7 @@ void main() {
     'isMsb': false,
   });
   
-  final entity = IrCodeEntity.fromJson(jsonStr);
+  final entity = IrCodeModel.fromJson(jsonStr);
   print(entity.protocol);
   print(entity.toEsp32Payload());
 }
