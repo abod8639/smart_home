@@ -15,11 +15,9 @@ class FakeRoomLocalDatasource extends RoomLocalDatasource {
   Future<List<RoomModel>> getRooms() async => List.from(_store);
 
   @override
-  Future<void> saveRooms(List<RoomEntity> rooms) async {
+  Future<void> saveRooms(List<RoomModel> rooms) async {
     _store.clear();
-    for (final r in rooms) {
-      _store.add(RoomModel.fromEntity(r));
-    }
+    _store.addAll(rooms);
   }
 
   @override
@@ -41,7 +39,8 @@ void main() {
         imagePath: 'assets/play_bg.png',
       );
 
-      final map = RoomLocalDatasource.toMap(room);
+      final model = RoomModel.fromEntity(room);
+      final map = RoomLocalDatasource.toMap(model);
       expect(map['id'], 'room_1');
       expect(map['name'], 'Playroom');
       expect(map['deviceCount'], 5);
@@ -56,7 +55,8 @@ void main() {
         name: 'Room',
         deviceCount: 0,
       );
-      final map = RoomLocalDatasource.toMap(room);
+      final model = RoomModel.fromEntity(room);
+      final map = RoomLocalDatasource.toMap(model);
       expect(map['imagePath'], isNull);
     });
 
@@ -96,7 +96,8 @@ void main() {
         iconPath: 'studio.png',
         imagePath: 'studio_bg.jpg',
       );
-      final map = RoomLocalDatasource.toMap(room);
+      final model = RoomModel.fromEntity(room);
+      final map = RoomLocalDatasource.toMap(model);
       final restored = RoomLocalDatasource.fromMap(map);
       expect(restored.id, room.id);
       expect(restored.name, room.name);
