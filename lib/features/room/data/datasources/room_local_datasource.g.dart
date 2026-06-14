@@ -8,9 +8,12 @@ part of 'room_local_datasource.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Provider for accessing [RoomLocalDatasource].
 
 @ProviderFor(roomLocalDatasource)
 final roomLocalDatasourceProvider = RoomLocalDatasourceProvider._();
+
+/// Provider for accessing [RoomLocalDatasource].
 
 final class RoomLocalDatasourceProvider
     extends
@@ -20,6 +23,7 @@ final class RoomLocalDatasourceProvider
           RoomLocalDatasource
         >
     with $Provider<RoomLocalDatasource> {
+  /// Provider for accessing [RoomLocalDatasource].
   RoomLocalDatasourceProvider._()
     : super(
         from: null,
