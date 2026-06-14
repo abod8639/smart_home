@@ -50,6 +50,8 @@ class PlacementImagePanel extends ConsumerWidget {
                     // Background image (reactive to selected room)
                     Positioned.fill(
                       child: Consumer(builder: (context, ref, _) {
+                        // Watch the state so the image updates when the active room changes
+                        ref.watch(dashboardControllerProvider);
                         final room = dashboardController.activeRoom;
                         if (room != null && room.imagePath != null && room.imagePath!.isNotEmpty) {
                           final file = File(room.imagePath!);
