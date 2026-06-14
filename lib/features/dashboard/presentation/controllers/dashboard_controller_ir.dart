@@ -250,11 +250,12 @@ extension DashboardControllerIr on DashboardController {
             return false;
           }
 
-          if (!data.verifyRoundtrip()) {
+          final model = IrCodeModel.fromEntity(data);
+          if (!model.verifyRoundtrip()) {
             return false;
           }
 
-          final jsonCode = data.toJson();
+          final jsonCode = model.toJson();
           final index = state.devices.indexWhere((d) => d.id == deviceId);
           if (index != -1) {
             final newDevices = List<DeviceEntity>.from(state.devices);
@@ -310,7 +311,7 @@ extension DashboardControllerIr on DashboardController {
     // ── Decode early so we never send garbage to the ESP32 ────────────────
     final IrCodeEntity irCode;
     try {
-      irCode = IrCodeEntity.fromJson(jsonCodeString);
+      irCode = IrCodeModel.fromJson(jsonCodeString);
     } catch (_) {
       if (showFeedback && context != null && context.mounted) {
         _showIrSnackbar(
@@ -506,7 +507,7 @@ extension DashboardControllerIr on DashboardController {
       return;
     }
 
-    final irCode = IrCodeEntity.fromJson(irPowerCode);
+    final irCode = IrCodeModel.fromJson(irPowerCode);
 
     // Optimistically update UI
     newDevices[index] = device.copyWith(sleepTimerRemaining: duration.inSeconds);
