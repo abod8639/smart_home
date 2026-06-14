@@ -134,6 +134,69 @@ class FirebaseService extends _$FirebaseService {
     return {};
   }
 
+  /// Stream of devices from Firebase RTDB
+  Stream<List<Map<String, dynamic>>> get devicesStream => _db != null
+      ? _db!.ref('app_data/devices').onValue.map((event) => _parseFirebaseList(event.snapshot.value))
+      : const Stream.empty();
+
+  /// Stream of rooms from Firebase RTDB
+  Stream<List<Map<String, dynamic>>> get roomsStream => _db != null
+      ? _db!.ref('app_data/rooms').onValue.map((event) => _parseFirebaseList(event.snapshot.value))
+      : const Stream.empty();
+
+  /// Fetch rooms list from Firebase RTDB once
+  Future<List<Map<String, dynamic>>?> fetchRooms() async {
+    if (_db == null) return null;
+    try {
+      final snapshot = await _db!.ref('app_data/rooms').get();
+      if (snapshot.exists && snapshot.value != null) {
+        return _parseFirebaseList(snapshot.value);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to fetch rooms from Firebase: $e');
+      }
+    }
+    return null;
+  }
+
+  /// Fetch devices list from Firebase RTDB once
+  Future<List<Map<String, dynamic>>?> fetchDevices() async {
+    if (_db == null) return null;
+    try {
+      final snapshot = await _db!.ref('app_data/devices').get();
+      if (snapshot.exists && snapshot.value != null) {
+        return _parseFirebaseList(snapshot.value);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to fetch devices from Firebase: $e');
+      }
+    }
+    return null;
+  }
+
+  List<Map<String, dynamic>> _parseFirebaseList(dynamic value) {
+    if (value == null) return [];
+    if (value is List) {
+      return value
+          .where((item) => item != null)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+    } else if (value is Map) {
+      final List<Map<String, dynamic>> list = [];
+      final sortedKeys = value.keys.toList()..sort((a, b) => a.toString().compareTo(b.toString()));
+      for (final key in sortedKeys) {
+        final val = value[key];
+        if (val is Map) {
+          list.add(Map<String, dynamic>.from(val));
+        }
+      }
+      return list;
+    }
+    return [];
+  }
+
   /// Sync rooms list to Firebase RTDB
   Future<void> syncRooms(List<Map<String, dynamic>> roomsJson) async {
     if (_db == null) return;
