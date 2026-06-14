@@ -8,12 +8,15 @@ part of 'room_placement_controller.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// State notifier class managing selected device for room placement configuration.
 
 @ProviderFor(RoomPlacementController)
 final roomPlacementControllerProvider = RoomPlacementControllerProvider._();
 
+/// State notifier class managing selected device for room placement configuration.
 final class RoomPlacementControllerProvider
     extends $NotifierProvider<RoomPlacementController, String?> {
+  /// State notifier class managing selected device for room placement configuration.
   RoomPlacementControllerProvider._()
     : super(
         from: null,
@@ -43,6 +46,8 @@ final class RoomPlacementControllerProvider
 
 String _$roomPlacementControllerHash() =>
     r'961908243921e2b7a58d3ecd16c8c89537b6f86d';
+
+/// State notifier class managing selected device for room placement configuration.
 
 abstract class _$RoomPlacementController extends $Notifier<String?> {
   String? build();
