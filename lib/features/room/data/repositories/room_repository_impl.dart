@@ -1,7 +1,10 @@
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../domain/entities/room_entity.dart';
 import '../../domain/repositories/room_repository.dart';
 import '../datasources/room_local_datasource.dart';
 import '../models/room_model.dart';
+
+part 'room_repository_impl.g.dart';
 
 class RoomRepositoryImpl implements RoomRepository {
   final RoomLocalDatasource localDatasource;
@@ -26,4 +29,16 @@ class RoomRepositoryImpl implements RoomRepository {
     currentRooms.removeWhere((room) => room.id == id);
     await localDatasource.saveRooms(currentRooms);
   }
+
+  @override
+  Future<void> saveRooms(List<RoomEntity> rooms) async {
+    await localDatasource.saveRooms(rooms.map((r) => RoomModel.fromEntity(r)).toList());
+  }
+}
+
+@riverpod
+RoomRepository roomRepository(Ref ref) {
+  return RoomRepositoryImpl(
+    localDatasource: ref.watch(roomLocalDatasourceProvider),
+  );
 }
