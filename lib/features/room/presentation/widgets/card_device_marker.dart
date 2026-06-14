@@ -2,21 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
+/// Represents a visual card-based marker for a device.
 class CardDeviceMarker extends StatelessWidget {
+  /// The device entity represented by this marker.
   final DeviceEntity device;
+
+  /// The width of the marker card.
   final double mW;
+
+  /// The height of the marker card.
   final double mH;
+
+  /// Whether this marker is currently selected.
   final bool isSelected;
+
+  /// Whether this marker is currently being resized by user gestures.
   final bool isResizing;
+
+  /// Transition animation duration.
   final Duration animDuration;
+
+  /// Callback when the marker is tapped.
   final VoidCallback? onTap;
+
+  /// Callback when a drag starts on this marker.
   final GestureDragStartCallback? onPanStart;
+
+  /// Callback when a drag updates on this marker.
   final GestureDragUpdateCallback? onPanUpdate;
+
+  /// Callback when a drag ends on this marker.
   final GestureDragEndCallback? onPanEnd;
+
+  /// Callback when a resize gesture starts.
   final GestureDragStartCallback? onResizeStart;
+
+  /// Callback when a resize gesture updates.
   final GestureDragUpdateCallback? onResizeUpdate;
+
+  /// Callback when a resize gesture ends.
   final GestureDragEndCallback? onResizeEnd;
 
+  /// Creates a [CardDeviceMarker].
   const CardDeviceMarker({
     super.key,
     required this.device,

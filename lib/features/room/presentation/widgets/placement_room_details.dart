@@ -9,9 +9,13 @@ import 'package:smart_home/features/room/presentation/widgets/placement_device_d
 
 /// Shows room statistics, environment data and a quick "Add Device" button.
 class PlacementRoomDetails extends ConsumerWidget {
+  /// The controller for dashboard operations.
   final DashboardController dashboardController;
+
+  /// The controller for room device placement state.
   final RoomPlacementController placementController;
 
+  /// Creates a [PlacementRoomDetails].
   const PlacementRoomDetails({
     super.key,
     required this.dashboardController,

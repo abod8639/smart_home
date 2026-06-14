@@ -10,10 +10,16 @@ import 'package:smart_home/features/room/presentation/widgets/rooms_list_widget.
 
 /// The left/main panel: room image + rooms list + draggable device markers.
 class PlacementImagePanel extends ConsumerWidget {
+  /// The controller for dashboard operations.
   final DashboardController dashboardController;
+
+  /// The controller for room device placement state.
   final RoomPlacementController placementController;
+
+  /// The key associated with the background image container.
   final GlobalKey imageKey;
 
+  /// Creates a [PlacementImagePanel].
   const PlacementImagePanel({
     super.key,
     required this.dashboardController,

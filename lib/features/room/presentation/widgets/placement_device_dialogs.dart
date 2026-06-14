@@ -49,9 +49,11 @@ Widget buildPropertyRow(String label, String value) {
 
 // ─── Dialogs ──────────────────────────────────────────────────────────────────
 
+/// Dialog helper class for device management dialogs.
 class PlacementDeviceDialogs {
   PlacementDeviceDialogs._();
 
+  /// List of ESP32 GPIO pin configuration options.
   static const List<Map<String, dynamic>> esp32Pins = [
     {'pin': 2, 'label': 'GPIO 2 (relay_1)', 'isPwm': false},
     {'pin': 18, 'label': 'GPIO 18 (relay_2)', 'isPwm': false},
@@ -65,6 +67,7 @@ class PlacementDeviceDialogs {
 
   // ── Add Device ─────────────────────────────────────────────────────────────
 
+  /// Displays a dialog to add a new device to the active room.
   static void showAddDevice(
     BuildContext context,
     WidgetRef ref,
@@ -391,6 +394,7 @@ class PlacementDeviceDialogs {
 
   // ── Delete Device ───────────────────────────────────────────────────────────
 
+  /// Displays a confirmation dialog before deleting a device.
   static void showDeleteConfirmation(
     BuildContext context,
     WidgetRef ref,
@@ -441,6 +445,7 @@ class PlacementDeviceDialogs {
 
   // ── Edit Device ─────────────────────────────────────────────────────────────
 
+  /// Displays a dialog to edit the properties of an existing device.
   static void showEditDevice(
     BuildContext context,
     WidgetRef ref,
