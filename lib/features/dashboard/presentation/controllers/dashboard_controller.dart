@@ -149,22 +149,31 @@ class DashboardController extends _$DashboardController {
       _espTimer?.cancel();
     });
 
+    if (_isTest) {
+      final rooms = [
+        const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 3),
+        const RoomEntity(id: '2', name: 'Kitchen', deviceCount: 2),
+        const RoomEntity(id: '3', name: 'Living room', deviceCount: 5, isActive: true),
+        const RoomEntity(id: '4', name: 'Bathroom', deviceCount: 3),
+      ];
+      final devices = _getMockDevices();
+      return DashboardState(
+        rooms: rooms,
+        devices: devices,
+        isWeatherLoading: false,
+        weatherLocation: 'Mock City',
+        weatherTemp: '25°C',
+        weatherCondition: 'Sunny',
+      );
+    }
+
     Future.microtask(() {
       _loadData();
-      if (!_isTest) {
-        fetchLiveWeather();
-        _startAcTimer();
-        _startEsp32Polling();
-        _initFirebaseListeners();
-        _syncIrCodesFromFirebase();
-      } else {
-        state = state.copyWith(
-          isWeatherLoading: false,
-          weatherLocation: 'Mock City',
-          weatherTemp: '25°C',
-          weatherCondition: 'Sunny',
-        );
-      }
+      fetchLiveWeather();
+      _startAcTimer();
+      _startEsp32Polling();
+      _initFirebaseListeners();
+      _syncIrCodesFromFirebase();
     });
 
     return const DashboardState();
