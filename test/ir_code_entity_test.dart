@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
+import 'package:smart_home/features/device/data/models/ir_code_model.dart';
 
 void main() {
   group('IrCodeEntity Unit Tests', () {
@@ -43,8 +44,19 @@ void main() {
       expect(pulseWidth.isPulseProtocol, isTrue);
     });
 
+    test('toString returns formatted debug string', () {
+      const code = IrCodeEntity(
+        protocol: IrProtocol.sony,
+        value: '0x12',
+        bits: 12,
+      );
+      expect(code.toString(), 'IrCodeEntity(protocol: IrProtocol.sony, bits: 12)');
+    });
+  });
+
+  group('IrCodeModel Unit Tests', () {
     test('Serialization and Deserialization works correctly', () {
-      final code = IrCodeEntity(
+      final code = IrCodeModel(
         protocol: IrProtocol.samsung,
         value: '0xABCDEF12',
         bits: 32,
@@ -77,7 +89,7 @@ void main() {
       expect(map['command'], 15);
       expect(map['rawData'], 123456);
 
-      final decoded = IrCodeEntity.fromMap(map);
+      final decoded = IrCodeModel.fromMap(map);
       expect(decoded.protocol, IrProtocol.samsung);
       expect(decoded.value, '0xABCDEF12');
       expect(decoded.bits, 32);
@@ -87,13 +99,13 @@ void main() {
       expect(decoded.address, 7);
 
       final jsonStr = code.toJson();
-      final decodedFromJson = IrCodeEntity.fromJson(jsonStr);
+      final decodedFromJson = IrCodeModel.fromJson(jsonStr);
       expect(decodedFromJson.protocol, IrProtocol.samsung);
       expect(decodedFromJson.value, '0xABCDEF12');
     });
 
     test('verifyRoundtrip returns true when properties are identical', () {
-      final code = IrCodeEntity(
+      final code = IrCodeModel(
         protocol: IrProtocol.lg,
         value: '0x880011',
         bits: 28,
@@ -101,15 +113,6 @@ void main() {
         command: 22,
       );
       expect(code.verifyRoundtrip(), isTrue);
-    });
-
-    test('toString returns formatted debug string', () {
-      const code = IrCodeEntity(
-        protocol: IrProtocol.sony,
-        value: '0x12',
-        bits: 12,
-      );
-      expect(code.toString(), 'IrCodeEntity(protocol: IrProtocol.sony, bits: 12)');
     });
 
     test('Protocol parsing from string behaves correctly across variations', () {
@@ -149,7 +152,7 @@ void main() {
 
       for (var i = 0; i < protocols.length; i++) {
         final map = {'protocol': protocols[i], 'value': '0x1', 'bits': 8};
-        final entity = IrCodeEntity.fromMap(map);
+        final entity = IrCodeModel.fromMap(map);
         expect(entity.protocol, expected[i]);
       }
     });
