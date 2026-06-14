@@ -5,10 +5,14 @@ import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/glass_switch.dart';
 
+/// A control card widget for managing and viewing status of a robotic vacuum.
 class VacuumCard extends StatelessWidget {
+  /// The vacuum device entity representation.
   final DeviceEntity device;
+  /// Callback executed when toggling the power state.
   final VoidCallback onToggle;
 
+  /// Creates a constant [VacuumCard] instance.
   const VacuumCard({super.key, required this.device, required this.onToggle});
 
   @override
