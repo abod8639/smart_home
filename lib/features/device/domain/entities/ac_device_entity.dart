@@ -1,12 +1,19 @@
 import 'device_entity.dart';
 
+/// Entity representing a smart Air Conditioner.
 class AcDeviceEntity extends DeviceEntity {
+  /// Target temperature setting in degrees Celsius.
   final int? temperature;
+  /// Active operating mode (e.g. "Auto mode", "Cool mode").
   final String? mode;
+  /// Total cooling runtime in hours.
   final int? coolingTime;
+  /// Associated IR commands for this AC.
   final AcIrCodes acIrCodes;
+  /// Remaining time in seconds for the sleep/off timer.
   final int? sleepTimerRemaining;
 
+  /// Creates a constant [AcDeviceEntity] instance.
   const AcDeviceEntity({
     required super.id,
     required super.name,
