@@ -1,5 +1,6 @@
 import '../../domain/entities/device_entity.dart';
 
+/// Data Transfer Object (DTO) for device serialization/deserialization.
 class DeviceModel {
   final String id;
   final String name;
@@ -61,6 +62,7 @@ class DeviceModel {
   final int? filterStatus;
   final String? nextCleaning;
 
+  /// Creates a constant [DeviceModel] instance.
   const DeviceModel({
     required this.id,
     required this.name,
@@ -113,6 +115,7 @@ class DeviceModel {
     this.nextCleaning,
   });
 
+  /// Creates a [DeviceModel] from a JSON map.
   factory DeviceModel.fromJson(Map<String, dynamic> json) {
     return DeviceModel(
       id: json['id'] as String,
@@ -177,6 +180,7 @@ class DeviceModel {
     );
   }
 
+  /// Converts this model into a JSON-serializable map.
   Map<String, dynamic> toJson({bool excludeIrCodes = false}) {
     return {
       'id': id,
@@ -243,6 +247,7 @@ class DeviceModel {
     };
   }
 
+  /// Converts this model into a clean domain [DeviceEntity].
   DeviceEntity toEntity() {
     final deviceType = DeviceType.values.firstWhere(
       (e) => e.name == type,
@@ -367,6 +372,7 @@ class DeviceModel {
     }
   }
 
+  /// Creates a [DeviceModel] from a domain [DeviceEntity].
   factory DeviceModel.fromEntity(DeviceEntity d) {
     return DeviceModel(
       id: d.id,
