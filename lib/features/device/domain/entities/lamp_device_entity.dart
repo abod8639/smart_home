@@ -1,8 +1,11 @@
 import 'device_entity.dart';
 
+/// Entity representing a basic smart light/lamp.
 class LampDeviceEntity extends DeviceEntity {
+  /// Current brightness level (0 to 255).
   final int? brightness;
 
+  /// Creates a constant [LampDeviceEntity] instance.
   const LampDeviceEntity({
     required super.id,
     required super.name,
