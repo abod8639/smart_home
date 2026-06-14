@@ -1,11 +1,17 @@
 import 'device_entity.dart';
 
+/// Entity representing a smart RGB LED lamp/strip.
 class RgbLampDeviceEntity extends DeviceEntity {
+  /// Current brightness level (0 to 255).
   final int? brightness;
+  /// Red color component value (0 to 255).
   final int? rgbR;
+  /// Green color component value (0 to 255).
   final int? rgbG;
+  /// Blue color component value (0 to 255).
   final int? rgbB;
 
+  /// Creates a constant [RgbLampDeviceEntity] instance.
   const RgbLampDeviceEntity({
     required super.id,
     required super.name,
