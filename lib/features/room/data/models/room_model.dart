@@ -1,6 +1,8 @@
 import '../../domain/entities/room_entity.dart';
 
+/// Data transfer object representing a [RoomEntity] for data serialization.
 class RoomModel extends RoomEntity {
+  /// Creates a [RoomModel].
   const RoomModel({
     required super.id,
     required super.name,
@@ -10,6 +12,7 @@ class RoomModel extends RoomEntity {
     super.imagePath,
   });
 
+  /// De-serializes a JSON map into a [RoomModel].
   factory RoomModel.fromJson(Map<String, dynamic> json) {
     return RoomModel(
       id: json['id'] as String,
@@ -21,6 +24,7 @@ class RoomModel extends RoomEntity {
     );
   }
 
+  /// Serializes this [RoomModel] to a JSON map.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -32,6 +36,7 @@ class RoomModel extends RoomEntity {
     };
   }
 
+  /// Creates a [RoomModel] from a base [RoomEntity].
   factory RoomModel.fromEntity(RoomEntity entity) {
     return RoomModel(
       id: entity.id,
