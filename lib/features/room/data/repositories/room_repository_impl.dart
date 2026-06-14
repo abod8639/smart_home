@@ -6,9 +6,12 @@ import '../models/room_model.dart';
 
 part 'room_repository_impl.g.dart';
 
+/// Concrete implementation of [RoomRepository] using a local datasource.
 class RoomRepositoryImpl implements RoomRepository {
+  /// The local data source used for persistence.
   final RoomLocalDatasource localDatasource;
 
+  /// Creates a [RoomRepositoryImpl].
   RoomRepositoryImpl({required this.localDatasource});
 
   @override
@@ -36,6 +39,7 @@ class RoomRepositoryImpl implements RoomRepository {
   }
 }
 
+/// Provider for accessing the [RoomRepository] implementation.
 @riverpod
 RoomRepository roomRepository(Ref ref) {
   return RoomRepositoryImpl(
