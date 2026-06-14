@@ -5,7 +5,7 @@ import 'package:smart_home/core/services/auth_service.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
-import '../../features/room/presentation/pages/room_placement_view.dart';
+import '../../features/room/presentation/pages/room_placement_page.dart';
 
 part 'app_router.g.dart';
 
@@ -48,7 +48,7 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: '/room-placement',
         name: 'room-placement',
-        builder: (context, state) => const RoomPlacementView(),
+        builder: (context, state) => const RoomPlacementPage(),
       ),
     ],
   );
