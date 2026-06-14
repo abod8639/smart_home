@@ -20,6 +20,18 @@
       "request": "launch",
       "type": "dart",
       "flutterMode": "release"
+    },
+    {
+      "name": "smart_home (Flutter Chrome)",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "-d",
+        "chrome"
+      ],
+      "env": {
+        "CHROME_EXECUTABLE": "/usr/bin/google-chrome-stable"
+      }
     }
   ]
 }
