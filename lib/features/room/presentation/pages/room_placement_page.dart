@@ -11,8 +11,10 @@ import 'package:smart_home/features/room/presentation/widgets/placement_device_p
 import 'package:smart_home/features/room/presentation/widgets/placement_image_panel.dart';
 import 'package:smart_home/features/room/presentation/widgets/placement_room_details.dart';
 
-class RoomPlacementView extends ConsumerWidget {
-  const RoomPlacementView({super.key});
+/// A page for placing and configuring devices within a room.
+class RoomPlacementPage extends ConsumerWidget {
+  /// Creates a [RoomPlacementPage].
+  const RoomPlacementPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

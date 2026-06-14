@@ -8,8 +8,12 @@ import 'package:smart_home/features/dashboard/presentation/controllers/dashboard
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 import 'package:smart_home/features/room/presentation/widgets/room_management_dialogs.dart';
 
+/// A widget that displays a list of rooms, either horizontally (compact) or vertically.
 class RoomsListWidget extends ConsumerWidget {
+  /// Whether the widget should display in a compact horizontal layout.
   final bool isCompact;
+
+  /// Creates a [RoomsListWidget].
   const RoomsListWidget({
     this.isCompact = false,
     super.key});

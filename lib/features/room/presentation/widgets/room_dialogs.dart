@@ -3,7 +3,9 @@ import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 
+/// Dialog helper class for room-related operations.
 class RoomDialogs {
+  /// Returns the corresponding icon for a given room name.
   static IconData getRoomIcon(String name) {
     switch (name.toLowerCase()) {
       case 'bedroom':
@@ -19,6 +21,7 @@ class RoomDialogs {
     }
   }
 
+  /// Displays options dialog for the specified room.
   static void showRoomOptions(
     BuildContext context,
     RoomEntity room,
@@ -65,6 +68,7 @@ class RoomDialogs {
     );
   }
 
+  /// Displays a dialog to add a new room to the dashboard.
   static void showAddRoomDialog(
     BuildContext context,
     DashboardController controller,
@@ -129,6 +133,7 @@ class RoomDialogs {
     );
   }
 
+  /// Displays a dialog to edit the name of an existing room.
   static void showEditRoomDialog(
     BuildContext context,
     RoomEntity room,
@@ -186,6 +191,7 @@ class RoomDialogs {
     );
   }
 
+  /// Displays a deletion confirmation dialog for the room.
   static void showDeleteConfirmation(
     BuildContext context,
     RoomEntity room,
