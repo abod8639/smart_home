@@ -5,11 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:smart_home/core/services/esp32_service.dart';
 import 'package:smart_home/core/services/matter_service.dart';
-import 'package:smart_home/features/device/data/datasources/device_local_datasource.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
-import 'package:smart_home/features/room/data/datasources/room_local_datasource.dart';
+import 'package:smart_home/features/room/domain/usecases/get_rooms_usecase.dart';
+import 'package:smart_home/features/room/domain/usecases/save_rooms_usecase.dart';
+import 'package:smart_home/features/device/domain/usecases/get_devices_usecase.dart';
+import 'package:smart_home/features/device/domain/usecases/save_devices_usecase.dart';
+import 'package:smart_home/features/device/data/models/device_model.dart';
+import 'package:smart_home/features/room/data/models/room_model.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/ir_learning_dialog.dart';
@@ -127,8 +131,6 @@ class DashboardController extends _$DashboardController {
   final Dio dio = Dio();
   Timer? _acTimer;
   Timer? _espTimer;
-  final DeviceLocalDatasource _datasource = DeviceLocalDatasource();
-  final RoomLocalDatasource _roomDatasource = RoomLocalDatasource();
 
   RoomEntity? get activeRoom {
     try {
@@ -206,12 +208,18 @@ class DashboardController extends _$DashboardController {
     }
   }
 
-  void _loadData() {
-    List<RoomEntity> loadedRooms;
-    if (_roomDatasource.hasData) {
-      loadedRooms = _roomDatasource.loadRooms();
-    } else {
-      loadedRooms = [
+  Future<void> _loadData() async {
+    final getRoomsUseCase = ref.read(getRoomsUseCaseProvider);
+    final getDevicesUseCase = ref.read(getDevicesUseCaseProvider);
+
+    final loadedRooms = await getRoomsUseCase.call();
+    final loadedDevices = await getDevicesUseCase.call();
+
+    List<RoomEntity> roomsToUse = loadedRooms;
+    bool roomsNeedSeeding = false;
+    if (loadedRooms.isEmpty) {
+      roomsNeedSeeding = true;
+      roomsToUse = [
         const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 3),
         const RoomEntity(id: '2', name: 'Kitchen', deviceCount: 2),
         const RoomEntity(id: '3', name: 'Living room', deviceCount: 5, isActive: true),
@@ -219,46 +227,50 @@ class DashboardController extends _$DashboardController {
       ];
     }
 
-    List<DeviceEntity> loadedDevices;
-    if (_datasource.hasData) {
-      loadedDevices = _datasource.loadDevices();
-    } else {
-      loadedDevices = _getMockDevices();
+    List<DeviceEntity> devicesToUse = loadedDevices;
+    bool devicesNeedSeeding = false;
+    if (loadedDevices.isEmpty) {
+      devicesNeedSeeding = true;
+      devicesToUse = _getMockDevices();
     }
     
-    state = state.copyWith(rooms: loadedRooms, devices: loadedDevices);
+    state = state.copyWith(rooms: roomsToUse, devices: devicesToUse);
     
-    if (!_roomDatasource.hasData) _persistRooms();
-    if (!_datasource.hasData) _persistDevices();
+    if (roomsNeedSeeding) {
+      await _persistRooms();
+    }
+    if (devicesNeedSeeding) {
+      await _persistDevices();
+    }
 
     _syncRoomsToFirebase();
     _syncDevicesToFirebase();
   }
 
-  void _persistRooms() {
+  Future<void> _persistRooms() async {
     if (!_isTest) {
-      _roomDatasource.saveRooms(state.rooms);
+      await ref.read(saveRoomsUseCaseProvider).call(state.rooms);
       _syncRoomsToFirebase();
     }
   }
 
-  void _persistDevices() {
+  Future<void> _persistDevices() async {
     if (!_isTest) {
-      _datasource.saveDevices(state.devices);
+      await ref.read(saveDevicesUseCaseProvider).call(state.devices);
       _syncDevicesToFirebase();
     }
   }
 
   void _syncRoomsToFirebase() {
     if (!_isTest) {
-      final roomsJson = state.rooms.map((r) => RoomLocalDatasource.toMap(r)).toList();
+      final roomsJson = state.rooms.map((r) => RoomModel.fromEntity(r).toJson()).toList();
       ref.read(firebaseServiceProvider.notifier).syncRooms(roomsJson);
     }
   }
 
   void _syncDevicesToFirebase() {
     if (!_isTest) {
-      final devicesJson = state.devices.map((d) => DeviceLocalDatasource.toMap(d)).toList();
+      final devicesJson = state.devices.map((d) => DeviceModel.fromEntity(d).toJson()).toList();
       ref.read(firebaseServiceProvider.notifier).syncDevices(devicesJson);
     }
   }
