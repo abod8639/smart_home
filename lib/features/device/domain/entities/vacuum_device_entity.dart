@@ -1,12 +1,19 @@
 import 'device_entity.dart';
 
+/// Entity representing a smart robotic vacuum cleaner.
 class VacuumDeviceEntity extends DeviceEntity {
+  /// Current battery level percentage (0 to 100).
   final int? batteryLevel;
+  /// Total area cleaned in square meters (sqm) during the current session.
   final int? areaCleaned;
+  /// Clean duration in minutes.
   final int? cleaningTime;
+  /// Filter life remaining percentage (0 to 100).
   final int? filterStatus;
+  /// Time of the next scheduled cleaning run (e.g. "10:30 AM").
   final String? nextCleaning;
 
+  /// Creates a constant [VacuumDeviceEntity] instance.
   const VacuumDeviceEntity({
     required super.id,
     required super.name,
