@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/utils/responsive.dart';
@@ -7,7 +8,9 @@ import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/pulsing_dot_marker.dart';
+import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 import 'package:smart_home/features/room/presentation/widgets/card_device_marker.dart';
+import 'package:smart_home/features/room/data/models/room_model.dart';
 
 class RoomPreviewWidget extends ConsumerWidget {
   const RoomPreviewWidget({super.key});
@@ -21,12 +24,24 @@ class RoomPreviewWidget extends ConsumerWidget {
       child: AspectRatio(
         aspectRatio: 16 / 9,
         child: Builder(builder: (context) {
-          final activeRoom = controller.activeRoom;
+          final RoomEntity activeRoom = state.rooms.firstWhere(
+            (r) => r.isActive,
+            orElse: () => const RoomModel(
+              id: '3',
+              name: 'Living room',
+              deviceCount: 0,
+              isActive: true,
+              iconPath: '',
+            ),
+          );
           final ImageProvider imageProvider;
-          if (activeRoom != null && activeRoom.imagePath != null && activeRoom.imagePath!.isNotEmpty && File(activeRoom.imagePath!).existsSync()) {
+          if (activeRoom.imagePath != null &&
+              activeRoom.imagePath!.isNotEmpty &&
+              !kIsWeb &&
+              File(activeRoom.imagePath!).existsSync()) {
             imageProvider = FileImage(File(activeRoom.imagePath!));
           } else {
-            imageProvider = AssetImage(FormattingUtils.getRoomBackgroundImage(activeRoom?.name));
+            imageProvider = AssetImage(FormattingUtils.getRoomBackgroundImage(activeRoom.name));
           }
 
           return Container(
@@ -90,7 +105,7 @@ class RoomPreviewWidget extends ConsumerWidget {
                 // Dynamic Device Markers (Simulated AR Overlay)
                 Positioned.fill(
                   child: Builder(builder: (context) {
-                    final activeRoomId = controller.activeRoom?.id ?? '3';
+                    final activeRoomId = activeRoom.id;
                     final validDevices = state.devices
                         .where((d) => d.positionX != null && d.positionY != null)
                         .where((d) => d.roomId == activeRoomId || (d.roomId == null && activeRoomId == '3'))
