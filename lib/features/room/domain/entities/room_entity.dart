@@ -1,13 +1,26 @@
 import 'package:equatable/equatable.dart';
 
+/// Represents a room in the smart home system.
 class RoomEntity extends Equatable {
+  /// The unique identifier of the room.
   final String id;
+
+  /// The user-facing name of the room.
   final String name;
+
+  /// The number of devices assigned to this room.
   final int deviceCount;
+
+  /// Whether this room is currently selected as the active room on the dashboard.
   final bool isActive;
-  final String iconPath; // For simple icon representation if needed
+
+  /// Path to the icon representing this room.
+  final String iconPath;
+
+  /// Optional path to an image representing the room layout.
   final String? imagePath;
 
+  /// Creates a [RoomEntity].
   const RoomEntity({
     required this.id,
     required this.name,
@@ -17,6 +30,7 @@ class RoomEntity extends Equatable {
     this.imagePath,
   });
 
+  /// Creates a copy of this room with the given fields replaced by new values.
   RoomEntity copyWith({
     String? id,
     String? name,
