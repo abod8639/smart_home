@@ -82,8 +82,8 @@ extension DashboardControllerIr on DashboardController {
   /// Uses a shorter inter-signal gap of 220 ms which is safe for most remotes.
   Future<void> _sendIrRepeated(BuildContext? context, String jsonCodeString, int count) async {
     for (var i = 0; i < count; i++) {
-      // ignore: use_build_context_synchronously
       final ok = await sendIrCommand(
+        // ignore: use_build_context_synchronously
         context,
         jsonCodeString,
         showFeedback: false,   // suppress per-step snackbars
