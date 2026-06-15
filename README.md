@@ -40,14 +40,16 @@ The application is designed for homeowners and developers who have built or are 
 ---
 
 ## DEMO
+Dashboard
+![alt text](assets/image1.png)
 
 <div align="center">
   <table>
     <tr>
-      <td align="center" width="33%">
+      <!-- <td align="center" width="33%">
         <b>Dashboard & Live Weather</b><br/>
         <img src="assets/image1.png" alt="Dashboard Screen" width="100%"/>
-      </td>
+      </td> -->
       <td align="center" width="33%">
         <b>Interactive Floor Plan</b><br/>
         <img src="assets/image2.png" alt="Room Placement Screen" width="100%"/>
