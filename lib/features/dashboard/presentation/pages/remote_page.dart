@@ -16,6 +16,8 @@ import 'package:smart_home/features/dashboard/presentation/widgets/remote/ac_mod
 import 'package:smart_home/features/dashboard/presentation/widgets/remote/fan_speed_card.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/remote/air_swing_card.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/remote/advanced_features_card.dart';
+import 'package:smart_home/features/dashboard/presentation/widgets/remote/power_timer_card.dart';
+import 'package:smart_home/features/dashboard/presentation/widgets/remote/sleep_timer_sheet.dart';
 
 class RemotePage extends ConsumerStatefulWidget {
   final DeviceEntity device;
@@ -108,98 +110,15 @@ class _RemotePageState extends ConsumerState<RemotePage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (_) => Container(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-        decoration: const BoxDecoration(
-          color: Color(0xFF0F172A),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          border: Border(
-            top: BorderSide(color: Colors.white10, width: 1),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const Text(
-              'Sleep Timer',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Set when to automatically turn off the air conditioner.',
-              style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
-            ),
-            const SizedBox(height: 20),
-            _buildTimerOption(context, 'Turn Off Timer', const Duration(seconds: 0)),
-            _buildTimerOption(context, '30 Minutes', const Duration(minutes: 30)),
-            _buildTimerOption(context, '1 Hour', const Duration(hours: 1)),
-            _buildTimerOption(context, '2 Hours', const Duration(hours: 2)),
-            _buildTimerOption(context, '4 Hours', const Duration(hours: 4)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTimerOption(BuildContext context, String label, Duration duration) {
-    final isCurrent = (duration.inSeconds == 0 && _timeLeft == null) ||
-        (_timeLeft != null && _timeLeft!.inMinutes == duration.inMinutes);
-
-    return InkWell(
-      onTap: () {
-        Navigator.pop(context);
-        if (duration.inSeconds == 0) {
-          _cancelSleepTimer();
-        } else {
-          _setSleepTimer(duration);
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: isCurrent ? AppTheme.primaryBlue.withValues(alpha:0.1) : Colors.white.withValues(alpha:0.04),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isCurrent ? AppTheme.primaryBlue.withValues(alpha:0.5) : Colors.white10,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              duration.inSeconds == 0 ? Icons.timer_off_outlined : Icons.timer_outlined,
-              color: isCurrent ? AppTheme.primaryBlue : Colors.white70,
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: TextStyle(
-                color: isCurrent ? AppTheme.primaryBlue : Colors.white,
-                fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            const Spacer(),
-            if (isCurrent)
-              const Icon(Icons.check_circle, color: AppTheme.primaryBlue, size: 18),
-          ],
-        ),
+      builder: (_) => SleepTimerSheet(
+        timeLeft: _timeLeft,
+        onDurationSelected: (duration) {
+          if (duration.inSeconds == 0) {
+            _cancelSleepTimer();
+          } else {
+            _setSleepTimer(duration);
+          }
+        },
       ),
     );
   }
@@ -386,7 +305,12 @@ class _RemotePageState extends ConsumerState<RemotePage> {
                     const SizedBox(height: 24),
 
                     // 3. Power and Sleep Timer Selector Row
-                    _buildPowerTimerCard(device, controller),
+                    PowerTimerCard(
+                      device: device,
+                      controller: controller,
+                      timeLeft: _timeLeft,
+                      onTimerTap: () => _showSleepTimerSheet(context),
+                    ),
                     const SizedBox(height: 16),
 
                     // 4. Mode Selection Grid
@@ -501,124 +425,5 @@ class _RemotePageState extends ConsumerState<RemotePage> {
     );
   }
 
-  Widget _buildPowerTimerCard(DeviceEntity device, DashboardController controller) {
-    final isDeviceOn = device.isOn;
-    return Row(
-      children: [
-        // Power Card
-        Expanded(
-          child: GestureDetector(
-            onTap: isDeviceOn ? () => controller.toggleDevice(device.id) : null,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: isDeviceOn
-                      ? [
-                          const Color(0xFFEF4444).withValues(alpha:0.18),
-                          const Color(0xFFEF4444).withValues(alpha:0.08),
-                        ]
-                      : [
-                          Colors.white.withValues(alpha:0.05),
-                          Colors.white.withValues(alpha:0.02),
-                        ],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isDeviceOn
-                      ? const Color(0xFFEF4444).withValues(alpha:0.5)
-                      : Colors.white10,
-                  width: 1.2,
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.power_settings_new_rounded,
-                    color: isDeviceOn ? const Color(0xFFEF4444) : Colors.white60,
-                    size: 24,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    isDeviceOn ? 'ON' : 'OFF',
-                    style: TextStyle(
-                      color: isDeviceOn ? const Color(0xFFEF4444) : Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        // Sleep Timer Card
-        Expanded(
-          child: GestureDetector(
-            onTap: () => _showSleepTimerSheet(context),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: _timeLeft != null
-                      ? [
-                          AppTheme.primaryBlue.withValues(alpha:0.18),
-                          AppTheme.primaryBlue.withValues(alpha: .08),
-                        ]
-                      : [
-                          Colors.white.withValues(alpha:0.05),
-                          Colors.white.withValues(alpha:0.02),
-                        ],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: _timeLeft != null
-                      ? AppTheme.primaryBlue.withValues(alpha:0.5)
-                      : Colors.white10,
-                  width: 1.2,
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.access_time_filled_rounded,
-                    color: _timeLeft != null ? AppTheme.primaryBlue : Colors.white60,
-                    size: 24,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _timeLeft != null ? _formatDuration(_timeLeft!) : 'Sleep Timer',
-                    style: TextStyle(
-                      color: _timeLeft != null ? AppTheme.primaryBlue : Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
-  String _formatDuration(Duration duration) {
-    final minutes = duration.inMinutes;
-    if (minutes < 60) {
-      return '${minutes}m left';
-    } else {
-      final hours = minutes ~/ 60;
-      final mins = minutes % 60;
-      if (mins > 0) {
-        return '${hours}h ${mins}m';
-      }
-      return '${hours}h left';
-    }
-  }
 }
