@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/widgets/ac_visualizer.dart';
@@ -194,7 +195,319 @@ class _RemotePageState extends ConsumerState<RemotePage> {
           final temp = device.temperature ?? 24;
           final isDeviceOn = device.isOn;
           final currentModeColor = _modeColor(device.mode);
+          final isDesktop = Responsive.isDesktop(context);
+          final gap = Responsive.contentGap(context);
 
+          // Shared widget builders
+          Widget dialSection() {
+            final dialSize = isDesktop ? 280.0 : 210.0;
+            final tempFontSize = isDesktop ? 52.0 : 42.0;
+            final buttonSize = isDesktop ? 52.0 : 44.0;
+            final buttonIconSize = isDesktop ? 22.0 : 18.0;
+            final dialLabelWidth = isDesktop ? 260.0 : 200.0;
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Decrement (-) Button
+                    _buildRoundActionButton(
+                      icon: Icons.remove,
+                      size: buttonSize,
+                      iconSize: buttonIconSize,
+                      onPressed: () {
+                        if (temp > 16) {
+                          controller.updateAcTemperature(device.id, temp - 1);
+                        }
+                      },
+                    ),
+                    SizedBox(width: isDesktop ? 24 : 15),
+
+                    // Custom Temperature dial
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          width: dialSize,
+                          height: dialSize,
+                          child: TemperatureDial(
+                            value: temp,
+                            minValue: 16,
+                            maxValue: 30,
+                            activeColor: isDeviceOn ? currentModeColor : AppTheme.textGrey.withValues(alpha:0.3),
+                            onChanged: (newTemp) {
+                              if (isDeviceOn) {
+                                controller.updateAcTemperature(device.id, newTemp);
+                              }
+                            },
+                          ),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Temperature',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha:0.4),
+                                fontSize: isDesktop ? 14 : 12,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              isDeviceOn ? '$temp°C' : '°C',
+                              style: TextStyle(
+                                color: isDeviceOn ? Colors.white : AppTheme.textGrey,
+                                fontSize: tempFontSize,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (isDeviceOn) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                device.mode ?? 'Auto mode',
+                                style: TextStyle(
+                                  color: currentModeColor.withValues(alpha:0.85),
+                                  fontSize: isDesktop ? 13 : 11,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(width: isDesktop ? 24 : 15),
+
+                    // Increment (+) Button
+                    _buildRoundActionButton(
+                      icon: Icons.add,
+                      size: buttonSize,
+                      iconSize: buttonIconSize,
+                      onPressed: () {
+                        if (temp < 30) {
+                          controller.updateAcTemperature(device.id, temp + 1);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+
+                // Dial limits labels
+                const SizedBox(height: 4),
+                SizedBox(
+                  width: dialLabelWidth,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('16°', style: TextStyle(color: Colors.white.withValues(alpha:0.25), fontSize: 12)),
+                      Text('30°', style: TextStyle(color: Colors.white.withValues(alpha:0.25), fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
+
+          List<Widget> controlCards() {
+            return [
+              // Power and Sleep Timer
+              PowerTimerCard(
+                device: device,
+                controller: controller,
+                timeLeft: _timeLeft,
+                onTimerTap: () => _showSleepTimerSheet(context),
+              ),
+              SizedBox(height: gap * 0.8),
+
+              // Mode Selection Grid
+              AcModeSelectionCard(device: device, controller: controller),
+              SizedBox(height: gap * 0.8),
+
+              // Fan Speed Controls
+              FanSpeedCard(
+                device: device,
+                controller: controller,
+                currentFanSpeed: _fanSpeed,
+                onFanSpeedChanged: (speed) {
+                  setState(() {
+                    _fanSpeed = speed;
+                  });
+                },
+              ),
+              SizedBox(height: gap * 0.8),
+
+              // Air Swing Toggles
+              AirSwingCard(
+                device: device,
+                controller: controller,
+                verticalSwing: _verticalSwing,
+                horizontalSwing: _horizontalSwing,
+                onVerticalSwingChanged: (val) {
+                  setState(() {
+                    _verticalSwing = val;
+                  });
+                },
+                onHorizontalSwingChanged: (val) {
+                  setState(() {
+                    _horizontalSwing = val;
+                  });
+                },
+              ),
+              SizedBox(height: gap * 0.8),
+
+              // Advanced Features
+              AdvancedFeaturesCard(
+                device: device,
+                controller: controller,
+                isPlasmaclusterOn: _isPlasmaclusterOn,
+                isSuperJetOn: _isSuperJetOn,
+                isCoandaOn: _isCoandaOn,
+                isMyAreaOn: _isMyAreaOn,
+                isDisplayOn: _isDisplayOn,
+                onPlasmaclusterChanged: (val) => setState(() => _isPlasmaclusterOn = val),
+                onSuperJetChanged: (val) => setState(() => _isSuperJetOn = val),
+                onCoandaChanged: (val) => setState(() => _isCoandaOn = val),
+                onMyAreaChanged: (val) => setState(() => _isMyAreaOn = val),
+                onDisplayChanged: (val) => setState(() => _isDisplayOn = val),
+              ),
+              SizedBox(height: gap * 0.8),
+
+              // IR Remote Custom Buttons Learning
+              CollapsibleCard(
+                title: 'IR Learning',
+                subtitle: 'IR learning via IR Sensor',
+                icon: Icons.settings_remote_rounded,
+                child: PlacementDeviceIrControls(
+                  device: device,
+                  dashboardController: controller,
+                ),
+              ),
+              const SizedBox(height: 40),
+            ];
+          }
+
+          if (isDesktop) {
+            // ── Desktop: Two-Column Layout ──
+            return SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: gap * 1.5, vertical: gap * 0.5),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left Panel: Visualizer + Dial (sticky, centered)
+                    Expanded(
+                      flex: 5,
+                      child: Center(
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildTopVisualizer(device, scale: 1.6),
+                              const SizedBox(height: 20),
+                              dialSection(),
+                              const SizedBox(height: 24),
+                              // Power + Timer on desktop left panel too
+                              PowerTimerCard(
+                                device: device,
+                                controller: controller,
+                                timeLeft: _timeLeft,
+                                onTimerTap: () => _showSleepTimerSheet(context),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: gap * 1.5),
+
+                    // Right Panel: Control Cards (scrollable)
+                    Expanded(
+                      flex: 4,
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Mode Selection Grid
+                            AcModeSelectionCard(device: device, controller: controller),
+                            SizedBox(height: gap * 0.8),
+
+                            // Fan Speed Controls
+                            FanSpeedCard(
+                              device: device,
+                              controller: controller,
+                              currentFanSpeed: _fanSpeed,
+                              onFanSpeedChanged: (speed) {
+                                setState(() {
+                                  _fanSpeed = speed;
+                                });
+                              },
+                            ),
+                            SizedBox(height: gap * 0.8),
+
+                            // Air Swing Toggles
+                            AirSwingCard(
+                              device: device,
+                              controller: controller,
+                              verticalSwing: _verticalSwing,
+                              horizontalSwing: _horizontalSwing,
+                              onVerticalSwingChanged: (val) {
+                                setState(() {
+                                  _verticalSwing = val;
+                                });
+                              },
+                              onHorizontalSwingChanged: (val) {
+                                setState(() {
+                                  _horizontalSwing = val;
+                                });
+                              },
+                            ),
+                            SizedBox(height: gap * 0.8),
+
+                            // Advanced Features
+                            AdvancedFeaturesCard(
+                              device: device,
+                              controller: controller,
+                              isPlasmaclusterOn: _isPlasmaclusterOn,
+                              isSuperJetOn: _isSuperJetOn,
+                              isCoandaOn: _isCoandaOn,
+                              isMyAreaOn: _isMyAreaOn,
+                              isDisplayOn: _isDisplayOn,
+                              onPlasmaclusterChanged: (val) => setState(() => _isPlasmaclusterOn = val),
+                              onSuperJetChanged: (val) => setState(() => _isSuperJetOn = val),
+                              onCoandaChanged: (val) => setState(() => _isCoandaOn = val),
+                              onMyAreaChanged: (val) => setState(() => _isMyAreaOn = val),
+                              onDisplayChanged: (val) => setState(() => _isDisplayOn = val),
+                            ),
+                            SizedBox(height: gap * 0.8),
+
+                            // IR Remote
+                            CollapsibleCard(
+                              title: 'IR Learning',
+                              subtitle: 'IR learning via IR Sensor',
+                              icon: Icons.settings_remote_rounded,
+                              child: PlacementDeviceIrControls(
+                                device: device,
+                                dashboardController: controller,
+                              ),
+                            ),
+                            const SizedBox(height: 40),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          // ── Mobile / Tablet: Single-Column Scroll Layout ──
           return SafeArea(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -203,182 +516,11 @@ class _RemotePageState extends ConsumerState<RemotePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // 1. Top Section: Beautiful AC Breeze Glow visualizer
                     _buildTopVisualizer(device),
                     const SizedBox(height: 10),
-
-                    // 2. Middle Section: Radial Dial Flanked by Increment/Decrement Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Decrement (-) Button
-                        _buildRoundActionButton(
-                          icon: Icons.remove,
-                          onPressed: () {
-                            if (temp > 16) {
-                              controller.updateAcTemperature(device.id, temp - 1);
-                            }
-                          },
-                        ),
-                        const SizedBox(width: 15),
-
-                        // Custom Temperature dial
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SizedBox(
-                              width: 210,
-                              height: 210,
-                              child: TemperatureDial(
-                                value: temp,
-                                minValue: 16,
-                                maxValue: 30,
-                                activeColor: isDeviceOn ? currentModeColor : AppTheme.textGrey.withValues(alpha:0.3),
-                                onChanged: (newTemp) {
-                                  if (isDeviceOn) {
-                                    controller.updateAcTemperature(device.id, newTemp);
-                                  }
-                                },
-                              ),
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Temperature',
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha:0.4),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: 0.8,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  isDeviceOn ? '$temp°C' : '°C',
-                                  style: TextStyle(
-                                    color: isDeviceOn ? Colors.white : AppTheme.textGrey,
-                                    fontSize: 42,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                if (isDeviceOn) ...[
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    device.mode ?? 'Auto mode',
-                                    style: TextStyle(
-                                      color: currentModeColor.withValues(alpha:0.85),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 15),
-
-                        // Increment (+) Button
-                        _buildRoundActionButton(
-                          icon: Icons.add,
-                          onPressed: () {
-                            if (temp < 30) {
-                              controller.updateAcTemperature(device.id, temp + 1);
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-
-                    // Dial limits labels
-                    SizedBox(
-                      width: 200,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('16°', style: TextStyle(color: Colors.white.withValues(alpha:0.25), fontSize: 12)),
-                          Text('30°', style: TextStyle(color: Colors.white.withValues(alpha:0.25), fontSize: 12)),
-                        ],
-                      ),
-                    ),
+                    dialSection(),
                     const SizedBox(height: 24),
-
-                    // 3. Power and Sleep Timer Selector Row
-                    PowerTimerCard(
-                      device: device,
-                      controller: controller,
-                      timeLeft: _timeLeft,
-                      onTimerTap: () => _showSleepTimerSheet(context),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // 4. Mode Selection Grid
-                    AcModeSelectionCard(device: device, controller: controller),
-                    const SizedBox(height: 16),
-
-                    // 5. Fan Speed Controls
-                    FanSpeedCard(
-                      device: device,
-                      controller: controller,
-                      currentFanSpeed: _fanSpeed,
-                      onFanSpeedChanged: (speed) {
-                        setState(() {
-                          _fanSpeed = speed;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // 6. Air Swing Toggles
-                    AirSwingCard(
-                      device: device,
-                      controller: controller,
-                      verticalSwing: _verticalSwing,
-                      horizontalSwing: _horizontalSwing,
-                      onVerticalSwingChanged: (val) {
-                        setState(() {
-                          _verticalSwing = val;
-                        });
-                      },
-                      onHorizontalSwingChanged: (val) {
-                        setState(() {
-                          _horizontalSwing = val;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Extra: Advanced Features (Sharp remote specifically)
-                    AdvancedFeaturesCard(
-                      device: device,
-                      controller: controller,
-                      isPlasmaclusterOn: _isPlasmaclusterOn,
-                      isSuperJetOn: _isSuperJetOn,
-                      isCoandaOn: _isCoandaOn,
-                      isMyAreaOn: _isMyAreaOn,
-                      isDisplayOn: _isDisplayOn,
-                      onPlasmaclusterChanged: (val) => setState(() => _isPlasmaclusterOn = val),
-                      onSuperJetChanged: (val) => setState(() => _isSuperJetOn = val),
-                      onCoandaChanged: (val) => setState(() => _isCoandaOn = val),
-                      onMyAreaChanged: (val) => setState(() => _isMyAreaOn = val),
-                      onDisplayChanged: (val) => setState(() => _isDisplayOn = val),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // 7. IR Remote Custom Buttons Learning
-                    CollapsibleCard(
-                      title: 'IR Learning',
-                      subtitle: 'IR learning via IR Sensor',
-                      icon: Icons.settings_remote_rounded,
-                      child: PlacementDeviceIrControls(
-                        device: device,
-                        dashboardController: controller,
-                      ),
-                    ),
-
-                    const SizedBox(height: 40),
-
+                    ...controlCards(),
                   ],
                 ),
               ),
@@ -389,7 +531,7 @@ class _RemotePageState extends ConsumerState<RemotePage> {
     );
   }
 
-  Widget _buildTopVisualizer(DeviceEntity device) {
+  Widget _buildTopVisualizer(DeviceEntity device, {double scale = 1.25}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(top: 10, bottom: 15),
@@ -399,7 +541,7 @@ class _RemotePageState extends ConsumerState<RemotePage> {
             device: device,
             onDecreaseTemp: () {},
             onIncreaseTemp: () {},
-            scale: 1.25,
+            scale: scale,
           ),
         ],
       ),
@@ -409,21 +551,22 @@ class _RemotePageState extends ConsumerState<RemotePage> {
   Widget _buildRoundActionButton({
     required IconData icon,
     required VoidCallback onPressed,
+    double size = 44,
+    double iconSize = 18,
   }) {
     return Container(
-      width: 44,
-      height: 44,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha:0.04),
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white10),
       ),
       child: IconButton(
-        icon: Icon(icon, size: 18, color: Colors.white70),
+        icon: Icon(icon, size: iconSize, color: Colors.white70),
         onPressed: onPressed,
       ),
     );
   }
-
 
 }
