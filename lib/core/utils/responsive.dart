@@ -46,6 +46,14 @@ class Responsive {
     };
   }
 
+  static double deviceCardsWidth(BuildContext context) {
+    return switch (screenTypeOf(context)) {
+      ScreenType.mobile => 220,
+      ScreenType.tablet => 220,
+      ScreenType.desktop => 320,
+    };
+  }
+
   static double? sidebarWidth(BuildContext context) {
     return switch (screenTypeOf(context)) {
       ScreenType.mobile => null,
