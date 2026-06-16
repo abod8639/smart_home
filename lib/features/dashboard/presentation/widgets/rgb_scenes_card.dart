@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'glass_container.dart';
+import 'package:smart_home/core/widgets/glass_container.dart';
 
 /// A card widget displaying a list of available light scene modes for the RGB lamp.
 class RgbScenesCard extends StatelessWidget {
