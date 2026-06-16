@@ -13,6 +13,7 @@ import 'package:smart_home/features/device/presentation/widgets/device_cards/lam
 import 'package:smart_home/features/device/presentation/widgets/device_cards/vacuum_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/door_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/rgb_card.dart';
+import 'package:smart_home/core/widgets/glass_container.dart';
 
 class DashboardMainView extends ConsumerStatefulWidget {
   const DashboardMainView({super.key});
@@ -106,22 +107,41 @@ class _DashboardMainViewState extends ConsumerState<DashboardMainView> {
                           children: [
                             const RoomPreviewWidget(),
                             Positioned(
-                              bottom: 20,
-                              right: 40,
-                              child: FloatingActionButton(
-                                tooltip: _isFullscreen ? "Exit Full Screen" : "Full Screen",
-                                backgroundColor: Colors.amberAccent,
-                                foregroundColor: Colors.black,
-                                onPressed: () {
-                                  setState(() {
-                                    _isFullscreen = !_isFullscreen;
-                                  });
-                                },
-                                child: Icon(
-                                  size: 30,
-                                  _isFullscreen
-                                      ? Icons.close_fullscreen_sharp
-                                      : Icons.open_in_full_sharp,
+                              bottom: gap,
+                              right: gap*2,
+                              child: Tooltip(
+                                
+                                message: _isFullscreen ? "Exit Full Screen" : "Full Screen",
+                                child: ClipRRect(
+                                  
+                                  borderRadius: BorderRadius.circular(30),
+                                  child: Material(
+                                    
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      
+                                      onTap: () {
+                                        setState(() {
+                                          _isFullscreen = !_isFullscreen;
+                                        });
+                                      },
+                                      splashColor: Colors.amberAccent.withValues(alpha: 0.2),
+                                      highlightColor: Colors.amberAccent.withValues(alpha: 0.1),
+                                      child: GlassContainer(
+                                        height: 55,
+                                        width:  55,
+                                        borderRadius: BorderRadius.circular(30),
+                                        padding: const EdgeInsets.all(12),
+                                        child: Icon(
+                                          _isFullscreen
+                                              ? Icons.close_fullscreen_sharp
+                                              : Icons.open_in_full_sharp,
+                                          size: 25,
+                                          color: Colors.amberAccent.withValues(alpha: 0.5),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
