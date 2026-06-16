@@ -290,6 +290,7 @@ Widget buildDeviceCards(WidgetRef ref, BuildContext context) {
               );
             },
             child: AcCard(
+              
               onDecreaseTemp: () {
                 dashboardController.updateAcTemperature(
                   device.id,

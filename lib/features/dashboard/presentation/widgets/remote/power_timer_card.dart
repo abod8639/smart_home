@@ -34,7 +34,7 @@ class PowerTimerCard extends StatelessWidget {
         // Power Card
         Expanded(
           child: GestureDetector(
-            onTap: isDeviceOn ? () => controller.toggleDevice(device.id) : null,
+            onTap: () => controller.toggleDevice(device.id),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 250),
               padding: const EdgeInsets.symmetric(vertical: 14),
