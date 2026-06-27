@@ -9,6 +9,7 @@ import 'package:smart_home/features/settings/presentation/widgets/google_home_ca
 import 'package:smart_home/features/settings/presentation/widgets/hub_config_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/device_placement_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/fcm_token_card.dart';
+import 'package:smart_home/features/settings/presentation/widgets/matter_code_card.dart';
 
 class SettingsView extends ConsumerWidget {
   const SettingsView({super.key});
@@ -121,6 +122,9 @@ class SettingsView extends ConsumerWidget {
           SizedBox(height: 320, child: DevicePlacementCard()),
           SizedBox(height: gap),
           const HubConfigCard(),
+          SizedBox(height: gap),
+          const MatterCodeCard(),
+          SizedBox(height: gap),
         ],
       ),
     );
@@ -153,6 +157,8 @@ class SettingsView extends ConsumerWidget {
             child: Column(
               children: [
                 const HubConfigCard(),
+                SizedBox(height: gap),
+                const MatterCodeCard(),
                 SizedBox(height: gap),
                 SizedBox(
                   height: Responsive.isTablet(context) ? 280 : 320,
