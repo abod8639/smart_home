@@ -18,6 +18,25 @@ extension DashboardControllerDevices on DashboardController {
         
     state = state.copyWith(devices: [...state.devices, deviceWithPos]);
     _persistDevices();
+
+    // Notify ESP32 to create a dynamic Matter endpoint
+    int deviceType = 1; // 1 = on_off_light
+    int pin = 4; // Default pin for dynamic endpoints
+
+    if (device is LampDeviceEntity) {
+      deviceType = 1;
+    } else if (device is RgbLampDeviceEntity) {
+      deviceType = 3; // dimmable_light or color_control
+    } else if (device is DoorDeviceEntity) {
+      deviceType = 2; // on_off_plugin_unit
+    }
+
+    final esp32 = ref.read(esp32ServiceProvider.notifier);
+    esp32.sendRawCommand('commands', method: 'POST', data: {
+      'action': 'add_device',
+      'type': deviceType,
+      'pin': pin,
+    });
   }
 
   void updateDevice(DeviceEntity device) {
