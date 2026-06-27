@@ -53,6 +53,11 @@ class FirebaseService extends _$FirebaseService {
       ? _db!.ref('devices/$_deviceId/pins').onValue
       : const Stream.empty();
 
+  /// Stream of Matter Setup Payload
+  Stream<DatabaseEvent> get matterPayloadStream => _db != null
+      ? _db!.ref('devices/$_deviceId/matter_payload').onValue
+      : const Stream.empty();
+
   /// Send a command to the ESP32 via Firebase RTDB
   Future<void> sendCommand(Map<String, dynamic> command) async {
     if (_db == null) {
