@@ -132,24 +132,7 @@ extension Esp32ControllerSync on Esp32Service {
       final pin = device.pin;
 
       if (pin != null) {
-        String? label;
-        if (pin == 2) {
-          label = 'relay_1';
-        } else if (pin == 18) {
-          label = 'relay_2';
-        } else if (pin == 19) {
-          label = 'relay_3';
-        } else if (pin == 21) {
-          label = 'relay_4';
-        } else if (pin == 22) {
-          label = 'pwm_lamp';
-        } else if (pin == 23) {
-          label = 'pwm_rgb_r';
-        } else if (pin == 25) {
-          label = 'pwm_rgb_g';
-        } else if (pin == 26) {
-          label = 'pwm_rgb_b';
-        }
+        final label = device.pinLabel;
 
         if (label != null && pinsMap.containsKey(label)) {
           final val = pinsMap[label];
