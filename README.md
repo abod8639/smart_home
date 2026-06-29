@@ -1,197 +1,447 @@
 # 🏠 Smart Home IoT
 
 <p align="center">
-  <strong>A professional Flutter application for real-time monitoring and control of a smart home network.</strong>
-  <br />
-  The app acts as a unified control panel that bridges a mobile/desktop interface to physical IoT hardware, supporting two distinct communication protocols: a custom ESP32 HTTP API and the open Matter standard via Google Home integration.
+  <img src="https://img.shields.io/github/actions/workflow/status/abod8639/smart_home/flutter_ci.yml?label=Build&style=for-the-badge&logo=github" alt="Build Status"/>
+  <img src="https://codecov.io/gh/abod8639/smart_home/graph/badge.svg?token=TMDTYVIR8D" alt="Codecov"/>
+  <img src="https://img.shields.io/badge/Flutter-%3E%3D3.12-02569B?style=for-the-badge&logo=flutter" alt="Flutter >= 3.12"/>
+  <img src="https://img.shields.io/badge/Dart-%3E%3D3.0-0175C2?style=for-the-badge&logo=dart" alt="Dart >= 3.0"/>
 </p>
 
 <p align="center">
-  <a href="https://github.com/abod8639/smart_home/actions/workflows/flutter_ci.yml"><img src="https://github.com/abod8639/smart_home/actions/workflows/flutter_ci.yml/badge.svg" alt="Build Status" /></a>
-  <a href="https://codecov.io/gh/abod8639/smart_home"><img src="https://codecov.io/gh/abod8639/smart_home/graph/badge.svg?token=TMDTYVIR8D" alt="Codecov Coverage" /></a>
-  <a href="https://flutter.dev"><img src="https://img.shields.io/badge/Flutter-%E2%89%A5_3.12-02569B?logo=flutter&logoColor=white" alt="Flutter SDK" /></a>
-  <a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-%E2%89%A5_3.0-0175C2?logo=dart&logoColor=white" alt="Dart SDK" /></a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Desktop-blue.svg?logo=flutter&logoColor=white" alt="Platform Support" />
-  <a href="https://pub.dev/packages/get"><img src="https://img.shields.io/badge/State_Management-GetX_4.7-8A2BE2.svg?logo=flutter&logoColor=white" alt="GetX State Management" /></a>
-  <a href="https://pub.dev/packages/hive"><img src="https://img.shields.io/badge/Database-Hive_2.2-FFD700.svg?logo=hive&logoColor=black" alt="Hive Database" /></a>
-</p>
-
-<p align="center">
-  <a href="#matter-protocol-integration"><img src="https://img.shields.io/badge/Protocol-Matter-00F5FF?logo=connectivity-standards-alliance&logoColor=black" alt="Matter Standard" /></a>
-  <a href="#hardware-communication-layer"><img src="https://img.shields.io/badge/Hardware-ESP32_HTTP_API-E7352C?logo=espressif&logoColor=white" alt="ESP32 HTTP API" /></a>
-  <a href="#data-persistence"><img src="https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black" alt="Firebase Backend" /></a>
+  <img src="https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Desktop-success?style=for-the-badge" alt="Platforms"/>
+  <img src="https://img.shields.io/badge/State-Riverpod-00D1B2?style=for-the-badge" alt="Riverpod"/>
+  <img src="https://img.shields.io/badge/Backend-Firebase-FFCA28?style=for-the-badge&logo=firebase" alt="Firebase"/>
+  <img src="https://img.shields.io/badge/Protocol-Matter-6A0DAD?style=for-the-badge" alt="Matter"/>
+  <img src="https://img.shields.io/badge/Transport-MQTT-660066?style=for-the-badge" alt="MQTT"/>
 </p>
 
 ---
 
-## Purpose
+## 📖 Description
 
-The application is designed for homeowners and developers who have built or are building a DIY smart home using ESP32 microcontrollers as the central hub. It solves the problem of fragmented device management by providing a single, visually rich interface to:
+**Smart Home IoT** is a production-grade, cross-platform Flutter application for controlling and monitoring a custom ESP32-based smart home system. It provides real-time device management through a **dual-transport architecture**: MQTT over LAN is used as the primary, low-latency channel, with Firebase Realtime Database serving as an automatic cloud fallback whenever the local network is unavailable.
 
-- Control all smart devices (lamps, air conditioners, RGB strips, door locks, robot vacuums) from one place.
-- Program and replay infrared remote signals for any AC unit or IR-compatible device, eliminating the need for physical remotes.
-- Visualize the physical layout of all devices on a room floor plan.
-- Monitor real-time environmental data (temperature, humidity, airflow, power usage) polled from the ESP32 hub.
-- Add new certified Matter devices directly through the Google Home commissioning flow.
+The app supports relay control, PWM dimming, infrared (IR) learning and playback, air-conditioning management, environmental sensor monitoring (temperature & humidity), and over-the-air (OTA) firmware updates. It also integrates with the **Matter** protocol (via the CHIP SDK) to onboard and control devices within the Google Home ecosystem. The UI adapts responsively across Android, iOS, and Linux desktop, and is built on **Clean Architecture** with **Riverpod** for predictable, testable state management.
 
 ---
 
-## DEMO
-Dashboard
-![alt text](assets/image1.png)
+## ✨ Key Features
 
-<div align="center">
-  <table>
-    <tr>
-      <!-- <td align="center" width="33%">
-        <b>Dashboard & Live Weather</b><br/>
-        <img src="assets/image1.png" alt="Dashboard Screen" width="100%"/>
-      </td> -->
-      <td align="center" width="33%">
-        <b>Interactive Floor Plan</b><br/>
-        <img src="assets/image2.png" alt="Room Placement Screen" width="100%"/>
-      </td>
-      <td align="center" width="33%">
-        <b>Advanced IR Control</b><br/>
-        <img src="assets/image3.png" alt="IR Remote Learner Screen" width="100%"/>
-      </td>
-    </tr>
-  </table>
-</div>
-
-## How It Works
-
-### Hardware Communication Layer
-
-The app communicates with an ESP32 microcontroller hub running a local HTTP server on the same Wi-Fi network. The IP address of the hub is configured once in the Settings screen and stored persistently using SharedPreferences.
-
-All hardware commands are dispatched through `Esp32Service`, a GetX service that wraps the Dio HTTP client. The service exposes the following operations:
-
-- **Digital Output** (`/control/digital`): Toggles GPIO relay channels for lamps and door locks.
-- **Analog / PWM Output** (`/control/analog`): Writes PWM duty cycle values (0-255) for dimming lamps or controlling RGB strips.
-- **IR Learn** (`/control/ir/learn`): Puts the ESP32 IR receiver into learning mode for up to 12 seconds, captures the incoming signal, and returns a structured IR code object.
-- **IR Send** (`/control/ir/send`): Transmits a previously learned IR code through the ESP32 IR LED transmitter.
-- **Sensor Data** (`/sensors`): Reads live environmental metrics from the hub.
-- **Ping** (`/ping`): Checks hub reachability before any critical operation.
-
-### Matter Protocol Integration
-
-For devices certified under the Matter standard (Thread, Wi-Fi, or BLE commissioning), the app integrates with Google Home's CHIP Device Controller via the `flutter_matter` library. The `MatterService` handles:
-
-- **Commissioning**: Pairs a new Matter device using a setup PIN code and registers it on the local fabric.
-- **OnOff Cluster** (Cluster 0x0006): Toggles device power.
-- **LevelControl Cluster** (Cluster 0x0008): Sets brightness via the `MoveToLevel` command.
-- **ColorControl Cluster** (Cluster 0x0300): Sets RGB color by converting the input RGB values to HSV and sending a `MoveToHueAndSaturation` command.
-
-### IR Remote Control System
-
-The IR control system is one of the most advanced features in the application. For AC units and other IR-controlled devices, the user can record signals directly from their physical remote by pointing it at the ESP32 IR receiver. Each button (Power, Temp Up, Temp Down, Auto, Cool, Heat, Eco) is stored as a separate JSON-encoded `IrCodeEntity` in the device record.
-
-The system supports the following IR protocols: NEC, Samsung, Sony, LG, Panasonic, Denon, Sharp, JVC, RC5, RC6, PulseDistance, PulseWidth, and RAW formats. Stored codes are validated via a round-trip integrity check before being saved to disk.
-
-When the temperature is adjusted on the dashboard, the app automatically sends the Temp Up or Temp Down signal the required number of times in rapid succession (220 ms intervals) to match the target delta.
-
-A global mutex (`_irBusy`) ensures only one IR HTTP request is in flight at a time, preventing signal collisions on the ESP32.
-
-### Data Persistence
-
-All device state and room configuration is stored locally on the device using Hive, a fast key-value NoSQL database. On first launch, the app seeds a set of mock devices. On subsequent launches, the persisted state is loaded directly from Hive, preserving all user modifications including IR codes, device positions, brightness levels, and room assignments.
-
-### Live Weather Integration
-
-The dashboard displays live weather data fetched from two external APIs:
-
-1. **ipapi.co**: Determines the user's city, country, latitude, and longitude based on IP geolocation.
-2. **Open-Meteo**: A free, open-source weather API that returns current temperature and a WMO weather condition code.
-
-The app maps WMO codes to human-readable conditions and generates a contextual smart home suggestion based on the current temperature and weather pattern.
-
-### Room Floor Plan
-
-The Room Placement screen displays a room background image with interactive draggable markers representing each device. Markers are positioned using normalized coordinates (0.0 to 1.0) relative to the image dimensions, making them resolution-independent. Users can long-press and drag any marker to reassign a device's position. The full device property panel is accessible from this screen, including IR recording controls.
+| Feature | Details |
+|---|---|
+| 🔌 **Relay Control** | Toggle individual GPIO-driven relays (lights, fans, etc.) |
+| 💡 **PWM Dimming** | 8-bit (0–255) brightness control for dimmable loads |
+| ❄️ **AC Management** | Power on/off and target temperature control via IR |
+| ⏱️ **AC Timer** | Scheduled AC shutdown with configurable delay (seconds) |
+| 🌡️ **Sensor Monitoring** | Live temperature & humidity from ESP32 DHT sensors |
+| 📡 **IR Learning** | Capture any remote control signal in 12–15 s |
+| 📺 **IR Playback** | Replay saved IR codes (NEC, SAMSUNG, SONY, RAW) |
+| 🏠 **Room Management** | Organise devices by room with interactive floor plan |
+| 🧵 **Matter Commissioning** | BLE/Wi-Fi device onboarding via CHIP SDK |
+| 🔔 **Push Notifications** | Firebase Cloud Messaging alerts |
+| 🔄 **OTA Updates** | Trigger firmware updates from within the app |
+| 🌐 **Offline Resilience** | Automatic fallback from MQTT → Firebase RTDB |
 
 ---
 
-## Architecture
+## 🏛️ Architecture
 
-The project follows Flutter Clean Architecture principles with strict separation of concerns across three layers per feature:
+The project follows **Clean Architecture** with a clear separation between UI, domain, and data layers. Feature modules are self-contained; shared infrastructure lives in `core/`.
+
+```
+┌─────────────────────────────┐
+│        Presentation          │  Flutter Widgets + Riverpod providers
+│  (features/ + core/widgets/) │
+└──────────────┬──────────────┘
+               │  watches / reads
+┌──────────────▼──────────────┐
+│         Domain Layer         │  Entities, Repository interfaces
+│  (device/, room/, auth/ …)  │
+└──────────────┬──────────────┘
+               │  implements
+┌──────────────▼──────────────┐
+│          Data Layer          │  Services, Hive adapters, Firebase models
+│       (core/services/)       │
+└─────────────────────────────┘
+```
+
+### System Communication Diagram
+
+```mermaid
+flowchart TD
+    UI["Flutter UI\n(Riverpod Widgets)"]
+
+    subgraph Esp32Service["Esp32Service (core/services/)"]
+        API["esp32_api.dart\n(Public API + Fallback Logic)"]
+        MQTT_SVC["esp32_mqtt.dart\n(MQTT Connection)"]
+        FB_SVC["esp32_firebase.dart\n(Firebase Sync)"]
+        SYNC["esp32_controller_sync.dart\n(State → Riverpod)"]
+    end
+
+    subgraph Transport["Transport Layer"]
+        MQTT["🔗 MQTT Broker\n(LAN · Port 1883)\nPrimary"]
+        RTDB["☁️ Firebase RTDB\n(Cloud Fallback)"]
+    end
+
+    ESP32["ESP32 Firmware\n(esp32_smart_home_1)"]
+
+    subgraph Hardware["Hardware"]
+        Relay["Relays"]
+        PWM["PWM Loads"]
+        IR["IR Emitter/Receiver"]
+        AC["AC Unit"]
+        Sensor["DHT Sensor"]
+    end
+
+    MatterSvc["MatterService\n(flutter_matter / CHIP SDK)"]
+    GoogleHome["Google Home Ecosystem\n(Matter Fabric)"]
+
+    UI --> API
+    API --> MQTT_SVC
+    API --> FB_SVC
+    MQTT_SVC <-->|"cmd / state / event\n/ sensor / status"| MQTT
+    FB_SVC <-->|"commands / pins\n/ ir_signal / status"| RTDB
+    MQTT --> ESP32
+    RTDB --> ESP32
+    ESP32 --> Hardware
+    SYNC --> UI
+
+    UI --> MatterSvc
+    MatterSvc <-->|"BLE / Wi-Fi\nCommissioning"| GoogleHome
+```
+
+---
+
+## 📡 Communication Strategy
+
+### Smart MQTT → Firebase Fallback
+
+The `Esp32Service` implements a transparent dual-transport strategy so the app continues to function whether the user is on the same local network as the ESP32 or accessing it remotely over the internet.
+
+```
+User Action in UI
+  └─► Esp32Service.sendCommand()
+        ├─ MQTT connected?
+        │    └─► sendRawMessage() over LAN  ←── fast, sub-100 ms round trip
+        └─ MQTT disconnected?
+             └─► FirebaseService.sendCommand() ←── cloud relay, ~1–3 s
+
+ESP32 response:
+  ├─ Publishes to MQTT event/state topics  ──► instant Riverpod state update
+  └─ PATCHes Firebase RTDB nodes           ──► stream update (backup sync)
+```
+
+**Connection lifecycle:**
+- On startup, `Esp32Service` establishes an MQTT connection to the broker URL stored in `SettingsController` (persisted via Hive).
+- On successful connect, it subscribes to all relevant topics and sends a `get_state` command to hydrate the UI.
+- On disconnect, it schedules an automatic reconnect after **5 seconds** and silently routes all subsequent commands through Firebase until MQTT is restored.
+- Firebase streams remain active in parallel, providing a live backup sync channel at all times.
+
+---
+
+## 📨 MQTT Topics
+
+All topics are prefixed with `smarthome/esp32_smart_home_1/`.
+
+| Topic (suffix) | Direction | Retained | Description |
+|---|---|:---:|---|
+| `cmd` | App → ESP32 | ✗ | Outbound JSON commands |
+| `state` | ESP32 → App | ✅ | Full device state snapshot |
+| `event` | ESP32 → App | ✗ | Delta events (`relay_update`, `pwm_update`, `ac_update`, `ir_learn_status`) |
+| `sensor` | ESP32 → App | ✗ | Live sensor readings (temperature, humidity) |
+| `status` | ESP32 → App | ✅ | LWT — `online` / `offline` |
+
+---
+
+## 🔥 Firebase RTDB Structure
+
+```
+(Firebase Realtime Database root)
+│
+├── devices/
+│   └── esp32_smart_home_1/
+│       ├── commands/          ← App writes JSON commands here (ESP32 polls every 3 s)
+│       ├── pins/              → App reads relay & PWM states
+│       ├── status             → App monitors online / offline
+│       ├── ir_signal/         → App reads newly learned IR signals
+│       ├── matter_payload/    → App reads QR code for Matter commissioning
+│       ├── temperature        → Live DHT temperature reading
+│       ├── humidity           → Live DHT humidity reading
+│       └── target_temperature → Current AC setpoint
+│
+└── app_data/
+    ├── rooms/                 ↔ Bidirectional sync (syncRooms)
+    ├── devices/               ↔ Bidirectional sync (syncDevices)
+    └── ir_codes/
+        └── {deviceId}/
+            └── {fieldKey}/    ↔ Saved IR button codes (IrCodeEntity)
+```
+
+> [!NOTE]
+> The Firebase database URL is injected at runtime from the `.env` file and **never** hardcoded. All Firebase access is authenticated via Firebase Auth.
+
+---
+
+## ⚙️ Core Services
+
+### `Esp32Service` — Primary IoT Control
+
+The central orchestrator for all hardware interactions. It is split across four part files for maintainability:
+
+| File | Responsibility |
+|---|---|
+| `esp32_mqtt.dart` | MQTT client lifecycle, subscriptions, raw message handling |
+| `esp32_api.dart` | Public API surface; selects MQTT or Firebase transport per call |
+| `esp32_firebase.dart` | Firebase RTDB stream subscriptions and initialisation |
+| `esp32_controller_sync.dart` | Translates incoming state payloads into Riverpod controller updates |
+
+**Key behaviours:**
+- Device ID: `esp32_smart_home_1`
+- MQTT broker port: `1883` (configurable via Settings screen)
+- Auto-reconnect: 5 s delay after disconnect
+- On connect: subscribes to `state`, `sensor`, `event`, `status` and sends `get_state`
+
+---
+
+### `FirebaseService` — Cloud Data Layer
+
+Manages all Firebase Realtime Database interactions:
+
+- **Streams** (read): `pins`, `status`, `temperature`, `humidity`, `target_temperature`, `ir_signal`, `matter_payload`
+- **Writes**: `sendCommand()` pushes a JSON payload to `devices/.../commands`; the ESP32 picks this up within 3 seconds
+- **Sync**: `syncRooms()` and `syncDevices()` mirror local Hive data to `app_data/rooms` and `app_data/devices`
+
+---
+
+### `MatterService` — CHIP/Matter Protocol
+
+Integrates the CHIP SDK via the `flutter_matter` package to support commissioning and control of Matter-certified devices:
+
+| Method | Cluster | Description |
+|---|---|---|
+| `commissionDevice()` | — | BLE/Wi-Fi commissioning with completion listener |
+| `toggleDevice()` | `0x0006` OnOff | Turn a Matter device on or off |
+| `setBrightness()` | `0x0008` LevelControl | `MoveToLevel` command (0–254) |
+| `setColor()` | `0x0300` ColorControl | `MoveToHueAndSaturation` command |
+
+RGB → HSV conversion is handled internally before invoking the ColorControl cluster.
+
+---
+
+### `NotificationService` — Push Alerts
+
+Initialises Firebase Cloud Messaging and registers handlers for:
+- **Foreground** notifications (displayed in-app)
+- **Background / terminated** notifications (system tray)
+
+---
+
+## 🛠️ Supported Commands
+
+Commands are sent as JSON on the MQTT `cmd` topic or written to the Firebase `commands` node.
+
+| `action` | Parameters | Description |
+|---|---|---|
+| `set_relay` | `pin` (int), `value` (0 \| 1) | Toggle a relay on or off |
+| `set_pwm` | `pin` (int), `value` (0–255) | Set PWM duty cycle / brightness |
+| `control_ac` | `isOn` (bool), `target_temp` (int) | Power and temperature control |
+| `set_ac_timer` | `seconds` (int), `ir_code` (object) | Scheduled AC shutdown |
+| `ir_send` | `protocol`, `value`, `bits`, `freq` | Transmit a stored IR code |
+| `ir_learn` | _(none)_ | Begin IR signal capture (12 s MQTT / 15 s Firebase timeout) |
+| `ota_start` | `url` (string) | Trigger OTA firmware download and flash |
+| `add_device` | `type` (string), `pin` (int) | Register a new Matter endpoint |
+| `get_state` | _(none)_ | Request a full device state snapshot |
+
+**Example payload:**
+
+```json
+{
+  "action": "set_relay",
+  "pin": 4,
+  "value": 1
+}
+```
+
+---
+
+## 📺 IR Control System
+
+The IR system supports capture and playback of remote control signals for any consumer electronics device.
+
+### Supported Protocols
+
+| Protocol | Notes |
+|---|---|
+| `NEC` | Most common (TVs, set-top boxes) |
+| `SAMSUNG` | Samsung TV/appliance remotes |
+| `SONY` | Sony SIRC protocol |
+| `RAW` / `UNKNOWN` | Full raw timing data for unsupported protocols |
+
+### Learning Workflow
+
+1. User presses **Learn** in the device screen.
+2. App sends `ir_learn` command via `Esp32Service` (MQTT or Firebase).
+3. **MQTT path**: ESP32 publishes `ir_learn_status` on the `event` topic → app receives instantly.
+4. **Firebase path**: App polls the `ir_signal` stream for a new timestamp within **15 seconds**.
+5. Captured code is wrapped in an `IrCodeEntity` (`protocol`, `value`, `bits`, `frequency`) and saved to `app_data/ir_codes/{deviceId}/{fieldKey}` on Firebase.
+
+### IrCodeEntity
+
+```dart
+class IrCodeEntity {
+  final String protocol;   // e.g., "NEC"
+  final int    value;      // Hex value of the signal
+  final int    bits;       // Signal bit length
+  final int    frequency;  // Carrier frequency (Hz)
+}
+```
+
+---
+
+## 📁 Directory Structure
 
 ```
 lib/
-  core/
-    bindings/       # GetX dependency injection (InitialBinding)
-    routes/         # Named route definitions
-    services/       # Esp32Service, MatterService, HiveService
-    theme/          # AppTheme (dark palette, typography)
-    utils/          # Responsive breakpoints utility
-    widgets/        # Shared UI components (GlassContainer)
-  features/
-    dashboard/      # Main shell, navigation, weather widget, device cards
-    device/         # DeviceEntity, IrCodeEntity, device card widgets
-    room/           # Room management, floor plan placement, IR controls
-    settings/       # Hub config, Google Home, preferences, profile
+├── main.dart                          # Entry point · Firebase init · ProviderScope
+├── firebase_options.dart              # Auto-generated Firebase config
+│
+├── core/
+│   ├── bindings/                      # Riverpod initial bindings
+│   ├── router/                        # App router (GoRouter / Navigator)
+│   ├── routes/                        # Named route definitions
+│   ├── services/
+│   │   ├── esp32_service.dart         # Esp32Service entry point
+│   │   ├── esp32/
+│   │   │   ├── esp32_mqtt.dart        # MQTT connection & subscriptions
+│   │   │   ├── esp32_api.dart         # Public API + MQTT/Firebase fallback
+│   │   │   ├── esp32_firebase.dart    # Firebase stream init
+│   │   │   └── esp32_controller_sync.dart  # State → Riverpod controllers
+│   │   ├── firebase_service.dart      # Firebase RTDB service
+│   │   ├── matter_service.dart        # Matter/CHIP commissioning & control
+│   │   ├── hive_service.dart          # Hive local storage init
+│   │   └── notification_service.dart  # Firebase Cloud Messaging
+│   ├── theme/                         # Material 3 dark theme tokens
+│   ├── utils/                         # Responsive breakpoint helpers
+│   └── widgets/                       # Shared UI components
+│
+└── features/
+    ├── auth/                          # Login screen · Firebase Auth flow
+    ├── dashboard/                     # Main panel · device cards · weather widget
+    ├── device/                        # Device entities · IR codes · device models
+    ├── room/                          # Room management · floor plan · placement
+    └── settings/                      # MQTT broker config · Matter pairing · prefs
 ```
 
-**State Management**: GetX is used throughout for reactive state, dependency injection, and navigation. Controllers are injected at the appropriate scope using `InitialBinding` for global services and route-level `BindingsBuilder` for scoped controllers.
-
-**Responsiveness**: A `Responsive` utility class defines three breakpoints (mobile: < 600px, tablet: < 1100px, desktop: >= 1100px). All layout widgets query this utility to adapt padding, spacing, font sizes, and column arrangements at runtime.
-
 ---
 
-## Technology Stack
+## 📦 Technology Stack
 
-| Category | Technology |
-|---|---|
-| Framework | Flutter (Dart SDK >= 3.12) |
-| State Management | Riverpod  |
-| Hardware Communication | Dio 5.9 (HTTP client for ESP32 REST API) |
-| Matter Protocol | flutter_matter (custom local library wrapping CHIP SDK) |
-| Local Storage | Hive 2.2 + Hive Flutter |
-| User Preferences | SharedPreferences 2.5 |
-| Geolocation | ipapi.co (IP-based, no permission required) |
-| Weather Data | Open-Meteo API (open-source, no API key) |
-| IR Protocol | IRremote (on ESP32 firmware side) |
-| Image Picker | image_picker 1.1 (room photo selection) |
-| Equality Checks | Equatable 2.0 (immutable entity comparisons) |
-| Animations | Lottie 3.3 |
-| Real-time Streaming | web_socket_channel 3.0 |
-| Design System | Material 3 dark theme, Glassmorphism (BackdropFilter) |
-| Architecture Pattern | Clean Architecture + Repository Pattern |
-
----
-
-## Hardware Requirements
-
-The application is designed to work with an ESP32 microcontroller flashed with firmware that exposes the following HTTP endpoints on the local network:
-
-| Endpoint | Method | Description |
+| Category | Package | Purpose |
 |---|---|---|
-| `/ping` | GET | Hub reachability check |
-| `/sensors` | GET | Environmental sensor readings |
-| `/control/digital` | POST | GPIO relay on/off control |
-| `/control/analog` | POST | PWM output (0-255) |
-| `/control/ir/learn` | GET | Start IR signal recording |
-| `/control/ir/send` | POST | Transmit a stored IR code |
-| `/control/ac` | POST | Raw AC command (fallback) |
-
-The hub IP address is configurable from the Settings screen without requiring an app restart.
+| **State Management** | `flutter_riverpod` + `riverpod_annotation` | Reactive state, dependency injection |
+| **Hardware (Primary)** | `mqtt_client` | MQTT over LAN (port 1883) |
+| **Hardware (Fallback)** | `firebase_database` | Firebase Realtime Database |
+| **Matter Protocol** | `flutter_matter` | CHIP SDK device commissioning & control |
+| **Local Storage** | `hive` + `hive_flutter` | Fast key-value persistence |
+| **Authentication** | `firebase_auth` | Firebase user authentication |
+| **Env Config** | `flutter_dotenv` | Runtime `.env` loading |
+| **Unique IDs** | `uuid` | Generating device and room UUIDs |
+| **Animations** | `lottie` | JSON-based Lottie animations |
+| **Notifications** | `firebase_messaging` | Firebase Cloud Messaging (FCM) |
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
-1. Flash your ESP32 with compatible firmware that exposes the REST API endpoints listed above.
-2. Ensure the ESP32 and the device running this app are on the same local Wi-Fi network.
-3. Clone the repository and run:
+### Prerequisites
+
+- Flutter **≥ 3.12** ([install guide](https://docs.flutter.dev/get-started/install))
+- Dart SDK **≥ 3.0** (bundled with Flutter)
+- A configured **Firebase project** with Realtime Database enabled
+- An **MQTT broker** reachable on your LAN (e.g., [Mosquitto](https://mosquitto.org/))
+- *(Optional)* An Android device/emulator with Google Play Services for Matter commissioning
+
+### 1 — Clone the repository
+
+```bash
+git clone https://github.com/abod8639/smart_home.git
+cd smart_home
+```
+
+### 2 — Configure environment variables
+
+Create a `.env` file in the project root:
+
+```env
+FIREBASE_DATABASE_URL=https://your-project-default-rtdb.firebaseio.com
+```
+
+> [!IMPORTANT]
+> Never commit the `.env` file to version control. It is listed in `.gitignore` by default.
+
+### 3 — Add Firebase config files
+
+| Platform | File | Location |
+|---|---|---|
+| Android | `google-services.json` | `android/app/` |
+| iOS | `GoogleService-Info.plist` | `ios/Runner/` |
+
+Generate these from the [Firebase Console](https://console.firebase.google.com/) → Project Settings → Your Apps.
+
+### 4 — Install dependencies
 
 ```bash
 flutter pub get
-flutter run
 ```
 
-4. Open Settings in the app, enter the ESP32 IP address, and verify the hub connection status indicator turns green.
-5. Use the Room Placement screen to assign physical positions to your devices on the floor plan.
-6. For AC units, open the device settings panel and record IR signals for each control button using the physical remote.
+If you use `riverpod_annotation`, run the code generator:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+### 5 — Configure the MQTT broker
+
+Launch the app, navigate to **Settings**, and enter your MQTT broker's local IP address. This is stored persistently via Hive.
+
+### 6 — Run the app
+
+```bash
+# Android
+flutter run -d android
+
+# iOS (macOS required)
+flutter run -d ios
+
+# Linux Desktop
+flutter run -d linux
+```
+
+---
+
+## 🔧 ESP32 Firmware
+
+The companion ESP32 firmware that this app communicates with is maintained in a separate repository:
+
+> 🔗 **[smart_home_IoT_idf](https://github.com/abod8639/smart_home_IoT_idf)** — ESP-IDF firmware with MQTT, Firebase, IR control, AC management, and Matter support.
+
+The firmware implements:
+- MQTT client connecting to the same broker as the app
+- Firebase RTDB polling for cloud-relayed commands (every 3 s)
+- DHT sensor readings published to `sensor` topic
+- Relay and PWM GPIO control
+- IR learning and transmission (NEC, SAMSUNG, SONY, RAW)
+- Last Will and Testament (LWT) on the `status` topic
+- Matter/CHIP SDK endpoint registration
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
+
+<p align="center">
+  Made with ❤️ using Flutter · MQTT · Firebase · Matter
+</p>
