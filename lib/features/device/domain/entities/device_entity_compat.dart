@@ -70,6 +70,7 @@ extension DeviceEntityCompat on DeviceEntity {
     Object? matterNodeId = const Object(),
     Object? matterEndpointId = const Object(),
     Object? pin = const Object(),
+    Object? isPwm = const Object(),
     int? temperature,
     String? mode,
     int? coolingTime,
@@ -100,6 +101,7 @@ extension DeviceEntityCompat on DeviceEntity {
         matterNodeId: matterNodeId,
         matterEndpointId: matterEndpointId,
         pin: pin,
+        isPwm: isPwm,
         temperature: temperature,
         mode: mode,
         coolingTime: coolingTime,
@@ -119,6 +121,7 @@ extension DeviceEntityCompat on DeviceEntity {
         matterNodeId: matterNodeId,
         matterEndpointId: matterEndpointId,
         pin: pin,
+        isPwm: isPwm,
         brightness: brightness,
       );
     } else if (this is RgbLampDeviceEntity) {
@@ -134,6 +137,7 @@ extension DeviceEntityCompat on DeviceEntity {
         matterNodeId: matterNodeId,
         matterEndpointId: matterEndpointId,
         pin: pin,
+        isPwm: isPwm,
         brightness: brightness,
         rgbR: rgbR,
         rgbG: rgbG,
@@ -152,6 +156,7 @@ extension DeviceEntityCompat on DeviceEntity {
         matterNodeId: matterNodeId,
         matterEndpointId: matterEndpointId,
         pin: pin,
+        isPwm: isPwm,
         isLocked: isLocked,
         linkedDevicesCount: linkedDevicesCount,
       );
@@ -168,6 +173,7 @@ extension DeviceEntityCompat on DeviceEntity {
         matterNodeId: matterNodeId,
         matterEndpointId: matterEndpointId,
         pin: pin,
+        isPwm: isPwm,
         batteryLevel: batteryLevel,
         areaCleaned: areaCleaned,
         cleaningTime: cleaningTime,
