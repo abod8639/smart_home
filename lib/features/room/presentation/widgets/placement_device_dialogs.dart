@@ -49,20 +49,62 @@ Widget buildPropertyRow(String label, String value) {
 
 // ─── Dialogs ──────────────────────────────────────────────────────────────────
 
+class Esp32PinConfig {
+  final int pin;
+  final bool isPwm;
+  final String label;
+
+  const Esp32PinConfig({
+    required this.pin,
+    required this.isPwm,
+    required this.label,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Esp32PinConfig &&
+          runtimeType == other.runtimeType &&
+          pin == other.pin &&
+          isPwm == other.isPwm;
+
+  @override
+  int get hashCode => pin.hashCode ^ isPwm.hashCode;
+}
+
 /// Dialog helper class for device management dialogs.
 class PlacementDeviceDialogs {
   PlacementDeviceDialogs._();
 
   /// List of ESP32 GPIO pin configuration options.
-  static const List<Map<String, dynamic>> esp32Pins = [
-    {'pin': 2, 'label': 'GPIO 2 (relay_1)', 'isPwm': false},
-    {'pin': 18, 'label': 'GPIO 18 (relay_2)', 'isPwm': false},
-    {'pin': 19, 'label': 'GPIO 19 (relay_3)', 'isPwm': false},
-    {'pin': 21, 'label': 'GPIO 21 (relay_4)', 'isPwm': false},
-    {'pin': 22, 'label': 'GPIO 22 (pwm_lamp)', 'isPwm': true},
-    {'pin': 23, 'label': 'GPIO 23 (pwm_rgb_r)', 'isPwm': true},
-    {'pin': 25, 'label': 'GPIO 25 (pwm_rgb_g)', 'isPwm': true},
-    {'pin': 26, 'label': 'GPIO 26 (pwm_rgb_b)', 'isPwm': true},
+  static const List<Esp32PinConfig> esp32Pins = [
+    // Relays
+    Esp32PinConfig(pin: 2, label: 'GPIO 2 (relay_1)', isPwm: false),
+    Esp32PinConfig(pin: 18, label: 'GPIO 18 (relay_2)', isPwm: false),
+    Esp32PinConfig(pin: 19, label: 'GPIO 19 (relay_3)', isPwm: false),
+    Esp32PinConfig(pin: 21, label: 'GPIO 21 (relay_4)', isPwm: false),
+    Esp32PinConfig(pin: 5, label: 'GPIO 5 (relay_5)', isPwm: false),
+    Esp32PinConfig(pin: 12, label: 'GPIO 12 (relay_6)', isPwm: false),
+    Esp32PinConfig(pin: 13, label: 'GPIO 13 (relay_7)', isPwm: false),
+    Esp32PinConfig(pin: 14, label: 'GPIO 14 (relay_8)', isPwm: false),
+    Esp32PinConfig(pin: 15, label: 'GPIO 15 (relay_9)', isPwm: false),
+    Esp32PinConfig(pin: 16, label: 'GPIO 16 (relay_10)', isPwm: false),
+    Esp32PinConfig(pin: 17, label: 'GPIO 17 (relay_11)', isPwm: false),
+    Esp32PinConfig(pin: 27, label: 'GPIO 27 (relay_12)', isPwm: false),
+
+    // PWMs
+    Esp32PinConfig(pin: 22, label: 'GPIO 22 (pwm_lamp)', isPwm: true),
+    Esp32PinConfig(pin: 23, label: 'GPIO 23 (pwm_rgb_r)', isPwm: true),
+    Esp32PinConfig(pin: 25, label: 'GPIO 25 (pwm_rgb_g)', isPwm: true),
+    Esp32PinConfig(pin: 26, label: 'GPIO 26 (pwm_rgb_b)', isPwm: true),
+    Esp32PinConfig(pin: 5, label: 'GPIO 5 (pwm_5)', isPwm: true),
+    Esp32PinConfig(pin: 12, label: 'GPIO 12 (pwm_6)', isPwm: true),
+    Esp32PinConfig(pin: 13, label: 'GPIO 13 (pwm_7)', isPwm: true),
+    Esp32PinConfig(pin: 14, label: 'GPIO 14 (pwm_8)', isPwm: true),
+    Esp32PinConfig(pin: 15, label: 'GPIO 15 (pwm_9)', isPwm: true),
+    Esp32PinConfig(pin: 16, label: 'GPIO 16 (pwm_10)', isPwm: true),
+    Esp32PinConfig(pin: 17, label: 'GPIO 17 (pwm_11)', isPwm: true),
+    Esp32PinConfig(pin: 27, label: 'GPIO 27 (pwm_12)', isPwm: true),
   ];
 
   // ── Add Device ─────────────────────────────────────────────────────────────
@@ -76,7 +118,7 @@ class PlacementDeviceDialogs {
     final linkedCountController = TextEditingController(text: '0');
     DeviceType selectedType = DeviceType.lamp;
     bool showAsDot = false;
-    int? selectedPin;
+    Esp32PinConfig? selectedPinConfig;
 
     showDialog(
       context: context,
@@ -193,18 +235,18 @@ class PlacementDeviceDialogs {
                         border: Border.all(color: Colors.white12),
                       ),
                       child: DropdownButtonHideUnderline(
-                        child: DropdownButton<int?>(
-                          value: selectedPin,
+                        child: DropdownButton<Esp32PinConfig?>(
+                          value: selectedPinConfig,
                           dropdownColor: AppTheme.cardBackground,
                           isExpanded: true,
                           style: const TextStyle(color: Colors.white, fontSize: 14),
                           onChanged: (val) {
                             setState(() {
-                              selectedPin = val;
+                              selectedPinConfig = val;
                             });
                           },
                           items: [
-                            const DropdownMenuItem<int?>(
+                            const DropdownMenuItem<Esp32PinConfig?>(
                               value: null,
                               child: Row(
                                 children: [
@@ -215,24 +257,22 @@ class PlacementDeviceDialogs {
                               ),
                             ),
                             ...esp32Pins.map((p) {
-                              final pinVal = p['pin'] as int;
-                              final isPwm = p['isPwm'] as bool;
-                              final isUsed = usedPins.contains(pinVal);
+                              final isUsed = usedPins.contains(p.pin);
 
-                              return DropdownMenuItem<int?>(
-                                value: pinVal,
+                              return DropdownMenuItem<Esp32PinConfig?>(
+                                value: p,
                                 enabled: !isUsed,
                                 child: Row(
                                   children: [
                                     Icon(
-                                      isPwm ? Icons.waves : Icons.bolt,
-                                      color: isUsed ? Colors.white24 : (isPwm ? Colors.orangeAccent : AppTheme.primaryBlue),
+                                      p.isPwm ? Icons.waves : Icons.bolt,
+                                      color: isUsed ? Colors.white24 : (p.isPwm ? Colors.orangeAccent : AppTheme.primaryBlue),
                                       size: 18,
                                     ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        p['label'] as String,
+                                        p.label,
                                         style: TextStyle(
                                           color: isUsed ? Colors.white24 : Colors.white,
                                           decoration: isUsed ? TextDecoration.lineThrough : null,
@@ -306,6 +346,8 @@ class PlacementDeviceDialogs {
                     }
                     final linkedCount = int.tryParse(linkedCountController.text) ?? 0;
                     final id = const Uuid().v4();
+                    final selectedPin = selectedPinConfig?.pin;
+                    final selectedIsPwm = selectedPinConfig?.isPwm;
 
                     DeviceEntity newDevice;
                     switch (selectedType) {
@@ -317,6 +359,7 @@ class PlacementDeviceDialogs {
                           positionY: 0.5,
                           showAsDot: showAsDot,
                           pin: selectedPin,
+                          isPwm: selectedIsPwm,
                           temperature: 24,
                           mode: 'Auto mode',
                           coolingTime: 0,
@@ -331,6 +374,7 @@ class PlacementDeviceDialogs {
                           positionY: 0.5,
                           showAsDot: showAsDot,
                           pin: selectedPin,
+                          isPwm: selectedIsPwm,
                           brightness: 50,
                         );
                         break;
@@ -342,6 +386,7 @@ class PlacementDeviceDialogs {
                           positionY: 0.5,
                           showAsDot: showAsDot,
                           pin: selectedPin,
+                          isPwm: selectedIsPwm,
                           brightness: 50,
                           rgbR: 255,
                           rgbG: 255,
@@ -356,6 +401,7 @@ class PlacementDeviceDialogs {
                           positionY: 0.5,
                           showAsDot: showAsDot,
                           pin: selectedPin,
+                          isPwm: selectedIsPwm,
                           isLocked: true,
                           linkedDevicesCount: linkedCount,
                         );
@@ -368,6 +414,7 @@ class PlacementDeviceDialogs {
                           positionY: 0.5,
                           showAsDot: showAsDot,
                           pin: selectedPin,
+                          isPwm: selectedIsPwm,
                           batteryLevel: 100,
                           areaCleaned: 0,
                           cleaningTime: 0,
@@ -457,7 +504,18 @@ class PlacementDeviceDialogs {
     );
     DeviceType selectedType = device.type;
     bool showAsDot = device.showAsDot;
-    int? selectedPin = device.pin;
+    Esp32PinConfig? selectedPinConfig;
+    if (device.pin != null) {
+      final deviceIsPwm = device.isPwm ?? (device.pin == 22 || device.pin == 23 || device.pin == 25 || device.pin == 26);
+      selectedPinConfig = esp32Pins.firstWhere(
+        (p) => p.pin == device.pin && p.isPwm == deviceIsPwm,
+        orElse: () => Esp32PinConfig(
+          pin: device.pin!,
+          isPwm: deviceIsPwm,
+          label: 'GPIO ${device.pin} (${deviceIsPwm ? 'pwm' : 'relay'})',
+        ),
+      );
+    }
 
     showDialog(
       context: context,
@@ -564,18 +622,18 @@ class PlacementDeviceDialogs {
                         border: Border.all(color: Colors.white12),
                       ),
                       child: DropdownButtonHideUnderline(
-                        child: DropdownButton<int?>(
-                          value: selectedPin,
+                        child: DropdownButton<Esp32PinConfig?>(
+                          value: selectedPinConfig,
                           dropdownColor: AppTheme.cardBackground,
                           isExpanded: true,
                           style: const TextStyle(color: Colors.white, fontSize: 14),
                           onChanged: (val) {
                             setState(() {
-                              selectedPin = val;
+                              selectedPinConfig = val;
                             });
                           },
                           items: [
-                            const DropdownMenuItem<int?>(
+                            const DropdownMenuItem<Esp32PinConfig?>(
                               value: null,
                               child: Row(
                                 children: [
@@ -586,24 +644,22 @@ class PlacementDeviceDialogs {
                               ),
                             ),
                             ...esp32Pins.map((p) {
-                              final pinVal = p['pin'] as int;
-                              final isPwm = p['isPwm'] as bool;
-                              final isUsed = usedPins.contains(pinVal);
+                              final isUsed = usedPins.contains(p.pin);
 
-                              return DropdownMenuItem<int?>(
-                                value: pinVal,
+                              return DropdownMenuItem<Esp32PinConfig?>(
+                                value: p,
                                 enabled: !isUsed,
                                 child: Row(
                                   children: [
                                     Icon(
-                                      isPwm ? Icons.waves : Icons.bolt,
-                                      color: isUsed ? Colors.white24 : (isPwm ? Colors.orangeAccent : AppTheme.primaryBlue),
+                                      p.isPwm ? Icons.waves : Icons.bolt,
+                                      color: isUsed ? Colors.white24 : (p.isPwm ? Colors.orangeAccent : AppTheme.primaryBlue),
                                       size: 18,
                                     ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        p['label'] as String,
+                                        p.label,
                                         style: TextStyle(
                                           color: isUsed ? Colors.white24 : Colors.white,
                                           decoration: isUsed ? TextDecoration.lineThrough : null,
@@ -673,6 +729,8 @@ class PlacementDeviceDialogs {
                     final name = nameController.text.trim();
                     if (name.isEmpty) return;
                     final linkedCount = int.tryParse(linkedCountController.text) ?? 0;
+                    final selectedPin = selectedPinConfig?.pin;
+                    final selectedIsPwm = selectedPinConfig?.isPwm;
                     DeviceEntity updated = device;
 
                     if (device.type == selectedType) {
@@ -681,6 +739,7 @@ class PlacementDeviceDialogs {
                           name: name,
                           showAsDot: showAsDot,
                           pin: selectedPin,
+                          isPwm: selectedIsPwm,
                           linkedDevicesCount: linkedCount,
                         );
                       } else if (device is AcDeviceEntity) {
@@ -688,24 +747,28 @@ class PlacementDeviceDialogs {
                           name: name,
                           showAsDot: showAsDot,
                           pin: selectedPin,
+                          isPwm: selectedIsPwm,
                         );
                       } else if (device is LampDeviceEntity) {
                         updated = device.copyWith(
                           name: name,
                           showAsDot: showAsDot,
                           pin: selectedPin,
+                          isPwm: selectedIsPwm,
                         );
                       } else if (device is RgbLampDeviceEntity) {
                         updated = device.copyWith(
                           name: name,
                           showAsDot: showAsDot,
                           pin: selectedPin,
+                          isPwm: selectedIsPwm,
                         );
                       } else if (device is VacuumDeviceEntity) {
                         updated = device.copyWith(
                           name: name,
                           showAsDot: showAsDot,
                           pin: selectedPin,
+                          isPwm: selectedIsPwm,
                         );
                       } else {
                         updated = device;
@@ -726,6 +789,7 @@ class PlacementDeviceDialogs {
                             matterEndpointId: device.matterEndpointId,
                             showAsDot: showAsDot,
                             pin: selectedPin,
+                            isPwm: selectedIsPwm,
                             temperature: 24,
                             mode: 'Auto mode',
                             coolingTime: 0,
@@ -746,6 +810,7 @@ class PlacementDeviceDialogs {
                             matterEndpointId: device.matterEndpointId,
                             showAsDot: showAsDot,
                             pin: selectedPin,
+                            isPwm: selectedIsPwm,
                             brightness: 50,
                           );
                           break;
@@ -763,6 +828,7 @@ class PlacementDeviceDialogs {
                             matterEndpointId: device.matterEndpointId,
                             showAsDot: showAsDot,
                             pin: selectedPin,
+                            isPwm: selectedIsPwm,
                             brightness: 50,
                             rgbR: 255,
                             rgbG: 255,
@@ -783,6 +849,7 @@ class PlacementDeviceDialogs {
                             matterEndpointId: device.matterEndpointId,
                             showAsDot: showAsDot,
                             pin: selectedPin,
+                            isPwm: selectedIsPwm,
                             isLocked: true,
                             linkedDevicesCount: linkedCount,
                           );
@@ -801,6 +868,7 @@ class PlacementDeviceDialogs {
                             matterEndpointId: device.matterEndpointId,
                             showAsDot: showAsDot,
                             pin: selectedPin,
+                            isPwm: selectedIsPwm,
                             batteryLevel: 100,
                             areaCleaned: 0,
                             cleaningTime: 0,
