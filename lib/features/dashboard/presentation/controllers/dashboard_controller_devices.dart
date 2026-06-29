@@ -104,14 +104,14 @@ extension DashboardControllerDevices on DashboardController {
           final esp32 = ref.read(esp32ServiceProvider.notifier);
           if (device is LampDeviceEntity) {
             final pin = device.pin ?? 2;
-            if (pin == 22 || pin == 23 || pin == 25 || pin == 26) {
+            if (device.isPwmConfigured) {
               esp32.setAnalogOutput(pin, 0);
             } else {
               esp32.setDigitalOutput(pin, false);
             }
           } else if (device is RgbLampDeviceEntity) {
             final pin = device.pin ?? 23;
-            if (pin == 22 || pin == 23 || pin == 25 || pin == 26) {
+            if (device.isPwmConfigured) {
               if (pin == 23) {
                 esp32.setAnalogOutput(23, 0);
                 esp32.setAnalogOutput(25, 0);
@@ -171,14 +171,14 @@ extension DashboardControllerDevices on DashboardController {
         final esp32 = ref.read(esp32ServiceProvider.notifier);
         if (device is LampDeviceEntity) {
           final pin = device.pin ?? 2;
-          if (pin == 22 || pin == 23 || pin == 25 || pin == 26) {
+          if (device.isPwmConfigured) {
             esp32.setAnalogOutput(pin, newIsOn ? (device.brightness ?? 255) : 0);
           } else {
             esp32.setDigitalOutput(pin, newIsOn);
           }
         } else if (device is RgbLampDeviceEntity) {
           final pin = device.pin ?? 23;
-          if (pin == 22 || pin == 23 || pin == 25 || pin == 26) {
+          if (device.isPwmConfigured) {
             if (pin == 23) {
               esp32.setAnalogOutput(23, newIsOn ? (device.rgbR ?? 255) : 0);
               esp32.setAnalogOutput(25, newIsOn ? (device.rgbG ?? 255) : 0);
@@ -388,25 +388,7 @@ extension DashboardControllerDevices on DashboardController {
               final pin = device.pin;
 
               if (pin != null) {
-                // Find label corresponding to the configured pin
-                String? label;
-                if (pin == 2) {
-                  label = 'relay_1';
-                } else if (pin == 18) {
-                  label = 'relay_2';
-                } else if (pin == 19) {
-                  label = 'relay_3';
-                } else if (pin == 21) {
-                  label = 'relay_4';
-                } else if (pin == 22) {
-                  label = 'pwm_lamp';
-                } else if (pin == 23) {
-                  label = 'pwm_rgb_r';
-                } else if (pin == 25) {
-                  label = 'pwm_rgb_g';
-                } else if (pin == 26) {
-                  label = 'pwm_rgb_b';
-                }
+                final label = device.pinLabel;
 
                 if (label != null && pinsMap.containsKey(label)) {
                   final val = pinsMap[label];
