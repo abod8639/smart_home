@@ -15,6 +15,7 @@ class DeviceModel {
   final int? matterNodeId;
   final int? matterEndpointId;
   final int? pin;
+  final bool? isPwm;
 
   // AC specific
   final int? temperature;
@@ -77,6 +78,7 @@ class DeviceModel {
     this.matterNodeId,
     this.matterEndpointId,
     this.pin,
+    this.isPwm,
     this.temperature,
     this.mode,
     this.coolingTime,
@@ -131,6 +133,7 @@ class DeviceModel {
       matterNodeId: json['matterNodeId'] as int?,
       matterEndpointId: json['matterEndpointId'] as int?,
       pin: json['pin'] as int?,
+      isPwm: json['isPwm'] as bool?,
 
       // AC
       temperature: json['temperature'] as int?,
@@ -196,6 +199,7 @@ class DeviceModel {
       'matterNodeId': matterNodeId,
       'matterEndpointId': matterEndpointId,
       'pin': pin,
+      'isPwm': isPwm,
 
       // AC
       if (temperature != null) 'temperature': temperature,
@@ -269,6 +273,7 @@ class DeviceModel {
           matterNodeId: matterNodeId,
           matterEndpointId: matterEndpointId,
           pin: pin,
+          isPwm: isPwm,
           batteryLevel: batteryLevel,
           areaCleaned: areaCleaned,
           cleaningTime: cleaningTime,
@@ -289,6 +294,7 @@ class DeviceModel {
           matterNodeId: matterNodeId,
           matterEndpointId: matterEndpointId,
           pin: pin,
+          isPwm: isPwm,
           temperature: temperature,
           mode: mode,
           coolingTime: coolingTime,
@@ -331,6 +337,7 @@ class DeviceModel {
           matterNodeId: matterNodeId,
           matterEndpointId: matterEndpointId,
           pin: pin,
+          isPwm: isPwm,
           brightness: brightness,
         );
       case DeviceType.rgb:
@@ -347,6 +354,7 @@ class DeviceModel {
           matterNodeId: matterNodeId,
           matterEndpointId: matterEndpointId,
           pin: pin,
+          isPwm: isPwm,
           brightness: brightness,
           rgbR: rgbR,
           rgbG: rgbG,
@@ -366,6 +374,7 @@ class DeviceModel {
           matterNodeId: matterNodeId,
           matterEndpointId: matterEndpointId,
           pin: pin,
+          isPwm: isPwm,
           isLocked: isLocked,
           linkedDevicesCount: linkedDevicesCount,
         );
@@ -388,6 +397,7 @@ class DeviceModel {
       matterNodeId: d.matterNodeId,
       matterEndpointId: d.matterEndpointId,
       pin: d.pin,
+      isPwm: d.isPwm,
       
       // AC
       temperature: d is AcDeviceEntity ? d.temperature : null,
