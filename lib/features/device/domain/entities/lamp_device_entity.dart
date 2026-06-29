@@ -19,6 +19,7 @@ class LampDeviceEntity extends DeviceEntity {
     super.matterNodeId,
     super.matterEndpointId,
     super.pin,
+    super.isPwm,
     this.brightness,
   }) : super(
           type: DeviceType.lamp,
@@ -38,6 +39,7 @@ class LampDeviceEntity extends DeviceEntity {
     Object? matterNodeId = const Object(),
     Object? matterEndpointId = const Object(),
     Object? pin = const Object(),
+    Object? isPwm = const Object(),
     int? brightness,
   }) {
     return LampDeviceEntity(
@@ -53,6 +55,7 @@ class LampDeviceEntity extends DeviceEntity {
       matterNodeId: matterNodeId == const Object() ? this.matterNodeId : (matterNodeId as int?),
       matterEndpointId: matterEndpointId == const Object() ? this.matterEndpointId : (matterEndpointId as int?),
       pin: pin == const Object() ? this.pin : (pin as int?),
+      isPwm: isPwm == const Object() ? this.isPwm : (isPwm as bool?),
       brightness: brightness ?? this.brightness,
     );
   }
