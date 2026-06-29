@@ -21,6 +21,7 @@ class DoorDeviceEntity extends DeviceEntity {
     super.matterNodeId,
     super.matterEndpointId,
     super.pin,
+    super.isPwm,
     this.isLocked,
     this.linkedDevicesCount,
   }) : super(
@@ -41,6 +42,7 @@ class DoorDeviceEntity extends DeviceEntity {
     Object? matterNodeId = const Object(),
     Object? matterEndpointId = const Object(),
     Object? pin = const Object(),
+    Object? isPwm = const Object(),
     bool? isLocked,
     int? linkedDevicesCount,
   }) {
@@ -57,6 +59,7 @@ class DoorDeviceEntity extends DeviceEntity {
       matterNodeId: matterNodeId == const Object() ? this.matterNodeId : (matterNodeId as int?),
       matterEndpointId: matterEndpointId == const Object() ? this.matterEndpointId : (matterEndpointId as int?),
       pin: pin == const Object() ? this.pin : (pin as int?),
+      isPwm: isPwm == const Object() ? this.isPwm : (isPwm as bool?),
       isLocked: isLocked ?? this.isLocked,
       linkedDevicesCount: linkedDevicesCount ?? this.linkedDevicesCount,
     );
