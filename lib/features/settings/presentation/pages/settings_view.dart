@@ -18,6 +18,7 @@ class SettingsView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
 
     final gap = Responsive.contentGap(context);
+    final deviceCardHeight =  Responsive.deviceHeightRatio(context);
     final isCompact = Responsive.isMobile(context);
     final padding = Responsive.pagePadding(context);
 
@@ -119,7 +120,7 @@ class SettingsView extends ConsumerWidget {
           SizedBox(height: gap),
           const FcmTokenCard(),
           SizedBox(height: gap),
-          SizedBox(height: 320, child: DevicePlacementCard()),
+          SizedBox(height:gap * 2.3, child: DevicePlacementCard()),
           SizedBox(height: gap),
           const HubConfigCard(),
           SizedBox(height: gap),
