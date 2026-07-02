@@ -1,4 +1,4 @@
-# 🏠 Smart Home IoT
+# Smart Home IoT
 
 <p align="center">
   <img src="https://img.shields.io/github/actions/workflow/status/abod8639/smart_home/flutter_ci.yml?label=Build&style=for-the-badge&logo=github" alt="Build Status"/>
@@ -17,7 +17,7 @@
 
 ---
 
-## 📖 Description
+## Description
 
 **Smart Home IoT** is a production-grade, cross-platform Flutter application for controlling and monitoring a custom ESP32-based smart home system. It provides real-time device management through a **dual-transport architecture**: MQTT over LAN is used as the primary, low-latency channel, with Firebase Realtime Database serving as an automatic cloud fallback whenever the local network is unavailable.
 
@@ -25,26 +25,26 @@ The app supports relay control, PWM dimming, infrared (IR) learning and playback
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 | Feature | Details |
 |---|---|
-| 🔌 **Relay Control** | Toggle individual GPIO-driven relays (lights, fans, etc.) |
-| 💡 **PWM Dimming** | 8-bit (0–255) brightness control for dimmable loads |
-| ❄️ **AC Management** | Power on/off and target temperature control via IR |
-| ⏱️ **AC Timer** | Scheduled AC shutdown with configurable delay (seconds) |
-| 🌡️ **Sensor Monitoring** | Live temperature & humidity from ESP32 DHT sensors |
-| 📡 **IR Learning** | Capture any remote control signal in 12–15 s |
-| 📺 **IR Playback** | Replay saved IR codes (NEC, SAMSUNG, SONY, RAW) |
-| 🏠 **Room Management** | Organise devices by room with interactive floor plan |
-| 🧵 **Matter Commissioning** | BLE/Wi-Fi device onboarding via CHIP SDK |
-| 🔔 **Push Notifications** | Firebase Cloud Messaging alerts |
-| 🔄 **OTA Updates** | Trigger firmware updates from within the app |
-| 🌐 **Offline Resilience** | Automatic fallback from MQTT → Firebase RTDB |
+| **Relay Control** | Toggle individual GPIO-driven relays (lights, fans, etc.) |
+| **PWM Dimming** | 8-bit (0–255) brightness control for dimmable loads |
+| **AC Management** | Power on/off and target temperature control via IR |
+| **AC Timer** | Scheduled AC shutdown with configurable delay (seconds) |
+| **Sensor Monitoring** | Live temperature & humidity from ESP32 DHT sensors |
+| **IR Learning** | Capture any remote control signal in 12–15 s |
+| **IR Playback** | Replay saved IR codes (NEC, SAMSUNG, SONY, RAW) |
+| **Room Management** | Organise devices by room with interactive floor plan |
+| **Matter Commissioning** | BLE/Wi-Fi device onboarding via CHIP SDK |
+| **Push Notifications** | Firebase Cloud Messaging alerts |
+| **OTA Updates** | Trigger firmware updates from within the app |
+| **Offline Resilience** | Automatic fallback from MQTT to Firebase RTDB |
 
 ---
 
-## 🏛️ Architecture
+## Architecture
 
 The project follows **Clean Architecture** with a clear separation between UI, domain, and data layers. Feature modules are self-contained; shared infrastructure lives in `core/`.
 
@@ -79,8 +79,8 @@ flowchart TD
     end
 
     subgraph Transport["Transport Layer"]
-        MQTT["🔗 MQTT Broker\n(LAN · Port 1883)\nPrimary"]
-        RTDB["☁️ Firebase RTDB\n(Cloud Fallback)"]
+        MQTT["MQTT Broker\n(LAN · Port 1883)\nPrimary"]
+        RTDB["Firebase RTDB\n(Cloud Fallback)"]
     end
 
     ESP32["ESP32 Firmware\n(esp32_smart_home_1)"]
@@ -112,48 +112,60 @@ flowchart TD
 
 ---
 
-## 📡 Communication Strategy
+## Communication Strategy
 
-### Smart MQTT → Firebase Fallback
-
-The `Esp32Service` implements a transparent dual-transport strategy so the app continues to function whether the user is on the same local network as the ESP32 or accessing it remotely over the internet.
+### Dual-Transport Routing
 
 ```
-User Action in UI
-  └─► Esp32Service.sendCommand()
-        ├─ MQTT connected?
-        │    └─► sendRawMessage() over LAN  ←── fast, sub-100 ms round trip
-        └─ MQTT disconnected?
-             └─► FirebaseService.sendCommand() ←── cloud relay, ~1–3 s
-
-ESP32 response:
-  ├─ Publishes to MQTT event/state topics  ──► instant Riverpod state update
-  └─ PATCHes Firebase RTDB nodes           ──► stream update (backup sync)
+[User Action in UI]
+        │
+        ▼
+[Esp32Service.sendCommand()]
+        │
+        ├─► [MQTT Connected?] ── Yes ─► [Send RAW Message over LAN] (sub-100ms)
+        │
+        └─► [MQTT Disconnected?] ── No ──► [Send via Firebase RTDB] (~1-3s)
 ```
 
-**Connection lifecycle:**
-- On startup, `Esp32Service` establishes an MQTT connection to the broker URL stored in `SettingsController` (persisted via Hive).
-- On successful connect, it subscribes to all relevant topics and sends a `get_state` command to hydrate the UI.
-- On disconnect, it schedules an automatic reconnect after **5 seconds** and silently routes all subsequent commands through Firebase until MQTT is restored.
-- Firebase streams remain active in parallel, providing a live backup sync channel at all times.
+### Connection Lifecycle
+
+```
+[App Startup]
+      │
+      ▼
+[Load Broker URL from Hive]
+      │
+      ▼
+[Connect to MQTT Broker]
+      │
+      ├─► Success ──► [Subscribe to Topics] ──► [Send get_state] ──► [Active MQTT Transport]
+      │                                                                        │
+      │                                                                   Connection
+      │                                                                      Lost
+      │                                                                        │
+      └─► Failure/Disconnect ◄─────────────────────────────────────────────────┘
+              │
+              ▼
+      [Route Commands to Firebase] ──► [Retry MQTT (5s delay)]
+```
 
 ---
 
-## 📨 MQTT Topics
+## MQTT Topics
 
 All topics are prefixed with `smarthome/esp32_smart_home_1/`.
 
 | Topic (suffix) | Direction | Retained | Description |
 |---|---|:---:|---|
 | `cmd` | App → ESP32 | ✗ | Outbound JSON commands |
-| `state` | ESP32 → App | ✅ | Full device state snapshot |
+| `state` | ESP32 → App | Yes | Full device state snapshot |
 | `event` | ESP32 → App | ✗ | Delta events (`relay_update`, `pwm_update`, `ac_update`, `ir_learn_status`) |
 | `sensor` | ESP32 → App | ✗ | Live sensor readings (temperature, humidity) |
-| `status` | ESP32 → App | ✅ | LWT — `online` / `offline` |
+| `status` | ESP32 → App | Yes | LWT — `online` / `offline` |
 
 ---
 
-## 🔥 Firebase RTDB Structure
+## Firebase RTDB Structure
 
 ```
 (Firebase Realtime Database root)
@@ -178,11 +190,11 @@ All topics are prefixed with `smarthome/esp32_smart_home_1/`.
 ```
 
 > [!NOTE]
-> The Firebase database URL is injected at runtime from the `.env` file and **never** hardcoded. All Firebase access is authenticated via Firebase Auth.
+> The Firebase database URL is injected at runtime from the `.env` file and is never hardcoded. All Firebase access is authenticated via Firebase Auth.
 
 ---
 
-## ⚙️ Core Services
+## Core Services
 
 ### `Esp32Service` — Primary IoT Control
 
@@ -236,7 +248,7 @@ Initialises Firebase Cloud Messaging and registers handlers for:
 
 ---
 
-## 🛠️ Supported Commands
+## Supported Commands
 
 Commands are sent as JSON on the MQTT `cmd` topic or written to the Firebase `commands` node.
 
@@ -264,7 +276,7 @@ Commands are sent as JSON on the MQTT `cmd` topic or written to the Firebase `co
 
 ---
 
-## 📺 IR Control System
+## IR Control System
 
 The IR system supports capture and playback of remote control signals for any consumer electronics device.
 
@@ -279,11 +291,21 @@ The IR system supports capture and playback of remote control signals for any co
 
 ### Learning Workflow
 
-1. User presses **Learn** in the device screen.
-2. App sends `ir_learn` command via `Esp32Service` (MQTT or Firebase).
-3. **MQTT path**: ESP32 publishes `ir_learn_status` on the `event` topic → app receives instantly.
-4. **Firebase path**: App polls the `ir_signal` stream for a new timestamp within **15 seconds**.
-5. Captured code is wrapped in an `IrCodeEntity` (`protocol`, `value`, `bits`, `frequency`) and saved to `app_data/ir_codes/{deviceId}/{fieldKey}` on Firebase.
+```
+User               App (Esp32Service)        Transport             ESP32
+  │                       │                      │                   │
+  │─── 1. Press Learn ───►│                      │                   │
+  │                       │─── 2. Send ir_learn ─┼──────────────────►│
+  │                       │       command        │                   │
+  │                       │                      │               (Capture)
+  │                       │                      │                   │
+  │                       │◄── 3. MQTT Event (ir_learn_status) ──────│ (Instant)
+  │                       │                      or                  │
+  │                       │◄── 4. Firebase Stream (ir_signal) ───────│ (Max 15s)
+  │                       │                      │                   │
+  │                       │─── 5. Save IrCodeEntity ────────────────►│ (Store in DB)
+  ▼                       ▼                      ▼                   ▼
+```
 
 ### IrCodeEntity
 
@@ -298,7 +320,7 @@ class IrCodeEntity {
 
 ---
 
-## 📁 Directory Structure
+## Directory Structure
 
 ```
 lib/
@@ -334,7 +356,7 @@ lib/
 
 ---
 
-## 📦 Technology Stack
+## Technology Stack
 
 | Category | Package | Purpose |
 |---|---|---|
@@ -351,7 +373,7 @@ lib/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -419,11 +441,11 @@ flutter run -d linux
 
 ---
 
-## 🔧 ESP32 Firmware
+## ESP32 Firmware
 
 The companion ESP32 firmware that this app communicates with is maintained in a separate repository:
 
-> 🔗 **[smart_home_IoT_idf](https://github.com/abod8639/smart_home_IoT_idf)** — ESP-IDF firmware with MQTT, Firebase, IR control, AC management, and Matter support.
+> **[smart_home_IoT_idf](https://github.com/abod8639/smart_home_IoT_idf)** — ESP-IDF firmware with MQTT, Firebase, IR control, AC management, and Matter support.
 
 The firmware implements:
 - MQTT client connecting to the same broker as the app
@@ -436,12 +458,12 @@ The firmware implements:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 
 <p align="center">
-  Made with ❤️ using Flutter · MQTT · Firebase · Matter
+  Made using Flutter, MQTT, Firebase, and Matter
 </p>
