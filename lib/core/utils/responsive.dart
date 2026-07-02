@@ -61,4 +61,12 @@ class Responsive {
       ScreenType.desktop => 80,
     };
   }
+
+  static double deviceHeightRatio(BuildContext context) {
+    return switch (screenTypeOf(context)) {
+      ScreenType.mobile => 0.8,
+      ScreenType.tablet => 0.6,
+      ScreenType.desktop => 0.5,
+    };
+  }
 }
