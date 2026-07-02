@@ -86,11 +86,7 @@ flowchart TD
     ESP32["ESP32 Firmware\n(esp32_smart_home_1)"]
 
     subgraph Hardware["Hardware"]
-        Relay["Relays"]
-        PWM["PWM Loads"]
-        IR["IR Emitter/Receiver"]
-        AC["AC Unit"]
-        Sensor["DHT Sensor"]
+        Relay["Relays"] PWM["PWM Loads"] IR["IR Emitter Receiver"] AC["AC Unit"] Sensor["DHT Sensor"]
     end
 
     MatterSvc["MatterService\n(flutter_matter / CHIP SDK)"]
