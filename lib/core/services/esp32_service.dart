@@ -13,6 +13,7 @@ import 'package:smart_home/features/device/data/models/ir_code_model.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/core/services/firebase_service.dart';
+import 'package:smart_home/features/environment/presentation/providers/environment_provider.dart';
 
 part 'esp32/esp32_mqtt.dart';
 part 'esp32/esp32_firebase.dart';
