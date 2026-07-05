@@ -4,19 +4,20 @@ part of '../esp32_service.dart';
 
 extension Esp32ControllerSync on Esp32Service {
   void _syncStateWithControllers(Map<String, dynamic> state) {
+    final env = ref.read(environmentControllerProvider.notifier);
     final dashboard = ref.read(dashboardControllerProvider.notifier);
-    
+
     if (state['temperature'] != null) {
-      dashboard.setTemperature('${state['temperature']}°');
+      env.setTemperature('${state['temperature']}°');
     }
     if (state['humidity'] != null) {
-      dashboard.setHumidity('${state['humidity']}%');
+      env.setHumidity('${state['humidity']}%');
     }
     if (state['wifi_rssi'] != null) {
-      dashboard.setWifiRssi('${state['wifi_rssi']} dBm');
+      env.setWifiRssi('${state['wifi_rssi']} dBm');
     }
     if (state['heap_free'] != null) {
-      dashboard.setHeapFree('${(state['heap_free'] / 1024).toStringAsFixed(1)} KB');
+      env.setHeapFree('${(state['heap_free'] / 1024).toStringAsFixed(1)} KB');
     }
 
     // Target AC temperature
@@ -48,12 +49,12 @@ extension Esp32ControllerSync on Esp32Service {
   }
 
   void _syncSensorsWithControllers(Map<String, dynamic> data) {
-    final dashboard = ref.read(dashboardControllerProvider.notifier);
+    final env = ref.read(environmentControllerProvider.notifier);
     if (data['temperature'] != null) {
-      dashboard.setTemperature('${data['temperature']}°');
+      env.setTemperature('${data['temperature']}°');
     }
     if (data['humidity'] != null) {
-      dashboard.setHumidity('${data['humidity']}%');
+      env.setHumidity('${data['humidity']}%');
     }
   }
 
