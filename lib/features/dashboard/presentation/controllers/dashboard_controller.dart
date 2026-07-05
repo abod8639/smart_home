@@ -19,11 +19,10 @@ import 'package:smart_home/features/room/presentation/controllers/room_placement
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/ir_learning_dialog.dart';
 import 'package:smart_home/core/services/firebase_service.dart';
-import 'package:smart_home/core/utils/formatting_utils.dart';
 import 'package:equatable/equatable.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:smart_home/features/environment/presentation/providers/environment_provider.dart';
 
-part 'dashboard_controller_weather.dart';
 part 'dashboard_controller_rooms.dart';
 part 'dashboard_controller_devices.dart';
 part 'dashboard_controller_ir.dart';
@@ -32,25 +31,6 @@ part 'dashboard_controller.g.dart';
 class DashboardState extends Equatable {
   final List<RoomEntity> rooms;
   final List<DeviceEntity> devices;
-  final int currentNavigationIndex;
-  
-  // Environment Stats
-  final String humidity;
-  final String airflow;
-  final String temperature;
-  final String powerUsage;
-  final String wifiRssi;
-  final String heapFree;
-
-  // Weather Stats
-  final String weatherLocation;
-  final String weatherTemp;
-  final String weatherCondition;
-  final String weatherDate;
-  final String weatherSuggestion;
-  final bool isWeatherLoading;
-  final int isDay;
-  final int weatherCode;
 
   // IR
   final Set<String> sendingIrKeys;
@@ -58,71 +38,24 @@ class DashboardState extends Equatable {
   const DashboardState({
     this.rooms = const [],
     this.devices = const [],
-    this.currentNavigationIndex = 0,
-    this.humidity = '50%',
-    this.airflow = '80%',
-    this.temperature = '27°',
-    this.powerUsage = '360W',
-    this.wifiRssi = '- dBm',
-    this.heapFree = '0 KB',
-    this.weatherLocation = 'Loading...',
-    this.weatherTemp = '--°C',
-    this.weatherCondition = 'Fetching...',
-    this.weatherDate = '',
-    this.weatherSuggestion = 'Optimizing settings...',
-    this.isWeatherLoading = true,
-    this.isDay = 1,
-    this.weatherCode = 0,
     this.sendingIrKeys = const {},
   });
 
   DashboardState copyWith({
     List<RoomEntity>? rooms,
     List<DeviceEntity>? devices,
-    int? currentNavigationIndex,
-    String? humidity,
-    String? airflow,
-    String? temperature,
-    String? powerUsage,
-    String? wifiRssi,
-    String? heapFree,
-    String? weatherLocation,
-    String? weatherTemp,
-    String? weatherCondition,
-    String? weatherDate,
-    String? weatherSuggestion,
-    bool? isWeatherLoading,
-    int? isDay,
-    int? weatherCode,
     Set<String>? sendingIrKeys,
   }) {
     return DashboardState(
       rooms: rooms ?? this.rooms,
       devices: devices ?? this.devices,
-      currentNavigationIndex: currentNavigationIndex ?? this.currentNavigationIndex,
-      humidity: humidity ?? this.humidity,
-      airflow: airflow ?? this.airflow,
-      temperature: temperature ?? this.temperature,
-      powerUsage: powerUsage ?? this.powerUsage,
-      wifiRssi: wifiRssi ?? this.wifiRssi,
-      heapFree: heapFree ?? this.heapFree,
-      weatherLocation: weatherLocation ?? this.weatherLocation,
-      weatherTemp: weatherTemp ?? this.weatherTemp,
-      weatherCondition: weatherCondition ?? this.weatherCondition,
-      weatherDate: weatherDate ?? this.weatherDate,
-      weatherSuggestion: weatherSuggestion ?? this.weatherSuggestion,
-      isWeatherLoading: isWeatherLoading ?? this.isWeatherLoading,
-      isDay: isDay ?? this.isDay,
-      weatherCode: weatherCode ?? this.weatherCode,
       sendingIrKeys: sendingIrKeys ?? this.sendingIrKeys,
     );
   }
 
   @override
   List<Object?> get props => [
-        rooms, devices, currentNavigationIndex, humidity, airflow, temperature,
-        powerUsage, wifiRssi, heapFree, weatherLocation, weatherTemp, weatherCondition,
-        weatherDate, weatherSuggestion, isWeatherLoading, isDay, weatherCode, sendingIrKeys
+        rooms, devices, sendingIrKeys
       ];
 }
 
@@ -161,16 +94,11 @@ class DashboardController extends _$DashboardController {
       return DashboardState(
         rooms: rooms,
         devices: devices,
-        isWeatherLoading: false,
-        weatherLocation: 'Mock City',
-        weatherTemp: '25°C',
-        weatherCondition: 'Sunny',
       );
     }
 
     Future.microtask(() {
       _loadData();
-      fetchLiveWeather();
       _startAcTimer();
       _startEsp32Polling();
       _initFirebaseListeners();
@@ -179,14 +107,8 @@ class DashboardController extends _$DashboardController {
     return const DashboardState();
   }
 
-  void changeTab(int index) {
-    state = state.copyWith(currentNavigationIndex: index);
-  }
+  // Methods for state mutation (if needed, otherwise rely on parts)
 
-  void setTemperature(String val) => state = state.copyWith(temperature: val);
-  void setHumidity(String val) => state = state.copyWith(humidity: val);
-  void setWifiRssi(String val) => state = state.copyWith(wifiRssi: val);
-  void setHeapFree(String val) => state = state.copyWith(heapFree: val);
 
   void _initFirebaseListeners() {
     if (_isTest) return;
