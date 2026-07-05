@@ -8,9 +8,12 @@ part of 'device_local_datasource.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Riverpod provider for [DeviceLocalDatasource].
 
 @ProviderFor(deviceLocalDatasource)
 final deviceLocalDatasourceProvider = DeviceLocalDatasourceProvider._();
+
+/// Riverpod provider for [DeviceLocalDatasource].
 
 final class DeviceLocalDatasourceProvider
     extends
@@ -20,6 +23,7 @@ final class DeviceLocalDatasourceProvider
           DeviceLocalDatasource
         >
     with $Provider<DeviceLocalDatasource> {
+  /// Riverpod provider for [DeviceLocalDatasource].
   DeviceLocalDatasourceProvider._()
     : super(
         from: null,
