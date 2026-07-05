@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/shadow_container.dart';
-import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:smart_home/features/weather/presentation/providers/weather_provider.dart';
 
 class WeatherUpdateWidget extends ConsumerWidget {
   const WeatherUpdateWidget({super.key});
@@ -17,22 +17,22 @@ class WeatherUpdateWidget extends ConsumerWidget {
     final double scale = ((scaleX + scaleY) / 2.0).clamp(0.35, 0.8);
 
     final cardWidth = Responsive.isDesktop(context) ? 320.0 * scale : null;
-    final state = ref.watch(dashboardControllerProvider);
+    final weatherState = ref.watch(weatherControllerProvider);
 
     return ShadowContainer(
       width: cardWidth,
       padding: EdgeInsets.symmetric(horizontal: 24 * scale, vertical: 10 * scale),
       child: Builder(builder: (context) {
-        if (state.isWeatherLoading) {
+        if (weatherState.isWeatherLoading) {
           return _buildLoadingState(scale);
         }
 
-        final location = state.weatherLocation;
-        final date = state.weatherDate;
-        final temp = state.weatherTemp;
-        final condition = state.weatherCondition;
-        final code = state.weatherCode;
-        final dayFlag = state.isDay;
+        final location = weatherState.weatherLocation;
+        final date = weatherState.weatherDate;
+        final temp = weatherState.weatherTemp;
+        final condition = weatherState.weatherCondition;
+        final code = weatherState.weatherCode;
+        final dayFlag = weatherState.isDay;
 
         return SingleChildScrollView(
           child: Column(
