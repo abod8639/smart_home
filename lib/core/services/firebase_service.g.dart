@@ -41,7 +41,7 @@ final class FirebaseServiceProvider
   }
 }
 
-String _$firebaseServiceHash() => r'cb0073cc500adb72e11d098918536e9a28b8cf11';
+String _$firebaseServiceHash() => r'ac91c28c4a12431b5999a64f22f6d95a05bca9de';
 
 abstract class _$FirebaseService extends $Notifier<void> {
   void build();
