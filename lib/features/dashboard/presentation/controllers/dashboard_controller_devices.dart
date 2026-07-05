@@ -344,14 +344,11 @@ extension DashboardControllerDevices on DashboardController {
         final response = await esp32.getSensorData();
         if (response.isSuccess && response.data != null) {
           final data = response.data!;
-          String currentTemp = state.temperature;
-          String currentHum = state.humidity;
-          
           if (data['temperature'] != null) {
-            currentTemp = '${data['temperature']}°';
+            ref.read(environmentControllerProvider.notifier).setTemperature('${data['temperature']}°');
           }
           if (data['humidity'] != null) {
-            currentHum = '${data['humidity']}%';
+            ref.read(environmentControllerProvider.notifier).setHumidity('${data['humidity']}%');
           }
 
           final newDevices = List<DeviceEntity>.from(state.devices);
@@ -443,11 +440,9 @@ extension DashboardControllerDevices on DashboardController {
             }
           }
           
-          if (changed || currentTemp != state.temperature || currentHum != state.humidity) {
+          if (changed) {
             state = state.copyWith(
               devices: newDevices,
-              temperature: currentTemp,
-              humidity: currentHum,
             );
           }
         }
