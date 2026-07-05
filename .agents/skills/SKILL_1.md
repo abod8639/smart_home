@@ -10,7 +10,7 @@ description: >
   feature bindings, use cases, or domain entities in a Flutter project.
 ---
 
-# Stronger Muscles Dashboard — Flutter Skill
+# Smart Home — Flutter Skill
 h
 ---
 
