@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
-import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
 class AppNavItem {
   final IconData icon;
@@ -13,22 +13,19 @@ class AppNavItem {
 
 const List<AppNavItem> kAppNavItems = [
   AppNavItem(icon: Icons.home_rounded, index: 0),
-  // AppNavItem(icon: Icons.bolt_rounded, index: 1),
-  AppNavItem(icon: Icons.storage_rounded, index: 2),
-  AppNavItem(icon: Icons.notifications_rounded, index: 3),
-  AppNavItem(icon: Icons.pie_chart_rounded, index: 4),
-  // AppNavItem(icon: Icons.videocam_rounded, index: 5),
-  AppNavItem(icon: Icons.settings_rounded, index: 6),
+  AppNavItem(icon: Icons.storage_rounded, index: 1),
+  AppNavItem(icon: Icons.notifications_rounded, index: 2),
+  AppNavItem(icon: Icons.pie_chart_rounded, index: 3),
+  AppNavItem(icon: Icons.settings_rounded, index: 4),
 ];
 
 class MobileBottomNav extends ConsumerWidget {
-  const MobileBottomNav({super.key});
+  final StatefulNavigationShell navigationShell;
+
+  const MobileBottomNav({super.key, required this.navigationShell});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentNavigationIndex = ref.watch(dashboardControllerProvider.select((s) => s.currentNavigationIndex));
-    final controller = ref.read(dashboardControllerProvider.notifier);
-    
     return Container(
       color: Colors.transparent, // Ensures scaffold bottom navigation background is transparent
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
@@ -58,11 +55,14 @@ class MobileBottomNav extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: kAppNavItems.map((item) {
-                  final isActive = currentNavigationIndex == item.index;
+                  final isActive = navigationShell.currentIndex == item.index;
                   return AppNavigationButton(
                     icon: item.icon,
                     isActive: isActive,
-                    onTap: () => controller.changeTab(item.index),
+                    onTap: () => navigationShell.goBranch(
+                      item.index,
+                      initialLocation: item.index == navigationShell.currentIndex,
+                    ),
                     iconSize: 24,
                     padding: const EdgeInsets.all(10),
                   );
