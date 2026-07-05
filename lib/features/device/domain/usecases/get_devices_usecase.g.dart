@@ -8,9 +8,12 @@ part of 'get_devices_usecase.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Riverpod provider for [GetDevicesUseCase].
 
 @ProviderFor(getDevicesUseCase)
 final getDevicesUseCaseProvider = GetDevicesUseCaseProvider._();
+
+/// Riverpod provider for [GetDevicesUseCase].
 
 final class GetDevicesUseCaseProvider
     extends
@@ -20,6 +23,7 @@ final class GetDevicesUseCaseProvider
           GetDevicesUseCase
         >
     with $Provider<GetDevicesUseCase> {
+  /// Riverpod provider for [GetDevicesUseCase].
   GetDevicesUseCaseProvider._()
     : super(
         from: null,
