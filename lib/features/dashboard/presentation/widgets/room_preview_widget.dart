@@ -11,6 +11,7 @@ import 'package:smart_home/features/dashboard/presentation/widgets/pulsing_dot_m
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 import 'package:smart_home/features/room/presentation/widgets/card_device_marker.dart';
 import 'package:smart_home/features/room/data/models/room_model.dart';
+import 'package:smart_home/features/environment/presentation/providers/environment_provider.dart';
 
 class RoomPreviewWidget extends ConsumerWidget {
   const RoomPreviewWidget({super.key});
@@ -18,6 +19,7 @@ class RoomPreviewWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(dashboardControllerProvider);
+    final envState = ref.watch(environmentControllerProvider);
     final controller = ref.read(dashboardControllerProvider.notifier);
 
     return Center(
@@ -87,15 +89,15 @@ class RoomPreviewWidget extends ConsumerWidget {
                       // Environment Stats
                       Row(
                         children: [
-                          _buildStatChip(Icons.water_drop_outlined, state.humidity, Responsive.isMobile(context)),
+                          _buildStatChip(Icons.water_drop_outlined, envState.humidity, Responsive.isMobile(context)),
                           SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
-                          _buildStatChip(Icons.air_outlined, state.airflow, Responsive.isMobile(context)),
+                          _buildStatChip(Icons.air_outlined, envState.airflow, Responsive.isMobile(context)),
                           SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
-                          _buildStatChip(Icons.thermostat_outlined, state.temperature, Responsive.isMobile(context)),
+                          _buildStatChip(Icons.thermostat_outlined, envState.temperature, Responsive.isMobile(context)),
                           SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
-                          _buildStatChip(Icons.wifi_outlined, state.wifiRssi, Responsive.isMobile(context)),
+                          _buildStatChip(Icons.wifi_outlined, envState.wifiRssi, Responsive.isMobile(context)),
                           SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
-                          _buildStatChip(Icons.memory_outlined, state.heapFree, Responsive.isMobile(context)),
+                          _buildStatChip(Icons.memory_outlined, envState.heapFree, Responsive.isMobile(context)),
                         ],
                       ),
                     ],
