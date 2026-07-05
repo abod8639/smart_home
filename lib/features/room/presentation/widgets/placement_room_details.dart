@@ -6,6 +6,7 @@ import 'package:smart_home/features/dashboard/presentation/controllers/dashboard
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
 import 'package:smart_home/features/room/presentation/widgets/placement_device_dialogs.dart';
+import 'package:smart_home/features/environment/presentation/providers/environment_provider.dart';
 
 /// Shows room statistics, environment data and a quick "Add Device" button.
 class PlacementRoomDetails extends ConsumerWidget {
@@ -79,13 +80,13 @@ class PlacementRoomDetails extends ConsumerWidget {
                   child: buildDeviceCards(ref, context),
                 ),
                 SizedBox(height: gap),
-                buildPropertyRow('Temperature', ref.watch(dashboardControllerProvider).temperature),
+                buildPropertyRow('Temperature', ref.watch(environmentControllerProvider).temperature),
                 SizedBox(height: gap),
-                buildPropertyRow('Humidity', ref.watch(dashboardControllerProvider).humidity),
+                buildPropertyRow('Humidity', ref.watch(environmentControllerProvider).humidity),
                 SizedBox(height: gap),
-                buildPropertyRow('Airflow', ref.watch(dashboardControllerProvider).airflow),
+                buildPropertyRow('Airflow', ref.watch(environmentControllerProvider).airflow),
                 SizedBox(height: gap),
-                buildPropertyRow('Power Usage', ref.watch(dashboardControllerProvider).powerUsage),
+                buildPropertyRow('Power Usage', ref.watch(environmentControllerProvider).powerUsage),
               ],
             ),
           ),
