@@ -8,9 +8,12 @@ part of 'device_repository_impl.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Riverpod provider for [DeviceRepository].
 
 @ProviderFor(deviceRepository)
 final deviceRepositoryProvider = DeviceRepositoryProvider._();
+
+/// Riverpod provider for [DeviceRepository].
 
 final class DeviceRepositoryProvider
     extends
@@ -20,6 +23,7 @@ final class DeviceRepositoryProvider
           DeviceRepository
         >
     with $Provider<DeviceRepository> {
+  /// Riverpod provider for [DeviceRepository].
   DeviceRepositoryProvider._()
     : super(
         from: null,
