@@ -6,6 +6,7 @@ import 'package:smart_home/features/dashboard/presentation/controllers/dashboard
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
 import 'package:smart_home/features/room/presentation/widgets/placement_device_dialogs.dart';
+import 'package:smart_home/features/room/presentation/widgets/room_management_dialogs.dart';
 import 'package:smart_home/features/environment/presentation/providers/environment_provider.dart';
 
 /// Shows room statistics, environment data and a quick "Add Device" button.
@@ -47,7 +48,7 @@ class PlacementRoomDetails extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Room name + badge
+        // Room name + Edit/Delete buttons
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -61,6 +62,32 @@ class PlacementRoomDetails extends ConsumerWidget {
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.edit_outlined,
+                      color: AppTheme.primaryBlue, size: isMobile ? 18 : 20),
+                  onPressed: () => RoomManagementDialogs.showEditRoomDialog(
+                    context,
+                    ref,
+                    activeRoom,
+                  ),
+                  tooltip: 'Edit Room Name',
+                ),
+                if (activeRoom.name.toLowerCase() != 'living room')
+                  IconButton(
+                    icon: Icon(Icons.delete_outline,
+                        color: Colors.redAccent, size: isMobile ? 18 : 20),
+                    onPressed: () => RoomManagementDialogs.showDeleteConfirmation(
+                      context,
+                      ref,
+                      activeRoom,
+                    ),
+                    tooltip: 'Delete Room',
+                  ),
+              ],
             ),
           ],
         ),
