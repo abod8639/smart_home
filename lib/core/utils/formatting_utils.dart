@@ -57,17 +57,17 @@ class FormattingUtils {
 
   /// Returns the background image asset path for a given room name.
   static String getRoomBackgroundImage(String? roomName) {
-    if (roomName == null) return 'assets/images/living_room.png';
+    if (roomName == null) return 'https://raw.githubusercontent.com/abod8639/media/main/smart_home/living_room.png';
     switch (roomName.toLowerCase()) {
       case 'kitchen':
-        return 'assets/images/kitchen.png';
+        return 'https://raw.githubusercontent.com/abod8639/media/main/smart_home/kitchen.png';
       case 'bedroom':
-        return 'assets/images/bedroom.png';
+        return 'https://raw.githubusercontent.com/abod8639/media/main/smart_home/bedroom.png';
       case 'bathroom':
-        return 'assets/images/bathroom.png';
+        return 'https://raw.githubusercontent.com/abod8639/media/main/smart_home/bathroom.png';
       case 'living room':
       default:
-        return 'assets/images/living_room.png';
+        return 'https://raw.githubusercontent.com/abod8639/media/main/smart_home/living_room.png';
     }
   }
 }
