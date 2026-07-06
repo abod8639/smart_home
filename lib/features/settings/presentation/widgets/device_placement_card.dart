@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -62,7 +63,7 @@ class DevicePlacementCard extends ConsumerWidget {
                         }
                       }
                       final bgImage = FormattingUtils.getRoomBackgroundImage(room?.name);
-                      return Image.asset(bgImage, fit: BoxFit.cover);
+                      return CachedNetworkImage(imageUrl:  bgImage, fit: BoxFit.cover);
                     }),
                   ),
                   
