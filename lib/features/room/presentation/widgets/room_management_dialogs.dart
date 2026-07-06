@@ -12,6 +12,7 @@ class RoomManagementDialogs {
 
   /// Displays room options dialog (edit, delete) for a specific [room].
   static void showRoomOptions(BuildContext context, WidgetRef ref, RoomEntity room) {
+    final controller = ref.read(dashboardControllerProvider.notifier);
     showDialog(
       context: context,
       builder: (context) {
@@ -29,6 +30,14 @@ class RoomManagementDialogs {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              ListTile(
+                leading: const Icon(Icons.power_settings_new_rounded, color: Colors.orangeAccent),
+                title: const Text('Turn Off All Devices', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.pop(context);
+                  controller.closeAllDevicesInRoom(room.id);
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.edit_outlined, color: AppTheme.primaryBlue),
                 title: const Text('Edit Room Name', style: TextStyle(color: Colors.white)),
