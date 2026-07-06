@@ -1,10 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/services/auth_service.dart';
+import 'package:smart_home/core/widgets/app_network_image.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/app_navigation.dart';
 
 class SidebarWidget extends ConsumerWidget {
@@ -58,12 +58,12 @@ class SidebarWidget extends ConsumerWidget {
                         Container(
                           width: 50,
                           height: 50,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             image: DecorationImage(
-                              image: CachedNetworkImageProvider(
-                      'https://avatars.githubusercontent.com/u/108903062?v=4',
-                    ),
+                              image: getAppImageProvider(
+                                'https://avatars.githubusercontent.com/u/108903062?v=4',
+                              ),
                               fit: BoxFit.cover,
                             ),
                           ),
