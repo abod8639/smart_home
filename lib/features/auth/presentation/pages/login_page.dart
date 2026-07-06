@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/services/auth_service.dart';
@@ -106,11 +107,11 @@ class LoginPage extends ConsumerWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Image.network(
-                            'https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png',
+                          CachedNetworkImage(
+                          imageUrl:'https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png',
                             height: 24,
                             width: 24,
-                            errorBuilder: (context, error, stackTrace) => const Icon(
+                            errorWidget: (context, error, stackTrace) => const Icon(
                               Icons.login_rounded,
                               color: Colors.black87,
                             ),
