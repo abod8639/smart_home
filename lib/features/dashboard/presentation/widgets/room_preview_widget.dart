@@ -1,11 +1,11 @@
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/utils/formatting_utils.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
+import 'package:smart_home/core/widgets/app_network_image.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/pulsing_dot_marker.dart';
@@ -44,13 +44,12 @@ class RoomPreviewWidget extends ConsumerWidget {
               File(activeRoom.imagePath!).existsSync()) {
             imageProvider = FileImage(File(activeRoom.imagePath!));
           } else {
-            imageProvider = CachedNetworkImageProvider(FormattingUtils.getRoomBackgroundImage(activeRoom.name));
+            imageProvider = getAppImageProvider(FormattingUtils.getRoomBackgroundImage(activeRoom.name));
           }
 
           return Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              
               image: DecorationImage(
                 image: imageProvider,
                 fit: BoxFit.cover,
@@ -155,7 +154,7 @@ class RoomPreviewWidget extends ConsumerWidget {
                                         mW: mW,
                                         mH: mH,
                                       ),
-                              ),
+                               ),
                             );
                           }).toList(),
                         );
@@ -170,8 +169,6 @@ class RoomPreviewWidget extends ConsumerWidget {
       ),
     );
   }
-
-
 
   Widget _buildStatChip(IconData icon, String value, bool isMobile) {
     return GlassContainer(
