@@ -30,18 +30,24 @@ void main() {
       tester.view.physicalSize = const Size(1440, 900);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
-      
 
       // Build our app and trigger a frame.
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            // Override authServiceProvider with a stub that skips
+            // GoogleSignIn.initialize() — it throws UnimplementedError in CI
+            // because no native platform channel is available.
+            authServiceProvider.overrideWith(() => _StubAuthService()),
+            // Return a pre-authenticated mock user so the router navigates
+            // directly to the dashboard without hitting the login page.
             authStateProvider.overrideWith((ref) => Stream.value(mockUser)),
           ],
           child: const SmartHomeApp(),
         ),
       );
-      await tester.pumpAndSettle();
+      // Use a generous timeout to handle slow CI runners.
+      await tester.pumpAndSettle(const Duration(seconds: 10));
 
       // Verify that the main rooms from our mock data are present on screen.
       expect(find.text('Bedroom'), findsOneWidget);
@@ -55,11 +61,20 @@ void main() {
         50.0,
         scrollable: roomsListView,
       );
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.text('Living room'), findsOneWidget);
     }, createHttpClient: (context) => MyHttpClient());
   });
+}
+
+/// Stub [AuthService] that skips all Google Sign-In initialisation so the
+/// widget test can run in environments without native platform plugins.
+class _StubAuthService extends AuthService {
+  @override
+  void build() {
+    // Intentionally empty — do NOT call GoogleSignIn.instance.initialize().
+  }
 }
 
 class MyHttpOverrides extends HttpOverrides {
