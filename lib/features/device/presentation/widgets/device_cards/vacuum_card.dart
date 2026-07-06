@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
@@ -71,11 +72,12 @@ class VacuumCard extends StatelessWidget {
                   return Stack(
                     alignment: Alignment.center,
                     children: [
-                      Image.asset(
-                        'assets/images/robot_vacuum.png',
+                      CachedNetworkImage(
+                      imageUrl:   'https://raw.githubusercontent.com/abod8639/media/main/smart_home/robot_vacuum.png',
                         height: h * 0.9,
                         fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) => Icon(
+                        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, error, stackTrace) => Icon(
                           Icons.cleaning_services_outlined,
                           size: (h * 0.5).clamp(40.0, 80.0),
                           color: Colors.white24,
