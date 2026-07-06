@@ -26,7 +26,9 @@ dependencies:
   google_sign_in: ^7.2.0
   image_picker: ^1.1.2
   flutter_matter:
-    path: /home/dexter/flutter_library/flutter_matter
+    git:
+      url: https://github.com/abod8639/flutter_matter.git
+      ref: main
   jni_flutter: ^1.0.1
   firebase_core: ^4.10.0
   firebase_database: ^12.4.2
