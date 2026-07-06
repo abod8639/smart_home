@@ -36,9 +36,11 @@ class RoomPlacementPage extends ConsumerWidget {
       ),
       body: Padding(
         padding: EdgeInsets.all(Responsive.pagePadding(context)),
-        child: Responsive.isMobile(context) || Responsive.isTablet(context)
-            ? _buildMobileLayout(context, ref, dashboardController, imageKey)
-            : _buildWideLayout(context, ref, dashboardController, imageKey),
+        child: MediaQuery.of(context).orientation == Orientation.landscape
+            ? _buildWideLayout(context, ref, dashboardController, imageKey)
+            : (Responsive.isMobile(context) || Responsive.isTablet(context)
+                ? _buildMobileLayout(context, ref, dashboardController, imageKey)
+                : _buildWideLayout(context, ref, dashboardController, imageKey)),
       ),
     );
   }
@@ -53,8 +55,7 @@ class RoomPlacementPage extends ConsumerWidget {
   ) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final screenWidth = MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height);
-        final double imagePanelHeight = (screenWidth * 452).clamp(300, 552);
+        final double imagePanelHeight = (constraints.maxHeight * 0.40).clamp(150.0, 320.0);
         final placementController = ref.read(roomPlacementControllerProvider.notifier);
 
         return Column(
@@ -88,8 +89,16 @@ class RoomPlacementPage extends ConsumerWidget {
     DashboardController dashboardController,
     GlobalKey imageKey,
   ) {
+    final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
-    final sidePanelWidth = isTablet ? 320.0 : 385.0;
+    final double sidePanelWidth;
+    if (isMobile) {
+      sidePanelWidth = 280.0;
+    } else if (isTablet) {
+      sidePanelWidth = 320.0;
+    } else {
+      sidePanelWidth = 385.0;
+    }
     final placementController = ref.read(roomPlacementControllerProvider.notifier);
 
     return Row(
@@ -106,7 +115,7 @@ class RoomPlacementPage extends ConsumerWidget {
         SizedBox(
           width: sidePanelWidth,
           child: GlassContainer(
-            padding: EdgeInsets.all(isTablet ? 16 : 24),
+            padding: EdgeInsets.all(isMobile ? 12 : (isTablet ? 16 : 24)),
             child: Consumer(
               builder: (context, ref, _) => _buildSidePanel(context, ref, dashboardController),
             ),
