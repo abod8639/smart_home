@@ -170,7 +170,12 @@ lib/
 
 ## Hardware Requirements
 
-The application is designed to work with an ESP32 microcontroller flashed with firmware that communicates via an MQTT Broker (local or remote) or Firebase Realtime Database. The ESP32 should publish/subscribe to the following topics:
+The application is designed to work with an ESP32 microcontroller flashed with firmware that communicates via an MQTT Broker (local or remote) or Firebase Realtime Database.
+
+> [!NOTE]
+> A companion repository containing the compatible ESP-IDF firmware for the ESP32 microcontroller is available at [smart_home_IoT_idf](https://github.com/abod8639/smart_home_IoT_idf).
+
+The ESP32 should publish/subscribe to the following topics:
 
 | Topic | Mode | Description | Payload Schema / Values |
 |---|---|---|---|
@@ -186,7 +191,7 @@ The MQTT Broker address/IP is configurable from the Settings screen. When MQTT i
 ## Getting Started
 
 1. Set up an MQTT Broker (e.g., Mosquitto, EMQX, or a cloud-hosted broker).
-2. Configure and flash your ESP32 with compatible firmware that connects to your MQTT Broker and/or Firebase Realtime Database.
+2. Configure and flash your ESP32 with compatible firmware (available in the companion [smart_home_IoT_idf](https://github.com/abod8639/smart_home_IoT_idf) repository) that connects to your MQTT Broker and/or Firebase Realtime Database.
 3. Add a `.env` file to the root of the project with your Firebase Database URL if you want fallback support:
    ```env
    FIREBASE_DATABASE_URL=https://<your-project-id>.firebaseio.com
