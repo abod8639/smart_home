@@ -99,9 +99,12 @@ class RoomsListWidget extends ConsumerWidget {
     return GestureDetector(
       onTap: () => controller.selectRoom(room.id),
       onLongPress: () {
-        controller.closeAllDevicesInRoom(room.id);
+        if (isCompact) {
+          RoomManagementDialogs.showRoomOptions(context, ref, room);
+        } else {
+          controller.closeAllDevicesInRoom(room.id);
+        }
       },
-      // RoomManagementDialogs.showRoomOptions(context, room),
       child: Container(
         height: cardHeight,
         width: cardWidth,
@@ -236,7 +239,13 @@ class RoomsListWidget extends ConsumerWidget {
     
     return GestureDetector(
       onTap: () => controller.selectRoom(room.id),
-      onLongPress: () => RoomManagementDialogs.showRoomOptions(context, ref, room),
+      onLongPress: () {
+        if (isCompact) {
+          RoomManagementDialogs.showRoomOptions(context, ref, room);
+        } else {
+          controller.closeAllDevicesInRoom(room.id);
+        }
+      },
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
