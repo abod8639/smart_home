@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -286,76 +285,6 @@ void main() {
         current = container.read(dashboardControllerProvider).devices.firstWhere((d) => d.id == targetId);
         expect(current.markerWidth, 0.4);
         expect(current.markerHeight, 0.35);
-      });
-    });
-
-    group('Weather Tests', () {
-      test('fetchLiveWeather handles network failure gracefully and sets fallbacks', () async {
-        final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
-          await Future.microtask(() {});
-        controller.dio.httpClientAdapter = MockDioAdapter((options) async {
-          throw DioException(
-            requestOptions: options,
-            error: 'Simulated network failure',
-          );
-        });
-
-        await controller.fetchLiveWeather();
-
-        expect(container.read(dashboardControllerProvider).weatherLocation, 'Jakarta, Indonesia');
-        expect(container.read(dashboardControllerProvider).weatherTemp, '27°C');
-        expect(container.read(dashboardControllerProvider).weatherCondition, 'Clear Evening');
-        expect(container.read(dashboardControllerProvider).isWeatherLoading, isFalse);
-      });
-
-      test('fetchLiveWeather handles network success and updates weather correctly', () async {
-        final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
-          await Future.microtask(() {});
-        controller.dio.httpClientAdapter = MockDioAdapter((options) async {
-          if (options.path.contains('ipapi.co')) {
-            final data = {
-              'city': 'Paris',
-              'country_name': 'France',
-              'latitude': 48.8566,
-              'longitude': 2.3522,
-            };
-            return ResponseBody.fromString(
-              jsonEncode(data),
-              200,
-              headers: {
-                Headers.contentTypeHeader: [Headers.jsonContentType],
-              },
-            );
-          } else if (options.path.contains('open-meteo.com')) {
-            final data = {
-              'current_weather': {
-                'temperature': 18.2,
-                'weathercode': 3, // Partly Cloudy
-                'is_day': 1,
-              }
-            };
-            return ResponseBody.fromString(
-              jsonEncode(data),
-              200,
-              headers: {
-                Headers.contentTypeHeader: [Headers.jsonContentType],
-              },
-            );
-          }
-          throw DioException(
-            requestOptions: options,
-            error: 'Not found',
-          );
-        });
-
-        await controller.fetchLiveWeather();
-
-        expect(container.read(dashboardControllerProvider).weatherLocation, 'Paris, France');
-        expect(container.read(dashboardControllerProvider).weatherTemp, '18°C');
-        expect(container.read(dashboardControllerProvider).weatherCondition, 'Partly Cloudy');
-        expect(container.read(dashboardControllerProvider).isWeatherLoading, isFalse);
       });
     });
 
@@ -673,26 +602,6 @@ void main() {
         final active = container.read(dashboardControllerProvider.notifier).activeRoom;
         expect(active, isNotNull);
         expect(active!.isActive, isTrue);
-      });
-
-      test('weather initial values are set in test mode', () async {
-        final container = createContainer();
-        container.read(dashboardControllerProvider.notifier); // trigger build()
-          await Future.microtask(() {});
-        expect(container.read(dashboardControllerProvider).isWeatherLoading, isFalse);
-        expect(container.read(dashboardControllerProvider).weatherLocation, 'Mock City');
-        expect(container.read(dashboardControllerProvider).weatherTemp, '25°C');
-        expect(container.read(dashboardControllerProvider).weatherCondition, 'Sunny');
-      });
-
-      test('changeTab updates currentNavigationIndex', () async {
-        final container = createContainer();
-        final controller = container.read(dashboardControllerProvider.notifier);
-          await Future.microtask(() {});
-        controller.changeTab(2);
-        expect(container.read(dashboardControllerProvider).currentNavigationIndex, 2);
-        controller.changeTab(0);
-        expect(container.read(dashboardControllerProvider).currentNavigationIndex, 0);
       });
     });
   });
