@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
+import 'package:smart_home/core/widgets/app_network_image.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/glass_switch.dart';
 
@@ -21,6 +21,14 @@ class VacuumCard extends StatelessWidget {
     final isMobile = Responsive.isMobile(context);
     final double cardWidth = isMobile ? 260.0 : 300.0;
     final double innerPadding = isMobile ? 12.0 : 18.0;
+
+    // Cast device to VacuumDeviceEntity safely (if it has fields)
+    final vacuumDevice = device is VacuumDeviceEntity ? (device as VacuumDeviceEntity) : null;
+    final batteryLevel = vacuumDevice?.batteryLevel ?? 0;
+    final areaCleaned = vacuumDevice?.areaCleaned ?? 0;
+    final cleaningTime = vacuumDevice?.cleaningTime ?? 0;
+    final filterStatus = vacuumDevice?.filterStatus ?? 0;
+    final nextCleaning = vacuumDevice?.nextCleaning ?? '--';
 
     return SizedBox(
       width: cardWidth,
@@ -72,12 +80,12 @@ class VacuumCard extends StatelessWidget {
                   return Stack(
                     alignment: Alignment.center,
                     children: [
-                      CachedNetworkImage(
-                      imageUrl:   'https://raw.githubusercontent.com/abod8639/media/main/smart_home/robot_vacuum.png',
+                      AppNetworkImage(
+                        imageUrl: 'https://raw.githubusercontent.com/abod8639/media/main/smart_home/robot_vacuum.png',
                         height: h * 0.9,
                         fit: BoxFit.contain,
                         placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                      errorWidget: (context, error, stackTrace) => Icon(
+                        errorWidget: (context, error, stackTrace) => Icon(
                           Icons.cleaning_services_outlined,
                           size: (h * 0.5).clamp(40.0, 80.0),
                           color: Colors.white24,
@@ -89,7 +97,7 @@ class VacuumCard extends StatelessWidget {
                         child: Transform.scale(
                           scale: chipScale,
                           alignment: Alignment.topLeft,
-                          child: _buildInfoChip('${device.filterStatus}%', 'Filter Status'),
+                          child: _buildInfoChip('$filterStatus%', 'Filter Status'),
                         ),
                       ),
                       Positioned(
@@ -98,7 +106,7 @@ class VacuumCard extends StatelessWidget {
                         child: Transform.scale(
                           scale: chipScale,
                           alignment: Alignment.bottomRight,
-                          child: _buildInfoChip('${device.nextCleaning}', 'Next cleaning'),
+                          child: _buildInfoChip('$nextCleaning', 'Next cleaning'),
                         ),
                       ),
                       // Mock lines connecting chips to vacuum
@@ -132,7 +140,7 @@ class VacuumCard extends StatelessWidget {
                 Expanded(
                   child: _buildBottomStat(
                     Icons.square_foot_outlined, 
-                    '${device.areaCleaned}m²', 
+                    '${areaCleaned}m²', 
                     'Area',
                     isMobile,
                   ),
@@ -141,7 +149,7 @@ class VacuumCard extends StatelessWidget {
                 Expanded(
                   child: _buildBottomStat(
                     Icons.access_time, 
-                    '${device.cleaningTime}m', 
+                    '${cleaningTime}m', 
                     'Time',
                     isMobile,
                   ),
@@ -150,7 +158,7 @@ class VacuumCard extends StatelessWidget {
                 Expanded(
                   child: _buildBottomStat(
                     Icons.battery_charging_full, 
-                    '${device.batteryLevel}%', 
+                    '$batteryLevel%', 
                     'Battery',
                     isMobile,
                   ),
