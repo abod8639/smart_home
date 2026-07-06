@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:smart_home/core/services/auth_service.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
+import 'package:smart_home/features/weather/presentation/providers/weather_provider.dart';
 import 'package:smart_home/main.dart';
 
 void main() {
@@ -39,6 +40,11 @@ void main() {
             // GoogleSignIn.initialize() — it throws UnimplementedError in CI
             // because no native platform channel is available.
             authServiceProvider.overrideWith(() => _StubAuthService()),
+            
+            // Override weatherControllerProvider to prevent async network requests
+            // and keep isWeatherLoading false, avoiding infinite CircularProgressIndicator animations.
+            weatherControllerProvider.overrideWith(() => _StubWeatherController()),
+
             // Return a pre-authenticated mock user so the router navigates
             // directly to the dashboard without hitting the login page.
             authStateProvider.overrideWith((ref) => Stream.value(mockUser)),
@@ -46,8 +52,9 @@ void main() {
           child: const SmartHomeApp(),
         ),
       );
-      // Use a generous timeout to handle slow CI runners.
-      await tester.pumpAndSettle(const Duration(seconds: 10));
+      
+      // Settle frames normally (default is 100ms steps).
+      await tester.pumpAndSettle();
 
       // Verify that the main rooms from our mock data are present on screen.
       expect(find.text('Bedroom'), findsOneWidget);
@@ -61,7 +68,7 @@ void main() {
         50.0,
         scrollable: roomsListView,
       );
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
 
       expect(find.text('Living room'), findsOneWidget);
     }, createHttpClient: (context) => MyHttpClient());
@@ -74,6 +81,26 @@ class _StubAuthService extends AuthService {
   @override
   void build() {
     // Intentionally empty — do NOT call GoogleSignIn.instance.initialize().
+  }
+}
+
+/// Stub [WeatherController] to prevent network calls and infinite loading spinners in tests.
+class _StubWeatherController extends WeatherController {
+  @override
+  WeatherState build() {
+    return const WeatherState(
+      weatherLocation: 'Cairo, Egypt',
+      weatherTemp: '27°C',
+      weatherCondition: 'Sunny Day',
+      isWeatherLoading: false,
+      isDay: 1,
+      weatherCode: 0,
+    );
+  }
+
+  @override
+  Future<void> fetchLiveWeather() async {
+    // No-op
   }
 }
 
