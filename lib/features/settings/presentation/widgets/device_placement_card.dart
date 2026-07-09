@@ -169,4 +169,6 @@ class DevicePlacementCard extends ConsumerWidget {
       ),
     );
   }
+
+  
 }
