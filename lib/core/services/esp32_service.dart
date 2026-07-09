@@ -76,6 +76,23 @@ class Esp32Service extends _$Esp32Service {
   final List<StreamSubscription> _firebaseSubscriptions = [];
 
   bool _reconnecting = false;
+  bool _isConnecting = false;
+
+  bool get isConnecting => _isConnecting || _reconnecting;
+
+  /// Waits up to [timeout] for the MQTT connection to establish.
+  Future<bool> waitForConnection({Duration timeout = const Duration(milliseconds: 2500)}) async {
+    if (isConnected) return true;
+    if (!isConnecting) return false;
+
+    int waited = 0;
+    while (isConnecting && waited < timeout.inMilliseconds) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      waited += 100;
+      if (isConnected) return true;
+    }
+    return isConnected;
+  }
 
   @override
   void build() { 
