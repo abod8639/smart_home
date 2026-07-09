@@ -343,6 +343,7 @@ extension DashboardControllerIr on DashboardController {
       waited += 50;
     }
 
+    await ref.read(esp32ServiceProvider.notifier).waitForConnection();
     final bool isLocalConnected = ref.read(isConnectedProvider);
 
     if (!isLocalConnected) {
