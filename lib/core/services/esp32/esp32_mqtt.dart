@@ -5,6 +5,7 @@ part of '../esp32_service.dart';
 extension Esp32Mqtt on Esp32Service {
   Future<void> _connectMqtt() async {
     _disconnectMqtt();
+    _isConnecting = true;
     debugPrint('Connecting to MQTT broker at: $brokerUrl');
     
     final clientId = 'flutter_client_${const Uuid().v4()}';
@@ -26,12 +27,14 @@ extension Esp32Mqtt on Esp32Service {
       await _client!.connect();
     } catch (e) {
       debugPrint('MQTT client exception: $e');
+      _isConnecting = false;
       _disconnectMqtt();
       _reconnectAfterDelay();
     }
   }
 
   void _onConnected() {
+    _isConnecting = false;
     debugPrint('MQTT Connected');
     ref.read(isConnectedProvider.notifier).set(true);
     
@@ -52,6 +55,7 @@ extension Esp32Mqtt on Esp32Service {
   }
 
   void _onDisconnected() {
+    _isConnecting = false;
     debugPrint('MQTT Disconnected');
     ref.read(isConnectedProvider.notifier).set(false);
     _reconnectAfterDelay();
@@ -62,6 +66,7 @@ extension Esp32Mqtt on Esp32Service {
   }
 
   void _disconnectMqtt() {
+    _isConnecting = false;
     if (_client != null && _client!.connectionStatus!.state == MqttConnectionState.connected) {
       _client!.disconnect();
     }
