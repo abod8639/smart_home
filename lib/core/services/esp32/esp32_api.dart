@@ -7,11 +7,7 @@ extension Esp32Api on Esp32Service {
   Future<EspResponse<bool>> pingHub() async {
     if (isConnected) return EspResponse.success(true);
     _connectMqtt();
-    int wait = 0;
-    while (!isConnected && wait < 2000) {
-      await Future.delayed(const Duration(milliseconds: 100));
-      wait += 100;
-    }
+    await waitForConnection(timeout: const Duration(milliseconds: 2000));
     if (isConnected) return EspResponse.success(true);
     
     // Fallback: check online status from Firebase
@@ -28,6 +24,7 @@ extension Esp32Api on Esp32Service {
 
   /// Read real-time sensor metrics
   Future<EspResponse<Map<String, dynamic>>> getSensorData() async {
+    await waitForConnection();
     if (isConnected) {
       _stateCompleter = Completer<Map<String, dynamic>>();
       if (sendRawMessage({'action': 'get_state'})) {
@@ -44,6 +41,7 @@ extension Esp32Api on Esp32Service {
 
   /// Toggle a digital pin state / relay channel
   Future<EspResponse<bool>> setDigitalOutput(dynamic pin, bool state) async {
+    await waitForConnection();
     final int pinInt = pin is String ? int.parse(pin) : pin as int;
     
     if (isConnected) {
@@ -66,6 +64,7 @@ extension Esp32Api on Esp32Service {
 
   /// Write an analog/PWM duty cycle value
   Future<EspResponse<bool>> setAnalogOutput(dynamic pin, int value) async {
+    await waitForConnection();
     final int pinInt = pin is String ? int.parse(pin) : pin as int;
     
     if (isConnected) {
@@ -92,6 +91,7 @@ extension Esp32Api on Esp32Service {
     String method = 'POST',
     dynamic data,
   }) async {
+    await waitForConnection();
     if (path == 'control/ac') {
       if (isConnected) {
         final success = sendRawMessage({
@@ -132,6 +132,7 @@ extension Esp32Api on Esp32Service {
 
   /// Starts IR remote code learning on the ESP32.
   Future<EspResponse<IrCodeEntity>> learnIrCode() async {
+    await waitForConnection();
     if (isConnected) {
       _irLearnCompleter = Completer<IrCodeEntity>();
       if (sendRawMessage({'action': 'ir_learn'})) {
@@ -189,6 +190,7 @@ extension Esp32Api on Esp32Service {
 
   /// Sends a recorded IR code via the ESP32 transmitter.
   Future<EspResponse<bool>> sendIrCode(IrCodeEntity irCode) async {
+    await waitForConnection();
     if (isConnected) {
       final success = sendRawMessage({
         'action': 'ir_send',
