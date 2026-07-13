@@ -4,7 +4,7 @@ import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
 void main() {
   // ── Test Fixtures ──────────────────────────────────────────────────────────
-  Map<String, dynamic> _baseJson({
+  Map<String, dynamic> baseJson({
     String type = 'lamp',
     String id = 'dev-001',
     String name = 'Test Device',
@@ -24,7 +24,7 @@ void main() {
     group('fromJson', () {
       group('base fields', () {
         test('parses common fields correctly', () {
-          final json = _baseJson();
+          final json = baseJson();
           json['roomId'] = 'room-1';
           json['positionX'] = 0.3;
           json['positionY'] = 0.7;
@@ -69,7 +69,7 @@ void main() {
         });
 
         test('optional numeric fields as null when missing', () {
-          final json = _baseJson();
+          final json = baseJson();
           final model = DeviceModel.fromJson(json);
           expect(model.positionX, isNull);
           expect(model.positionY, isNull);
@@ -78,7 +78,7 @@ void main() {
         });
 
         test('positionX and positionY parse from num to double', () {
-          final json = _baseJson();
+          final json = baseJson();
           json['positionX'] = 1; // int
           json['positionY'] = 2; // int
           final model = DeviceModel.fromJson(json);
@@ -90,14 +90,14 @@ void main() {
 
       group('lamp-specific fields', () {
         test('parses brightness for lamp type', () {
-          final json = _baseJson(type: 'lamp');
+          final json = baseJson(type: 'lamp');
           json['brightness'] = 128;
           final model = DeviceModel.fromJson(json);
           expect(model.brightness, 128);
         });
 
         test('brightness is null when not provided', () {
-          final json = _baseJson(type: 'lamp');
+          final json = baseJson(type: 'lamp');
           final model = DeviceModel.fromJson(json);
           expect(model.brightness, isNull);
         });
@@ -105,7 +105,7 @@ void main() {
 
       group('rgb-specific fields', () {
         test('parses rgb fields', () {
-          final json = _baseJson(type: 'rgb');
+          final json = baseJson(type: 'rgb');
           json['brightness'] = 200;
           json['rgbR'] = 255;
           json['rgbG'] = 128;
@@ -118,7 +118,7 @@ void main() {
         });
 
         test('rgb fields are null when not provided', () {
-          final json = _baseJson(type: 'rgb');
+          final json = baseJson(type: 'rgb');
           final model = DeviceModel.fromJson(json);
           expect(model.rgbR, isNull);
           expect(model.rgbG, isNull);
@@ -128,7 +128,7 @@ void main() {
 
       group('door-specific fields', () {
         test('parses door fields', () {
-          final json = _baseJson(type: 'door');
+          final json = baseJson(type: 'door');
           json['isLocked'] = true;
           json['linkedDevicesCount'] = 2;
           final model = DeviceModel.fromJson(json);
@@ -137,7 +137,7 @@ void main() {
         });
 
         test('isLocked is null when not provided', () {
-          final json = _baseJson(type: 'door');
+          final json = baseJson(type: 'door');
           final model = DeviceModel.fromJson(json);
           expect(model.isLocked, isNull);
         });
@@ -145,7 +145,7 @@ void main() {
 
       group('vacuum-specific fields', () {
         test('parses vacuum fields', () {
-          final json = _baseJson(type: 'vacuum');
+          final json = baseJson(type: 'vacuum');
           json['batteryLevel'] = 80;
           json['areaCleaned'] = 25;
           json['cleaningTime'] = 60;
@@ -160,7 +160,7 @@ void main() {
         });
 
         test('vacuum fields are null when not provided', () {
-          final json = _baseJson(type: 'vacuum');
+          final json = baseJson(type: 'vacuum');
           final model = DeviceModel.fromJson(json);
           expect(model.batteryLevel, isNull);
           expect(model.nextCleaning, isNull);
@@ -169,7 +169,7 @@ void main() {
 
       group('ac-specific fields', () {
         test('parses AC fields', () {
-          final json = _baseJson(type: 'airConditioner');
+          final json = baseJson(type: 'airConditioner');
           json['temperature'] = 22;
           json['mode'] = 'Cool mode';
           json['coolingTime'] = 100;
@@ -224,7 +224,7 @@ void main() {
         });
 
         test('AC IR fields are null when not provided', () {
-          final json = _baseJson(type: 'airConditioner');
+          final json = baseJson(type: 'airConditioner');
           final model = DeviceModel.fromJson(json);
           expect(model.irPower, isNull);
           expect(model.irCool, isNull);
