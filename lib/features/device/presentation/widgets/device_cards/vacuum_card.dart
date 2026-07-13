@@ -106,7 +106,7 @@ class VacuumCard extends StatelessWidget {
                         child: Transform.scale(
                           scale: chipScale,
                           alignment: Alignment.bottomRight,
-                          child: _buildInfoChip('$nextCleaning', 'Next cleaning'),
+                          child: _buildInfoChip(nextCleaning, 'Next cleaning'),
                         ),
                       ),
                       // Mock lines connecting chips to vacuum
