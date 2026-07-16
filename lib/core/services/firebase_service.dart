@@ -190,17 +190,29 @@ class FirebaseService extends _$FirebaseService {
   List<Map<String, dynamic>> _parseFirebaseList(dynamic value) {
     if (value == null) return [];
     if (value is List) {
-      return value
-          .where((item) => item != null)
-          .map((item) => Map<String, dynamic>.from(item as Map))
-          .toList();
+      final list = <Map<String, dynamic>>[];
+      for (int i = 0; i < value.length; i++) {
+        final item = value[i];
+        if (item != null && item is Map) {
+          final map = Map<String, dynamic>.from(item);
+          if (!map.containsKey('id') || map['id'] == null) {
+            map['id'] = i.toString();
+          }
+          list.add(map);
+        }
+      }
+      return list;
     } else if (value is Map) {
       final List<Map<String, dynamic>> list = [];
       final sortedKeys = value.keys.toList()..sort((a, b) => a.toString().compareTo(b.toString()));
       for (final key in sortedKeys) {
         final val = value[key];
         if (val is Map) {
-          list.add(Map<String, dynamic>.from(val));
+          final map = Map<String, dynamic>.from(val);
+          if (!map.containsKey('id') || map['id'] == null) {
+            map['id'] = key.toString();
+          }
+          list.add(map);
         }
       }
       return list;
