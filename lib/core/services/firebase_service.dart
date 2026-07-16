@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'firebase_service.g.dart';
@@ -22,6 +23,11 @@ class FirebaseService extends _$FirebaseService {
   
   // Hardcoded device ID for demonstration; in a real app, this should be selected dynamically.
   final String _deviceId = 'esp32_smart_home_1';
+
+  String get _userPath {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    return uid != null ? 'users/$uid' : 'app_data';
+  }
 
   /// Stream of the latest IR Signal
   Stream<DatabaseEvent> get irSignalStream => _db != null
@@ -94,7 +100,7 @@ class FirebaseService extends _$FirebaseService {
   Future<void> saveIrCode(String deviceId, String fieldKey, String jsonCode) async {
     if (_db == null) return;
     try {
-      final ref = _db!.ref('app_data/ir_codes/$deviceId/$fieldKey');
+      final ref = _db!.ref('$_userPath/ir_codes/$deviceId/$fieldKey');
       await ref.set(jsonCode);
       if (kDebugMode) {
         print('IR code saved to Firebase for $deviceId -> $fieldKey');
@@ -110,7 +116,7 @@ class FirebaseService extends _$FirebaseService {
   Future<void> deleteIrCode(String deviceId, String fieldKey) async {
     if (_db == null) return;
     try {
-      final ref = _db!.ref('app_data/ir_codes/$deviceId/$fieldKey');
+      final ref = _db!.ref('$_userPath/ir_codes/$deviceId/$fieldKey');
       await ref.remove();
       if (kDebugMode) {
         print('IR code deleted from Firebase for $deviceId -> $fieldKey');
@@ -126,7 +132,7 @@ class FirebaseService extends _$FirebaseService {
   Future<Map<String, String>> fetchIrCodes(String deviceId) async {
     if (_db == null) return {};
     try {
-      final snapshot = await _db!.ref('app_data/ir_codes/$deviceId').get();
+      final snapshot = await _db!.ref('$_userPath/ir_codes/$deviceId').get();
       if (snapshot.exists && snapshot.value != null) {
         final Map<dynamic, dynamic> data = snapshot.value as Map<dynamic, dynamic>;
         return data.map((key, value) => MapEntry(key.toString(), value.toString()));
@@ -141,19 +147,19 @@ class FirebaseService extends _$FirebaseService {
 
   /// Stream of devices from Firebase RTDB
   Stream<List<Map<String, dynamic>>> get devicesStream => _db != null
-      ? _db!.ref('app_data/devices').onValue.map((event) => _parseFirebaseList(event.snapshot.value))
+      ? _db!.ref('$_userPath/devices').onValue.map((event) => _parseFirebaseList(event.snapshot.value))
       : const Stream.empty();
 
   /// Stream of rooms from Firebase RTDB
   Stream<List<Map<String, dynamic>>> get roomsStream => _db != null
-      ? _db!.ref('app_data/rooms').onValue.map((event) => _parseFirebaseList(event.snapshot.value))
+      ? _db!.ref('$_userPath/rooms').onValue.map((event) => _parseFirebaseList(event.snapshot.value))
       : const Stream.empty();
 
   /// Fetch rooms list from Firebase RTDB once
   Future<List<Map<String, dynamic>>?> fetchRooms() async {
     if (_db == null) return null;
     try {
-      final snapshot = await _db!.ref('app_data/rooms').get();
+      final snapshot = await _db!.ref('$_userPath/rooms').get();
       if (snapshot.exists && snapshot.value != null) {
         return _parseFirebaseList(snapshot.value);
       }
@@ -169,7 +175,7 @@ class FirebaseService extends _$FirebaseService {
   Future<List<Map<String, dynamic>>?> fetchDevices() async {
     if (_db == null) return null;
     try {
-      final snapshot = await _db!.ref('app_data/devices').get();
+      final snapshot = await _db!.ref('$_userPath/devices').get();
       if (snapshot.exists && snapshot.value != null) {
         return _parseFirebaseList(snapshot.value);
       }
@@ -206,7 +212,7 @@ class FirebaseService extends _$FirebaseService {
   Future<void> syncRooms(List<Map<String, dynamic>> roomsJson) async {
     if (_db == null) return;
     try {
-      final ref = _db!.ref('app_data/rooms');
+      final ref = _db!.ref('$_userPath/rooms');
       await ref.set(roomsJson);
       if (kDebugMode) {
         print('Rooms successfully synced to Firebase RTDB');
@@ -222,7 +228,7 @@ class FirebaseService extends _$FirebaseService {
   Future<void> syncDevices(List<Map<String, dynamic>> devicesJson) async {
     if (_db == null) return;
     try {
-      final ref = _db!.ref('app_data/devices');
+      final ref = _db!.ref('$_userPath/devices');
       await ref.set(devicesJson);
       if (kDebugMode) {
         print('Devices successfully synced to Firebase RTDB');
