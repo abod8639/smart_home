@@ -117,9 +117,18 @@ class DashboardController extends _$DashboardController {
 
     final roomsSub = ref.read(firebaseServiceProvider.notifier).roomsStream.listen((roomsJson) {
       if (!ref.mounted) return;
-      final firebaseRooms = roomsJson.map((json) => RoomModel.fromJson(json)).toList();
-      if (firebaseRooms.isNotEmpty && firebaseRooms != state.rooms) {
-        state = state.copyWith(rooms: firebaseRooms);
+      final firebaseRooms = roomsJson.map((json) {
+        try {
+          return RoomModel.fromJson(json);
+        } catch (e) {
+          if (kDebugMode) print('Error parsing room: $e');
+          return null;
+        }
+      }).whereType<RoomModel>().toList();
+
+      final newState = state.copyWith(rooms: firebaseRooms);
+      if (state != newState) {
+        state = newState;
         ref.read(saveRoomsUseCaseProvider).call(firebaseRooms);
       }
     });
@@ -127,7 +136,14 @@ class DashboardController extends _$DashboardController {
 
     final devicesSub = ref.read(firebaseServiceProvider.notifier).devicesStream.listen((devicesJson) {
       if (!ref.mounted) return;
-      final firebaseDevices = devicesJson.map((json) => DeviceModel.fromJson(json).toEntity()).toList();
+      final firebaseDevices = devicesJson.map((json) {
+        try {
+          return DeviceModel.fromJson(json).toEntity();
+        } catch (e) {
+          if (kDebugMode) print('Error parsing device: $e');
+          return null;
+        }
+      }).whereType<DeviceEntity>().toList();
       
       // Preserve local IR codes that might not be in the devices stream
       for (int i = 0; i < firebaseDevices.length; i++) {
@@ -143,8 +159,9 @@ class DashboardController extends _$DashboardController {
         }
       }
 
-      if (firebaseDevices.isNotEmpty && firebaseDevices != state.devices) {
-        state = state.copyWith(devices: firebaseDevices);
+      final newState = state.copyWith(devices: firebaseDevices);
+      if (state != newState) {
+        state = newState;
         ref.read(saveDevicesUseCaseProvider).call(firebaseDevices);
       }
     });
@@ -199,13 +216,27 @@ class DashboardController extends _$DashboardController {
       if (!ref.mounted) return;
 
       List<RoomEntity>? firebaseRooms;
-      if (firebaseRoomsJson != null && firebaseRoomsJson.isNotEmpty) {
-        firebaseRooms = firebaseRoomsJson.map((json) => RoomModel.fromJson(json)).toList();
+      if (firebaseRoomsJson != null) {
+        firebaseRooms = firebaseRoomsJson.map((json) {
+          try {
+            return RoomModel.fromJson(json);
+          } catch (e) {
+            if (kDebugMode) print('Error parsing room in load: $e');
+            return null;
+          }
+        }).whereType<RoomModel>().toList();
       }
 
       List<DeviceEntity>? firebaseDevices;
-      if (firebaseDevicesJson != null && firebaseDevicesJson.isNotEmpty) {
-        firebaseDevices = firebaseDevicesJson.map((json) => DeviceModel.fromJson(json).toEntity()).toList();
+      if (firebaseDevicesJson != null) {
+        firebaseDevices = firebaseDevicesJson.map((json) {
+          try {
+            return DeviceModel.fromJson(json).toEntity();
+          } catch (e) {
+            if (kDebugMode) print('Error parsing device in load: $e');
+            return null;
+          }
+        }).whereType<DeviceEntity>().toList();
       }
 
       if (firebaseRooms != null || firebaseDevices != null) {
