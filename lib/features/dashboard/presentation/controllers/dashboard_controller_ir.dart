@@ -104,6 +104,7 @@ extension DashboardControllerIr on DashboardController {
       await settings.checkHubConnection();
       if (!settings.state.isHubReachable) {
         if (context == null || !context.mounted) return false;
+        print("Unable to reach ESP32. Check the IP address in Settings before $actionLabel.");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Unable to reach ESP32. Check the IP address in Settings before $actionLabel.'),
