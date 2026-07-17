@@ -15,8 +15,8 @@ class RoomModel extends RoomEntity {
   /// De-serializes a JSON map into a [RoomModel].
   factory RoomModel.fromJson(Map<String, dynamic> json) {
     return RoomModel(
-      id: json['id'] as String,
-      name: json['name'] as String,
+      id: json['id'] as String? ?? json['key'] as String? ?? 'unknown_id',
+      name: json['name'] as String? ?? 'Unknown Room',
       deviceCount: json['deviceCount'] as int? ?? 0,
       isActive: json['isActive'] as bool? ?? false,
       iconPath: json['iconPath'] as String? ?? '',
