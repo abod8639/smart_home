@@ -25,8 +25,7 @@ class FirebaseService extends _$FirebaseService {
   final String _deviceId = 'esp32_smart_home_1';
 
   String get _userPath {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    return uid != null ? 'users/$uid' : 'app_data';
+    return 'app_data';
   }
 
   /// Stream of the latest IR Signal
