@@ -12,9 +12,11 @@ class VacuumCard extends StatelessWidget {
   final DeviceEntity device;
   /// Callback executed when toggling the power state.
   final VoidCallback onToggle;
+  /// When true, the toggle button shows a loading indicator and ignores taps.
+  final bool isPending;
 
   /// Creates a constant [VacuumCard] instance.
-  const VacuumCard({super.key, required this.device, required this.onToggle});
+  const VacuumCard({super.key, required this.device, required this.onToggle, this.isPending = false});
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +69,7 @@ class VacuumCard extends StatelessWidget {
                   onToggle: onToggle,
                   isDeviceOn: device.isOn,
                   scale: isMobile ? 0.85 : 1.0,
+                  isPending: isPending,
                 ),
               ],
             ),
