@@ -62,7 +62,7 @@ extension Esp32Mqtt on Esp32Service {
   }
 
   void _onSubscribed(String topic) {
-    debugPrint('MQTT Subscribed to $topic');
+    // debugPrint('MQTT Subscribed to $topic');
   }
 
   void _disconnectMqtt() {
@@ -132,7 +132,7 @@ extension Esp32Mqtt on Esp32Service {
       return false;
     }
     try {
-      debugPrint('--> MQTT SEND [${Esp32Service.topicCmd}]: $jsonMap');
+      // debugPrint('--> MQTT SEND [${Esp32Service.topicCmd}]: $jsonMap');
       final builder = MqttClientPayloadBuilder();
       builder.addString(jsonEncode(jsonMap));
       _client!.publishMessage(Esp32Service.topicCmd, MqttQos.atLeastOnce, builder.payload!);
