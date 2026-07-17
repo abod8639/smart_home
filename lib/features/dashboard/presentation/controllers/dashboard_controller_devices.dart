@@ -149,83 +149,175 @@ extension DashboardControllerDevices on DashboardController {
 
   void toggleDevice(String id) {
     final index = state.devices.indexWhere((d) => d.id == id);
-    if (index != -1) {
-      final newDevices = List<DeviceEntity>.from(state.devices);
-      final device = newDevices[index];
-      final newIsOn = !device.isOn;
+    if (index == -1) return;
 
+    // Ignore if already pending (debounce)
+    if (state.pendingDeviceIds.contains(id)) return;
+
+    final device = state.devices[index];
+    final newIsOn = !device.isOn;
+
+    // Matter devices: optimistic update (Matter has its own ack mechanism)
+    if (device.matterNodeId != null) {
+      final newDevices = List<DeviceEntity>.from(state.devices);
       newDevices[index] = device.copyWith(isOn: newIsOn);
       state = state.copyWith(devices: newDevices);
       _persistDevices();
+      ref.read(matterServiceProvider.notifier).toggleDevice(
+        device.matterNodeId!,
+        device.matterEndpointId ?? 1,
+        newIsOn,
+      );
+      return;
+    }
 
-      // Matter Devices
-      if (device.matterNodeId != null) {
-        ref.read(matterServiceProvider.notifier).toggleDevice(
-          device.matterNodeId!,
-          device.matterEndpointId ?? 1,
-          newIsOn,
-        );
-      }
-      // Trigger ESP32 if the device matches our GPIO mappings
-      else {
-        final esp32 = ref.read(esp32ServiceProvider.notifier);
-        if (device is LampDeviceEntity) {
-          final pin = device.pin ?? 2;
-          if (device.isPwmConfigured) {
-            esp32.setAnalogOutput(pin, newIsOn ? (device.brightness ?? 255) : 0);
-          } else {
-            esp32.setDigitalOutput(pin, newIsOn);
-          }
-        } else if (device is RgbLampDeviceEntity) {
-          final pin = device.pin ?? 23;
-          if (device.isPwmConfigured) {
-            if (pin == 23) {
-              esp32.setAnalogOutput(23, newIsOn ? (device.rgbR ?? 255) : 0);
-              esp32.setAnalogOutput(25, newIsOn ? (device.rgbG ?? 255) : 0);
-              esp32.setAnalogOutput(26, newIsOn ? (device.rgbB ?? 255) : 0);
-            } else {
-              esp32.setAnalogOutput(pin, newIsOn ? (device.brightness ?? 255) : 0);
-            }
-          } else {
-            esp32.setDigitalOutput(pin, newIsOn);
-          }
-        } else if (device is VacuumDeviceEntity) {
-          final pin = device.pin ?? 2;
+    final esp32 = ref.read(esp32ServiceProvider.notifier);
+    final isMqttConnected = ref.read(isConnectedProvider);
+
+    if (!isMqttConnected) {
+      // Firebase fallback: no confirmation message expected, update immediately
+      final newDevices = List<DeviceEntity>.from(state.devices);
+      newDevices[index] = device.copyWith(isOn: newIsOn);
+      state = state.copyWith(devices: newDevices);
+      _persistDevices();
+      if (device is LampDeviceEntity) {
+        final pin = device.pin ?? 2;
+        if (device.isPwmConfigured) {
+          esp32.setAnalogOutput(pin, newIsOn ? (device.brightness ?? 255) : 0);
+        } else {
           esp32.setDigitalOutput(pin, newIsOn);
-        } else if (device is AcDeviceEntity) {
-          if (device.acIrCodes.irPower != null) {
-            sendIrCommand(null, device.acIrCodes.irPower!);
-          } else if (device.pin != null) {
-            esp32.setDigitalOutput(device.pin!, newIsOn);
+        }
+      } else if (device is RgbLampDeviceEntity) {
+        final pin = device.pin ?? 23;
+        if (device.isPwmConfigured) {
+          if (pin == 23) {
+            esp32.setAnalogOutput(23, newIsOn ? (device.rgbR ?? 255) : 0);
+            esp32.setAnalogOutput(25, newIsOn ? (device.rgbG ?? 255) : 0);
+            esp32.setAnalogOutput(26, newIsOn ? (device.rgbB ?? 255) : 0);
           } else {
-            esp32.sendRawCommand(
-              'control/ac',
-              method: 'POST',
-              data: {'isOn': newIsOn},
-            );
+            esp32.setAnalogOutput(pin, newIsOn ? (device.brightness ?? 255) : 0);
           }
+        } else {
+          esp32.setDigitalOutput(pin, newIsOn);
+        }
+      } else if (device is VacuumDeviceEntity) {
+        esp32.setDigitalOutput(device.pin ?? 2, newIsOn);
+      } else if (device is AcDeviceEntity) {
+        if (device.acIrCodes.irPower != null) {
+          sendIrCommand(null, device.acIrCodes.irPower!);
+        } else if (device.pin != null) {
+          esp32.setDigitalOutput(device.pin!, newIsOn);
+        } else {
+          esp32.sendRawCommand('control/ac', method: 'POST', data: {'isOn': newIsOn});
         }
       }
+      return;
     }
-  }
-  
-  void toggleDoor(String id) {
-    final index = state.devices.indexWhere((d) => d.id == id);
-    if (index != -1) {
-      final newDevices = List<DeviceEntity>.from(state.devices);
-      final device = newDevices[index];
-      if (device is DoorDeviceEntity) {
-        final newIsLocked = !(device.isLocked ?? false);
-        newDevices[index] = device.copyWith(isLocked: newIsLocked);
-        state = state.copyWith(devices: newDevices);
-        _persistDevices();
 
-        // Unlocked = Relay HIGH, Locked = Relay LOW
-        final esp32 = ref.read(esp32ServiceProvider.notifier);
-        final pin = device.pin ?? 18;
-        esp32.setDigitalOutput(pin, !newIsLocked);
+    // MQTT connected: enter pending state and wait for ESP32 confirmation
+    final newPending = Set<String>.from(state.pendingDeviceIds)..add(id);
+    state = state.copyWith(pendingDeviceIds: newPending);
+
+    // Send command
+    if (device is LampDeviceEntity) {
+      final pin = device.pin ?? 2;
+      if (device.isPwmConfigured) {
+        esp32.setAnalogOutput(pin, newIsOn ? (device.brightness ?? 255) : 0);
+      } else {
+        esp32.setDigitalOutput(pin, newIsOn);
+      }
+    } else if (device is RgbLampDeviceEntity) {
+      final pin = device.pin ?? 23;
+      if (device.isPwmConfigured) {
+        if (pin == 23) {
+          esp32.setAnalogOutput(23, newIsOn ? (device.rgbR ?? 255) : 0);
+          esp32.setAnalogOutput(25, newIsOn ? (device.rgbG ?? 255) : 0);
+          esp32.setAnalogOutput(26, newIsOn ? (device.rgbB ?? 255) : 0);
+        } else {
+          esp32.setAnalogOutput(pin, newIsOn ? (device.brightness ?? 255) : 0);
+        }
+      } else {
+        esp32.setDigitalOutput(pin, newIsOn);
+      }
+    } else if (device is VacuumDeviceEntity) {
+      esp32.setDigitalOutput(device.pin ?? 2, newIsOn);
+    } else if (device is AcDeviceEntity) {
+      if (device.acIrCodes.irPower != null) {
+        sendIrCommand(null, device.acIrCodes.irPower!);
+        // IR devices: remove pending after IR send completes (no relay_update expected)
+        Future.delayed(const Duration(milliseconds: 800), () {
+          if (!ref.mounted) return;
+          final removePending = Set<String>.from(state.pendingDeviceIds)..remove(id);
+          final idx = state.devices.indexWhere((d) => d.id == id);
+          if (idx != -1) {
+            final updated = List<DeviceEntity>.from(state.devices);
+            updated[idx] = state.devices[idx].copyWith(isOn: newIsOn);
+            state = state.copyWith(devices: updated, pendingDeviceIds: removePending);
+          } else {
+            state = state.copyWith(pendingDeviceIds: removePending);
+          }
+          _persistDevices();
+        });
+        return;
+      } else if (device.pin != null) {
+        esp32.setDigitalOutput(device.pin!, newIsOn);
+      } else {
+        esp32.sendRawCommand('control/ac', method: 'POST', data: {'isOn': newIsOn});
       }
     }
+
+    // Timeout: if ESP32 does not confirm within 5 seconds, cancel pending
+    Future.delayed(const Duration(seconds: 5), () {
+      if (!ref.mounted) return;
+      if (state.pendingDeviceIds.contains(id)) {
+        final removePending = Set<String>.from(state.pendingDeviceIds)..remove(id);
+        state = state.copyWith(pendingDeviceIds: removePending);
+        debugPrint('[Pending] Timeout: no confirmation from ESP32 for device $id');
+      }
+    });
+  }
+
+  void toggleDoor(String id) {
+    final index = state.devices.indexWhere((d) => d.id == id);
+    if (index == -1) return;
+
+    // Ignore if already pending (debounce)
+    if (state.pendingDeviceIds.contains(id)) return;
+
+    final device = state.devices[index];
+    if (device is! DoorDeviceEntity) return;
+
+    final newIsLocked = !(device.isLocked ?? false);
+    final esp32 = ref.read(esp32ServiceProvider.notifier);
+    final pin = device.pin ?? 18;
+    final isMqttConnected = ref.read(isConnectedProvider);
+
+    if (!isMqttConnected) {
+      // Firebase fallback: no confirmation expected, update immediately
+      final newDevices = List<DeviceEntity>.from(state.devices);
+      newDevices[index] = device.copyWith(isLocked: newIsLocked);
+      state = state.copyWith(devices: newDevices);
+      _persistDevices();
+      esp32.setDigitalOutput(pin, !newIsLocked); // Unlocked = HIGH, Locked = LOW
+      return;
+    }
+
+    // MQTT connected: enter pending state and wait for ESP32 confirmation
+    final newPending = Set<String>.from(state.pendingDeviceIds)..add(id);
+    state = state.copyWith(pendingDeviceIds: newPending);
+
+    // Unlocked = Relay HIGH, Locked = Relay LOW
+    esp32.setDigitalOutput(pin, !newIsLocked);
+
+    // Timeout: if ESP32 does not confirm within 5 seconds, cancel pending
+    Future.delayed(const Duration(seconds: 5), () {
+      if (!ref.mounted) return;
+      if (state.pendingDeviceIds.contains(id)) {
+        final removePending = Set<String>.from(state.pendingDeviceIds)..remove(id);
+        state = state.copyWith(pendingDeviceIds: removePending);
+        debugPrint('[Pending] Timeout: no confirmation from ESP32 for door $id');
+      }
+    });
   }
 
   void updateDeviceBrightness(String id, int brightness) {
