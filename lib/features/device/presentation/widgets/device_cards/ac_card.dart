@@ -19,6 +19,8 @@ class AcCard extends StatelessWidget {
   final VoidCallback onDecreaseTemp;
   /// Called when the user picks a mode. Receives the selected mode label.
   final void Function(String mode)? onModeChange;
+  /// When true, the toggle button shows a loading indicator and ignores taps.
+  final bool isPending;
 
   /// Creates a constant [AcCard] instance.
   const AcCard({
@@ -28,6 +30,7 @@ class AcCard extends StatelessWidget {
     required this.onIncreaseTemp,
     required this.onDecreaseTemp,
     this.onModeChange,
+    this.isPending = false,
   });
 
   static _AcCardMetrics _metrics(BuildContext context) {
@@ -103,6 +106,7 @@ class AcCard extends StatelessWidget {
                   onToggle: onToggle,
                   isDeviceOn: isDeviceOn,
                   scale: m.scale,
+                  isPending: isPending,
                 ),
               ],
             ),
