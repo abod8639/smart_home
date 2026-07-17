@@ -77,15 +77,29 @@ extension Esp32ControllerSync on Esp32Service {
     for (var i = 0; i < dashboard.state.devices.length; i++) {
       final device = dashboard.state.devices[i];
       if (device.pin == pin || (device.id == 'lamp1' && endpoint == 1) || (device.id == 'door1' && endpoint == 2)) {
+        // Remove from pending set — ESP32 confirmed execution
+        final newPending = Set<String>.from(dashboard.state.pendingDeviceIds)..remove(device.id);
         if (device.type == DeviceType.door) {
           final bool isLocked = (state == 0);
           if (device.isLocked != isLocked) {
-            dashboard.updateDevice(device.copyWith(isLocked: isLocked));
+            dashboard.state = dashboard.state.copyWith(
+              devices: List<DeviceEntity>.from(dashboard.state.devices)
+                ..[i] = device.copyWith(isLocked: isLocked),
+              pendingDeviceIds: newPending,
+            );
+          } else {
+            dashboard.state = dashboard.state.copyWith(pendingDeviceIds: newPending);
           }
         } else {
           final bool isOn = (state == 1);
           if (device.isOn != isOn) {
-            dashboard.updateDevice(device.copyWith(isOn: isOn));
+            dashboard.state = dashboard.state.copyWith(
+              devices: List<DeviceEntity>.from(dashboard.state.devices)
+                ..[i] = device.copyWith(isOn: isOn),
+              pendingDeviceIds: newPending,
+            );
+          } else {
+            dashboard.state = dashboard.state.copyWith(pendingDeviceIds: newPending);
           }
         }
       }
@@ -102,12 +116,26 @@ extension Esp32ControllerSync on Esp32Service {
       final device = dashboard.state.devices[i];
       if (endpoint == 5 && device.type == DeviceType.lamp && (device.pin == 22 || device.id == 'lamp1')) {
         final bool isOn = level > 0;
+        final newPending = Set<String>.from(dashboard.state.pendingDeviceIds)..remove(device.id);
         if (device.brightness != level || device.isOn != isOn) {
-          dashboard.updateDevice(device.copyWith(brightness: level, isOn: isOn));
+          dashboard.state = dashboard.state.copyWith(
+            devices: List<DeviceEntity>.from(dashboard.state.devices)
+              ..[i] = device.copyWith(brightness: level, isOn: isOn),
+            pendingDeviceIds: newPending,
+          );
+        } else {
+          dashboard.state = dashboard.state.copyWith(pendingDeviceIds: newPending);
         }
       } else if (endpoint == 6 && device.type == DeviceType.rgb) {
+        final newPending = Set<String>.from(dashboard.state.pendingDeviceIds)..remove(device.id);
         if (device.brightness != level) {
-          dashboard.updateDevice(device.copyWith(brightness: level));
+          dashboard.state = dashboard.state.copyWith(
+            devices: List<DeviceEntity>.from(dashboard.state.devices)
+              ..[i] = device.copyWith(brightness: level),
+            pendingDeviceIds: newPending,
+          );
+        } else {
+          dashboard.state = dashboard.state.copyWith(pendingDeviceIds: newPending);
         }
       }
     }
@@ -123,7 +151,13 @@ extension Esp32ControllerSync on Esp32Service {
       var ac = dashboard.state.devices[acIndex];
       if (isOn != null) ac = ac.copyWith(isOn: isOn);
       if (targetTemp != null) ac = ac.copyWith(temperature: targetTemp);
-      dashboard.updateDevice(ac);
+      // Remove from pending — ESP32 confirmed AC command
+      final newPending = Set<String>.from(dashboard.state.pendingDeviceIds)..remove(ac.id);
+      final newDevices = List<DeviceEntity>.from(dashboard.state.devices)..[acIndex] = ac;
+      dashboard.state = dashboard.state.copyWith(
+        devices: newDevices,
+        pendingDeviceIds: newPending,
+      );
     }
   }
 
