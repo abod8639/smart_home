@@ -31,9 +31,11 @@ class LampCard extends ConsumerWidget {
   final DeviceEntity device;
   /// Callback executed when toggling the power state.
   final VoidCallback onToggle;
+  /// When true, the toggle button shows a loading indicator and ignores taps.
+  final bool isPending;
 
   /// Creates a constant [LampCard] instance.
-  const LampCard({super.key, required this.device, required this.onToggle});
+  const LampCard({super.key, required this.device, required this.onToggle, this.isPending = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -84,7 +86,7 @@ class LampCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                GlassSwitch(onToggle: onToggle, isDeviceOn: isDeviceOn),
+                GlassSwitch(onToggle: onToggle, isDeviceOn: isDeviceOn, isPending: isPending),
                 // Switch(
                 //   value: isDeviceOn,
                 //   onChanged: (_) => onToggle(),
