@@ -120,9 +120,9 @@ class DeviceModel {
   /// Creates a [DeviceModel] from a JSON map.
   factory DeviceModel.fromJson(Map<String, dynamic> json) {
     return DeviceModel(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      type: json['type'] as String,
+      id: json['id'] as String? ?? json['key'] as String? ?? 'unknown_id',
+      name: json['name'] as String? ?? 'Unknown Device',
+      type: json['type'] as String? ?? 'lamp',
       isOn: json['isOn'] as bool? ?? false,
       roomId: json['roomId'] as String?,
       positionX: (json['positionX'] as num?)?.toDouble(),
@@ -130,16 +130,16 @@ class DeviceModel {
       markerWidth: (json['markerWidth'] as num?)?.toDouble(),
       markerHeight: (json['markerHeight'] as num?)?.toDouble(),
       showAsDot: json['showAsDot'] as bool? ?? false,
-      matterNodeId: json['matterNodeId'] as int?,
-      matterEndpointId: json['matterEndpointId'] as int?,
-      pin: json['pin'] as int?,
+      matterNodeId: (json['matterNodeId'] as num?)?.toInt(),
+      matterEndpointId: (json['matterEndpointId'] as num?)?.toInt(),
+      pin: (json['pin'] as num?)?.toInt(),
       isPwm: json['isPwm'] as bool?,
 
       // AC
-      temperature: json['temperature'] as int?,
+      temperature: (json['temperature'] as num?)?.toInt(),
       mode: json['mode'] as String?,
-      coolingTime: json['coolingTime'] as int?,
-      sleepTimerRemaining: json['sleepTimerRemaining'] as int?,
+      coolingTime: (json['coolingTime'] as num?)?.toInt(),
+      sleepTimerRemaining: (json['sleepTimerRemaining'] as num?)?.toInt(),
       irPower: json['irPower'] as String?,
       irTempUp: json['irTempUp'] as String?,
       irTempDown: json['irTempDown'] as String?,
@@ -163,22 +163,22 @@ class DeviceModel {
       irClean: json['irClean'] as String?,
 
       // Lamp
-      brightness: json['brightness'] as int?,
+      brightness: (json['brightness'] as num?)?.toInt(),
 
       // RGB
-      rgbR: json['rgbR'] as int?,
-      rgbG: json['rgbG'] as int?,
-      rgbB: json['rgbB'] as int?,
+      rgbR: (json['rgbR'] as num?)?.toInt(),
+      rgbG: (json['rgbG'] as num?)?.toInt(),
+      rgbB: (json['rgbB'] as num?)?.toInt(),
 
       // Door
       isLocked: json['isLocked'] as bool?,
-      linkedDevicesCount: json['linkedDevicesCount'] as int?,
+      linkedDevicesCount: (json['linkedDevicesCount'] as num?)?.toInt(),
 
       // Vacuum
-      batteryLevel: json['batteryLevel'] as int?,
-      areaCleaned: json['areaCleaned'] as int?,
-      cleaningTime: json['cleaningTime'] as int?,
-      filterStatus: json['filterStatus'] as int?,
+      batteryLevel: (json['batteryLevel'] as num?)?.toInt(),
+      areaCleaned: (json['areaCleaned'] as num?)?.toInt(),
+      cleaningTime: (json['cleaningTime'] as num?)?.toInt(),
+      filterStatus: (json['filterStatus'] as num?)?.toInt(),
       nextCleaning: json['nextCleaning'] as String?,
     );
   }
