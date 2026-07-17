@@ -80,93 +80,93 @@ class HubConfigCard extends ConsumerWidget {
                 child: GestureDetector(
                   onTap: () => _showEditIpDialog(context, ref),
                   child: Consumer(builder: (context, ref, _) => _buildInfoGridItem(
-                    label: 'HUB IP ADDRESS',
-                    value: state.ipAddress,
-                    icon: Icons.dns_outlined,
-                  )),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildInfoGridItem(
-                  label: 'ACTIVE NODES',
-                  value: '12 Devices',
-                  icon: Icons.device_hub,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildInfoGridItem(
-                  label: 'FIRMWARE',
-                  value: 'v2.4.1 (Latest)',
-                  icon: Icons.security_outlined,
-                ),
-              ),
-            ],
+              label: 'BROKER / HUB IP',
+              value: state.ipAddress,
+              icon: Icons.dns_outlined,
+            )),
           ),
-          const SizedBox(height: 24),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: _buildInfoGridItem(
+            label: 'ACTIVE NODES',
+            value: '12 Devices',
+            icon: Icons.device_hub,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: _buildInfoGridItem(
+            label: 'FIRMWARE',
+            value: 'v2.4.1 (Latest)',
+            icon: Icons.security_outlined,
+          ),
+        ),
+      ],
+    ),
+    const SizedBox(height: 24),
 
-          // Connection Protocol Switch
-          const Text(
-            'Primary Hub Protocol',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Consumer(builder: (context, ref, _) => Row(
-                children: controller.connectionModes.map((mode) {
-                  final isSelected = state.hubConnectionMode == mode;
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: GestureDetector(
-                        onTap: () => controller.selectConnectionMode(mode),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            gradient: isSelected
-                                ? const LinearGradient(
-                                    colors: [
-                                      AppTheme.primaryPurple,
-                                      AppTheme.primaryBlue,
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  )
-                                : null,
-                            color: isSelected
-                                ? null
-                                : Colors.black.withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected
-                                  ? Colors.transparent
-                                  : Colors.white.withValues(alpha: 0.05),
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              mode,
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : AppTheme.textGrey,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                                ),
-                              ),
-                            ),
+    // Connection Protocol Switch
+    const Text(
+      'Primary Hub Protocol',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+    const SizedBox(height: 12),
+    Consumer(builder: (context, ref, _) => Row(
+          children: controller.connectionModes.map((mode) {
+            final isSelected = state.hubConnectionMode == mode;
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: GestureDetector(
+                  onTap: () => controller.selectConnectionMode(mode),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      gradient: isSelected
+                          ? const LinearGradient(
+                              colors: [
+                                AppTheme.primaryPurple,
+                                AppTheme.primaryBlue,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                          : null,
+                      color: isSelected
+                          ? null
+                          : Colors.black.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected
+                            ? Colors.transparent
+                            : Colors.white.withValues(alpha: 0.05),
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        mode,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : AppTheme.textGrey,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
                           ),
                         ),
                       ),
-                    );
-                }).toList(),
-              )),
-        ],
-      ),
-    );
-  }
+                    ),
+                  ),
+                ),
+              );
+          }).toList(),
+        )),
+  ],
+),
+);
+}
 
   // Hub Info grid items
   Widget _buildInfoGridItem({
@@ -229,16 +229,16 @@ class HubConfigCard extends ConsumerWidget {
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: const Text(
-            'Edit Hub IP Address',
+            'Edit Hub / Broker Address',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           content: TextField(
             controller: textController,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
-              labelText: 'ESP32 Hub IP Address',
+              labelText: 'MQTT Broker URL or Hub IP',
               labelStyle: const TextStyle(color: AppTheme.textGrey),
-              hintText: 'e.g. 192.168.1.145',
+              hintText: 'e.g. broker.hivemq.com or 192.168.1.145',
               hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
@@ -247,7 +247,6 @@ class HubConfigCard extends ConsumerWidget {
                 borderSide: BorderSide(color: AppTheme.primaryBlue),
               ),
             ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
           actions: [
             TextButton(
