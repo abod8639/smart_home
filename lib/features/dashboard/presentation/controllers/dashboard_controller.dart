@@ -36,27 +36,35 @@ class DashboardState extends Equatable {
   // IR
   final Set<String> sendingIrKeys;
 
+  /// Device IDs that are currently waiting for ESP32 confirmation.
+  /// While a device ID is in this set, the toggle button shows a loading
+  /// indicator and ignores further taps.
+  final Set<String> pendingDeviceIds;
+
   const DashboardState({
     this.rooms = const [],
     this.devices = const [],
     this.sendingIrKeys = const {},
+    this.pendingDeviceIds = const {},
   });
 
   DashboardState copyWith({
     List<RoomEntity>? rooms,
     List<DeviceEntity>? devices,
     Set<String>? sendingIrKeys,
+    Set<String>? pendingDeviceIds,
   }) {
     return DashboardState(
       rooms: rooms ?? this.rooms,
       devices: devices ?? this.devices,
       sendingIrKeys: sendingIrKeys ?? this.sendingIrKeys,
+      pendingDeviceIds: pendingDeviceIds ?? this.pendingDeviceIds,
     );
   }
 
   @override
   List<Object?> get props => [
-        rooms, devices, sendingIrKeys
+        rooms, devices, sendingIrKeys, pendingDeviceIds,
       ];
 }
 
