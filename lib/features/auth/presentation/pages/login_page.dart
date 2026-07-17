@@ -3,11 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/services/auth_service.dart';
 
-class LoginPage extends ConsumerWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends ConsumerState<LoginPage> {
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
     final authService = ref.watch(authServiceProvider.notifier);
     final theme = Theme.of(context);
 
@@ -79,53 +86,63 @@ class LoginPage extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      onPressed: () async {
-                        // Trigger Google Sign-In
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) => const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-                        final credential = await authService.signInWithGoogle();
-                        if (context.mounted) {
-                          Navigator.pop(context); // Dismiss loading spinner
-                        }
-                        
-                        if (credential == null) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text('Failed to sign in with Google or cancelled.'),
-                                backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
+                      onPressed: _isLoading
+                          ? null
+                          : () async {
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              try {
+                                final credential = await authService.signInWithGoogle();
+                                if (credential == null) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: const Text('Failed to sign in with Google or cancelled.'),
+                                        backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
+                                      ),
+                                    );
+                                  }
+                                }
+                              } finally {
+                                if (mounted) {
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                }
+                              }
+                            },
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: Colors.black54,
                               ),
-                            );
-                          }
-                        }
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CachedNetworkImage(
-                          imageUrl:'https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png',
-                            height: 24,
-                            width: 24,
-                            errorWidget: (context, error, stackTrace) => const Icon(
-                              Icons.login_rounded,
-                              color: Colors.black87,
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CachedNetworkImage(
+                                  imageUrl: 'https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png',
+                                  height: 24,
+                                  width: 24,
+                                  errorWidget: (context, error, stackTrace) => const Icon(
+                                    Icons.login_rounded,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                const Text(
+                                  'Sign in with Google',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Sign in with Google',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                     const SizedBox(height: 24),
                     Text(
