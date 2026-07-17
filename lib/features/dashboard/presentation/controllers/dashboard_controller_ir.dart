@@ -213,6 +213,8 @@ extension DashboardControllerIr on DashboardController {
 
     if (!context.mounted) return false;
 
+    bool dialogDismissed = false;
+
     // Show animated countdown learning dialog
     showDialog(
       context: context,
@@ -227,15 +229,17 @@ extension DashboardControllerIr on DashboardController {
         contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
         content: const IrLearningDialogContent(),
       ),
-    );
+    ).then((_) {
+      dialogDismissed = true;
+    });
 
     try {
       final esp32 = ref.read(esp32ServiceProvider.notifier);
       final response = await esp32.learnIrCode();
       
       if (context.mounted) {
-        if (Navigator.canPop(context)) {
-          Navigator.of(context).pop(); // dismiss dialog
+        if (!dialogDismissed) {
+          Navigator.of(context, rootNavigator: true).pop(); // dismiss dialog from root navigator
         }
 
         if (response.isSuccess && response.data != null) {
@@ -283,8 +287,8 @@ extension DashboardControllerIr on DashboardController {
       return false;
     } catch (e) {
       if (context.mounted) {
-        if (Navigator.canPop(context)) {
-          Navigator.of(context).pop();
+        if (!dialogDismissed) {
+          Navigator.of(context, rootNavigator: true).pop();
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
