@@ -10,9 +10,11 @@ class DoorCard extends StatelessWidget {
   final DeviceEntity device;
   /// Callback executed when toggling the lock state.
   final VoidCallback onToggle;
+  /// When true, the toggle button shows a loading indicator and ignores taps.
+  final bool isPending;
 
   /// Creates a constant [DoorCard] instance.
-  const DoorCard({super.key, required this.device, required this.onToggle});
+  const DoorCard({super.key, required this.device, required this.onToggle, this.isPending = false});
 
   @override
   Widget build(BuildContext context) {
@@ -105,37 +107,55 @@ class DoorCard extends StatelessWidget {
             
             // Slider or Toggle Button
             GestureDetector(
-              onTap: onToggle,
-              child: Container(
+              onTap: isPending ? null : onToggle,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: isLocked
-                        ? [Colors.redAccent, Colors.orangeAccent]
-                        : [Colors.greenAccent, Colors.tealAccent],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
+                  gradient: isPending
+                      ? LinearGradient(
+                          colors: [const Color(0xFF78716C), const Color(0xFF57534E)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        )
+                      : LinearGradient(
+                          colors: isLocked
+                              ? [Colors.redAccent, Colors.orangeAccent]
+                              : [Colors.greenAccent, Colors.tealAccent],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: (isLocked ? Colors.redAccent : Colors.greenAccent).withValues(alpha: 0.25),
+                      color: isPending
+                          ? Colors.grey.withValues(alpha: 0.15)
+                          : (isLocked ? Colors.redAccent : Colors.greenAccent).withValues(alpha: 0.25),
                       blurRadius: 6,
                       offset: const Offset(0, 3),
                     )
                   ],
                 ),
                 child: Center(
-                  child: Text(
-                    isLocked ? 'TAP TO UNLOCK' : 'TAP TO LOCK',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w900,
-                      fontSize: isMobile ? 10 : 11,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
+                  child: isPending
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white.withValues(alpha: 0.85),
+                          ),
+                        )
+                      : Text(
+                          isLocked ? 'TAP TO UNLOCK' : 'TAP TO LOCK',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w900,
+                            fontSize: isMobile ? 10 : 11,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
                 ),
               ),
             ),
