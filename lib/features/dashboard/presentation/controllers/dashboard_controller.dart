@@ -289,6 +289,11 @@ class DashboardController extends _$DashboardController {
 
           _syncRoomsToFirebase();
           _syncDevicesToFirebase();
+        } else {
+          // Firebase is empty but local database has data.
+          // Sync local data to Firebase so the streams don't wipe it out.
+          _syncRoomsToFirebase();
+          _syncDevicesToFirebase();
         }
       }
     } else {
