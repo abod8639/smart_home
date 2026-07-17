@@ -168,9 +168,11 @@ class ProfileCard extends ConsumerWidget {
               child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
             ),
             TextButton(
-              onPressed: () async {
+              onPressed: () {
                 Navigator.pop(context);
-                await ref.read(authServiceProvider.notifier).signOut();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  ref.read(authServiceProvider.notifier).signOut();
+                });
               },
               child: const Text(
                 'Sign Out',
