@@ -5,6 +5,7 @@ import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
+import 'package:smart_home/core/services/auth_service.dart';
 
 class ProfileCard extends ConsumerWidget {
   const ProfileCard({super.key});
@@ -80,6 +81,10 @@ class ProfileCard extends ConsumerWidget {
             icon: const Icon(Icons.edit_outlined, color: AppTheme.primaryBlue),
             onPressed: () => _showEditProfileDialog(context, ref),
           ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.redAccent),
+            onPressed: () => _showLogoutDialog(context, ref),
+          ),
         ],
       ),
     );
@@ -130,6 +135,47 @@ class ProfileCard extends ConsumerWidget {
                 Navigator.pop(context);
               },
               child: const Text('Save', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Dialog to confirm logout
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppTheme.cardBackground,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          title: const Text(
+            'Sign Out',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            'Are you sure you want to sign out?',
+            style: TextStyle(color: AppTheme.textGrey),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await ref.read(authServiceProvider.notifier).signOut();
+              },
+              child: const Text(
+                'Sign Out',
+                style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
