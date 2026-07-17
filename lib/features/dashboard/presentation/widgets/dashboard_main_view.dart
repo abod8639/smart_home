@@ -279,6 +279,7 @@ Widget buildDeviceCards(WidgetRef ref, BuildContext context) {
           width: Responsive.contentGap(context)),
     itemBuilder: (context, index) {
       final device = filteredDevices[index];
+      final isPending = dashboardState.pendingDeviceIds.contains(device.id);
 
       switch (device.type) {
         case DeviceType.airConditioner:
@@ -307,22 +308,26 @@ Widget buildDeviceCards(WidgetRef ref, BuildContext context) {
               onToggle: () => dashboardController.toggleDevice(device.id),
               onModeChange: (mode) =>
                   dashboardController.setAcMode(context, device.id, mode),
+              isPending: isPending,
             ),
           );
         case DeviceType.lamp:
           return LampCard(
             device: device,
             onToggle: () => dashboardController.toggleDevice(device.id),
+            isPending: isPending,
           );
         case DeviceType.vacuum:
           return VacuumCard(
             device: device,
             onToggle: () => dashboardController.toggleDevice(device.id),
+            isPending: isPending,
           );
         case DeviceType.door:
           return DoorCard(
             device: device,
             onToggle: () => dashboardController.toggleDoor(device.id),
+            isPending: isPending,
           );
         case DeviceType.rgb:
           return GestureDetector(
