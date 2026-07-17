@@ -12,14 +12,22 @@ extension Esp32Api on Esp32Service {
     
     // Fallback: check online status from Firebase
     try {
-      final statusEvent = await _firebase.deviceStatusStream.first.timeout(const Duration(seconds: 2));
+      final statusEvent = await _firebase.deviceStatusStream.first.timeout(const Duration(seconds: 4));
       final status = statusEvent.snapshot.value;
-      if (status == 'online') {
+      if (status != null && (status.toString().toLowerCase() == 'online' || status == true || status == 1 || status == '1')) {
         return EspResponse.success(true); // Hub is online via Firebase
       }
     } catch (_) {}
     
-    return EspResponse.failure('Unable to establish MQTT connection');
+    // Secondary fallback: check if we can read recent telemetry (temperature)
+    try {
+      final tempEvent = await _firebase.temperatureStream.first.timeout(const Duration(seconds: 2));
+      if (tempEvent.snapshot.value != null) {
+        return EspResponse.success(true); // Hub is active (sending telemetry)
+      }
+    } catch (_) {}
+    
+    return EspResponse.failure('Unable to establish MQTT connection or reach Firebase');
   }
 
   /// Read real-time sensor metrics
