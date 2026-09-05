@@ -204,3 +204,4 @@ The MQTT Broker address/IP is configurable from the Settings screen. When MQTT i
 5. Open Settings in the app, enter the MQTT Broker address/IP, and verify the connection status indicator turns green.
 6. Use the Room Placement screen to assign physical positions to your devices on the floor plan.
 7. For AC units, open the device settings panel and record IR signals for each control button using the physical remote.
+
