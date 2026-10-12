@@ -74,21 +74,20 @@ class AcModeSelectionCard extends StatelessWidget {
                           color: isSelected
                               ? m.color.withValues(alpha:0.12)
                               : Colors.white.withValues(alpha:0.04),
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: AppRadii.lg,
                           border: Border.all(
                             color: isSelected
-                                ? m.color.withValues(alpha:0.5)
+                                ? m.color.withValues(alpha: 0.5)
                                 : Colors.white10,
                             width: 1.2,
                           ),
                           boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: m.color.withValues(alpha:0.2),
-                                    blurRadius: 8,
-                                    spreadRadius: -2,
-                                  )
-                                ]
+                              ? AppShadows.glow(
+                                  m.color,
+                                  blur: 8,
+                                  spread: -2,
+                                  alpha: 0.2,
+                                )
                               : null,
                         ),
                         child: Column(
