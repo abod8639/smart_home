@@ -59,4 +59,4 @@ final class DashboardRemoteDataSourceProvider
 }
 
 String _$dashboardRemoteDataSourceHash() =>
-    r'30b34b4483b75608979e9a8fe2b46e875479a3de';
+    r'7625108d87e9975f178d0f0e7a4ffcbc5e7a1f5a';

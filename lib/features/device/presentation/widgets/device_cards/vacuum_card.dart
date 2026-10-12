@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smart_home/core/theme/app_radii.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme/app_radii.dart';
-import '../theme/app_shadows.dart';
 import '../theme/app_theme.dart';
 
 /// A reusable glassmorphic status badge / stat chip widget for displaying
