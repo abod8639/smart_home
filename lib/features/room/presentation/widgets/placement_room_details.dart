@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
+import 'package:smart_home/core/widgets/app_button.dart';
+import 'package:smart_home/core/widgets/app_property_row.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
 import 'package:smart_home/features/environment/presentation/controllers/environment_controller.dart';
@@ -100,20 +102,20 @@ class PlacementRoomDetails extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                buildPropertyRow('Total Devices', '${roomDevices.length} device(s)'),
+                AppPropertyRow(label: 'Total Devices', value: '${roomDevices.length} device(s)'),
                 SizedBox(height: gap),
                 SizedBox(
                   height: Responsive.deviceCardsHeight(context) - 40,
                   child: buildDeviceCards(ref, context),
                 ),
                 SizedBox(height: gap),
-                buildPropertyRow('Temperature', ref.watch(environmentControllerProvider).temperature),
+                AppPropertyRow(label: 'Temperature', value: ref.watch(environmentControllerProvider).temperature),
                 SizedBox(height: gap),
-                buildPropertyRow('Humidity', ref.watch(environmentControllerProvider).humidity),
+                AppPropertyRow(label: 'Humidity', value: ref.watch(environmentControllerProvider).humidity),
                 SizedBox(height: gap),
-                buildPropertyRow('Airflow', ref.watch(environmentControllerProvider).airflow),
+                AppPropertyRow(label: 'Airflow', value: ref.watch(environmentControllerProvider).airflow),
                 SizedBox(height: gap),
-                buildPropertyRow('Power Usage', ref.watch(environmentControllerProvider).powerUsage),
+                AppPropertyRow(label: 'Power Usage', value: ref.watch(environmentControllerProvider).powerUsage),
               ],
             ),
           ),
@@ -122,28 +124,18 @@ class PlacementRoomDetails extends ConsumerWidget {
         SizedBox(height: gap),
 
         // Add device button
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            icon: Icon(Icons.add_rounded, color: Colors.white, size: isMobile ? 18 : 22),
-            label: Text(
-              'Add Device to Room',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: isMobile ? 13.0 : 15.0,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryBlue,
-              padding: EdgeInsets.symmetric(vertical: isMobile ? 12 : 16),
-              shape: AppRadii.shapeMd,
-            ),
-            onPressed: () => PlacementDeviceDialogs.showAddDevice(
-              context,
-              ref,
-            ),
+        AppButton(
+          text: 'Add Device to Room',
+          icon: Icon(Icons.add_rounded, color: Colors.white, size: isMobile ? 18 : 22),
+          onPressed: () => PlacementDeviceDialogs.showAddDevice(
+            context,
+            ref,
           ),
+          backgroundColor: AppTheme.primaryBlue,
+          foregroundColor: Colors.white,
+          borderRadius: AppRadii.md,
+          padding: EdgeInsets.symmetric(vertical: isMobile ? 12 : 16),
+          height: isMobile ? 46 : 52,
         ),
       ],
     );
