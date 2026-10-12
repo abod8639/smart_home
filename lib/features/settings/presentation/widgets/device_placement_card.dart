@@ -14,8 +14,6 @@ class DevicePlacementCard extends ConsumerWidget {
 
   DevicePlacementCard({super.key});
 
-
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.read(dashboardControllerProvider.notifier);
@@ -45,10 +43,9 @@ class DevicePlacementCard extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
 
-          
           Expanded(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadii.xl,
               child: Stack(
                 key: _imageKey,
                 children: [
@@ -63,10 +60,10 @@ class DevicePlacementCard extends ConsumerWidget {
                         }
                       }
                       final bgImage = FormattingUtils.getRoomBackgroundImage(room?.name);
-                      return CachedNetworkImage(imageUrl:  bgImage, fit: BoxFit.cover);
+                      return CachedNetworkImage(imageUrl: bgImage, fit: BoxFit.cover);
                     }),
                   ),
-                  
+
                   // Semi-transparent overlay
                   Positioned.fill(
                     child: Container(
@@ -94,11 +91,9 @@ class DevicePlacementCard extends ConsumerWidget {
                                 left: posX - 20,
                                 top: posY - 20,
                                 child: GestureDetector(
-                                  onLongPressStart: (details) {
-                                    // Visual feedback can be added here if needed
-                                  },
                                   onLongPressMoveUpdate: (details) {
-                                    final RenderBox? renderBox = _imageKey.currentContext?.findRenderObject() as RenderBox?;
+                                    final RenderBox? renderBox =
+                                        _imageKey.currentContext?.findRenderObject() as RenderBox?;
                                     if (renderBox != null) {
                                       final Offset localOffset = renderBox.globalToLocal(details.globalPosition);
                                       final double x = (localOffset.dx / renderBox.size.width).clamp(0.0, 1.0);
@@ -153,13 +148,7 @@ class DevicePlacementCard extends ConsumerWidget {
           shape: BoxShape.circle,
           color: device.isOn ? AppTheme.primaryBlue : Colors.white24,
           border: Border.all(color: Colors.white, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 6,
-              spreadRadius: 1,
-            )
-          ],
+          boxShadow: AppShadows.card,
         ),
         child: Icon(
           iconData,
@@ -169,6 +158,4 @@ class DevicePlacementCard extends ConsumerWidget {
       ),
     );
   }
-
-  
 }
