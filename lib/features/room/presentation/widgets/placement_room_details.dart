@@ -137,9 +137,7 @@ class PlacementRoomDetails extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryBlue,
               padding: EdgeInsets.symmetric(vertical: isMobile ? 12 : 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: AppRadii.shapeMd,
             ),
             onPressed: () => PlacementDeviceDialogs.showAddDevice(
               context,
