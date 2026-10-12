@@ -43,7 +43,7 @@ final class Esp32ServiceProvider extends $NotifierProvider<Esp32Service, void> {
   }
 }
 
-String _$esp32ServiceHash() => r'69415e2e7cb6d276427823a2cd2823ec8a61afd1';
+String _$esp32ServiceHash() => r'f08f9f7bee9d733fc3534994662673422ec2e6f8';
 
 /// Professional and flexible control service for ESP32 microcontrollers using MQTT
 

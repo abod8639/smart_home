@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smart_home/core/theme/app_radii.dart';
-import 'package:smart_home/core/theme/app_shadows.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 
 /// Reusable container with unified border radius and box shadow support.
