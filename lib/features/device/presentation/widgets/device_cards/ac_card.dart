@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:smart_home/core/theme/app_radii.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/utils/formatting_utils.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
+import 'package:smart_home/core/widgets/stat_badge.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/remote/ac_mode_selection_card.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/glass_switch.dart';
@@ -87,7 +89,7 @@ class AcCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppRadii.md,
                           ),
                           child: Text(
                             '${device.linkedDevicesCount} linked devices',
@@ -189,7 +191,7 @@ class AcCard extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         decoration: const BoxDecoration(
           color: Color(0xFF0F172A),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: AppRadii.top(AppRadii.xxlValue),
           border: Border(
             top: BorderSide(color: Colors.white10, width: 1),
           ),
@@ -205,7 +207,7 @@ class AcCard extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
                   color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: AppRadii.xs,
                 ),
               ),
             ),
@@ -233,7 +235,7 @@ class AcCard extends StatelessWidget {
                     color: isSelected
                         ? m.color.withValues(alpha: 0.15)
                         : Colors.white.withValues(alpha: 0.04),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: AppRadii.md,
                     border: Border.all(
                       color: isSelected ? m.color.withValues(alpha: 0.6) : Colors.white12,
                       width: 1.2,
@@ -277,37 +279,15 @@ class AcCard extends StatelessWidget {
     final iconSize = (18 * scale).clamp(14.0, 18.0);
     final fontSize = (13 * scale).clamp(11.0, 13.0);
 
-    return GestureDetector(
+    return StatBadge(
+      icon: icon,
+      value: value,
       onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: padH, vertical: padV),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.04),
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: iconColor, size: iconSize),
-            SizedBox(width: (8 * scale).clamp(4.0, 8.0)),
-            Flexible(
-              child: Text(
-                value,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w400,
-                  fontSize: fontSize,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
+      iconColor: iconColor,
+      borderRadius: AppRadii.lg,
+      padding: EdgeInsets.symmetric(horizontal: padH, vertical: padV),
+      iconSize: iconSize,
+      valueFontSize: fontSize,
     );
   }
 }
