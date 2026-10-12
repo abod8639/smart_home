@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_home/core/theme/app_radii.dart';
+import 'package:smart_home/core/theme/app_shadows.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
@@ -145,10 +147,7 @@ class LampCard extends ConsumerWidget {
                               height: 18,
                               decoration: BoxDecoration(
                                 color: isDeviceOn ? const Color(0xFF475569) : const Color(0xFF1E293B),
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(16),
-                                  topRight: Radius.circular(16),
-                                ),
+                                borderRadius: AppRadii.top(AppRadii.lgValue),
                                 border: Border.all(
                                   color: Colors.white.withValues(alpha: 0.08),
                                   width: 1,
@@ -163,7 +162,7 @@ class LampCard extends ConsumerWidget {
                                 color: isDeviceOn 
                                     ? Colors.amberAccent.withValues(alpha: 0.8) 
                                     : const Color(0xFF0F172A),
-                                borderRadius: BorderRadius.circular(1.5),
+                                borderRadius: AppRadii.xs,
                               ),
                             ),
                             // Light Bulb & Light Beam Stack
@@ -209,13 +208,14 @@ class LampCard extends ConsumerWidget {
                                       color: isDeviceOn ? Colors.amber : Colors.white.withValues(alpha: 0.15),
                                       width: 1,
                                     ),
-                                    boxShadow: isDeviceOn ? [
-                                      BoxShadow(
-                                        color: Colors.amberAccent.withValues(alpha: glowOpacity),
-                                        blurRadius: 12,
-                                        spreadRadius: 1,
-                                      )
-                                    ] : null,
+                                    boxShadow: isDeviceOn
+                                        ? AppShadows.glow(
+                                            Colors.amberAccent,
+                                            blur: 12,
+                                            spread: 1,
+                                            alpha: glowOpacity,
+                                          )
+                                        : null,
                                   ),
                                 ),
                               ],
@@ -231,7 +231,7 @@ class LampCard extends ConsumerWidget {
             
             // Bottom Area: Brightness Slider Controls
             ClipRRect(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: AppRadii.xxl,
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: AnimatedContainer(
@@ -243,7 +243,7 @@ class LampCard extends ConsumerWidget {
                     color: isDeviceOn 
                         ? Colors.white.withValues(alpha: 0.05) 
                         : Colors.white.withValues(alpha: 0.04),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: AppRadii.xxl,
                     border: Border.all(
                       color: isDeviceOn 
                           ? Colors.white.withValues(alpha: 0.05) 
