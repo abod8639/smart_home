@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:smart_home/features/environment/presentation/controllers/environment_controller.dart';
 import 'package:uuid/uuid.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
@@ -13,7 +14,6 @@ import 'package:smart_home/features/device/data/models/ir_code_model.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/core/services/firebase_service.dart';
-import 'package:smart_home/features/environment/presentation/providers/environment_provider.dart';
 
 part 'esp32/esp32_mqtt.dart';
 part 'esp32/esp32_firebase.dart';

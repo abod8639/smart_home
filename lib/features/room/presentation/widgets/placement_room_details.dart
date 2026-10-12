@@ -4,10 +4,10 @@ import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
+import 'package:smart_home/features/environment/presentation/controllers/environment_controller.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
 import 'package:smart_home/features/room/presentation/widgets/placement_device_dialogs.dart';
 import 'package:smart_home/features/room/presentation/widgets/room_management_dialogs.dart';
-import 'package:smart_home/features/environment/presentation/providers/environment_provider.dart';
 
 /// Shows room statistics, environment data and a quick "Add Device" button.
 class PlacementRoomDetails extends ConsumerWidget {
