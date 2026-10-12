@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/utils/formatting_utils.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
@@ -49,25 +50,19 @@ class RoomPreviewWidget extends ConsumerWidget {
 
           return Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadii.md,
               image: DecorationImage(
                 image: imageProvider,
                 fit: BoxFit.cover,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                )
-              ],
+              boxShadow: AppShadows.modal,
             ),
             child: Stack(
               children: [
                 // Top overlay gradient for text visibility
                 Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadii.md,
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
