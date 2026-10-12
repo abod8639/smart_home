@@ -50,12 +50,14 @@ abstract final class AppShadows {
     double blur = 12.0,
     double spread = 0.0,
     double alpha = 0.35,
+    Offset offset = Offset.zero,
   }) =>
       [
         BoxShadow(
           color: color.withValues(alpha: alpha),
           blurRadius: blur,
           spreadRadius: spread,
+          offset: offset,
         ),
       ];
 
