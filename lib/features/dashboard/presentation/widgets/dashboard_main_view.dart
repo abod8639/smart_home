@@ -5,7 +5,6 @@ import 'package:smart_home/features/dashboard/presentation/controllers/dashboard
 import 'package:smart_home/features/dashboard/presentation/pages/remote_page.dart';
 import 'package:smart_home/features/dashboard/presentation/pages/rgb_page.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/room_preview_widget.dart';
-import 'package:smart_home/features/dashboard/presentation/widgets/weather_update_widget.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/presentation/widgets/rooms_list_widget.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/ac_card.dart';
@@ -14,6 +13,7 @@ import 'package:smart_home/features/device/presentation/widgets/device_cards/vac
 import 'package:smart_home/features/device/presentation/widgets/device_cards/door_card.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/rgb_card.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
+import 'package:smart_home/features/weather/presentation/widgets/weather_update_widget.dart';
 
 class DashboardMainView extends ConsumerStatefulWidget {
   const DashboardMainView({super.key});
