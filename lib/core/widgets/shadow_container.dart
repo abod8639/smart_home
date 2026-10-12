@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:smart_home/core/theme/app_radii.dart';
+import 'package:smart_home/core/theme/app_shadows.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 
+/// Reusable container with unified border radius and box shadow support.
 class ShadowContainer extends StatelessWidget {
   final Widget child;
   final double? width;
   final double? height;
   final EdgeInsetsGeometry padding;
   final BorderRadiusGeometry borderRadius;
+  final List<BoxShadow>? boxShadow;
   final bool borderGradient;
+  final Color? backgroundColor;
 
   const ShadowContainer({
     super.key,
@@ -15,8 +20,10 @@ class ShadowContainer extends StatelessWidget {
     this.width,
     this.height,
     this.padding = const EdgeInsets.all(16.0),
-    this.borderRadius = const BorderRadius.all(Radius.circular(24.0)),
+    this.borderRadius = AppRadii.xxl,
+    this.boxShadow,
     this.borderGradient = true,
+    this.backgroundColor,
   });
 
   @override
@@ -26,8 +33,9 @@ class ShadowContainer extends StatelessWidget {
       height: height,
       padding: padding,
       decoration: BoxDecoration(
-        color: AppTheme.cardBackground.withValues(alpha: 0.3),
+        color: backgroundColor ?? AppTheme.cardBackground.withValues(alpha: 0.3),
         borderRadius: borderRadius,
+        boxShadow: boxShadow ?? AppShadows.card,
         border: borderGradient
             ? Border.all(
                 color: AppTheme.cardBackground.withValues(alpha: 0.5),
