@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:smart_home/core/theme/app_radii.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/core/widgets/app_network_image.dart';
+import 'package:smart_home/core/widgets/stat_badge.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/glass_switch.dart';
 
@@ -175,79 +177,34 @@ class VacuumCard extends StatelessWidget {
   }
 
   Widget _buildInfoChip(String value, String label) {
-    return Container(
+    return StatBadge(
+      value: value,
+      label: label,
+      isVertical: true,
+      borderRadius: AppRadii.md,
+      backgroundColor: Colors.white.withValues(alpha: 0.08),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.04)),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.04)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            value, 
-            style: const TextStyle(
-              color: Colors.white, 
-              fontWeight: FontWeight.bold, 
-              fontSize: 12,
-            ),
-          ),
-          Text(
-            label, 
-            style: const TextStyle(
-              color: AppTheme.textGrey, 
-              fontSize: 9,
-            ),
-          ),
-        ],
-      ),
+      valueFontSize: 12,
+      labelFontSize: 9,
     );
   }
 
   Widget _buildBottomStat(IconData icon, String value, String label, bool isMobile) {
-    return Container(
+    return StatBadge(
+      icon: icon,
+      value: value,
+      label: label,
+      borderRadius: AppRadii.md,
+      backgroundColor: Colors.black.withValues(alpha: 0.25),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
       padding: EdgeInsets.symmetric(
-        horizontal: 6, 
+        horizontal: 6,
         vertical: isMobile ? 6 : 8,
       ),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.25),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: AppTheme.textGrey, size: 14),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.white, 
-                    fontWeight: FontWeight.bold, 
-                    fontSize: 11,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: AppTheme.textGrey, 
-                    fontSize: 8,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      iconSize: 14,
+      valueFontSize: 11,
+      labelFontSize: 8,
     );
   }
 }
