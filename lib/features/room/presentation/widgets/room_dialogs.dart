@@ -34,7 +34,7 @@ class RoomDialogs {
           backgroundColor: AppTheme.cardBackground,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadii.xxl,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: Text(
@@ -82,7 +82,7 @@ class RoomDialogs {
           backgroundColor: AppTheme.cardBackground,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadii.xxl,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: const Text(
@@ -148,7 +148,7 @@ class RoomDialogs {
           backgroundColor: AppTheme.cardBackground,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadii.xxl,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: const Text(
@@ -204,7 +204,7 @@ class RoomDialogs {
           backgroundColor: AppTheme.cardBackground,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadii.xxl,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: const Text(
