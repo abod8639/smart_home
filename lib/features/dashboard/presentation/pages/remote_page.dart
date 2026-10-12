@@ -12,7 +12,6 @@ import 'package:smart_home/features/room/presentation/widgets/placement_device_i
 
 // Split components imports
 import 'package:smart_home/features/dashboard/presentation/widgets/remote/temperature_dial.dart';
-import 'package:smart_home/features/dashboard/presentation/widgets/remote/collapsible_card.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/remote/ac_mode_selection_card.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/remote/fan_speed_card.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/remote/air_swing_card.dart';
