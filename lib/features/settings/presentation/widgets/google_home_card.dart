@@ -95,7 +95,7 @@ class GoogleHomeCard extends ConsumerWidget {
                         foregroundColor: isLinked ? Colors.white : AppTheme.accentCyan,
                         padding: EdgeInsets.symmetric(horizontal: isMobile ? 10 : 14, vertical: 8),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.md,
                           side: BorderSide(
                             color: isLinked
                                 ? Colors.white24
@@ -164,8 +164,8 @@ class GoogleHomeCard extends ConsumerWidget {
                         : Colors.white.withValues(alpha: 0.05),
                     foregroundColor: isLinked ? AppTheme.accentCyan : Colors.white24,
                     padding: EdgeInsets.symmetric(horizontal: isMobile ? 10 : 14, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadii.md,
                     ),
                     elevation: 0,
                   ),
