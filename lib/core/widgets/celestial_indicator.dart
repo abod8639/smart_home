@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smart_home/core/theme/app_theme.dart';
 
 /// Reusable vector-rendered celestial indicator widget depicting either a glowing sun
 /// or a detailed, cratered glowing moon with smooth radial gradients.
