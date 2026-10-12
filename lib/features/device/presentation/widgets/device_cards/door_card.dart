@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:smart_home/core/theme/app_radii.dart';
+import 'package:smart_home/core/theme/app_shadows.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
@@ -85,15 +87,12 @@ class DoorCard extends StatelessWidget {
                         : Colors.greenAccent.withValues(alpha: 0.3),
                     width: 2,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isLocked 
-                          ? Colors.redAccent.withValues(alpha: 0.15) 
-                          : Colors.greenAccent.withValues(alpha: 0.15),
-                      blurRadius: 12,
-                      spreadRadius: 1,
-                    )
-                  ],
+                  boxShadow: AppShadows.glow(
+                    isLocked ? Colors.redAccent : Colors.greenAccent,
+                    blur: 12,
+                    spread: 1,
+                    alpha: 0.15,
+                  ),
                 ),
                 child: Icon(
                   isLocked ? Icons.security : Icons.vpn_key,
@@ -114,8 +113,8 @@ class DoorCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
                   gradient: isPending
-                      ? LinearGradient(
-                          colors: [const Color(0xFF78716C), const Color(0xFF57534E)],
+                      ? const LinearGradient(
+                          colors: [Color(0xFF78716C), Color(0xFF57534E)],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         )
@@ -126,16 +125,14 @@ class DoorCard extends StatelessWidget {
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isPending
-                          ? Colors.grey.withValues(alpha: 0.15)
-                          : (isLocked ? Colors.redAccent : Colors.greenAccent).withValues(alpha: 0.25),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    )
-                  ],
+                  borderRadius: AppRadii.md,
+                  boxShadow: isPending
+                      ? AppShadows.subtle
+                      : AppShadows.glow(
+                          isLocked ? Colors.redAccent : Colors.greenAccent,
+                          blur: 6,
+                          alpha: 0.25,
+                        ),
                 ),
                 child: Center(
                   child: isPending
