@@ -32,25 +32,19 @@ class MobileBottomNav extends ConsumerWidget {
       child: SafeArea(
         top: false,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: AppRadii.xxl,
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
             child: Container(
               height: 72,
               decoration: BoxDecoration(
                 color: AppTheme.cardBackground.withValues(alpha: 0.8),
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: AppRadii.xxl,
                 border: Border.all(
                   color: Colors.white.withValues(alpha: 0.08),
                   width: 1.2,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+                boxShadow: AppShadows.modal,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -105,7 +99,7 @@ class AppNavigationButton extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: padding,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: AppRadii.lg,
             gradient: isActive
                 ? const LinearGradient(
                     colors: [AppTheme.primaryPurple, AppTheme.primaryBlue],
@@ -122,16 +116,7 @@ class AppNavigationButton extends StatelessWidget {
                   : Colors.white.withValues(alpha: 0.05),
               width: 1.0,
             ),
-            boxShadow: isActive
-                ? [
-                    BoxShadow(
-                      color: AppTheme.primaryPurple.withValues(alpha: 0.35),
-                      blurRadius: 12,
-                      spreadRadius: 1,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
+            boxShadow: isActive ? AppShadows.secondaryGlow : null,
           ),
           child: Icon(
             icon,
