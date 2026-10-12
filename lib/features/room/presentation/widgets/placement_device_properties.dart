@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
+import 'package:smart_home/core/widgets/app_button.dart';
+import 'package:smart_home/core/widgets/app_property_row.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
@@ -91,7 +93,7 @@ class PlacementDeviceProperties extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppTheme.accentCyan.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadii.sm,
                       border: Border.all(color: AppTheme.accentCyan.withValues(alpha: 0.2)),
                     ),
                     child: Row(
@@ -117,11 +119,11 @@ class PlacementDeviceProperties extends ConsumerWidget {
                   const SizedBox(height: 16),
                 ],
                 // Properties
-                buildPropertyRow('Name', device.name),
+                AppPropertyRow(label: 'Name', value: device.name),
                 const SizedBox(height: 16),
-                buildPropertyRow('Type', device.type.name.substring(0, 1).toUpperCase() + device.type.name.substring(1)),
+                AppPropertyRow(label: 'Type', value: device.type.name.substring(0, 1).toUpperCase() + device.type.name.substring(1)),
                 const SizedBox(height: 16),
-                buildPropertyRow('Status', device.isOn ? 'ON' : 'OFF'),
+                AppPropertyRow(label: 'Status', value: device.isOn ? 'ON' : 'OFF'),
                 const SizedBox(height: 16),
 
                 // Marker Style Selector
@@ -145,7 +147,7 @@ class PlacementDeviceProperties extends ConsumerWidget {
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.black38,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: AppRadii.all(10),
                         border: Border.all(color: Colors.white10),
                       ),
                       child: Row(
@@ -165,7 +167,7 @@ class PlacementDeviceProperties extends ConsumerWidget {
                                 color: !device.showAsDot
                                     ? AppTheme.primaryBlue.withValues(alpha: 0.85)
                                     : Colors.transparent,
-                                borderRadius: BorderRadius.circular(9),
+                                borderRadius: AppRadii.all(9),
                               ),
                               child: const Text(
                                 'Card',
@@ -192,7 +194,7 @@ class PlacementDeviceProperties extends ConsumerWidget {
                                 color: device.showAsDot
                                     ? AppTheme.primaryBlue.withValues(alpha: 0.85)
                                     : Colors.transparent,
-                                borderRadius: BorderRadius.circular(9),
+                                borderRadius: AppRadii.all(9),
                               ),
                               child: const Text(
                                 'Glowing Dot',
@@ -212,62 +214,61 @@ class PlacementDeviceProperties extends ConsumerWidget {
 
                 if (device.type == DeviceType.lamp && device.brightness != null) ...[
                   const SizedBox(height: 16),
-                  buildPropertyRow('Brightness', '${(device.brightness! / 255 * 100).toInt()}%'),
+                  AppPropertyRow(label: 'Brightness', value: '${(device.brightness! / 255 * 100).toInt()}%'),
                 ],
 
                 if (device.type == DeviceType.airConditioner &&
                     device.temperature != null) ...[
                   const SizedBox(height: 16),
-                  buildPropertyRow('Temperature', '${device.temperature}°C'),
+                  AppPropertyRow(label: 'Temperature', value: '${device.temperature}°C'),
                   const SizedBox(height: 16),
-                  buildPropertyRow('Mode', device.mode ?? 'Auto'),
+                  AppPropertyRow(label: 'Mode', value: device.mode ?? 'Auto'),
                 ],
 
                 if (device.type == DeviceType.vacuum) ...[
                   const SizedBox(height: 16),
-                  buildPropertyRow('Battery', '${device.batteryLevel ?? 0}%'),
+                  AppPropertyRow(label: 'Battery', value: '${device.batteryLevel ?? 0}%'),
                 ],
 
                 if (device.type == DeviceType.lamp && device.linkedDevicesCount != null) ...[
                   const SizedBox(height: 16),
-                  buildPropertyRow('Linked Devices', '${device.linkedDevicesCount}'),
+                  AppPropertyRow(label: 'Linked Devices', value: '${device.linkedDevicesCount}'),
                 ],
 
                 if (device.type == DeviceType.rgb) ...[
                   const SizedBox(height: 16),
-                  buildPropertyRow(
-                    'Color',
-                    'rgb(${device.rgbR ?? 0}, ${device.rgbG ?? 0}, ${device.rgbB ?? 0})',
+                  AppPropertyRow(
+                    label: 'Color',
+                    value: 'rgb(${device.rgbR ?? 0}, ${device.rgbG ?? 0}, ${device.rgbB ?? 0})',
                   ),
                   const SizedBox(height: 10),
                   // Live colour swatch
                   Container(
                     height: 32,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadii.sm,
                       color: Color.fromRGBO(
                         device.rgbR ?? 0,
                         device.rgbG ?? 0,
                         device.rgbB ?? 0,
                         1.0,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color.fromRGBO(
-                            device.rgbR ?? 0,
-                            device.rgbG ?? 0,
-                            device.rgbB ?? 0,
-                            0.5,
-                          ),
-                          blurRadius: 12,
-                          spreadRadius: 2,
+                      boxShadow: AppShadows.glow(
+                        Color.fromRGBO(
+                          device.rgbR ?? 0,
+                          device.rgbG ?? 0,
+                          device.rgbB ?? 0,
+                          1.0,
                         ),
-                      ],
+                        blur: 12,
+                        spread: 2,
+                        alpha: 0.5,
+                      ),
                     ),
                   ),
                   if (device.brightness != null) ...[
                     const SizedBox(height: 16),
-                    buildPropertyRow('Brightness', '${(device.brightness! / 255 * 100).toInt()}%'),
+                    AppPropertyRow(label: 'Brightness', value: '${(device.brightness! / 255 * 100).toInt()}%'),
                   ],
                 ],
 
@@ -285,33 +286,21 @@ class PlacementDeviceProperties extends ConsumerWidget {
         const SizedBox(height: 16),
 
         // Toggle button
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryBlue,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () {
-              if (device.type == DeviceType.door) {
-                dashboardController.toggleDoor(device.id);
-              } else {
-                dashboardController.toggleDevice(device.id);
-              }
-            },
-            child: Text(
-              device.type == DeviceType.door
-                  ? (device.isLocked ?? true ? 'Unlock Device' : 'Lock Device')
-                  : (device.isOn ? 'Turn OFF' : 'Turn ON'),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
+        AppButton(
+          text: device.type == DeviceType.door
+              ? (device.isLocked ?? true ? 'Unlock Device' : 'Lock Device')
+              : (device.isOn ? 'Turn OFF' : 'Turn ON'),
+          onPressed: () {
+            if (device.type == DeviceType.door) {
+              dashboardController.toggleDoor(device.id);
+            } else {
+              dashboardController.toggleDevice(device.id);
+            }
+          },
+          backgroundColor: AppTheme.primaryBlue,
+          foregroundColor: Colors.white,
+          borderRadius: AppRadii.md,
+          height: 52,
         ),
       ],
     );
