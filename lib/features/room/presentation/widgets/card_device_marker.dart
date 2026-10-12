@@ -153,26 +153,26 @@ class CardDeviceMarker extends StatelessWidget {
               width: mW,
               height: mH,
               decoration: BoxDecoration(
-                color:   markerColor,
-                borderRadius: BorderRadius.circular(12),
+                color: markerColor,
+                borderRadius: AppRadii.md,
                 border: Border.all(
                   color: isSelected ? Colors.amber : borderColor,
                   width: isSelected ? 2.5 : (isOn || (isDoor && !isLocked) ? 2.0 : 1.0),
                 ),
                 boxShadow: showGlow || isSelected
-                    ? [
-                        BoxShadow(
-                          color: isSelected
-                              ? Colors.amber.withValues(alpha: 0.45)
-                              : glowColor,
-                          blurRadius: isSelected ? 18 : 12,
-                          spreadRadius: isSelected ? 3 : 2,
-                        ),
-                      ]
-                    : [],
+                    ? (isSelected
+                        ? AppShadows.glow(Colors.amber, blur: 18, spread: 3, alpha: 0.45)
+                        : [
+                            BoxShadow(
+                              color: glowColor,
+                              blurRadius: 12,
+                              spreadRadius: 2,
+                            ),
+                          ])
+                    : AppShadows.none,
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(11),
+                borderRadius: AppRadii.all(11),
                 child: Center(
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
@@ -196,7 +196,6 @@ class CardDeviceMarker extends StatelessWidget {
                                   color: Colors.black,
                                   blurRadius: 10,
                                   spreadRadius: 10,
-                                
                                 )
                               ],
                               color: isOn || (isDoor && !isLocked) ? activeColor : Colors.white70,
@@ -239,7 +238,7 @@ class CardDeviceMarker extends StatelessWidget {
                             : isSelected
                                 ? Colors.amber
                                 : Colors.white.withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: AppRadii.all(6),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.35),
