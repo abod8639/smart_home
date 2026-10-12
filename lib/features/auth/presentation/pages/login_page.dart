@@ -1,22 +1,36 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smart_home/core/services/auth_service.dart';
+import 'package:smart_home/core/widgets/app_button.dart';
+import 'package:smart_home/core/widgets/app_network_image.dart';
+import '../controllers/auth_controller.dart';
+import '../widgets/auth_header.dart';
+import '../widgets/auth_terms_text.dart';
 
-class LoginPage extends ConsumerStatefulWidget {
+/// Clean Architecture Login page orchestrating authentication through [AuthController].
+class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});
 
-  @override
-  ConsumerState<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends ConsumerState<LoginPage> {
-  bool _isLoading = false;
+  static const String _googleLogoUrl =
+      'https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png';
 
   @override
-  Widget build(BuildContext context) {
-    final authService = ref.watch(authServiceProvider.notifier);
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final authState = ref.watch(authControllerProvider);
+    final authController = ref.read(authControllerProvider.notifier);
+
+    // Listen to error states to display feedback
+    ref.listen<AuthState>(authControllerProvider, (previous, next) {
+      if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.errorMessage!),
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    });
 
     return Scaffold(
       body: Container(
@@ -39,119 +53,31 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const SizedBox(height: 20),
-                // Logo or Brand Header
+
+                // Reusable Header widget
+                const AuthHeader(),
+
+                // Action area with reusable AppButton and terms text
                 Column(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.home_rounded,
-                        size: 80,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Smart Home IoT',
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Control your home from anywhere',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
-                ),
-                
-                // Login action button
-                Column(
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black87,
-                        elevation: 2,
-                        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                    AppButton.social(
+                      text: 'Sign in with Google',
+                      isLoading: authState.isLoading,
+                      onPressed: authState.isLoading
+                          ? null
+                          : () => authController.signInWithGoogle(),
+                      icon: AppNetworkImage(
+                        imageUrl: _googleLogoUrl,
+                        height: 24,
+                        width: 24,
+                        errorWidget: (context, error, stackTrace) => const Icon(
+                          Icons.login_rounded,
+                          color: Colors.black87,
                         ),
                       ),
-                      onPressed: _isLoading
-                          ? null
-                          : () async {
-                              setState(() {
-                                _isLoading = true;
-                              });
-                              try {
-                                final credential = await authService.signInWithGoogle();
-                                if (credential == null) {
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: const Text('Failed to sign in with Google or cancelled.'),
-                                        backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
-                                      ),
-                                    );
-                                  }
-                                }
-                              } finally {
-                                if (mounted) {
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-                                }
-                              }
-                            },
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                color: Colors.black54,
-                              ),
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CachedNetworkImage(
-                                  imageUrl: 'https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png',
-                                  height: 24,
-                                  width: 24,
-                                  errorWidget: (context, error, stackTrace) => const Icon(
-                                    Icons.login_rounded,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                const Text(
-                                  'Sign in with Google',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
                     ),
                     const SizedBox(height: 24),
-                    Text(
-                      'By signing in, you agree to our Terms and Conditions',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                        fontSize: 11,
-                      ),
-                    ),
+                    const AuthTermsText(),
                   ],
                 ),
               ],
