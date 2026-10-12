@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:smart_home/core/theme/app_radii.dart';
+import 'package:smart_home/core/theme/app_shadows.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
@@ -79,24 +81,14 @@ class AcVisualizer extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: AppRadii.all(6),
                 border: Border.all(
                   color: isDeviceOn
                       ? Colors.white.withValues(alpha: 0.12)
                       : Colors.white.withValues(alpha: 0.05),
                   width: 1,
                 ),
-                boxShadow: isDeviceOn
-                    ? [
-                        BoxShadow(
-                          color: Colors.black.withValues(
-                            alpha: 0.25,
-                          ),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
+                boxShadow: isDeviceOn ? AppShadows.subtle : null,
               ),
               child: Stack(
                 alignment: Alignment.bottomCenter,
@@ -108,15 +100,15 @@ class AcVisualizer extends StatelessWidget {
                         color: Colors.white,
                         fontSize: tempSize,
                         fontWeight: FontWeight.bold,
-                        shadows: <Shadow>[
-                          BoxShadow(
-                            color: Colors.black.withValues(
-                              alpha: 0.25,
-                            ),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                        shadows: isDeviceOn
+                            ? const [
+                                Shadow(
+                                  color: Colors.black45,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ]
+                            : null,
                       ),
                     ),
                   ),
@@ -130,18 +122,14 @@ class AcVisualizer extends StatelessWidget {
                         color: isDeviceOn
                             ? _modeColor(device.mode)
                             : const Color(0xFF334155),
-                        borderRadius: BorderRadius.circular(
-                          1.5,
-                        ),
+                        borderRadius: AppRadii.xs,
                         boxShadow: isDeviceOn
-                            ? [
-                                BoxShadow(
-                                  color: _modeColor(device.mode)
-                                      .withValues(alpha: 0.8),
-                                  blurRadius: 4,
-                                  spreadRadius: 0.5,
-                                ),
-                              ]
+                            ? AppShadows.glow(
+                                _modeColor(device.mode),
+                                blur: 4,
+                                spread: 0.5,
+                                alpha: 0.8,
+                              )
                             : null,
                       ),
                     ),
