@@ -28,8 +28,7 @@ extension DashboardControllerIr on DashboardController {
         } else if (delta < 0 && device.acIrCodes.irTempDown != null) {
           await _sendIrRepeated(null, device.acIrCodes.irTempDown!, delta.abs());
         } else {
-          final esp32 = ref.read(esp32ServiceProvider.notifier);
-          esp32.sendRawCommand(
+          ref.read(sendHardwareCommandUseCaseProvider).sendEsp32Command(
             'control/ac',
             method: 'POST',
             data: {'target_temp': newTemp},
