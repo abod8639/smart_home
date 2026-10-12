@@ -38,7 +38,9 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
 
   void _startCommissioning() async {
     if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Required Field: Please enter a name for the device.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Required Field: Please enter a name for the device.')),
+      );
       return;
     }
 
@@ -77,7 +79,7 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
     // Add device to controller
     final dashboardController = ref.read(dashboardControllerProvider.notifier);
     final newId = 'matter_${DateTime.now().millisecondsSinceEpoch}';
-    
+
     // Create new device entity with default stats
     final DeviceEntity newDevice;
     switch (_selectedType) {
@@ -178,6 +180,7 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: GlassContainer(
         width: 420,
+        borderRadius: AppRadii.xxl,
         padding: const EdgeInsets.all(28),
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
@@ -238,7 +241,7 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.black.withValues(alpha: 0.25),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadii.xl,
             border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
           ),
           child: Row(
@@ -247,7 +250,7 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: AppTheme.accentCyan.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: AppRadii.lg,
                 ),
                 child: const Icon(Icons.grid_3x3_outlined, color: AppTheme.accentCyan, size: 24),
               ),
@@ -283,7 +286,7 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
             color: Colors.black.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppRadii.md,
             border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
           ),
           child: DropdownButtonHideUnderline(
@@ -326,12 +329,12 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
             fillColor: Colors.black.withValues(alpha: 0.2),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppRadii.md,
               borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppTheme.accentCyan),
+            focusedBorder: const OutlineInputBorder(
+              borderRadius: AppRadii.md,
+              borderSide: BorderSide(color: AppTheme.accentCyan),
             ),
           ),
         ),
@@ -353,12 +356,12 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
             fillColor: Colors.black.withValues(alpha: 0.2),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppRadii.md,
               borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppTheme.accentCyan),
+            focusedBorder: const OutlineInputBorder(
+              borderRadius: AppRadii.md,
+              borderSide: BorderSide(color: AppTheme.accentCyan),
             ),
           ),
         ),
@@ -377,20 +380,20 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
             Expanded(
               flex: 2,
               child: Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
                     colors: [AppTheme.accentCyan, AppTheme.primaryBlue],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: AppRadii.md,
                 ),
                 child: ElevatedButton(
                   onPressed: _startCommissioning,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: const RoundedRectangleBorder(borderRadius: AppRadii.md),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   child: const Text(
@@ -457,7 +460,7 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.black.withValues(alpha: 0.25),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadii.xl,
             border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
           ),
           child: Column(
@@ -542,14 +545,14 @@ class _MatterCommissioningDialogState extends ConsumerState<MatterCommissioningD
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.greenAccent.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppRadii.md,
           ),
           child: ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.transparent,
               shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadii.md),
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
             child: const Text(
