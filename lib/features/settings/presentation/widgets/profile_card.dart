@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
+import 'package:smart_home/core/widgets/app_dialog.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/core/services/auth_service.dart';
@@ -56,24 +57,28 @@ class ProfileCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Consumer(builder: (context, ref, _) => Text(
-                      state.userName,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isMobile ? 16 : 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )),
+                Consumer(
+                  builder: (context, ref, _) => Text(
+                    state.userName,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isMobile ? 16 : 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Consumer(builder: (context, ref, _) => Text(
-                      state.userRole,
-                      style: TextStyle(
-                        color: AppTheme.textGrey,
-                        fontSize: isMobile ? 11 : 12,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.5,
-                      ),
-                    )),
+                Consumer(
+                  builder: (context, ref, _) => Text(
+                    state.userRole,
+                    style: TextStyle(
+                      color: AppTheme.textGrey,
+                      fontSize: isMobile ? 11 : 12,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -96,16 +101,10 @@ class ProfileCard extends ConsumerWidget {
     final controller = ref.read(settingsControllerProvider.notifier);
     final textController = TextEditingController(text: state.userName);
 
-    showDialog(
+    AppDialog.show(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppTheme.cardBackground,
-          surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-          ),
+        return AppDialog(
           title: const Text(
             'Edit Profile Name',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -134,7 +133,10 @@ class ProfileCard extends ConsumerWidget {
                 controller.updateUserName(textController.text);
                 Navigator.pop(context);
               },
-              child: const Text('Save', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Save',
+                style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
@@ -144,16 +146,10 @@ class ProfileCard extends ConsumerWidget {
 
   // Dialog to confirm logout
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
+    AppDialog.show(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppTheme.cardBackground,
-          surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-          ),
+        return AppDialog(
           title: const Text(
             'Sign Out',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
