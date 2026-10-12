@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_home/core/theme/app_radii.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/utils/formatting_utils.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
@@ -44,7 +45,7 @@ class PlacementImagePanel extends ConsumerWidget {
             child: AspectRatio(
               aspectRatio: 19 / 9,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadii.xl,
                 child: Stack(
                   key: imageKey,
                   children: [
