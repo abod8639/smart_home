@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 
 /// An animated button used to record/re-record an IR remote command.
@@ -39,7 +40,7 @@ class IrLearnButton extends StatelessWidget {
                     const Color(0xFF4C86FF).withValues(alpha: 0.15),
                   ],
           ),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: AppRadii.all(10),
           border: Border.all(
             color: hasCode
                 ? Colors.white.withValues(alpha: 0.1)
