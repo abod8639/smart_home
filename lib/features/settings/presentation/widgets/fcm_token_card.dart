@@ -57,11 +57,11 @@ class FcmTokenCard extends ConsumerWidget {
                   color: hasPermission
                       ? Colors.greenAccent.withValues(alpha: 0.1)
                       : Colors.redAccent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadii.md,
                   border: Border.all(
                     color: hasPermission
-                        ? Colors.greenAccent.withValues(alpha: 0.3)
-                        : Colors.redAccent.withValues(alpha: 0.3),
+                      ? Colors.greenAccent.withValues(alpha: 0.3)
+                      : Colors.redAccent.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -95,9 +95,9 @@ class FcmTokenCard extends ConsumerWidget {
                       backgroundColor: AppTheme.primaryPurple.withValues(alpha: 0.2),
                       foregroundColor: AppTheme.primaryPurple,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: const BorderSide(color: AppTheme.primaryPurple, width: 0.5),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadii.md,
+                        side: BorderSide(color: AppTheme.primaryPurple, width: 0.5),
                       ),
                       elevation: 0,
                     ),
