@@ -31,8 +31,8 @@ extension DashboardControllerDevices on DashboardController {
       deviceType = 2; // on_off_plugin_unit
     }
 
-    final esp32 = ref.read(esp32ServiceProvider.notifier);
-    esp32.sendRawCommand('commands', method: 'POST', data: {
+    final hardwareCmd = ref.read(sendHardwareCommandUseCaseProvider);
+    hardwareCmd.sendEsp32Command('commands', method: 'POST', data: {
       'action': 'add_device',
       'type': deviceType,
       'pin': pin,
@@ -93,7 +93,7 @@ extension DashboardControllerDevices on DashboardController {
 
         // Matter Devices
         if (device.matterNodeId != null) {
-          ref.read(matterServiceProvider.notifier).toggleDevice(
+          ref.read(sendHardwareCommandUseCaseProvider).toggleMatterDevice(
             device.matterNodeId!,
             device.matterEndpointId ?? 1,
             false,
@@ -163,7 +163,7 @@ extension DashboardControllerDevices on DashboardController {
       newDevices[index] = device.copyWith(isOn: newIsOn);
       state = state.copyWith(devices: newDevices);
       _persistDevices();
-      ref.read(matterServiceProvider.notifier).toggleDevice(
+      ref.read(sendHardwareCommandUseCaseProvider).toggleMatterDevice(
         device.matterNodeId!,
         device.matterEndpointId ?? 1,
         newIsOn,
