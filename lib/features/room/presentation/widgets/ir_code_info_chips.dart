@@ -53,7 +53,7 @@ class IrCodeInfoChips extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: AppRadii.all(6),
         border: Border.all(color: data.color.withValues(alpha: 0.3), width: 0.7),
       ),
       child: Row(
