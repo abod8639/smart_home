@@ -123,7 +123,7 @@ class PlacementDeviceDialogs {
               backgroundColor: AppTheme.cardBackground,
               surfaceTintColor: Colors.transparent,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: AppRadii.xxl,
                 side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
               ),
               title: const Row(
@@ -168,7 +168,7 @@ class PlacementDeviceDialogs {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: Colors.black26,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppRadii.sm,
                         border: Border.all(color: Colors.white12),
                       ),
                       child: DropdownButtonHideUnderline(
@@ -216,7 +216,7 @@ class PlacementDeviceDialogs {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: Colors.black26,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppRadii.sm,
                         border: Border.all(color: Colors.white12),
                       ),
                       child: DropdownButtonHideUnderline(
