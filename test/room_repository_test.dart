@@ -210,5 +210,20 @@ void main() {
       expect(rooms.length, 1);
       expect(rooms.first.id, '1');
     });
+
+    test('updateRoom updates the room in repository', () async {
+      final repo = buildRepo([
+        RoomModel.fromEntity(
+            const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 2)),
+      ]);
+
+      await repo.updateRoom(
+          const RoomEntity(id: '1', name: 'Master Bedroom', deviceCount: 4));
+
+      final rooms = await repo.getRooms();
+      expect(rooms.length, 1);
+      expect(rooms.first.name, 'Master Bedroom');
+      expect(rooms.first.deviceCount, 4);
+    });
   });
 }
