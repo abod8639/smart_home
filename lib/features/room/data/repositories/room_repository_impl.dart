@@ -27,6 +27,16 @@ class RoomRepositoryImpl implements RoomRepository {
   }
 
   @override
+  Future<void> updateRoom(RoomEntity room) async {
+    final currentRooms = await localDatasource.getRooms();
+    final index = currentRooms.indexWhere((r) => r.id == room.id);
+    if (index != -1) {
+      currentRooms[index] = RoomModel.fromEntity(room);
+      await localDatasource.saveRooms(currentRooms);
+    }
+  }
+
+  @override
   Future<void> deleteRoom(String id) async {
     final currentRooms = await localDatasource.getRooms();
     currentRooms.removeWhere((room) => room.id == id);
