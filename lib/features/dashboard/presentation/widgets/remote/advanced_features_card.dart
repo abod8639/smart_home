@@ -56,13 +56,13 @@ class AdvancedFeaturesCard extends ConsumerWidget {
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           color: isSelected ? color.withValues(alpha: .12) : Colors.white.withValues(alpha: .04),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadii.lg,
           border: Border.all(
             color: isSelected ? color.withValues(alpha: .5) : Colors.white10,
             width: 1.2,
           ),
           boxShadow: isSelected
-              ? [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 8, spreadRadius: -2)]
+              ? AppShadows.glow(color, blur: 8, spread: -2, alpha: 0.2)
               : null,
         ),
         child: Column(
