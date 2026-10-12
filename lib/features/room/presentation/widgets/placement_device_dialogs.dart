@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/widgets/app_property_row.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/room/presentation/controllers/room_placement_controller.dart';
@@ -26,25 +27,9 @@ IconData iconForDeviceType(DeviceType type) {
 }
 
 /// A two-line label/value row used in the properties and room-details panels.
+/// Delegates to the centralized [AppPropertyRow] in core/widgets.
 Widget buildPropertyRow(String label, String value) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: const TextStyle(color: AppTheme.textGrey, fontSize: 12),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        value,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    ],
-  );
+  return AppPropertyRow(label: label, value: value);
 }
 
 // ─── Dialogs ──────────────────────────────────────────────────────────────────
