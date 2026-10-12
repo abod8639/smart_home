@@ -44,7 +44,7 @@ class MatterCodeCard extends ConsumerWidget {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
-              
+
               if (snapshot.hasData && snapshot.data?.snapshot.value != null) {
                 final data = snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
                 final qrCode = data['qr_code'] as String? ?? '';
@@ -57,7 +57,7 @@ class MatterCodeCard extends ConsumerWidget {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadii.lg,
                         ),
                         child: QrImageView(
                           data: qrCode,
@@ -73,7 +73,7 @@ class MatterCodeCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     InkWell(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadii.md,
                       onTap: () {
                         Clipboard.setData(ClipboardData(text: manualCode));
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -89,7 +89,7 @@ class MatterCodeCard extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.md,
                           border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
                         ),
                         child: Text(
@@ -107,13 +107,13 @@ class MatterCodeCard extends ConsumerWidget {
                   ],
                 );
               }
-              
+
               return Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadii.md,
                 ),
                 child: const Column(
                   children: [
