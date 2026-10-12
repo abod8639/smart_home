@@ -556,7 +556,7 @@ class PlacementDeviceDialogs {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: Colors.black26,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppRadii.sm,
                         border: Border.all(color: Colors.white12),
                       ),
                       child: DropdownButtonHideUnderline(
@@ -603,7 +603,7 @@ class PlacementDeviceDialogs {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: Colors.black26,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppRadii.sm,
                         border: Border.all(color: Colors.white12),
                       ),
                       child: DropdownButtonHideUnderline(
