@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:smart_home/core/services/auth_service.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
-import 'package:smart_home/features/weather/presentation/providers/weather_provider.dart';
+import 'package:smart_home/features/weather/presentation/controllers/weather_controller.dart';
 import 'package:smart_home/main.dart';
 
 void main() {

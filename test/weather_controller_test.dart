@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smart_home/features/weather/presentation/providers/weather_provider.dart';
+import 'package:smart_home/features/weather/presentation/controllers/weather_controller.dart';
 
 ProviderContainer createContainer({List<Override> overrides = const []}) {
   final container = ProviderContainer(overrides: overrides);
