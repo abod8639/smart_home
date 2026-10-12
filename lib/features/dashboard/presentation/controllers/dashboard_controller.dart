@@ -5,6 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:smart_home/core/services/esp32_service.dart';
 import 'package:smart_home/core/services/matter_service.dart';
+import 'package:smart_home/features/dashboard/domain/entities/dashboard_overview_entity.dart';
+import 'package:smart_home/features/dashboard/domain/usecases/send_hardware_command_usecase.dart';
+import 'package:smart_home/features/dashboard/domain/usecases/sync_dashboard_devices_usecase.dart';
+import 'package:smart_home/features/dashboard/domain/usecases/sync_dashboard_rooms_usecase.dart';
+import 'package:smart_home/features/dashboard/domain/usecases/sync_ir_codes_usecase.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
 import 'package:smart_home/features/device/data/models/ir_code_model.dart';
@@ -20,7 +25,6 @@ import 'package:smart_home/features/settings/presentation/controllers/settings_c
 import 'package:smart_home/features/dashboard/presentation/widgets/ir_learning_dialog.dart';
 import 'package:smart_home/core/services/firebase_service.dart';
 import 'package:smart_home/core/services/auth_service.dart';
-import 'package:equatable/equatable.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_home/features/environment/presentation/providers/environment_provider.dart';
 
@@ -29,25 +33,16 @@ part 'dashboard_controller_devices.dart';
 part 'dashboard_controller_ir.dart';
 part 'dashboard_controller.g.dart';
 
-class DashboardState extends Equatable {
-  final List<RoomEntity> rooms;
-  final List<DeviceEntity> devices;
-
-  // IR
-  final Set<String> sendingIrKeys;
-
-  /// Device IDs that are currently waiting for ESP32 confirmation.
-  /// While a device ID is in this set, the toggle button shows a loading
-  /// indicator and ignores further taps.
-  final Set<String> pendingDeviceIds;
-
+/// Presentation state for the dashboard, extending [DashboardOverviewEntity].
+class DashboardState extends DashboardOverviewEntity {
   const DashboardState({
-    this.rooms = const [],
-    this.devices = const [],
-    this.sendingIrKeys = const {},
-    this.pendingDeviceIds = const {},
+    super.rooms = const [],
+    super.devices = const [],
+    super.sendingIrKeys = const {},
+    super.pendingDeviceIds = const {},
   });
 
+  @override
   DashboardState copyWith({
     List<RoomEntity>? rooms,
     List<DeviceEntity>? devices,
@@ -61,11 +56,6 @@ class DashboardState extends Equatable {
       pendingDeviceIds: pendingDeviceIds ?? this.pendingDeviceIds,
     );
   }
-
-  @override
-  List<Object?> get props => [
-        rooms, devices, sendingIrKeys, pendingDeviceIds,
-      ];
 }
 
 @Riverpod(keepAlive: true)
@@ -123,17 +113,8 @@ class DashboardController extends _$DashboardController {
   void _initFirebaseListeners() {
     if (_isTest) return;
 
-    final roomsSub = ref.read(firebaseServiceProvider.notifier).roomsStream.listen((roomsJson) {
+    final roomsSub = ref.read(syncDashboardRoomsUseCaseProvider).watchRooms().listen((firebaseRooms) {
       if (!ref.mounted) return;
-      final firebaseRooms = roomsJson.map((json) {
-        try {
-          return RoomModel.fromJson(json);
-        } catch (e) {
-          if (kDebugMode) print('Error parsing room: $e');
-          return null;
-        }
-      }).whereType<RoomModel>().toList();
-
       final newState = state.copyWith(rooms: firebaseRooms);
       if (state != newState) {
         state = newState;
@@ -142,16 +123,8 @@ class DashboardController extends _$DashboardController {
     });
     ref.onDispose(roomsSub.cancel);
 
-    final devicesSub = ref.read(firebaseServiceProvider.notifier).devicesStream.listen((devicesJson) {
+    final devicesSub = ref.read(syncDashboardDevicesUseCaseProvider).watchDevices().listen((firebaseDevices) {
       if (!ref.mounted) return;
-      final firebaseDevices = devicesJson.map((json) {
-        try {
-          return DeviceModel.fromJson(json).toEntity();
-        } catch (e) {
-          if (kDebugMode) print('Error parsing device: $e');
-          return null;
-        }
-      }).whereType<DeviceEntity>().toList();
       
       // Preserve local IR codes that might not be in the devices stream
       for (int i = 0; i < firebaseDevices.length; i++) {
@@ -181,7 +154,7 @@ class DashboardController extends _$DashboardController {
     final newDevices = List<DeviceEntity>.from(state.devices);
     for (int i = 0; i < newDevices.length; i++) {
       if (newDevices[i] is AcDeviceEntity) {
-        final codes = await ref.read(firebaseServiceProvider.notifier).fetchIrCodes(newDevices[i].id);
+        final codes = await ref.read(syncIrCodesUseCaseProvider).call(newDevices[i].id);
         if (codes.isNotEmpty) {
           DeviceEntity updated = newDevices[i];
           codes.forEach((key, value) {
@@ -215,37 +188,15 @@ class DashboardController extends _$DashboardController {
 
     state = state.copyWith(rooms: loadedRooms, devices: loadedDevices);
 
-    // 2. Fetch from Firebase to update/override local data
+    // 2. Fetch from remote repository to update/override local data
     if (!_isTest) {
-      final firebaseNotifier = ref.read(firebaseServiceProvider.notifier);
-      final firebaseRoomsJson = await firebaseNotifier.fetchRooms();
-      if (!ref.mounted) return;
-      final firebaseDevicesJson = await firebaseNotifier.fetchDevices();
-      if (!ref.mounted) return;
+      final syncRoomsUseCase = ref.read(syncDashboardRoomsUseCaseProvider);
+      final syncDevicesUseCase = ref.read(syncDashboardDevicesUseCaseProvider);
 
-      List<RoomEntity>? firebaseRooms;
-      if (firebaseRoomsJson != null) {
-        firebaseRooms = firebaseRoomsJson.map((json) {
-          try {
-            return RoomModel.fromJson(json);
-          } catch (e) {
-            if (kDebugMode) print('Error parsing room in load: $e');
-            return null;
-          }
-        }).whereType<RoomModel>().toList();
-      }
-
-      List<DeviceEntity>? firebaseDevices;
-      if (firebaseDevicesJson != null) {
-        firebaseDevices = firebaseDevicesJson.map((json) {
-          try {
-            return DeviceModel.fromJson(json).toEntity();
-          } catch (e) {
-            if (kDebugMode) print('Error parsing device in load: $e');
-            return null;
-          }
-        }).whereType<DeviceEntity>().toList();
-      }
+      final firebaseRooms = await syncRoomsUseCase.fetchRooms();
+      if (!ref.mounted) return;
+      final firebaseDevices = await syncDevicesUseCase.fetchDevices();
+      if (!ref.mounted) return;
 
       if (firebaseRooms != null || firebaseDevices != null) {
         if (firebaseDevices != null) {
