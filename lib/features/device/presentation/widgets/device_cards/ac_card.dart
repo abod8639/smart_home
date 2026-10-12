@@ -189,10 +189,10 @@ class AcCard extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-        decoration: const BoxDecoration(
-          color: Color(0xFF0F172A),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A),
           borderRadius: AppRadii.top(AppRadii.xxlValue),
-          border: Border(
+          border: const Border(
             top: BorderSide(color: Colors.white10, width: 1),
           ),
         ),
