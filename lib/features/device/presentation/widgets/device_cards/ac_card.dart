@@ -3,10 +3,10 @@ import 'package:smart_home/core/theme/app_radii.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/utils/formatting_utils.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
+import 'package:smart_home/core/widgets/glass_switch.dart';
 import 'package:smart_home/core/widgets/stat_badge.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/remote/ac_mode_selection_card.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
-import 'package:smart_home/features/device/presentation/widgets/device_cards/glass_switch.dart';
 import 'package:smart_home/features/device/presentation/widgets/device_cards/widgets/ac_visualizer.dart';
 
 /// A control card widget for managing and viewing status of an air conditioner.
