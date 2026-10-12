@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
@@ -72,14 +73,13 @@ class RgbColorPresetsCard extends StatelessWidget {
                           ? Border.all(color: Colors.white, width: 3)
                           : Border.all(color: Colors.transparent, width: 3),
                       boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: color.withValues(alpha: 0.6),
-                                blurRadius: 12,
-                                spreadRadius: 2,
-                              )
-                            ]
-                          : [],
+                          ? AppShadows.glow(
+                              color,
+                              blur: 12,
+                              spread: 2,
+                              alpha: 0.6,
+                            )
+                          : AppShadows.none,
                     ),
                   ),
                 );
