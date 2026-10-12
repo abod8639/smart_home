@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:smart_home/core/services/auth_service.dart';
 import 'package:smart_home/features/dashboard/presentation/widgets/dashboard_main_view.dart';
+import 'package:smart_home/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:smart_home/features/auth/domain/entities/user_entity.dart';
 import 'package:smart_home/features/weather/presentation/controllers/weather_controller.dart';
 import 'package:smart_home/main.dart';
 
@@ -45,6 +47,9 @@ void main() {
             // and keep isWeatherLoading false, avoiding infinite CircularProgressIndicator animations.
             weatherControllerProvider.overrideWith(() => _StubWeatherController()),
 
+            // Override authControllerProvider with a stub to avoid Firebase calls if LoginPage is evaluated
+            authControllerProvider.overrideWith(() => _StubAuthController()),
+
             // Return a pre-authenticated mock user so the router navigates
             // directly to the dashboard without hitting the login page.
             authStateProvider.overrideWith((ref) => Stream.value(mockUser)),
@@ -73,6 +78,26 @@ class _StubAuthService extends AuthService {
   void build() {
     // Intentionally empty — do NOT call GoogleSignIn.instance.initialize().
   }
+}
+
+/// Stub [AuthController] that provides a mock authenticated user without Firebase calls.
+class _StubAuthController extends AuthController {
+  @override
+  AuthState build() {
+    return const AuthState(
+      user: UserEntity(
+        id: 'test_uid',
+        email: 'test@example.com',
+        displayName: 'Test User',
+      ),
+    );
+  }
+
+  @override
+  Future<bool> signInWithGoogle() async => true;
+
+  @override
+  Future<void> signOut() async {}
 }
 
 /// Stub [WeatherController] to prevent network calls and infinite loading spinners in tests.
