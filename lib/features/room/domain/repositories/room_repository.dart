@@ -8,6 +8,9 @@ abstract class RoomRepository {
   /// Adds a new room.
   Future<void> addRoom(RoomEntity room);
 
+  /// Updates an existing room.
+  Future<void> updateRoom(RoomEntity room);
+
   /// Deletes a room by its [id].
   Future<void> deleteRoom(String id);
 
