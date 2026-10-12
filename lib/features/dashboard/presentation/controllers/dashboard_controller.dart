@@ -13,6 +13,7 @@ import 'package:smart_home/features/dashboard/domain/usecases/sync_ir_codes_usec
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/device/domain/entities/ir_code_entity.dart';
 import 'package:smart_home/features/device/data/models/ir_code_model.dart';
+import 'package:smart_home/features/environment/presentation/controllers/environment_controller.dart';
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 import 'package:smart_home/features/room/domain/usecases/get_rooms_usecase.dart';
 import 'package:smart_home/features/room/domain/usecases/save_rooms_usecase.dart';
@@ -26,7 +27,6 @@ import 'package:smart_home/features/dashboard/presentation/widgets/ir_learning_d
 import 'package:smart_home/core/services/firebase_service.dart';
 import 'package:smart_home/core/services/auth_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:smart_home/features/environment/presentation/providers/environment_provider.dart';
 
 part 'dashboard_controller_rooms.dart';
 part 'dashboard_controller_devices.dart';
