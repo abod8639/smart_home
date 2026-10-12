@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
+import 'package:smart_home/core/widgets/stat_badge.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:smart_home/features/settings/presentation/widgets/profile_card.dart';
 import 'package:smart_home/features/settings/presentation/widgets/preferences_card.dart';
@@ -16,9 +17,7 @@ class SettingsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final gap = Responsive.contentGap(context);
-    // final deviceCardHeight =  Responsive.deviceHeightRatio(context);
     final isCompact = Responsive.isMobile(context);
     final padding = Responsive.pagePadding(context);
 
@@ -30,11 +29,9 @@ class SettingsView extends ConsumerWidget {
           _buildHeader(context, isCompact),
           SizedBox(height: gap),
           Expanded(
-            child: 
-            Responsive.isTablet(context) || Responsive.isMobile(context)
+            child: Responsive.isTablet(context) || Responsive.isMobile(context)
                 ? _buildMobileLayout(gap)
-                :
-                 _buildWideLayout(context, gap),
+                : _buildWideLayout(context, gap),
           ),
         ],
       ),
@@ -63,31 +60,16 @@ class SettingsView extends ConsumerWidget {
     final statusBadge = Consumer(builder: (context, ref, _) {
       final isHubReachable = ref.watch(settingsControllerProvider.select((s) => s.isHubReachable));
       final color = isHubReachable ? Colors.greenAccent : Colors.redAccent;
-      
-      return Container(
+
+      return StatBadge(
+        icon: isHubReachable ? Icons.wifi : Icons.wifi_off,
+        value: isHubReachable ? 'Hub Connected' : 'Hub Offline',
+        iconColor: color,
+        valueColor: color,
+        backgroundColor: color.withValues(alpha: 0.1),
+        borderRadius: AppRadii.xl,
+        border: Border.all(color: color.withValues(alpha: 0.2)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: color.withValues(alpha: 0.2),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(isHubReachable ? Icons.wifi : Icons.wifi_off, color: color, size: 16),
-            const SizedBox(width: 8),
-            Text(
-              isHubReachable ? 'Hub Connected' : 'Hub Offline',
-              style: TextStyle(
-                color: color,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
       );
     });
 
@@ -120,8 +102,10 @@ class SettingsView extends ConsumerWidget {
           SizedBox(height: gap),
           const FcmTokenCard(),
           SizedBox(height: gap),
-          SizedBox(height:gap*30, 
-          child: DevicePlacementCard()),
+          SizedBox(
+            height: gap * 30,
+            child: DevicePlacementCard(),
+          ),
           SizedBox(height: gap),
           const HubConfigCard(),
           SizedBox(height: gap),
