@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
+import 'package:smart_home/core/widgets/app_dialog.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'dart:math';
@@ -30,7 +31,7 @@ class _AddDeviceDialogState extends ConsumerState<AddDeviceDialog> {
     if (name.isEmpty) return;
 
     final linkedCount = int.tryParse(_linkedCountController.text) ?? 0;
-    
+
     // Generate a random ID
     final id = '${_selectedType.name}_${Random().nextInt(10000)}';
 
@@ -96,24 +97,19 @@ class _AddDeviceDialogState extends ConsumerState<AddDeviceDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: const Color(0xFF1E293B),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
+    return AppDialog(
+      title: Text(
+        'Add New Device',
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+      ),
+      content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Add New Device',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 24),
-            
             // Device Name
             const Text('Device Name', style: TextStyle(color: AppTheme.textGrey, fontSize: 12)),
             const SizedBox(height: 8),
@@ -125,8 +121,8 @@ class _AddDeviceDialogState extends ConsumerState<AddDeviceDialog> {
                 hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
                 filled: true,
                 fillColor: Colors.black.withValues(alpha: 0.2),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                border: const OutlineInputBorder(
+                  borderRadius: AppRadii.md,
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -140,7 +136,7 @@ class _AddDeviceDialogState extends ConsumerState<AddDeviceDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadii.md,
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<DeviceType>(
@@ -172,36 +168,30 @@ class _AddDeviceDialogState extends ConsumerState<AddDeviceDialog> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.black.withValues(alpha: 0.2),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                border: const OutlineInputBorder(
+                  borderRadius: AppRadii.md,
                   borderSide: BorderSide.none,
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-
-            // Actions
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => context.pop(),
-                  child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
-                ),
-                const SizedBox(width: 12),
-                ElevatedButton(
-                  onPressed: _saveDevice,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text('Save Device', style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
           ],
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => context.pop(),
+          child: const Text('Cancel', style: TextStyle(color: AppTheme.textGrey)),
+        ),
+        const SizedBox(width: 12),
+        ElevatedButton(
+          onPressed: _saveDevice,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppTheme.primaryBlue,
+            shape: const RoundedRectangleBorder(borderRadius: AppRadii.md),
+          ),
+          child: const Text('Save Device', style: TextStyle(color: Colors.white)),
+        ),
+      ],
     );
   }
 }
