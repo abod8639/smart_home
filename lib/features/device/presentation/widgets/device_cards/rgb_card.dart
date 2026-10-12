@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_home/core/theme/app_shadows.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
@@ -90,15 +91,17 @@ class RgbCard extends ConsumerWidget {
                         color: isOn ? currentColor : Colors.white10,
                         boxShadow: isOn
                             ? [
-                                BoxShadow(
-                                  color: currentColor.withValues(alpha: 0.6),
-                                  blurRadius: orbSize * 0.35,
-                                  spreadRadius: orbSize * 0.08,
+                                ...AppShadows.glow(
+                                  currentColor,
+                                  blur: orbSize * 0.35,
+                                  spread: orbSize * 0.08,
+                                  alpha: 0.6,
                                 ),
-                                BoxShadow(
-                                  color: currentColor.withValues(alpha: 0.3),
-                                  blurRadius: orbSize * 0.75,
-                                  spreadRadius: orbSize * 0.15,
+                                ...AppShadows.glow(
+                                  currentColor,
+                                  blur: orbSize * 0.75,
+                                  spread: orbSize * 0.15,
+                                  alpha: 0.3,
                                 ),
                               ]
                             : null,
