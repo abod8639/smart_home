@@ -13,7 +13,7 @@ import 'package:smart_home/features/dashboard/presentation/widgets/pulsing_dot_m
 import 'package:smart_home/features/room/domain/entities/room_entity.dart';
 import 'package:smart_home/features/room/presentation/widgets/card_device_marker.dart';
 import 'package:smart_home/features/room/data/models/room_model.dart';
-import 'package:smart_home/features/environment/presentation/providers/environment_provider.dart';
+import 'package:smart_home/features/environment/presentation/widgets/environment_stats_row.dart';
 
 class RoomPreviewWidget extends ConsumerWidget {
   const RoomPreviewWidget({super.key});
@@ -21,7 +21,6 @@ class RoomPreviewWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(dashboardControllerProvider);
-    final envState = ref.watch(environmentControllerProvider);
     final controller = ref.read(dashboardControllerProvider.notifier);
 
     return Center(
@@ -78,23 +77,10 @@ class RoomPreviewWidget extends ConsumerWidget {
                 // Top Bar
                 Padding(
                   padding: EdgeInsets.all(Responsive.isMobile(context) ? 8.0 : 14.0),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      // Environment Stats
-                      Row(
-                        children: [
-                          _buildStatChip(Icons.water_drop_outlined, envState.humidity, Responsive.isMobile(context)),
-                          SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
-                          _buildStatChip(Icons.air_outlined, envState.airflow, Responsive.isMobile(context)),
-                          SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
-                          _buildStatChip(Icons.thermostat_outlined, envState.temperature, Responsive.isMobile(context)),
-                          SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
-                          _buildStatChip(Icons.wifi_outlined, envState.wifiRssi, Responsive.isMobile(context)),
-                          SizedBox(width: Responsive.isMobile(context) ? 6 : 12),
-                          _buildStatChip(Icons.memory_outlined, envState.heapFree, Responsive.isMobile(context)),
-                        ],
-                      ),
+                      EnvironmentStatsRow(),
                     ],
                   ),
                 ),
@@ -164,28 +150,5 @@ class RoomPreviewWidget extends ConsumerWidget {
       ),
     );
   }
-
-  Widget _buildStatChip(IconData icon, String value, bool isMobile) {
-    return GlassContainer(
-      padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 8 : 16, 
-        vertical: isMobile ? 4 : 8,
-      ),
-      borderRadius: BorderRadius.circular(20),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.white70, size: isMobile ? 12 : 16),
-          SizedBox(width: isMobile ? 4 : 6),
-          Text(
-            value, 
-            style: TextStyle(
-              color: Colors.white, 
-              fontSize: isMobile ? 10 : 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
+
