@@ -112,15 +112,12 @@ class _PulsingDotMarkerState extends State<PulsingDotMarker>
                       color: widget.isSelected ? Colors.amber : accentColor,
                       width: widget.isSelected ? 2.0 : 1.5,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: widget.isSelected
-                            ? Colors.amber.withValues(alpha: 0.6)
-                            : accentColor.withValues(alpha: showGlow ? 0.6 : 0.25),
-                        blurRadius: glow + (widget.isSelected ? 4 : 0),
-                        spreadRadius: widget.isSelected ? 2 : 0,
-                      ),
-                    ],
+                    boxShadow: AppShadows.glow(
+                      widget.isSelected ? Colors.amber : accentColor,
+                      blur: glow + (widget.isSelected ? 4 : 0),
+                      spread: widget.isSelected ? 2 : 0,
+                      alpha: widget.isSelected ? 0.6 : (showGlow ? 0.6 : 0.25),
+                    ),
                   ),
                   child: Center(
                     child: Icon(
