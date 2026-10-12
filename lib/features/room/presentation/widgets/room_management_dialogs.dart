@@ -20,7 +20,7 @@ class RoomManagementDialogs {
           backgroundColor: AppTheme.cardBackground,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadii.xxl,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: Text(
@@ -75,7 +75,7 @@ class RoomManagementDialogs {
           backgroundColor: AppTheme.cardBackground,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadii.xxl,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: const Text(
@@ -121,7 +121,7 @@ class RoomManagementDialogs {
                       height: 140,
                       decoration: BoxDecoration(
                         color: AppTheme.cardBackground.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppRadii.lg,
                         border: Border.all(
                           color: selectedImagePath != null 
                               ? Colors.transparent 
@@ -134,7 +134,7 @@ class RoomManagementDialogs {
                               children: [
                                 Positioned.fill(
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: AppRadii.lg,
                                     child: Image.file(
                                       File(selectedImagePath!),
                                       fit: BoxFit.cover,
@@ -144,7 +144,7 @@ class RoomManagementDialogs {
                                 Positioned.fill(
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: AppRadii.lg,
                                       color: Colors.black.withValues(alpha: 0.1),
                                     ),
                                   ),
@@ -240,7 +240,7 @@ class RoomManagementDialogs {
           backgroundColor: AppTheme.cardBackground,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadii.xxl,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: const Text(
@@ -284,7 +284,7 @@ class RoomManagementDialogs {
                       height: 140,
                       decoration: BoxDecoration(
                         color: AppTheme.cardBackground.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppRadii.lg,
                         border: Border.all(
                           color: selectedImagePath != null 
                               ? Colors.transparent 
@@ -297,7 +297,7 @@ class RoomManagementDialogs {
                               children: [
                                 Positioned.fill(
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: AppRadii.lg,
                                     child: Image.file(
                                       File(selectedImagePath!),
                                       fit: BoxFit.cover,
@@ -307,7 +307,7 @@ class RoomManagementDialogs {
                                 Positioned.fill(
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: AppRadii.lg,
                                       color: Colors.black.withValues(alpha: 0.1),
                                     ),
                                   ),
@@ -396,7 +396,7 @@ class RoomManagementDialogs {
           backgroundColor: AppTheme.cardBackground,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadii.xxl,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: const Text(
@@ -445,8 +445,8 @@ class RoomManagementDialogs {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppTheme.cardBackground,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      shape: RoundedRectangleBorder(
+        borderRadius: AppRadii.top(24),
       ),
       builder: (context) {
         return SafeArea(
@@ -459,7 +459,7 @@ class RoomManagementDialogs {
                 height: 4,
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: AppRadii.all(2),
                 ),
               ),
               const SizedBox(height: 16),
