@@ -4,7 +4,7 @@ import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/core/services/notification_service.dart';
-import 'package:smart_home/features/settings/presentation/widgets/settings_row.dart';
+import 'package:smart_home/core/widgets/settings_row.dart';
 
 class FcmTokenCard extends ConsumerWidget {
   const FcmTokenCard({super.key});

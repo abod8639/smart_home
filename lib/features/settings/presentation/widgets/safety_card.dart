@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/core/widgets/glass_switch.dart';
+import 'package:smart_home/core/widgets/settings_row.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
-import 'package:smart_home/features/settings/presentation/widgets/settings_row.dart';
 
 class SafetyCard extends ConsumerWidget {
   const SafetyCard({super.key});

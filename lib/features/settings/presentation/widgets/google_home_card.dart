@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/widgets/glass_container.dart';
 import 'package:smart_home/core/utils/responsive.dart';
+import 'package:smart_home/core/widgets/settings_row.dart';
 import 'package:smart_home/features/settings/presentation/controllers/settings_controller.dart';
-import 'package:smart_home/features/settings/presentation/widgets/settings_row.dart';
 import 'package:smart_home/features/settings/presentation/widgets/matter_commissioning_dialog.dart';
 
 class GoogleHomeCard extends ConsumerWidget {
