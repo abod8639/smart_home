@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
 
@@ -136,14 +137,13 @@ class RgbPage extends ConsumerWidget {
           shape: BoxShape.circle,
           color: isOn ? Colors.white : Colors.white.withValues(alpha: 0.08),
           boxShadow: isOn
-              ? [
-                  BoxShadow(
-                    color: Colors.white.withValues(alpha: 0.4),
-                    blurRadius: 25,
-                    spreadRadius: 5,
-                  )
-                ]
-              : [],
+              ? AppShadows.glow(
+                  Colors.white,
+                  blur: 25,
+                  spread: 5,
+                  alpha: 0.4,
+                )
+              : AppShadows.none,
         ),
         child: Center(
           child: Icon(
