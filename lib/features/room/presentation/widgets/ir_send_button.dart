@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 
 /// An animated button used to send an IR command to a device.
@@ -31,7 +32,7 @@ class IrSendButton extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: padding),
         decoration: BoxDecoration(
           color: Colors.green.withValues(alpha: isSending ? 0.05 : 0.12),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: AppRadii.all(10),
           border: Border.all(
             color: Colors.greenAccent.withValues(alpha: isSending ? 0.2 : 0.4),
           ),
