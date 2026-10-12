@@ -118,19 +118,18 @@ class RoomsListWidget extends ConsumerWidget {
                 )
               : null,
           color: isActive ? null : AppTheme.cardBackground.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadii.xl,
           border: Border.all(
             color: isActive ? Colors.transparent : Colors.white.withValues(alpha: 0.05),
           ),
           boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryPurple.withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  )
-                ]
-              : null,
+              ? AppShadows.glow(
+                  AppTheme.primaryPurple,
+                  blur: 12,
+                  alpha: 0.3,
+                  offset: const Offset(0, 4),
+                )
+              : AppShadows.none,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,7 +200,7 @@ class RoomsListWidget extends ConsumerWidget {
       height: cardHeight,
       decoration: BoxDecoration(
         color: AppTheme.cardBackground.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadii.xl,
         border: Border.all(
           color: AppTheme.primaryBlue.withValues(alpha: 0.2),
           style: BorderStyle.solid,
@@ -257,19 +256,18 @@ class RoomsListWidget extends ConsumerWidget {
                 )
               : null,
           color: isActive ? null : AppTheme.cardBackground.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: AppRadii.xxl,
           border: Border.all(
             color: isActive ? Colors.transparent : Colors.white.withValues(alpha: 0.05),
           ),
           boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryPurple.withValues(alpha: 0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  )
-                ]
-              : null,
+              ? AppShadows.glow(
+                  AppTheme.primaryPurple,
+                  blur: 15,
+                  alpha: 0.3,
+                  offset: const Offset(0, 5),
+                )
+              : AppShadows.none,
         ),
         child: Row(
           children: [
