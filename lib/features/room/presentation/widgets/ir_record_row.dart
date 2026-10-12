@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_home/core/theme/app_theme.dart';
 import 'package:smart_home/core/utils/responsive.dart';
 import 'package:smart_home/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:smart_home/features/device/domain/entities/device_entity.dart';
@@ -54,7 +55,7 @@ class IrRecordRow extends ConsumerWidget {
     return Container(
       padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppRadii.all(14),
         border: Border.all(
           color: hasCode
               ? Colors.blueAccent.withValues(alpha: 0.2)
@@ -74,7 +75,7 @@ class IrRecordRow extends ConsumerWidget {
                   color: hasCode
                       ? Colors.green.withValues(alpha: 0.05)
                       : Colors.white.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadii.sm,
                 ),
                 child: Icon(
                   hasCode ? Icons.check_rounded : Icons.radio_button_unchecked,
@@ -154,8 +155,7 @@ class IrRecordRow extends ConsumerWidget {
                         size: isMobile ? 14 : 16, color: Colors.redAccent),
                     style: IconButton.styleFrom(
                       side: const BorderSide(color: Colors.redAccent, width: 0.8),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                      shape: AppRadii.shapeSm,
                     ),
                     tooltip: 'Delete',
                     onPressed: () => dashboardController.clearIrCode(
