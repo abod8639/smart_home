@@ -1,3 +1,5 @@
+import '../../features/room/domain/entities/room_entity.dart';
+
 class FormattingUtils {
   /// Format time to: h:mm AM/PM (e.g. 12:30 PM)
   static String formatTime(DateTime time) {
@@ -70,4 +72,65 @@ class FormattingUtils {
         return 'https://raw.githubusercontent.com/abod8639/media/main/smart_home/living_room.png';
     }
   }
+
+  /// Default mock rooms matching the supported room types and their background images.
+  static List<RoomEntity> get mockRooms => [
+        RoomEntity(
+          id: '1',
+          name: 'Bedroom',
+          deviceCount: 3,
+          imagePath: getRoomBackgroundImage('bedroom'),
+        ),
+        RoomEntity(
+          id: '2',
+          name: 'Kitchen',
+          deviceCount: 2,
+          imagePath: getRoomBackgroundImage('kitchen'),
+        ),
+        RoomEntity(
+          id: '3',
+          name: 'Living room',
+          deviceCount: 5,
+          isActive: true,
+          imagePath: getRoomBackgroundImage('living room'),
+        ),
+        RoomEntity(
+          id: '4',
+          name: 'Bathroom',
+          deviceCount: 3,
+          imagePath: getRoomBackgroundImage('bathroom'),
+        ),
+      ];
+
+  /// Raw mock rooms data map for serialization and initial seeding.
+  static List<Map<String, dynamic>> get mockRoomsData => [
+        {
+          'id': '1',
+          'name': 'Bedroom',
+          'deviceCount': 3,
+          'isActive': false,
+          'imagePath': getRoomBackgroundImage('bedroom'),
+        },
+        {
+          'id': '2',
+          'name': 'Kitchen',
+          'deviceCount': 2,
+          'isActive': false,
+          'imagePath': getRoomBackgroundImage('kitchen'),
+        },
+        {
+          'id': '3',
+          'name': 'Living room',
+          'deviceCount': 5,
+          'isActive': true,
+          'imagePath': getRoomBackgroundImage('living room'),
+        },
+        {
+          'id': '4',
+          'name': 'Bathroom',
+          'deviceCount': 3,
+          'isActive': false,
+          'imagePath': getRoomBackgroundImage('bathroom'),
+        },
+      ];
 }
