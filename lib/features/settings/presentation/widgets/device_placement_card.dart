@@ -1,5 +1,4 @@
-import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:smart_home/core/widgets/app_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -53,14 +52,15 @@ class DevicePlacementCard extends ConsumerWidget {
                   Positioned.fill(
                     child: Consumer(builder: (context, ref, _) {
                       final room = controller.activeRoom;
-                      if (room != null && room.imagePath != null && room.imagePath!.isNotEmpty) {
-                        final file = File(room.imagePath!);
-                        if (file.existsSync()) {
-                          return Image.file(file, fit: BoxFit.cover);
-                        }
-                      }
-                      final bgImage = FormattingUtils.getRoomBackgroundImage(room?.name);
-                      return CachedNetworkImage(imageUrl: bgImage, fit: BoxFit.cover);
+                      final defaultBg = FormattingUtils.getRoomBackgroundImage(room?.name);
+                      final imagePath = (room?.imagePath != null && room!.imagePath!.isNotEmpty)
+                          ? room.imagePath!
+                          : defaultBg;
+                      return AppImage(
+                        imagePath: imagePath,
+                        fit: BoxFit.cover,
+                        errorWidget: AppNetworkImage(imageUrl: defaultBg, fit: BoxFit.cover),
+                      );
                     }),
                   ),
 
