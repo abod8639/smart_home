@@ -48,8 +48,112 @@ class AppNetworkImage extends StatelessWidget {
 
 ImageProvider getAppImageProvider(String url) {
   final isTest = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
-  if (isTest) {
+  if (isTest || (kIsWeb && url.startsWith('blob:'))) {
     return NetworkImage(url);
   }
   return CachedNetworkImageProvider(url);
+}
+
+/// A universal, cross-platform image component that gracefully handles:
+/// - Remote URLs (http/https via [CachedNetworkImage])
+/// - Web Blob URLs (blob: via [Image.network])
+/// - Local File system paths on mobile/desktop (via [Image.file])
+/// - Asset paths (assets/ via [Image.asset])
+class AppImage extends StatelessWidget {
+  final String imagePath;
+  final double? height;
+  final double? width;
+  final BoxFit fit;
+  final Widget? placeholder;
+  final Widget? errorWidget;
+
+  const AppImage({
+    super.key,
+    required this.imagePath,
+    this.height,
+    this.width,
+    this.fit = BoxFit.cover,
+    this.placeholder,
+    this.errorWidget,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (imagePath.isEmpty) {
+      return _buildFallback(context);
+    }
+
+    // 1. Web Blob URL
+    if (imagePath.startsWith('blob:')) {
+      return Image.network(
+        imagePath,
+        height: height,
+        width: width,
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) => _buildFallback(context),
+      );
+    }
+
+    // 2. HTTP/HTTPS Network URL
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return AppNetworkImage(
+        imageUrl: imagePath,
+        height: height,
+        width: width,
+        fit: fit,
+        placeholder: placeholder != null ? (_, __) => placeholder! : null,
+        errorWidget: errorWidget != null ? (_, __, ___) => errorWidget! : null,
+      );
+    }
+
+    // 3. Local Flutter Asset
+    if (imagePath.startsWith('assets/')) {
+      return Image.asset(
+        imagePath,
+        height: height,
+        width: width,
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) => _buildFallback(context),
+      );
+    }
+
+    // 4. Flutter Web: local File is unsupported, fallback to Image.network
+    if (kIsWeb) {
+      return Image.network(
+        imagePath,
+        height: height,
+        width: width,
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) => _buildFallback(context),
+      );
+    }
+
+    // 5. Mobile & Desktop local File
+    try {
+      final file = File(imagePath);
+      if (file.existsSync()) {
+        return Image.file(
+          file,
+          height: height,
+          width: width,
+          fit: fit,
+          errorBuilder: (context, error, stackTrace) => _buildFallback(context),
+        );
+      }
+    } catch (_) {
+      // Fallback if File constructor or existsSync throws
+    }
+
+    return _buildFallback(context);
+  }
+
+  Widget _buildFallback(BuildContext context) {
+    if (errorWidget != null) return errorWidget!;
+    return Container(
+      height: height,
+      width: width,
+      color: Colors.white.withValues(alpha: 0.05),
+      child: const Icon(Icons.broken_image_outlined, color: Colors.white54),
+    );
+  }
 }
