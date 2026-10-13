@@ -26,6 +26,7 @@ import 'package:smart_home/features/settings/presentation/controllers/settings_c
 import 'package:smart_home/features/dashboard/presentation/widgets/ir_learning_dialog.dart';
 import 'package:smart_home/core/services/firebase_service.dart';
 import 'package:smart_home/core/services/auth_service.dart';
+import 'package:smart_home/core/utils/formatting_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'dashboard_controller_rooms.dart';
@@ -84,12 +85,7 @@ class DashboardController extends _$DashboardController {
     });
 
     if (_isTest) {
-      final rooms = [
-        const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 3),
-        const RoomEntity(id: '2', name: 'Kitchen', deviceCount: 2),
-        const RoomEntity(id: '3', name: 'Living room', deviceCount: 5, isActive: true),
-        const RoomEntity(id: '4', name: 'Bathroom', deviceCount: 3),
-      ];
+      final rooms = FormattingUtils.mockRooms;
       final devices = _getMockDevices();
       return DashboardState(
         rooms: rooms,
@@ -186,7 +182,30 @@ class DashboardController extends _$DashboardController {
     final loadedDevices = await getDevicesUseCase.call();
     if (!ref.mounted) return;
 
-    state = state.copyWith(rooms: loadedRooms, devices: loadedDevices);
+    List<RoomEntity> roomsToUse = loadedRooms;
+    bool roomsNeedSeeding = false;
+    if (loadedRooms.isEmpty) {
+      roomsNeedSeeding = true;
+      roomsToUse = FormattingUtils.mockRooms;
+    }
+
+    List<DeviceEntity> devicesToUse = loadedDevices;
+    bool devicesNeedSeeding = false;
+    if (loadedDevices.isEmpty) {
+      devicesNeedSeeding = true;
+      devicesToUse = _getMockDevices();
+    }
+
+    state = state.copyWith(rooms: roomsToUse, devices: devicesToUse);
+
+    if (roomsNeedSeeding) {
+      await ref.read(saveRoomsUseCaseProvider).call(roomsToUse);
+      if (!ref.mounted) return;
+    }
+    if (devicesNeedSeeding) {
+      await ref.read(saveDevicesUseCaseProvider).call(devicesToUse);
+      if (!ref.mounted) return;
+    }
 
     // 2. Fetch from remote repository to update/override local data
     if (!_isTest) {
@@ -198,12 +217,13 @@ class DashboardController extends _$DashboardController {
       final firebaseDevices = await syncDevicesUseCase.fetchDevices();
       if (!ref.mounted) return;
 
-      if (firebaseRooms != null || firebaseDevices != null) {
-        if (firebaseDevices != null) {
+      if ((firebaseRooms != null && firebaseRooms.isNotEmpty) ||
+          (firebaseDevices != null && firebaseDevices.isNotEmpty)) {
+        if (firebaseDevices != null && firebaseDevices.isNotEmpty) {
           for (int i = 0; i < firebaseDevices.length; i++) {
             final fDev = firebaseDevices[i];
             if (fDev is AcDeviceEntity) {
-              final existing = loadedDevices.firstWhere(
+              final existing = devicesToUse.firstWhere(
                 (d) => d.id == fDev.id,
                 orElse: () => fDev,
               );
@@ -215,14 +235,14 @@ class DashboardController extends _$DashboardController {
         }
 
         state = state.copyWith(
-          rooms: firebaseRooms ?? state.rooms,
-          devices: firebaseDevices ?? state.devices,
+          rooms: (firebaseRooms != null && firebaseRooms.isNotEmpty) ? firebaseRooms : state.rooms,
+          devices: (firebaseDevices != null && firebaseDevices.isNotEmpty) ? firebaseDevices : state.devices,
         );
-        if (firebaseRooms != null) {
+        if (firebaseRooms != null && firebaseRooms.isNotEmpty) {
           await ref.read(saveRoomsUseCaseProvider).call(firebaseRooms);
           if (!ref.mounted) return;
         }
-        if (firebaseDevices != null) {
+        if (firebaseDevices != null && firebaseDevices.isNotEmpty) {
           await ref.read(saveDevicesUseCaseProvider).call(firebaseDevices);
           if (!ref.mounted) return;
         }
@@ -230,42 +250,9 @@ class DashboardController extends _$DashboardController {
         // After loading base devices, fetch missing IR codes from Firebase
         _syncIrCodesFromFirebase();
       } else {
-        // Both local database and Firebase are empty, so seed with default mock data
-        if (state.rooms.isEmpty && state.devices.isEmpty) {
-          final seedRooms = [
-            const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 3),
-            const RoomEntity(id: '2', name: 'Kitchen', deviceCount: 2),
-            const RoomEntity(id: '3', name: 'Living room', deviceCount: 5, isActive: true),
-            const RoomEntity(id: '4', name: 'Bathroom', deviceCount: 3),
-          ];
-          final seedDevices = _getMockDevices();
-          state = state.copyWith(rooms: seedRooms, devices: seedDevices);
-
-          await ref.read(saveRoomsUseCaseProvider).call(seedRooms);
-          if (!ref.mounted) return;
-          await ref.read(saveDevicesUseCaseProvider).call(seedDevices);
-          if (!ref.mounted) return;
-
-          _syncRoomsToFirebase();
-          _syncDevicesToFirebase();
-        } else {
-          // Firebase is empty but local database has data.
-          // Sync local data to Firebase so the streams don't wipe it out.
-          _syncRoomsToFirebase();
-          _syncDevicesToFirebase();
-        }
-      }
-    } else {
-      // For testing, if empty, seed with mock data
-      if (loadedRooms.isEmpty && loadedDevices.isEmpty) {
-        final seedRooms = [
-          const RoomEntity(id: '1', name: 'Bedroom', deviceCount: 3),
-          const RoomEntity(id: '2', name: 'Kitchen', deviceCount: 2),
-          const RoomEntity(id: '3', name: 'Living room', deviceCount: 5, isActive: true),
-          const RoomEntity(id: '4', name: 'Bathroom', deviceCount: 3),
-        ];
-        final seedDevices = _getMockDevices();
-        state = state.copyWith(rooms: seedRooms, devices: seedDevices);
+        // Firebase is empty, sync seeded local data to Firebase
+        _syncRoomsToFirebase();
+        _syncDevicesToFirebase();
       }
     }
   }
