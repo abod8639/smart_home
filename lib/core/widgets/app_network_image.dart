@@ -101,8 +101,8 @@ class AppImage extends StatelessWidget {
         height: height,
         width: width,
         fit: fit,
-        placeholder: placeholder != null ? (_, __) => placeholder! : null,
-        errorWidget: errorWidget != null ? (_, __, ___) => errorWidget! : null,
+        placeholder: placeholder != null ? (_, _) => placeholder! : null,
+        errorWidget: errorWidget != null ? (_, _, _) => errorWidget! : null,
       );
     }
 
