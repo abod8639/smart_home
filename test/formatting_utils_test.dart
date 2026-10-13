@@ -305,5 +305,26 @@ void main() {
         }
       });
     });
+
+    // ── mockRooms & mockRoomsData ─────────────────────────────────────────────
+    group('mockRooms and mockRoomsData', () {
+      test('mockRooms returns 4 predefined rooms matching formatting utility images', () {
+        final rooms = FormattingUtils.mockRooms;
+        expect(rooms.length, 4);
+        expect(rooms.map((r) => r.name), containsAll(['Bedroom', 'Kitchen', 'Living room', 'Bathroom']));
+        
+        for (final room in rooms) {
+          expect(room.imagePath, isNotNull);
+          expect(room.imagePath, startsWith('https://raw.githubusercontent.com/'));
+        }
+      });
+
+      test('mockRoomsData returns 4 maps matching mock room structures', () {
+        final data = FormattingUtils.mockRoomsData;
+        expect(data.length, 4);
+        expect(data.first['name'], 'Bedroom');
+        expect(data.first['imagePath'], contains('bedroom.png'));
+      });
+    });
   });
 }
