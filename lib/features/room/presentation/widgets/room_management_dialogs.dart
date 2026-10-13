@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:smart_home/core/widgets/app_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -135,8 +135,8 @@ class RoomManagementDialogs {
                                 Positioned.fill(
                                   child: ClipRRect(
                                     borderRadius: AppRadii.lg,
-                                    child: Image.file(
-                                      File(selectedImagePath!),
+                                    child: AppImage(
+                                      imagePath: selectedImagePath!,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -298,8 +298,8 @@ class RoomManagementDialogs {
                                 Positioned.fill(
                                   child: ClipRRect(
                                     borderRadius: AppRadii.lg,
-                                    child: Image.file(
-                                      File(selectedImagePath!),
+                                    child: AppImage(
+                                      imagePath: selectedImagePath!,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
