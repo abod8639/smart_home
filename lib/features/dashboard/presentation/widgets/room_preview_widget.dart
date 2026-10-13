@@ -37,11 +37,17 @@ class RoomPreviewWidget extends ConsumerWidget {
             ),
           );
           final ImageProvider imageProvider;
-          if (activeRoom.imagePath != null &&
-              activeRoom.imagePath!.isNotEmpty &&
-              !kIsWeb &&
-              File(activeRoom.imagePath!).existsSync()) {
-            imageProvider = FileImage(File(activeRoom.imagePath!));
+          final roomImagePath = activeRoom.imagePath;
+          if (roomImagePath != null && roomImagePath.isNotEmpty) {
+            if (roomImagePath.startsWith('http://') ||
+                roomImagePath.startsWith('https://') ||
+                roomImagePath.startsWith('blob:')) {
+              imageProvider = getAppImageProvider(roomImagePath);
+            } else if (!kIsWeb && File(roomImagePath).existsSync()) {
+              imageProvider = FileImage(File(roomImagePath));
+            } else {
+              imageProvider = getAppImageProvider(FormattingUtils.getRoomBackgroundImage(activeRoom.name));
+            }
           } else {
             imageProvider = getAppImageProvider(FormattingUtils.getRoomBackgroundImage(activeRoom.name));
           }
